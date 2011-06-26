@@ -1,0 +1,1 @@
+ant -Dversion=0 -Dsubversion=8 -Dsubsubversion=2 -DJAVACC_HOME=$JAVACC_HOME -buildfile release.xml

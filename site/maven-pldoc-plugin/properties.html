@@ -1,0 +1,62 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html><head><title>Maven PLDoc Plugin Properties - Maven PLDoc Plugin</title><style type="text/css" media="all">
+          @import url("./style/maven-base.css");
+          
+          @import url("./style/maven-theme.css");</style><link rel="stylesheet" href="./style/print.css" type="text/css" media="print"></link><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"></meta></head><body class="composite"><div id="banner"><a href="http://sourceforge.net/" id="organizationLogo"><img alt="SourceForge" src="http://sourceforge.net/sflogo.php?group_id=38875&amp;type=5"></img></a><a href="http://pldoc.sourceforge.net/maven-pldoc-plugin" id="projectLogo"><span>Maven PLDoc Plugin</span></a><div class="clear"><hr></hr></div></div><div id="breadcrumbs"><div class="xleft">Last published: 11 January 2006
+                <span class="separator">|</span> Doc for  1.0.0
+                </div><div class="xright">
+        
+        <a href="http://maven.apache.org/" class="externalLink" title="External Link">Maven</a>
+      </div><div class="clear"><hr></hr></div></div><div id="leftColumn"><div id="navcolumn"><div id="menuOverview"><h5>Overview</h5><ul><li class="none"><a href="goals.html">Goals</a></li><li class="none"><strong><a href="properties.html">Properties</a></strong></li><li class="none"><a href="http://pldoc.sourceforge.net/" class="externalLink" title="External Link">PLDoc</a></li></ul></div><div id="menuProject_Documentation"><h5>Project Documentation</h5><ul><li class="none"><a href="index.html">About</a></li><li class="none"><a href="downloads.html">Downloads</a></li><li class="collapsed"><a href="project-info.html">Project Info</a></li><li class="collapsed"><a href="maven-reports.html">Project Reports</a></li><li class="none"><a href="http://maven.apache.org/development-process.html" class="externalLink" title="External Link">Development Process</a></li></ul></div><div id="legend"><h5>Legend</h5><ul><li class="externalLink">External Link</li><li class="newWindow">Opens in a new window</li></ul></div><a href="http://maven.apache.org/" title="Built by Maven" id="poweredBy"><img alt="Built by Maven" src="./images/logos/maven-button-1.png"></img></a></div></div><div id="bodyColumn"><div class="contentBox"><div class="section"><a name="Maven_PLDoc_Plugin_Settings"></a><h2>Maven PLDoc Plugin Settings</h2>
+      <table class="bodyTable">
+        <tr class="b">
+          <th>Property</th>
+          <th>Optional?</th>
+          <th>Description</th>
+        </tr>
+        <tr class="a">
+          <td>maven.pldoc.application.title</td>
+          <td>Yes</td>
+          <td>Name of the application, appears in the generated documentation. Default value is ${pom.name}</td>
+        </tr>
+        <tr class="b">
+          <td>maven.pldoc.src.dir</td>
+          <td>Yes</td>
+          <td>The location of the PL/SQL source code. Default value is ${basedir}/src/main/sql</td>
+        </tr>
+        <tr class="a">
+          <td>maven.pldoc.build.dir</td>
+          <td>Yes</td>
+          <td>The location of the generated documentation (HTML files). Default value is ${maven.docs.dest}/pldoc</td>
+        </tr>
+        <tr class="b">
+          <td>maven.pldoc.includes</td>
+          <td>Yes</td>
+          <td>Specifies a list of patterns to include in the documentation generation process. Default value is **/*.sql</td>
+        </tr>
+        <tr class="a">
+          <td>maven.pldoc.inputencoding</td>
+          <td>Yes</td>
+          <td>The encoding used in the input files. Default value is the operating system default encoding.</td>
+        </tr>
+        <tr class="b">
+          <td>maven.pldoc.overviewfile</td>
+          <td>Yes</td>
+          <td>The overview file in HTML format.</td>
+        </tr>
+        <tr class="a">
+          <td>maven.pldoc.stylesheet</td>
+          <td>Yes</td>
+          <td>File with CSS-stylesheet for the result documentation. If omitted, default CSS will be used.</td>
+        </tr>
+        <tr class="b">
+          <td>maven.pldoc.namescase</td>
+          <td>Yes</td>
+          <td>Upper/lower case to format PL/SQL names (upper | lower). If omitted, no case conversion is done.</td>
+        </tr>
+        <tr class="a">
+          <td>maven.pldoc.exitonerror</td>
+          <td>Yes</td>
+          <td>"yes" forces program exit when some input file cannot be processed. If "no" (the default), the file is skipped and processing continues.</td>
+        </tr>
+      </table>
+    </div></div></div><div class="clear"><hr></hr></div><div id="footer"><div class="xright">© 2006, SourceForge</div><div class="clear"><hr></hr></div></div></body></html>

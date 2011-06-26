@@ -1,0 +1,77 @@
+<?xml version = '1.0'?>
+<!-- $Header: /cvsroot/pldoc/release/release.xml,v 1.5 2006/01/22 12:42:42 altumano Exp $ -->
+
+<project name="pldoc" default="dist" basedir=".">
+
+  <description>
+    Creates new PLDoc release
+  </description>
+
+  <!-- set the correct value on the command line, if needed -->
+  <property name="JAVACC_HOME" location="e:/programs/JavaCC"/>
+  <fail message="Set JAVACC_HOME to the directory where Java CC is installed.">
+    <condition>
+      <not><available file="${JAVACC_HOME}" /> </not>
+    </condition>
+  </fail>
+
+  <property name="cvsroot" value=":ext:altumano@cvs.sourceforge.net:/cvsroot/pldoc"/>
+  <property name="version" value="0" />
+  <property name="subversion" value="0" />
+  <property name="subsubversion" value="0" />
+
+  <!-- set global properties for this build -->
+  <property name="releasetag" value="release${version}${subversion}${subsubversion}"/>
+  <property name="distname" value="pldoc-${version}.${subversion}.${subsubversion}"/>
+  <property name="cvsmodule" value="sources"/>
+  <property name="dist"  location="${releasetag}"/>
+
+  <target name="init" description="Clean up and prepare">
+    <!-- Create the time stamp -->
+    <tstamp/>
+    <!-- Clean up -->
+    <delete dir="${dist}"/>
+    <!-- Create the build directory structure used by compile -->
+    <mkdir dir="${dist}"/>
+  </target>
+
+  <target name="get" depends="init" description="Get source">
+    <cvs command="export" cvsRoot="${cvsroot}"
+       package="${cvsmodule}"
+       tag="${releasetag}"
+       dest="${dist}"
+       failonerror="true"
+    />
+    <!-- Remove files that are not to be distributed -->
+    <delete file="${dist}/${cvsmodule}/ToDo.txt" verbose="true" />
+  </target>
+
+  <target name="make" depends="get" description="Compiles the source">
+    <ant dir="${dist}/${cvsmodule}/build"/>
+  </target>
+
+  <target name="package" depends="make" description="Packages the distribution">
+    <zip destfile="${dist}/${distname}.zip"
+       basedir="${dist}/${cvsmodule}" />
+    <delete includeEmptyDirs="true" >
+      <fileset dir="${dist}/${cvsmodule}" />
+    </delete>
+  </target>
+
+  <target name="dist" depends="package" description="The main target">
+  </target>
+
+</project>
+
+<!--
+
+* test pldoc.bat, test_all.bat
+* delete {generated sample dirs}
+* compare directory with the previous release
+
+* ftp upload.sf.net, incoming
+* register release "N.N"
+* download and test
+* add news
+* send mailing list comments
+-->

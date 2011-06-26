@@ -1,0 +1,70 @@
+<?xml version = '1.0'?>
+<!-- $Header: /cvsroot/pldoc/release/release_nightly.xml,v 1.4 2003/11/15 19:19:55 altumano Exp $ -->
+
+<project name="pldoc" default="dist" basedir=".">
+
+  <description>
+    Creates new PLDoc release
+  </description>
+
+  <!-- set the correct value on the command line, if needed -->
+  <property name="JAVACC_HOME" location=""/>
+  <property name="cvsroot" value=""/>
+
+  <property name="dist" location="nightlybuilddist"/>
+  <property name="cvsmodule" value="sources"/>
+
+  <target name="init" description="Clean up and prepare">
+    <!-- Create the time stamp -->
+    <tstamp/>
+    <!-- Clean up -->
+    <delete dir="${dist}"/>
+    <!-- Create the build directory structure used by compile -->
+    <mkdir dir="${dist}"/>
+    <!-- set global properties for this build -->
+    <property name="distname" value="pldoc-${DSTAMP}${TSTAMP}"/>
+  </target>
+
+  <target name="get" depends="init" description="Get source">
+    <cvs command="export" cvsRoot="${cvsroot}"
+       package="${cvsmodule}"
+       tag="HEAD"
+       dest="${dist}"
+       failonerror="true"
+    />
+    <!-- Remove files that are not to be distributed -->
+    <delete file="${dist}/${cvsmodule}/ToDo.txt" verbose="true" />
+  </target>
+
+  <target name="make" depends="get" description="Compiles the source">
+    <ant dir="${dist}/${cvsmodule}/build"/>
+  </target>
+
+  <target name="package" depends="make" description="Packages the distribution">
+    <zip destfile="${dist}/${distname}.zip"
+       basedir="${dist}/${cvsmodule}" />
+    <delete includeEmptyDirs="true" >
+      <fileset dir="${dist}/${cvsmodule}" />
+    </delete>
+  </target>
+
+  <target name="dist" depends="package" description="The main target">
+    <exec executable="scp">
+      <arg line="${dist}/${distname}.zip altumano@pldoc.sourceforge.net:htdocs/nightlybuild/" />
+    </exec>
+  </target>
+
+</project>
+
+<!--
+
+* test pldoc.bat, test_all.bat
+* delete {generated sample dirs}
+* compare directory with the previous release
+
+* ftp upload.sf.net, incoming
+* register release "N.N"
+* download and test
+* add news
+* send mailing list comments
+-->

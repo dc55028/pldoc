@@ -1,0 +1,5 @@
+export CVS_RSH=ssh
+export PATH=$PATH:/home/users/a/al/altumano/apache-ant-1.5.2/bin
+export JAVA_HOME=/home/users/a/al/altumano/jdk1.3.1_09
+export ANT_ARGS=-DJAVAC_BOOTCLASSPATH=/home/users/a/al/altumano/jdk1.2.2/jre/lib/rt.jar
+ant -DJAVACC_HOME=/home/users/a/al/altumano/javacc-3.0 -Dcvsroot=:ext:altumano@cvs.sourceforge.net:/cvsroot/pldoc -buildfile release_nightly.xml -logger org.apache.tools.ant.listener.MailLogger -DMailLogger.from=altumano@cf.sourceforge.net -DMailLogger.failure.to=altumano@cf.sourceforge.net -DMailLogger.success.notify=false

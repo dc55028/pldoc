@@ -1,0 +1,1 @@
+ssh altumano@pldoc.sourceforge.net mail altumano@users.sourceforge.net -s \'pldoc build successful\' < ~/release/build.log

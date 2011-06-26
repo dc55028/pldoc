@@ -1,0 +1,26 @@
+---------------------------------
+How to create a new pldoc release
+---------------------------------
+
+* commit all changes
+* review changes.txt and commit
+* tag module as "releaseNN"
+  cvs rtag release... sources
+
+* Edit version number in release_ant
+* Run release_ant
+
+* test pldoc_example.bat (must show version number)
+* test make.bat
+* test_all.bat
+* compare with the previous release
+
+* cd e:\albie\pldoc\release\release...
+  ftp -A upload.sf.net
+  binary
+  cd incoming
+  put pldoc-...
+* register release "X.Y.Z"
+* download and test
+* send mailing list comments
+* publish new docs on the website

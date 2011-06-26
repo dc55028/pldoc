@@ -1,0 +1,157 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+                                                                        
+                                       
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+                                            
+  <meta name="Author" content="Albert Tumanov">
+                                           
+  <meta name="KeyWords"
+ content="PL/SQL, pldoc, javadoc, documentation, generating">
+                                            
+  <meta name="Description"
+ content="pldoc: Utility for generating PL/SQL code documentation">
+  <title>pldoc: Utility for generating PL/SQL code documentation</title>
+                                                                        
+                
+  <meta name="author" content="Albert Tumanov">
+                                            
+  <meta name="description"
+ content="pldoc: Utility for generating PL/SQL code documentation">
+</head>
+<body>
+
+<!-- Online demo FFII -->
+<a href="http://demo.ffii.org/">
+<img src="http://demo.ffii.org/banner.php?i=1" border="0" alt="NO to software patents - come to brussels on 14 april" height="60" width="468" />
+</a>
+
+<h1 style="text-align: center;">pldoc: Utility for generating PL/SQL code
+documentation</h1>
+<small><small>Last updated: $Date: 2006/01/20 18:46:18 $</small></small><br>
+
+<h2>What is pldoc</h2>
+
+pldoc is an open-source utility for generating HTML documentation of code
+written in Oracle PL/SQL.<br>
+The goal is to provide a tool analogous to <a
+ href="http://java.sun.com/j2se/javadoc/index.html">javadoc</a> for Java.<br>
+To get quick idea what the tool does, look at the following example.<br>
+
+<h2>Example</h2>
+
+Suppose you have PL/SQL code:<br>
+<br>
+<pre style="margin-left: 40px;"><a href="samples/sample1.sql">sample1.sql</a><br><a
+ href="samples/sample2.sql">sample2.sql</a><br><a
+ href="samples/sample3.sql">sample3.sql</a></pre>
+<br>
+
+And maybe a short description file:<br>
+<br>
+<div style="margin-left: 40px;">
+<pre><a href="samples/overview.html">overview.html</a></pre>
+</div>
+<br>
+
+You then run pldoc using command like this:<br>
+<br>
+<pre style="margin-left: 40px;">$ pldoc -d sampleOutput -doctitle TheBigApp -overview overview.html sample*.sql<br><br>pldoc version: 0.6.8<br>Parsing file sample1.sql ...<br>Parsing file sample2.sql ...<br>Parsing file sample3.sql ...<br>Generating HTML files ...<br>Generating summary.html ...<br>Generating allpackages.html ...<br>Generating index.html ...<br>Generating &lt;unit&gt;.html ...<br>Done (6.366 seconds).<br></pre>
+<br>
+This HTML will be created in the directory you specified (sampleOutput):<br>
+<br>
+<div style="margin-left: 40px;"><a href="sampleOutput/index.html"><img
+ src="result.png" alt="Resulting HTML"
+ style="width: 338px; height: 292px;"></a><br>
+</div>
+<br>
+<br>
+<h2>Notes</h2>
+<p>  </p>
+<ul>
+  <li>                                                                  
+                                                                         
+        
+    <p>Although pldoc can process code without any comments and can handle
+some usual /**/ and -- comments, you will get the best result if you use
+formal comments (/** ...*/) in your PL/SQL code.</p>
+  </li>
+</ul>
+<p>  </p>
+<ul>
+  <li>                                                                  
+                                                                         
+        
+    <p>pldoc follows javadoc conventions for writing comments etc as close
+as possible, as those conventions has become de-facto standard for many other
+similar tools (and no other standards actually exist).</p>
+  </li>
+</ul>
+<p>  </p>
+<ul>
+  <li>                                                                  
+                                                                         
+        
+    <p>pldoc is written entirely in java and is platform-independent.</p>
+  </li>
+</ul>
+<p>  </p>
+<ul>
+  <li>                                                                  
+                                                                         
+        
+    <p>Presently, pldoc has only command line interface, no GUI.</p>
+  </li>
+</ul>
+<p>  </p>
+<ul>
+  <li>                                                                  
+                                                                         
+        
+    <p>The software is still beta, although many people (including the author)
+are successfully using it in real projects.</p>
+  </li>
+</ul>
+<p><big><br>
+</big></p>
+
+<h2>Downloads and more info</h2>
+
+<p>More documentation can be found <b><a href="docs/index.html">here</a></b>
+(related to the latest nightly build of pldoc).
+</p>
+
+<p>For downloads and detailed info, please
+proceed to the <b><a href="http://sourceforge.net/projects/pldoc/">SourceForge
+project page</a></b>.</p>
+
+<p>You can also download the most recent <b><a href="nightlybuild">nightly builds</a></b> of pldoc.</p>
+
+<p><b><a href="maven-pldoc-plugin">Maven plugin</a></b> for pldoc is available.</p>
+<br>
+
+<table cellpadding="10" cellspacing="0" border="0"
+ style="text-align: left; margin-left: auto; margin-right: auto;">
+  <tbody>
+    <tr>
+      <td valign="top">      <a href="http://sourceforge.net">        <img
+ src="http://sourceforge.net/sflogo.php?group_id=38875" width="88"
+ height="31" border="0" alt="SourceForge Logo">      </a>      </td>
+      <td valign="top">      <a
+ href="http://validator.w3.org/check/referer"><img border="0"
+ src="valid-html401.png" alt="Valid HTML 4.01!" height="31" width="88"></a>
+     </td>
+      <td valign="top">
+        <A HREF="http://petition.eurolinux.org"><img src="http://aful.org/images/patent_button.png" border="0"
+           height="31" width="88" alt="Vote against software patents"></A>
+      </td>
+
+    </tr>
+                                                                        
+               
+  </tbody>
+</table>
+</body>
+</html>
