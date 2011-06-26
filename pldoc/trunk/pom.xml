@@ -106,14 +106,6 @@
     </distributionManagement>
 
     <build>
-        <sourceDirectory>src/java</sourceDirectory>
-        <testSourceDirectory>test/java</testSourceDirectory>
-        <resources>
-            <resource>
-                <directory>src/resources</directory>
-                <targetPath>resources</targetPath>
-            </resource>
-        </resources>
    
         <plugins>
             <plugin>
@@ -121,7 +113,7 @@
                 <artifactId>javacc-maven-plugin</artifactId>
                 <version>2.4.1</version>
                 <configuration>
-                    <sourceDirectory>${basedir}/src/javacc/concat</sourceDirectory>
+                    <sourceDirectory>${basedir}/src/main/javacc/concat</sourceDirectory>
                 </configuration>
                 <executions>
                     <execution>
@@ -141,8 +133,8 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <concat destfile="${basedir}/src/javacc/concat/PLSQL.jj">
-                                    <fileset dir="${basedir}/src/javacc">
+                                <concat destfile="${basedir}/src/main/javacc/concat/PLSQL.jj">
+                                    <fileset dir="${basedir}/src/main/javacc">
                                         <include name="Parser.jj" />
                                         <include name="Tokens.jj" />
                                         <include name="Productions.jj" />
