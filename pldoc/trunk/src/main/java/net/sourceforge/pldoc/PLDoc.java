@@ -386,6 +386,7 @@ public class PLDoc
     System.out.println("Generating <unit>.html ...");
     transformer = tFactory.newTransformer(new StreamSource(
       resLoader.getResourceStream("unit.xsl")));
+    transformer.setParameter("targetFolder", settings.getOutputDirectory().getPath() + "/");
     transformer.transform(new StreamSource(applicationFile), new DOMResult());
   }
 
