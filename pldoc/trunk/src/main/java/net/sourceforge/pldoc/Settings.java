@@ -317,7 +317,7 @@ public class Settings
       return new FileInputStream(stylesheetfile);
     }
     // return default
-    return ((new ResourceLoader()).getResourceStream("resources/defaultstylesheet.css"));
+    return ((new ResourceLoader()).getResourceStream("defaultstylesheet.css"));
   }
 
   public File getOverviewFile() {

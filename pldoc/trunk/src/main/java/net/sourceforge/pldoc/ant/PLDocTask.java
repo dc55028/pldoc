@@ -270,7 +270,7 @@ public class PLDocTask extends Task {
         log("Generating summary.html ...");
       {
         InputStream inStream =
-            resLoader.getResourceStream("resources/summary.xsl");
+            resLoader.getResourceStream("summary.xsl");
         try {
           Transformer transformer =
               tFactory.newTransformer(new StreamSource(inStream));
@@ -288,7 +288,7 @@ public class PLDocTask extends Task {
         log("Generating allschemas.html ...");
       {
         InputStream inStream =
-            resLoader.getResourceStream("resources/allschemas.xsl");
+            resLoader.getResourceStream("allschemas.xsl");
         try {
           Transformer transformer =
               tFactory.newTransformer(new StreamSource(inStream));
@@ -306,7 +306,7 @@ public class PLDocTask extends Task {
         log("Generating allpackages.html ...");
       {
         InputStream inStream =
-            resLoader.getResourceStream("resources/allpackages.xsl");
+            resLoader.getResourceStream("allpackages.xsl");
         try {
           Transformer transformer =
               tFactory.newTransformer(new StreamSource(inStream));
@@ -323,7 +323,7 @@ public class PLDocTask extends Task {
       if (m_verbose)
         log("Generating index.html ...");
       {
-        InputStream inStream = resLoader.getResourceStream("resources/index.xsl");
+        InputStream inStream = resLoader.getResourceStream("index.xsl");
         try {
           Transformer transformer =
               tFactory.newTransformer(new StreamSource(inStream));
@@ -340,7 +340,7 @@ public class PLDocTask extends Task {
       if (m_verbose)
         log("Generating <unit>.html ...");
       {
-        InputStream inStream = resLoader.getResourceStream("resources/unit.xsl");
+        InputStream inStream = resLoader.getResourceStream("unit.xsl");
         try {
           Transformer transformer = tFactory.newTransformer(new StreamSource(inStream));
           transformer.setParameter("targetFolder", m_destdir.toString() + "/");

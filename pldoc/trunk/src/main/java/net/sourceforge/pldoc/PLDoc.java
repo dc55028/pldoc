@@ -357,35 +357,35 @@ public class PLDoc
     // list of schemas
     System.out.println("Generating allschemas.html ...");
     transformer = tFactory.newTransformer(new StreamSource(
-      resLoader.getResourceStream("resources/allschemas.xsl")));
+      resLoader.getResourceStream("allschemas.xsl")));
     transformer.transform(new StreamSource(applicationFile),
       new StreamResult(new FileOutputStream(
         settings.getOutputDirectory().getPath() + File.separator + "allschemas.html")));
     // summary
     System.out.println("Generating summary.html ...");
     transformer = tFactory.newTransformer(new StreamSource(
-      resLoader.getResourceStream("resources/summary.xsl")));
+      resLoader.getResourceStream("summary.xsl")));
     transformer.transform(new StreamSource(applicationFile),
       new StreamResult(new FileOutputStream(
         settings.getOutputDirectory().getPath() + File.separator + "summary.html")));
     // list of packages
     System.out.println("Generating allpackages.html ...");
     transformer = tFactory.newTransformer(new StreamSource(
-      resLoader.getResourceStream("resources/allpackages.xsl")));
+      resLoader.getResourceStream("allpackages.xsl")));
     transformer.transform(new StreamSource(applicationFile),
       new StreamResult(new FileOutputStream(
         settings.getOutputDirectory().getPath() + File.separator + "allpackages.html")));
     // index
     System.out.println("Generating index.html ...");
     transformer = tFactory.newTransformer(new StreamSource(
-      resLoader.getResourceStream("resources/index.xsl")));
+      resLoader.getResourceStream("index.xsl")));
     transformer.transform(new StreamSource(applicationFile),
       new StreamResult(new FileOutputStream(
         settings.getOutputDirectory().getPath() + File.separator + "index.html")));
     // description for each package; the DOMResult is actually ignored
     System.out.println("Generating <unit>.html ...");
     transformer = tFactory.newTransformer(new StreamSource(
-      resLoader.getResourceStream("resources/unit.xsl")));
+      resLoader.getResourceStream("unit.xsl")));
     transformer.transform(new StreamSource(applicationFile), new DOMResult());
   }
 
@@ -403,7 +403,7 @@ public class PLDoc
         new File(outputDirectory.getPath() + File.separator + "stylesheet.css"));
       // copy the DTD
       Utils.CopyStreamToFile(
-        resLoader.getResourceStream("resources/application.dtd"),
+        resLoader.getResourceStream("application.dtd"),
         new File(outputDirectory.getPath() + File.separator + "application.dtd"));
     } catch(FileNotFoundException e) {
       System.err.println("File not found. ");
