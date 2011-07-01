@@ -10,6 +10,9 @@ public class DbmsMetadata
 
   /* connection management */
   protected Connection conn = null;
+  protected String  getMetadataStatement = null ;
+  protected CallableStatement callableStatement = null;
+  protected int  returnType = java.sql.Types.CLOB ;
   public Connection getConnection() throws SQLException
   { return conn; }
 
@@ -17,7 +20,17 @@ public class DbmsMetadata
   public DbmsMetadata(Connection c) throws SQLException
   { conn = c; }
 
-  public Clob getDdl (
+  public DbmsMetadata(Connection c, String getMetadataStatement, int returnType) throws SQLException
+  { conn = c; 
+	  this.getMetadataStatement = getMetadataStatement ; 
+	  this.returnType =  returnType;
+	  // Define this statement once, then call with different parameters
+	    callableStatement  = getConnection().prepareCall(getMetadataStatement);
+	    callableStatement.registerOutParameter(1, returnType);
+  } 
+
+
+  public java.io.Reader getDdl (
     String objectType,
     String name,
     String schema,
@@ -26,7 +39,7 @@ public class DbmsMetadata
     String transform)
   throws SQLException
   {
-    Clob result;
+    Object result;
 
 //  ************************************************************
 //  #sql [getConnectionContext()] result = { VALUES(DBMS_METADATA.GET_DDL(
@@ -39,26 +52,46 @@ public class DbmsMetadata
 //  ************************************************************
 
     // declare temps
-    CallableStatement st = null;
-    String theSqlTS = "BEGIN" +
-	              "  DBMS_METADATA.SET_TRANSFORM_PARAM(DBMS_METADATA.SESSION_TRANSFORM, 'SEGMENT_ATTRIBUTES', FALSE);" +
-	              "  DBMS_METADATA.SET_TRANSFORM_PARAM(DBMS_METADATA.SESSION_TRANSFORM, 'CONSTRAINTS', FALSE);" +
-                      "  :1 := DBMS_METADATA.GET_DDL(\n       :2 ,\n       :3 ,\n       :4 ,\n       :5 ,\n       :6 ,\n       :7 )  \n;" +
-                      "END;";
-    st = getConnection().prepareCall(theSqlTS);
-    st.registerOutParameter(1, java.sql.Types.CLOB);
-    // set IN parameters
-    st.setString(2, objectType);
-    st.setString(3, name);
-    st.setString(4, schema);
-    st.setString(5, version);
-    st.setString(6, model);
-    st.setString(7, transform);
-    // execute statement
-    st.executeUpdate();
-    // retrieve OUT parameters
-    result = st.getClob(1);
+    //CallableStatement st = null;
+    //String theSqlTS = getMetadataStatement ;
 
-    return result;
+    /*
+    System.err.println( "(objectType, name, schema, version, model, transform) = ("+
+                objectType + "," + name + "," + schema + "," + version + "," +
+                model + "," + transform + ")" );
+    */
+
+    /* Only define callableStatement once and reuse it for subsequent calls to getDDL()*/ 
+    if (null == callableStatement)
+    {
+	    callableStatement  = getConnection().prepareCall(getMetadataStatement);
+	    callableStatement.registerOutParameter(1, returnType);
+    }
+
+    // set IN parameters
+    callableStatement.setString(2, objectType);
+    callableStatement.setString(3, name);
+    callableStatement.setString(4, schema);
+    callableStatement.setString(5, version);
+    callableStatement.setString(6, model);
+    callableStatement.setString(7, transform);
+    // execute statement
+    callableStatement.executeUpdate();
+    // retrieve OUT parameters
+    result = callableStatement.getObject(1);
+
+    /*
+	    System.err.println("returnType is " + returnType); 
+    if (java.sql.Types.CLOB == returnType) 
+    {
+       System.err.println("return string is \"" + result +"\""); 
+       System.err.println("return.toString() is \"<<<" + result.toString() +"\">>>"); 
+    }
+    */
+    return (java.sql.Types.CLOB == returnType) 
+	    ? ((Clob) result).getCharacterStream()
+	    //: new java.io.StringReader((String) result)
+	    : new java.io.StringReader( result.toString() )
+	    ;
   }
 }

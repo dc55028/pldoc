@@ -1,10 +1,16 @@
 // Copyright (C) 2002 Albert Tumanov
 
+/**
+ * 2006-05-10 - Matthias Hendler - merged SIV and sourceforge sources
+ */
+
+// SRT *
 void table() throws SAXException :
+
 { Token schema = null, name = null, tokenCreate = null, tokenTable = null;
 }
 {
-  tokenCreate=<CREATE> [<GLOBAL_TEMPORARY>]
+  tokenCreate=<CREATE> [<GLOBAL> <TEMPORARY>]
   tokenTable=<TABLE> (LOOKAHEAD(2) schema=ID()".")? name=ID()
   {
     String schemaString = "";
@@ -20,7 +26,7 @@ void table() throws SAXException :
 //    processPackageComment(tokenPackage);
   }
   "(" tableColumn() ("," tableColumn())* ")"
-  [LOOKAHEAD(2) <ON> <COMMIT> (<DELETE> | "PRESERVE") "ROWS"]
+  [LOOKAHEAD(2) <ON> <COMMIT> (<DELETE> | <PRESERVE>) <ROWS>]
   //### [physicalProperties()]
   //### [tableProperties()]
   [";"]
@@ -31,7 +37,7 @@ void tableColumn() throws SAXException :
 { Token column = null;
   String datatype = null, constraint = null; }
 {
-  column=ID() datatype=datatype() [<_DEFAULT> expression()] [[<NOT> {constraint = "NOT NULL";}] <NULL>]
+  column=ID() datatype=datatype() [<_DEFAULT> Expression()] [[<NOT> {constraint = "NOT NULL";}] <NULL>]
   {
     m_out.pushAttribute("NAME", String.valueOf(column));
     m_out.pushAttribute("TYPE", datatype);
@@ -41,12 +47,14 @@ void tableColumn() throws SAXException :
   }
 }
 
+
+
 void view() throws SAXException :
 { Token schema = null, name = null, tokenCreate = null, tokenView = null;
 }
 {
   tokenCreate=<CREATE> [<OR> <REPLACE>]
-  //###[[<NO>] <FORCE>]
+  [[<NO>] <FORCE>]
   tokenView=<VIEW> (LOOKAHEAD(2) schema=ID()".")? name=ID()
   {
     String schemaString = "";
@@ -61,7 +69,7 @@ void view() throws SAXException :
   ["(" viewColumn() ("," viewColumn())* ")"]
   //### OF ... WITH OBJECT IDENTIFIER...
   <AS>
-  select()
+  statement() //SRT select()
   //### WITH ...
   (";" | "/")
   { m_out.endElement("VIEW"); }
@@ -97,12 +105,14 @@ void comment() throws SAXException :
     if (name != null) {
       commentedObjectNode = m_out.findObjectNode(
         purifyIdentifier(schemaString), purifyIdentifier(name.toString()));
+      /* SRT 
       if (commentedObjectNode == null) {
-        System.out.println("Not found '" + purifyIdentifier(tokenOn.toString()) + " " +
+        System.err.println("Not found '" + purifyIdentifier(tokenOn.toString()) + " " +
           purifyIdentifier(schemaString) + "." +
           purifyIdentifier(name.toString()) +
           "' for comment.");
       }
+      */
     } else {
       Node commentedTableObjectNode = m_out.findObjectNode(
         purifyIdentifier(schemaString), purifyIdentifier(table.toString()));
@@ -116,13 +126,15 @@ void comment() throws SAXException :
            break;
         }
       }
+      /* SRT 
       if (commentedObjectNode == null) {
-        System.out.println("Not found '" + purifyIdentifier(tokenOn.toString()) + " " +
+        System.err.println("Not found '" + purifyIdentifier(tokenOn.toString()) + " " +
           purifyIdentifier(schemaString) + "." +
           purifyIdentifier(table.toString()) + "." +
           purifyIdentifier(column.toString()) +
           "' for comment.");
       }
+      */
     }
     // now append the comment to the object
     commentElement = m_out.createElement("COMMENT");
@@ -137,5 +149,6 @@ void comment() throws SAXException :
   }
   [";"]
 }
+// SRT * /
 
 

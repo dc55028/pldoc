@@ -29,6 +29,17 @@ import java.util.*;
 */
 public class Settings
 {
+  // Default settings 
+  private static final String GET_METADATA_STATEMENT_DEFAULT = 
+	"BEGIN" +
+	"\n  DBMS_METADATA.SET_TRANSFORM_PARAM(DBMS_METADATA.SESSION_TRANSFORM, 'SEGMENT_ATTRIBUTES', FALSE);" +
+	"\n  DBMS_METADATA.SET_TRANSFORM_PARAM(DBMS_METADATA.SESSION_TRANSFORM, 'CONSTRAINTS', FALSE);" +
+	"\n  DBMS_METADATA.SET_TRANSFORM_PARAM(DBMS_METADATA. SESSION_TRANSFORM,'SQLTERMINATOR',true );" +
+	"\n  :1 := DBMS_METADATA.GET_DDL(\n       :2 ,\n       :3 ,\n       :4 ,\n       :5 ,\n       :6 ,\n       :7 )  \n;" +
+	"\nEND;" 
+	;
+
+  private static final String DRIVER_NAME_DEFAULT = "oracle.jdbc.OracleDriver";
   // settings and their defaults
   private String applicationName = "MyApplication";
   private File outputDirectory = new File("." + File.separator);
@@ -37,25 +48,42 @@ public class Settings
   private File overviewfile = null;
   private Properties defines = null;
   private boolean ignoreInformalComments = false;
+  private String defaultNamescase = "UPPER"; //SRT 20110419
+  private String defaultKeywordscase = "UPPER"; //SRT 20110419
+  private boolean namesDefaultcase = true;
   private boolean namesUppercase = false;
   private boolean namesLowercase = false;
+  private boolean keywordsDefaultcase = true; //SRT 20110419
+  private boolean keywordsUppercase = false; //SRT 20110419
+  private boolean keywordsLowercase = false; //SRT 20110419
   // by default, assume system default encoding for all input files
   private String inputEncoding = System.getProperty("file.encoding");
   // we cannot yet set output encoding dynamically, because of XSLs
   private String outputEncoding = "UTF-8";
   private boolean exitOnError = false;
+  private String driverName = DRIVER_NAME_DEFAULT ;
+  private String getMetadataStatement = GET_METADATA_STATEMENT_DEFAULT ;
+  private int    returnType = java.sql.Types.CLOB;
   private String dbUrl = null;
   private String dbUser = null;
   private String dbPassword = null;
+  private Collection inputTypes = new ArrayList();
   private Collection inputObjects = new ArrayList();
+  private boolean showSkippedPackages = false;
 
   private static final String usage =
     "Arguments: [options] inputfile(s)\n" +
     "-d <directory>            Destination directory for output files [default: current]\n" +
     "-doctitle <text>          Application name [default: MyApplication]\n" +
     "-overview <file>          Read overview documentation from HTML file [default: none]\n" +
+    "-defaultnamecase          Case of unquoted names [default upper]\n" +
+    "-defaultkeywordcase       Case of keywords [default upper]\n" +
+    "-namesdefaultcase         To convert all names to defaultcase [default true]\n" +
     "-namesuppercase           To convert all names to uppercase\n" +
     "-nameslowercase           To convert all names to lowercase\n" +
+    "-keywordsdefaultcase      To convert all names to defaultcase [default true]\n" +
+    "-keywordsuppercase        To convert all keywords to uppercase\n" +
+    "-keywordslowercase        To convert all keywords to lowercase\n" +
     "-stylesheetfile <path>    File to change style of the generated document [default: defaultstylesheet.css]\n" +
     "-definesfile <path>       File containing SQL*Plus-style variable substitutions [default: none], for example:\n" +
     "                          &myvar1=123456\n" +
@@ -63,7 +91,13 @@ public class Settings
     "-inputencoding <enc>      Encoding used in the input files [default: operation system default encoding]\n" +
     "-exitonerror              Forces program exit when some input file cannot be processed\n" +
     "                          [by default, the file is skipped and processing continues]\n" +
-    "-url <database url>       Database url, for example jdbc:oracle:thin:@HOST:PORT:SID.\n" + 
+    "-driver <JDBC class>      Name of JDBC driver class, for example oracle.jdbc.OracleDriver, com.edb.Driver, or org.postgresql.Driver [default: " + DRIVER_NAME_DEFAULT + "].\n" +
+    "-getmetadata <String>     SQL 92 CallableStatement Statement that retrieves the object source (EnterpriseDB does not support Oracle BEGIN .. END statements) [default: Oracle DBMS_METADATA anonymous block ].\n" +
+    "                          	Statement structure is (\"call\" and function are case sensitive} \"{ ? = call GET_SOURCE( ? ,  ? ,  ? ,  ? , ? , ? ) }\"  where GET_SOURCE(...) mimics \n" +
+    "                          	\"{ <RESULT_SET> =  call DBMS_METADAT.GET_DDL( <object_type> ,  <object_name> ,  <schema_name> ,  'COMPATIBLE' , 'ORACLE' , 'DDL' ) }\" \n" +
+    "-returntype <java.sql.Types.?>  number corresponding to java.sql.Types.CLOB (2005) or java.sql.Types.VARCHAR (12) [default: java.sql.Types.CLOB].\n" +
+    "-url <database url>       Database URL, for example jdbc:oracle:thin:@HOST:PORT:SID, jdbc:oracle:thin:@HOST:PORT/SERVICE, jdbc:edb://HOST:PORT/DATABASE,\n" +
+    "                          or jdbc:postgresql://HOST:PORT/DATABASE [default: none].\n" +
     "                          Required when generating from the Oracle dictionary.\n" +
     "-user <db schema>         Schema name.\n" +
     "                          Required when generating from the Oracle dictionary. The schema name is\n" +
@@ -72,6 +106,8 @@ public class Settings
     "                          like scott are stored as 'SCOTT' (upper case).\n" +
     "-password <db password>   Password of the schema.\n" +
     "                          Required when generating from the Oracle dictionary.\n" +
+    "-types <object type(s)>     Comma separated list of object type(s) to generate documentation for.\n" +
+    "                          Defaults to all procedural types (PACKAGES, TYPES, FUNCTIONS PROCEDURES).\n" +
     "-sql <object name(s)>     Comma separated list of object name(s) to generate documentation for.\n" +
     "                          Required when generating from the Oracle dictionary.\n" +
     "                          An object name is case sensitive (the same rules as described for schema\n" +
@@ -79,9 +115,11 @@ public class Settings
     "                          An object name may be prepended by a schema name and may have SQL\n" +
     "                          wildcards.\n" +
     "                          When the object belongs to a different schema than the logon user (as specified by\n" +
-      "                          the -user parameter), the logon user must have been granted the role SELECT_CATALOG_ROLE.\n";
+    "                          the -user parameter), the logon user must have been granted the role SELECT_CATALOG_ROLE or the SELECT ANY DICTIONARY system privilege.\n" +
+    "-ignoreinformalcomments   To ignore informal comments" +
+    "-showSkippedPackages      To show the skipped packages in the summary of the documentation."
+    ;
 //    "                          &myvar2=abcdef\n" +
-//    "-ignoreinformalcomments   To ignore informal comments";
 
   /** Consumes command line strings received by the main() method */
   public void processCommandString(String args[]) throws Exception
@@ -185,6 +223,10 @@ public class Settings
         // consume  "-ignoreinformalcomments"
         this.ignoreInformalComments = true;
       }
+      else if (arg.equalsIgnoreCase("-namesdefaultcase")) {
+        // consume  "-namesuppercase"
+        this.namesDefaultcase = true;
+      }
       else if (arg.equalsIgnoreCase("-namesuppercase")) {
         // consume  "-namesuppercase"
         this.namesUppercase = true;
@@ -192,6 +234,38 @@ public class Settings
       else if (arg.equalsIgnoreCase("-nameslowercase")) {
         // consume  "-nameslowercase"
         this.namesLowercase = true;
+      }
+      else if (arg.equalsIgnoreCase("-defaultnamescase")) {
+        // consume  "-defaultnamescase"
+        if(!it.hasNext()) {
+          processInvalidUsage("Option " + arg + " requires a value !");
+        }
+        this.defaultNamescase = (String) it.next();
+        if (!this.defaultNamescase.equalsIgnoreCase("upper") && !this.defaultNamescase.equalsIgnoreCase("lower")  ) {
+          processInvalidUsage( "Option " + arg + " had incorrect value \"" + this.defaultNamescase + "\" - this option requires a value of \"upper\" or \"lower\" " );
+        }
+      }
+      else if (arg.equalsIgnoreCase("-defaultkeywordscase")) {
+        // consume  "-defaultkeywordscase"
+        if(!it.hasNext()) {
+          processInvalidUsage("Option " + arg + " requires a value !");
+        }
+        this.defaultKeywordscase = (String) it.next();
+        if (!this.defaultKeywordscase.equalsIgnoreCase("upper") && !this.defaultKeywordscase.equalsIgnoreCase("lower")  ) {
+          processInvalidUsage( "Option " + arg + " had incorrect value \"" + this.defaultKeywordscase + "\" - this option requires a value of \"upper\" or \"lower\" " );
+        }
+      }
+      else if (arg.equalsIgnoreCase("-keywordsdefaultcase")) {
+        // consume  "-keywordsuppercase"
+        this.keywordsUppercase = true;
+      }
+      else if (arg.equalsIgnoreCase("-keywordsuppercase")) {
+        // consume  "-keywordsuppercase"
+        this.keywordsUppercase = true;
+      }
+      else if (arg.equalsIgnoreCase("-keywordslowercase")) {
+        // consume  "-keywordslowercase"
+        this.keywordsLowercase = true;
       }
       else if (arg.equalsIgnoreCase("-inputencoding")) {
         // consume  "-inputencoding"
@@ -203,6 +277,27 @@ public class Settings
       else if (arg.equalsIgnoreCase("-exitonerror")) {
         // consume  "-exitonerror"
         this.exitOnError = true;
+      }
+      else if (arg.equalsIgnoreCase("-returntype")) {
+        // consume  "-returntype"
+        if(!it.hasNext()) {
+          processInvalidUsage("Option " + arg + " requires a value !");
+        }
+        this.returnType = Integer.parseInt((String) it.next());
+      }
+      else if (arg.equalsIgnoreCase("-driver")) {
+        // consume  "-driver"
+        if(!it.hasNext()) {
+          processInvalidUsage("Option " + arg + " requires a value !");
+        }
+        this.driverName = (String) it.next();
+      }
+      else if (arg.equalsIgnoreCase("-getmetadata")) {
+        // consume  "-getmetadata"
+        if(!it.hasNext()) {
+          processInvalidUsage("Option " + arg + " requires a value !");
+        }
+        this.getMetadataStatement = (String) it.next();
       }
       else if (arg.equalsIgnoreCase("-url")) {
         // consume  "-url"
@@ -230,7 +325,19 @@ public class Settings
 	String inputObjectsList = (String)it.next();
         inputObjects = Arrays.asList(inputObjectsList.split(","));
       }
+      else if (arg.equalsIgnoreCase("-types")) {
+        if(!it.hasNext()) {
+          processInvalidUsage("Option " + arg + " requires a value !");
+        }
+	String inputTypesList = (String)it.next();
+        inputTypes = Arrays.asList(inputTypesList.split(","));
+      }
+      else if (arg.equalsIgnoreCase("-showskippedpackages")) {
+        // consume  "-showskippedpackages"
+        this.showSkippedPackages = true;
+      }
       else if (arg.startsWith("-")) {
+        System.err.println("WARN - unknown parameter \""+arg+"\"");
         processInvalidUsage("Unknown option " + arg);
       } else {
         // no option code recognized - assume it's a file name
@@ -246,7 +353,7 @@ public class Settings
     }
 
     // When object name(s) are supplied, the connect info must be supplied.
-    if (!inputObjects.isEmpty() && 
+    if (!inputObjects.isEmpty() &&
 	(this.dbUrl == null || this.dbUser == null || this.dbPassword == null)) {
       processInvalidUsage("Database url, db schema and db password are mandatory when object name(s) are supplied!");
     }
@@ -273,17 +380,44 @@ public class Settings
   public void setIgnoreInformalComments(boolean ignoreInformalComments) {
           this.ignoreInformalComments = ignoreInformalComments;
   }
+  public void setNamesDefaultcase(boolean namesDefaultcase) {
+          this.namesDefaultcase = namesDefaultcase;
+  }
   public void setNamesUppercase(boolean namesUppercase) {
           this.namesUppercase = namesUppercase;
   }
   public void setNamesLowercase(boolean namesLowercase) {
           this.namesLowercase = namesLowercase;
   }
+  public void setDefaultNamescase(String defaultNamesUppercase) {
+          this.defaultNamescase = defaultNamescase;
+  }
+  public void setDefaultKeywordscase(String defaultKeywordsUppercase) {
+          this.defaultKeywordscase = defaultKeywordscase;
+  }
+  public void setKeywordsDefaultcase(boolean keywordsDefaultcase) {
+          this.keywordsDefaultcase = keywordsDefaultcase;
+  }
+  public void setKeywordsUppercase(boolean keywordsUppercase) {
+          this.keywordsUppercase = keywordsUppercase;
+  }
+  public void setKeywordsLowercase(boolean keywordsLowercase) {
+          this.keywordsLowercase = keywordsLowercase;
+  }
   public void setInputEncoding(String inputEncoding) {
           this.inputEncoding = inputEncoding;
   }
   public void setExitOnError(boolean exitOnError) {
           this.exitOnError = exitOnError;
+  }
+  public void setReturnType(int returnType) {
+          this.returnType = returnType;
+  }
+  public void setDriverName(String driverName) {
+          this.driverName = driverName;
+  }
+  public void setGetMetadataStatement(String getMetadataStatement) {
+          this.getMetadataStatement = getMetadataStatement;
   }
   public void setDbUrl(String dbUrl) {
           this.dbUrl = dbUrl;
@@ -297,6 +431,10 @@ public class Settings
   public void setInputObjects(Collection inputObjects) {
           this.inputObjects = inputObjects;
   }
+  public void setInputTypes(Collection inputTypes) {
+          this.inputTypes = inputTypes;
+  }
+
 
 
   public String getApplicationName() {
@@ -332,12 +470,36 @@ public class Settings
     return ignoreInformalComments;
   }
 
+  public boolean isNamesDefaultcase() {
+    return namesDefaultcase;
+  }
+
+  public boolean isKeywordsDefaultcase() {
+    return keywordsDefaultcase;
+  }
+
   public boolean isNamesUppercase() {
     return namesUppercase;
   }
 
   public boolean isNamesLowercase() {
     return namesLowercase;
+  }
+
+  public String getDefaultNamescase() {
+    return defaultNamescase;
+  }
+
+  public String getDefaultKeywordscase() {
+    return defaultKeywordscase;
+  }
+
+  public boolean isKeywordsUppercase() {
+    return keywordsUppercase;
+  }
+
+  public boolean isKeywordsLowercase() {
+    return keywordsLowercase;
   }
 
   public String getInputEncoding() {
@@ -356,6 +518,18 @@ public class Settings
     return dbUrl;
   }
 
+  public String getGetMetadataStatement() {
+    return getMetadataStatement;
+  }
+
+  public int getReturnType() {
+    return returnType;
+  }
+
+  public String getDriverName() {
+    return driverName;
+  }
+
   public String getDbUser() {
     return dbUser;
   }
@@ -366,6 +540,15 @@ public class Settings
 
   public Collection getInputObjects() {
     return inputObjects;
+  }
+
+  public Collection getInputTypes() {
+    return inputTypes;
+  }
+
+
+  public boolean isShowSkippedPackages() {
+    return showSkippedPackages;
   }
 
   /** Processes invalid usage: prints the error message and the usage instruction

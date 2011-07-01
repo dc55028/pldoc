@@ -43,7 +43,75 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     </TABLE>
     -->
 
+    <xsl:if test="OBJECT_TYPE[COLLECTIONTYPE]">
+    <TABLE BORDER="0" WIDTH="100%">
+    <TR>
+    <TD><FONT size="+1" CLASS="FrameHeadingFont">
+    All Object Collections</FONT>
+    <BR />
+    <BR />
+
+    <xsl:for-each select="OBJECT_TYPE[COLLECTIONTYPE]">
+      <xsl:sort select="@NAME"/>
+      <FONT CLASS="FrameItemFont"><A HREF="{translate(@NAME, $uppercase, $lowercase)}.html" TARGET="packageFrame">
+        <xsl:value-of select="translate(@NAME, $lowercase, $uppercase)"/>
+      </A></FONT><BR></BR>
+    </xsl:for-each>
+
+    </TD>
+    </TR>
+    </TABLE>
+    </xsl:if>
+
+    <xsl:if test="OBJECT_TYPE[not(COLLECTIONTYPE)]">
+    <BR />
+    <BR />
+    <TABLE BORDER="0" WIDTH="100%">
+    <TR>
+    <TD><FONT size="+1" CLASS="FrameHeadingFont">
+    All Object Types</FONT>
+    <BR />
+    <BR />
+
+    <xsl:for-each select="OBJECT_TYPE[not(COLLECTIONTYPE)]">
+      <xsl:sort select="@NAME"/>
+      <FONT CLASS="FrameItemFont"><A HREF="{translate(@NAME, $uppercase, $lowercase)}.html" TARGET="packageFrame">
+        <xsl:value-of select="translate(@NAME, $lowercase, $uppercase)"/>
+      </A></FONT><BR></BR>
+    </xsl:for-each>
+
+    </TD>
+    </TR>
+    </TABLE>
+    </xsl:if>
+
+    <!-- Defer treating Triggers as top-level objects
+    <xsl:if test="TRIGGER">
+    <BR />
+    <BR />
+    <TABLE BORDER="0" WIDTH="100%">
+    <TR>
+    <TD><FONT size="+1" CLASS="FrameHeadingFont">
+    All Triggers</FONT>
+    <BR />
+    <BR />
+
+    <xsl:for-each select="TRIGGER">
+      <xsl:sort select="@NAME"/>
+      <FONT CLASS="FrameItemFont"><A HREF="{translate(@NAME, $uppercase, $lowercase)}.html" TARGET="packageFrame">
+        <xsl:value-of select="translate(@NAME, $lowercase, $uppercase)"/>
+      </A></FONT><BR></BR>
+    </xsl:for-each>
+
+    </TD>
+    </TR>
+    </TABLE>
+    </xsl:if>
+    -->
+
     <xsl:if test="PACKAGE">
+    <BR />
+    <BR />
     <TABLE BORDER="0" WIDTH="100%">
     <TR>
     <TD><FONT size="+1" CLASS="FrameHeadingFont">

@@ -26,6 +26,7 @@ import java.util.*;
 */
 public class CommentParser
 {
+  public static final char PARAM_CHAR = '@';
   private ArrayList inputLines;
   private String mainSentence;
   private String text;
@@ -53,8 +54,18 @@ public class CommentParser
     ArrayList lines = new ArrayList();
     int newlinepos=0, prevpos=0;
     while ((newlinepos = s.indexOf("\n", prevpos)) != -1) {
-      lines.add(s.substring(prevpos,newlinepos));
-      prevpos = newlinepos+1;
+      // MMUE #1: extract lines without line break since it got
+      // removed anyway in removeCommentChars() before
+      // insideCode handling has been added
+      if (newlinepos == prevpos) {
+        lines.add("");
+      } else {
+        if (s.charAt(newlinepos - 1) == '\r')
+          lines.add(s.substring(prevpos, newlinepos - 1));
+        else
+          lines.add(s.substring(prevpos, newlinepos));
+      }
+      prevpos = newlinepos + 1;
     }
     lines.add(s.substring(prevpos));
     return lines;
@@ -63,22 +74,37 @@ public class CommentParser
   /** Removes comment symbols --,/*,/**,... from the array of lines. */
   private void removeCommentChars()
   {
+    // MMUE #1
+    boolean insideCode = false;
+    
     for (int i=0; i < inputLines.size(); i++) {
       String line = ((String) inputLines.get(i)).trim();
       if (line == null) continue;
-      // trim opening comment
-      if (line.startsWith("--"))
-        line = line.substring(2).trim();
-      else if (line.startsWith("/**"))
-        line = line.substring(3);
-      else if (line.startsWith("/*"))
-        line = line.substring(2);
-      // trim closing comment
-      if (line.endsWith("*/"))
-        line = line.substring(0, line.length()-2);
+      
+      // MMUE #1: inside of preformated blocks (enclosed by <pre></pre>)
+      // do not remove or trim except for leading *'s
+      if (!insideCode) {
+        line = line.trim();
+        // trim opening comment
+        if (line.startsWith("--"))
+          line = line.substring(2).trim();
+        else if (line.startsWith("/**"))
+          line = line.substring(3);
+        else if (line.startsWith("/*"))
+          line = line.substring(2);
+        // trim closing comment
+        if (line.endsWith("*/"))
+          line = line.substring(0, line.length()-2);
+      }
       // remove * and spaces before it
       if (line.trim().startsWith("*"))
         line = line.substring(line.indexOf('*')+1);
+
+      // MMUE #1
+      if (line.indexOf("<pre>") != -1)
+        insideCode = true;
+      if (line.indexOf("</pre>") != -1)
+        insideCode = false;
 
       // update the line
       inputLines.set(i, line);
@@ -88,10 +114,19 @@ public class CommentParser
   /** Removes blank lines. */
   private void removeBlankLines()
   {
+    // MMUE #2
+    boolean insideCode = false;
+    
     for (int i=0; i < inputLines.size(); i++) {
       String line = (String) inputLines.get(i);
-      if (line == null || line.trim().length() == 0)
+      // MMUE #2
+      if (!insideCode && (line == null || line.trim().length() == 0))
         inputLines.remove(i);
+      // MMUE #2
+      if (line.indexOf("<pre>") != -1)
+        insideCode = true;
+      if (line.indexOf("</pre>") != -1)
+        insideCode = false;
     }
   }
 
@@ -100,11 +135,11 @@ public class CommentParser
   {
     String line;
     StringBuffer buf = new StringBuffer();
-    // concatenate lines until @ is first on line
+    // concatenate lines until PARAM_CHAR is first on line
     for (int i=0; i < inputLines.size(); i++) {
       line = (String) inputLines.get(i);
-      // stop after first string starting with @ is encountered
-      if (line.trim().indexOf('@') == 0) {
+      // stop after first string starting with PARAM_CHAR is encountered
+      if (line.trim().indexOf(PARAM_CHAR) == 0) {
         break;
       }
       // otherwise, collect the text and remove the line
@@ -117,19 +152,39 @@ public class CommentParser
 
   /** Extracts "first line" of the string.
   * The first line is ended with dot followed by whitespace and may contain linebreaks.
+  * First Sentence
+  * The first sentence of each doc comment should be a summary sentence, containing a concise but complete description of the API item. This means the first sentence of each member, class, interface or package description. The Javadoc tool copies this first sentence to the appropriate member, class/interface or package summary. This makes it important to write crisp and informative initial sentences that can stand on their own.
+
+  * This sentence ends at the first period that is followed by a blank, tab, or line terminator, or at the first tag (as defined below). For example, this first sentence ends at "Prof.":
+
+   /**
+    * This is a simulation of Prof. Knuth's MIX computer.
+    * /
+  * 
   */
   private String extractMainSentence()
   {
     String s = text; // by default, main sentence is the whole text
-    int pos = s.indexOf('.');
-    if ((pos != -1) && (pos != s.length() - 1) && Character.isWhitespace(s.charAt(pos + 1))) {
-      s = s.substring(0, pos + 1);
+    // SRT 20110422 int pos = s.indexOf('.')  ;
+    //We are actually looking for the first instance of regular expression pattern 
+    // "\.\s"
+    
+    for (int pos = s.indexOf('.') 
+	 ;((pos != -1) && (pos != (s.length() - 1)) ) // Whilst  
+	 ;pos = s.indexOf('.', pos+1) //Look fo the next dot  
+	)	    
+    {
+	    // If the next chracter is whitespace, assign the String and stop the search
+	    if ((pos != (s.length() - 1)) && Character.isWhitespace(s.charAt(pos + 1))) {
+	      s = s.substring(0, pos + 1);
+	      break;
+	    }
     }
     return s;
   }
 
   /** Returns hashtable of tags and their values.
-  * Hashtable is indexed by tag names (including preceding @).
+  * Hashtable is indexed by tag names (including preceding PARAM_CHAR).
   */
   private Hashtable extractTags()
   {
@@ -141,8 +196,8 @@ public class CommentParser
     // combine
     for (int i=0; i < inputLines.size(); i++) {
       String line = (String) inputLines.get(i);
-      // if line does not start with @, it's a continuation of the previous tag text
-      if (line.trim().indexOf('@') != 0 && i > 0) {
+      // if line does not start with PARAM_CHAR, it's a continuation of the previous tag text
+      if (line.trim().indexOf(PARAM_CHAR) != 0 && i > 0) {
         // concatenate with previous
         String previousLine = (String) inputLines.get(i-1);
         inputLines.set(i-1, previousLine + "\n" + line);
@@ -155,7 +210,7 @@ public class CommentParser
     for (int i=0; i < inputLines.size(); i++) {
 
       String line = (String) inputLines.get(i);
-      if (line.trim().indexOf('@') == 0) {
+      if (line.trim().indexOf(PARAM_CHAR) == 0) {
 
         // tag line found, parse it
         tag = null;
@@ -185,7 +240,7 @@ public class CommentParser
         htOuter.put(tag, values);
 
       }
-      else { // if not starting with @
+      else { // if not starting with PARAM_CHAR
       }
     }
     return htOuter;
@@ -226,7 +281,7 @@ public class CommentParser
   }
 
   /** Returns hashtable of tags and their values.
-  * Hashtable is indexed by tag names (including preceding @).
+  * Hashtable is indexed by tag names (including preceding PARAM_CHAR).
   */
   public Hashtable getTags()
   {
@@ -259,6 +314,9 @@ public class CommentParser
         "* @param party_fixed        party is fixed (TRUE/FALSE)\n"+
         "* @param r_result           return code, 0=ok\n"+
         "* @param r_message          return message\n"+
+        "* %throws e_InvalidOrder Raised when the value of p_order is invalid.\n"+
+        "* %author Anybody\n" + "* %see org.utils\n"+
+        "* %version 1.0\n"+
         "*/"
     };
 

@@ -106,6 +106,7 @@
     </distributionManagement>
 
     <build>
+      <testOutputDirectory>${basedir}/test</testOutputDirectory>
    
         <plugins>
             <plugin>
@@ -123,11 +124,13 @@
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
                     <execution>
-                        <phase>initialize</phase>
+			<id>generate-plsqljj</id>
+                        <phase>generate-source</phase>
                         <goals>
                             <goal>run</goal>
                         </goals>
@@ -139,6 +142,8 @@
                                         <include name="Tokens.jj" />
                                         <include name="Productions.jj" />
                                         <include name="ProductionsDDL.jj" />
+                                        <include name="ProductionsObjectTypes.jj" />
+                                        <include name="ProductionsTriggers.jj" />
                                     </fileset>
                                 </concat>
                             </tasks>
@@ -147,7 +152,114 @@
                 </executions>
             </plugin>
 
-        </plugins>
+        <!-- 
+	     Make executable JAR file 
+	--> 
+	<plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>2.2.1</version>
+        <configuration>
+          <descriptorRefs>
+            <descriptorRef>jar-with-dependencies</descriptorRef>
+          </descriptorRefs>
+	  <!--
+	    <finalName>pldoc</finalName>
+            <appendAssemblyId>false</appendAssemblyId>
+	  -->
+          <archive>
+            <manifest>
+              <mainClass>net.sourceforge.pldoc.PLDoc</mainClass>
+            </manifest>
+          </archive>
+        </configuration>
+        <executions>
+          <execution>
+            <id>make-assembly</id> <!-- this is used for inheritance merges -->
+            <phase>package</phase> <!-- bind to the packaging phase -->
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+	
+   <!--
+   <resource>
+      <filtering>true</filtering>
+      <directory>${basedir}/src/main/command</directory>
+      <includes>
+	<include>pldoc.bat</include>
+	<include>pldoc.sh</include>
+      </includes>
+      <targetPath>${basedir}</targetPath>
+    </resource>
+	    
+      <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>2.5</version>
+        <executions>
+          <execution>
+            <id>copy-resources</id>
+            <phase>process-test-resources</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+		    <outputDirectory>${basedir}/test/input</outputDirectory>
+              <resources>          
+                <resource>
+		  <directory>${basedir}/src/test/input</directory>
+                  <filtering>false</filtering>
+                </resource>
+              </resources>              
+            </configuration>            
+          </execution>
+        </executions>
+      </plugin>
+    -->
+      
+     </plugins>
+
+   <resources>
+	   <resource>
+	      <filtering>false</filtering>
+	      <directory>${basedir}/src/main/resources</directory>
+	    </resource>
+	   <resource>
+	      <filtering>true</filtering>
+	      <directory>${basedir}/src/main/command</directory>
+	      <includes>
+		<include>pldoc.bat</include>
+		<include>pldoc.sh</include>
+		<include>pldoc_example.bat</include>
+		<include>pldoc_example.sh</include>
+		<include>pldoc_drop.bat</include>
+	      </includes>
+	      <targetPath>${basedir}</targetPath>
+	    </resource>
+    </resources>
+
+   <testResources>
+	   <testResource>
+	      <filtering>false</filtering>
+	      <directory>${basedir}/src/test/resources</directory>
+	    </testResource>
+	   <testResource>
+	      <filtering>false</filtering>
+	      <directory>${basedir}/src/test/resources/samples</directory>
+	      <targetPath>${basedir}/test/samples</targetPath>
+	    </testResource>
+	   <testResource>
+	      <filtering>true</filtering>
+	      <directory>${basedir}/src/test/command</directory>
+	      <includes>
+		<include>pldoc_test.bat</include>
+		<include>pldoc_test.sh</include>
+	      </includes>
+	      <targetPath>${basedir}/test</targetPath>
+	    </testResource>
+    </testResources>
+	    
     </build>
 
     <reporting>
