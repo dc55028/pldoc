@@ -48,23 +48,24 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 	    <TABLE BORDER="0" WIDTH="100%">
 	    <TR>
 		    <TD><FONT size="+1" CLASS="FrameItemFont">
-		    <A HREF="allpackages.html" target="listFrame">All Packages</A></FONT></TD>
+		    <A HREF="allpackages.html" target="listFrame">All Packages, Object Types and Collections</A></FONT></TD>
 	    </TR>
 	    </TABLE>
 	    
 		<BR />
 		
 		<!-- add the title -->
+		<xsl:if test="@SCHEMA">
 	    <TABLE BORDER="0" WIDTH="100%">
 	    <TR>
 		    <TD><FONT size="+1" CLASS="FrameTitleFont">
 		    <B>Schemas</B></FONT></TD>
 	    </TR>
 	    </TABLE>
-	
-	    <!-- List all distinct schemas using muenchian method -->
+		</xsl:if>
+		
+	    <!-- List all distinct schemas using Muenchian method -->
 		<xsl:for-each select="//*[count(. | key('schemaInit', @SCHEMA)[1]) = 1 and @SCHEMA != '']">
-     
 		  <!-- generate the linked pages with only-schema-packages -->
 		  <xsl:call-template name="schemaonly">
 		    <xsl:with-param name="theschema" select="@SCHEMA"/>
@@ -99,7 +100,75 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 	    </TR>
 	    </TABLE>
 	
+	    <xsl:if test="//OBJECT_TYPE[@SCHEMA=$theschema and COLLECTIONTYPE ] ">
+	    <TABLE BORDER="0" WIDTH="100%">
+	    <TR>
+	    <TD><FONT size="+1" CLASS="FrameHeadingFont">
+	    Object Collections</FONT>
+	    <BR />
+	    <BR />
+	
+	    <xsl:for-each select="//OBJECT_TYPE[@SCHEMA=$theschema and COLLECTIONTYPE ]">
+	      <xsl:sort select="@NAME"/>
+	      <FONT CLASS="FrameItemFont"><A HREF="{translate(@NAME, $uppercase, $lowercase)}.html" TARGET="packageFrame">
+	        <xsl:value-of select="translate(@NAME, $lowercase, $uppercase)"/>
+	      </A></FONT><BR></BR>
+	    </xsl:for-each>
+	
+	    </TD>
+	    </TR>
+	    </TABLE>
+	    </xsl:if>
+	
+	    <xsl:if test="//OBJECT_TYPE[@SCHEMA=$theschema and not(COLLECTIONTYPE) ] ">
+	    <BR />
+	    <BR />
+	    <TABLE BORDER="0" WIDTH="100%">
+	    <TR>
+	    <TD><FONT size="+1" CLASS="FrameHeadingFont">
+	    Object Types</FONT>
+	    <BR />
+	    <BR />
+	
+	    <xsl:for-each select="//OBJECT_TYPE[@SCHEMA=$theschema and not(COLLECTIONTYPE) ]">
+	      <xsl:sort select="@NAME"/>
+	      <FONT CLASS="FrameItemFont"><A HREF="{translate(@NAME, $uppercase, $lowercase)}.html" TARGET="packageFrame">
+	        <xsl:value-of select="translate(@NAME, $lowercase, $uppercase)"/>
+	      </A></FONT><BR></BR>
+	    </xsl:for-each>
+	
+	    </TD>
+	    </TR>
+	    </TABLE>
+	    </xsl:if>
+	
+	    <!-- Defer treating triggers as top level objects 
+	    <xsl:if test="//TRIGGER[@SCHEMA=$theschema ] ">
+	    <BR />
+	    <BR />
+	    <TABLE BORDER="0" WIDTH="100%">
+	    <TR>
+	    <TD><FONT size="+1" CLASS="FrameHeadingFont">
+	    Triggers</FONT>
+	    <BR />
+	    <BR />
+	
+	    <xsl:for-each select="//TRIGGER[@SCHEMA=$theschema]">
+	      <xsl:sort select="@NAME"/>
+	      <FONT CLASS="FrameItemFont"><A HREF="{translate(@NAME, $uppercase, $lowercase)}.html" TARGET="packageFrame">
+	        <xsl:value-of select="translate(@NAME, $lowercase, $uppercase)"/>
+	      </A></FONT><BR></BR>
+	    </xsl:for-each>
+	
+	    </TD>
+	    </TR>
+	    </TABLE>
+	    </xsl:if>
+	    -->
+	
 	    <xsl:if test="//PACKAGE[@SCHEMA=$theschema]">
+	    <BR />
+	    <BR />
 	    <TABLE BORDER="0" WIDTH="100%">
 	    <TR>
 	    <TD><FONT size="+1" CLASS="FrameHeadingFont">
@@ -175,6 +244,48 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 	    <CENTER><H2>Schema <xsl:value-of select="$theschema" /></H2></CENTER>
 	    <xsl:value-of select="OVERVIEW" disable-output-escaping="yes" />
 	    <P/><P/>
+	
+	    <!-- **************************** Object Collections ******************************* -->
+		<xsl:if test="//OBJECT_TYPE[@SCHEMA=$theschema and COLLECTIONTYPE]">
+			<TABLE BORDER="1" WIDTH="100%">
+			<TR><TD COLSPAN="2"><FONT size="+1" CLASS="FrameHeadingFont">Object Collections</FONT></TD></TR>
+		
+		    <xsl:for-each select="//OBJECT_TYPE[@SCHEMA=$theschema]">
+		      <xsl:sort select="@NAME"/>
+			  <TR>
+		   	  <TD>
+		        <FONT CLASS="FrameItemFont"><A HREF="{translate(@NAME, $uppercase, $lowercase)}.html" TARGET="packageFrame">
+		           <xsl:value-of select="translate(@NAME, $lowercase, $uppercase)"/>
+		        </A></FONT>
+			    </TD>
+			    <TD>&nbsp;</TD>
+			  </TR>
+		    </xsl:for-each>
+		
+			</TABLE>
+			<P/><P/>
+	    </xsl:if>
+	
+	    <!-- **************************** Object Types ******************************* -->
+		<xsl:if test="//OBJECT_TYPE[@SCHEMA=$theschema and not(COLLECTIONTYPE)]">
+			<TABLE BORDER="1" WIDTH="100%">
+			<TR><TD COLSPAN="2"><FONT size="+1" CLASS="FrameHeadingFont">Object Types</FONT></TD></TR>
+		
+		    <xsl:for-each select="//OBJECT_TYPE[@SCHEMA=$theschema]">
+		      <xsl:sort select="@NAME"/>
+			  <TR>
+		   	  <TD>
+		        <FONT CLASS="FrameItemFont"><A HREF="{translate(@NAME, $uppercase, $lowercase)}.html" TARGET="packageFrame">
+		           <xsl:value-of select="translate(@NAME, $lowercase, $uppercase)"/>
+		        </A></FONT>
+			    </TD>
+			    <TD>&nbsp;</TD>
+			  </TR>
+		    </xsl:for-each>
+		
+			</TABLE>
+			<P/><P/>
+	    </xsl:if>
 	
 	    <!-- **************************** Packages ******************************* -->
 		<xsl:if test="//PACKAGE[@SCHEMA=$theschema]">
@@ -260,8 +371,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
       <TR ALIGN="center" VALIGN="top">
       <TD CLASS="NavBarRow1Chosen"><FONT CLASS="NavBarFont1Chosen"><B>Overview</B></FONT> &nbsp;</TD>
       <TD CLASS="NavBarRow1"><A HREF="deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A> &nbsp;</TD>
-      <TD CLASS="NavBarRow1"><A HREF="index-files/index-1.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A> &nbsp;</TD>
-      <TD CLASS="NavBarRow1"><A HREF="help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A> &nbsp;</TD>
+      <TD CLASS="NavBarRow1"><A HREF="index-list.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A> &nbsp;</TD>
       </TR>
     </TABLE>
     </TD>
@@ -277,7 +387,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     </TD>
     <TD CLASS="NavBarRow2"><FONT SIZE="-2">
       <A HREF="index.html" TARGET="_top"><B>FRAMES</B></A> &nbsp;&nbsp;
-      <A HREF="index-noframes.html" TARGET="_top"><B>NO FRAMES</B></A></FONT></TD>
+    </FONT></TD>
     </TR>
     <TR>
     <TD VALIGN="top" CLASS="NavBarRow3"><FONT SIZE="-2">
