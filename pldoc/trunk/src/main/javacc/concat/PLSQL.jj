@@ -4469,6 +4469,7 @@ TOKEN :
 // Hard-code the most likely q-quote strings 
              "'" (<_WHATEVER_CHARACTER_WO_ASTERISK> | <SPECIAL_CHARACTERS> | "''")* "'" 
 |(["n","N"]) "'" (<_WHATEVER_CHARACTER_WO_ASTERISK> | <SPECIAL_CHARACTERS> | "''")* "'" //National Character Set String 
+|(["q","Q"]) "'" (<_WHATEVER_CHARACTER_WO_ASTERISK> | <SPECIAL_CHARACTERS> | "''")* "'" // Bug 160632
 |(["q","Q"]) "'[" (~["[","]"])* "]'" 
 |(["q","Q"]) "'{" (~["{","}"])* "}'" 
 |(["q","Q"]) "'<" (~["<",">"])* ">'" 

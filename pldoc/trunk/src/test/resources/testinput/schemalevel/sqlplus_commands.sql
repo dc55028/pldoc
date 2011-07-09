@@ -18,6 +18,8 @@ CONNECT sys/change_on_install
 
 @sqlscript
 
+SHOW ERRORS 
+
 @@sqlscript
 
 COLUMN dummy FORMAT A50
