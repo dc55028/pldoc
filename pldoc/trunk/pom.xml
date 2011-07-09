@@ -110,27 +110,11 @@
    
         <plugins>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>javacc-maven-plugin</artifactId>
-                <version>2.4.1</version>
-                <configuration>
-                    <sourceDirectory>${basedir}/src/main/javacc/concat</sourceDirectory>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>javacc</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
                     <execution>
 			<id>generate-plsqljj</id>
-                        <phase>generate-source</phase>
+                        <phase>generate-sources</phase>
                         <goals>
                             <goal>run</goal>
                         </goals>
@@ -148,6 +132,22 @@
                                 </concat>
                             </tasks>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>javacc-maven-plugin</artifactId>
+                <version>2.4.1</version>
+                <configuration>
+                    <sourceDirectory>${basedir}/src/main/javacc/concat</sourceDirectory>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>javacc</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>
@@ -183,40 +183,30 @@
         </executions>
       </plugin>
 	
-   <!--
-   <resource>
-      <filtering>true</filtering>
-      <directory>${basedir}/src/main/command</directory>
-      <includes>
-	<include>pldoc.bat</include>
-	<include>pldoc.sh</include>
-      </includes>
-      <targetPath>${basedir}</targetPath>
-    </resource>
-	    
       <plugin>
-        <artifactId>maven-resources-plugin</artifactId>
-        <version>2.5</version>
-        <executions>
-          <execution>
-            <id>copy-resources</id>
-            <phase>process-test-resources</phase>
-            <goals>
-              <goal>copy-resources</goal>
-            </goals>
-            <configuration>
-		    <outputDirectory>${basedir}/test/input</outputDirectory>
-              <resources>          
-                <resource>
-		  <directory>${basedir}/src/test/input</directory>
-                  <filtering>false</filtering>
-                </resource>
-              </resources>              
-            </configuration>            
-          </execution>
-        </executions>
+	<artifactId>maven-clean-plugin</artifactId>
+	<version>2.4.1</version>
+	<configuration>
+	  <filesets>
+	    <fileset>
+	      <directory>${basedir}</directory>
+	      <includes>
+		<include>**/*.tmp</include>
+		<include>**/*.log</include>
+		<include>pldoc.bat</include>
+		<include>pldoc.sh</include>
+		<include>pldoc_example.bat</include>
+		<include>pldoc_example.sh</include>
+		<include>pldoc_drop.bat</include>
+		<include>samples</include>
+		<include>testinput</include>
+	      </includes>
+	      <followSymlinks>false</followSymlinks>
+	    </fileset>
+	  </filesets>
+	</configuration>
       </plugin>
-    -->
+      
       
      </plugins>
 
