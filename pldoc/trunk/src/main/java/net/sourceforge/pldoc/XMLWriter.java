@@ -38,7 +38,13 @@ public class XMLWriter {
     this.outStream = outStream;
     serProperties = new Properties();
     setMethod("xml");
-    setVersion("1.0");
+    /* XML 1.0 was prescriptive (Napoleionic Code- anything not specifically allowed is forbidden), 
+       XML 1.1 is proscriptive/permissive (Common Law- anything not specifically forbidden is allowed)   
+       This change allows future UNICODE 
+       The specific example which caused this change was a character reference "&#27;" which is not allowed under 1.0,
+       but which is allowed under 1.1
+    */
+    setVersion("1.1"); 
     setEncoding("UTF-8");
     setIndent(true);
     setIndentSize(2);
