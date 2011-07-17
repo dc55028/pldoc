@@ -11,7 +11,6 @@ if "%ORACLE_HOME%" == "" ( echo INFO: Environment variable ORACLE_HOME not set. 
 @REM run against all Oracle XE schemas (Oracle XE 11g Beta) - including package and type bodies  
 echo INFO: Environment variable ORACLE_HOME is set. Attempting database tests ... 1>&2 
 call ..\pldoc.bat -showSkippedPackages -d TestDocXE-ALL -url jdbc:oracle:thin:@//192.168.100.158:1521/XE -user system -password oracle -sql "APEX_040000.%%%%,APPQOSSYS.%%%%,CTXSYS.%%%%,DBSNMP.%%%%,FLOWS_FILES.%%%%,HR.%%%%,MDSYS.%%%%,ORACLE_OCM.%%%%,OUTLN.%%%%,PUBLIC.%%%%,SYSTEM.%%%%,TESTUSER.%%%%,XDB.%%%%,SYS.%%%%"  -types "\"PROCEDURE,FUNCTION,TRIGGER,PACKAGE,TYPE,PACKAGE BODY,TYPE BODY\""
-set JAVA_TOOL_OPTIONS=" -Dfile.encoding=UTF-8"
 set JAVA_OPTS=" -Dfile.encoding=UTF-8"
 set NLS_LANG=.UTF8
 
