@@ -30,6 +30,6 @@ set cp=%cp%;%ORACLE_HOME%\ojdbc6.jar;%ORACLE_HOME%\ojdbc5.jar;%ORACLE_HOME%\ojdb
 :call
 REM Call PLDoc
 @REM java -Xbootclasspath/p:"%bcp%" -cp "%cp%" net.sourceforge.pldoc.PLDoc %*
-java -cp "%cp%" net.sourceforge.pldoc.PLDoc %*
+java -server -cp "%cp%" net.sourceforge.pldoc.PLDoc %*
 
 ENDLOCAL

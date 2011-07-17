@@ -65,4 +65,4 @@ done
 #
 # Call PLDoc
 #java -jar ${pldir}/target/${project.build.finalName}-jar-with-dependencies.jar "$@"
-java -cp "$cp" net.sourceforge.pldoc.PLDoc $args
+java -server -cp "$cp" net.sourceforge.pldoc.PLDoc $args
