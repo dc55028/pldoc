@@ -1622,7 +1622,12 @@ void statement() throws SAXException :
 		( <ELSE> (statement())+ )*
 		<END> <IF> ";"
 	| <FOR> ID() <IN> [<REVERSE>] Expression()[".."Expression()] <LOOP> (statement())+ <END> <LOOP> [<IDENTIFIER>] ";"
-	| <FORALL> ID() <IN> Expression() [".." Expression()] [ <SAVE> <EXCEPTIONS> ] sqlStatement(null,";") ";"
+	| <FORALL> ID() <IN> 
+			    (
+	                     ( <INDICES> | <VALUES> ) <OF> Expression() // Add support for sparse collections
+	                     | Expression() [".." Expression()]
+			    )
+			    [ <SAVE> <EXCEPTIONS> ] sqlStatement(null,";") ";"
 	| LOOKAHEAD(2) <LOOP> (statement())+ <END> <LOOP> [<IDENTIFIER>] ";"
 	| <WHILE> Expression() <LOOP> (statement())+ <END> <LOOP> [<IDENTIFIER>] ";"
 	//
@@ -4150,6 +4155,7 @@ TOKEN [IGNORE_CASE]:
 <IMMEDIATE: "IMMEDIATE"> |
 <IN: "IN"> |
 <INDEX: "INDEX"> |
+<INDICES: "INDICES"> |
 <INCLUDING: "INCLUDING"> |
 <INDEXTYPE: "INDEXTYPE"> |
 <INDICATOR: "INDICATOR"> |
@@ -4950,6 +4956,7 @@ Token KEYWORD_UNRESERVED (): {}
 | <INDEXTYPE>
 //| <INDEXTYPES>
 //| <INDICATOR>
+| <INDICES> // FORALL i I INDICES OF collection - SPARSE COLLECTIONS 
 //| <INFINITE>
 //| <INFORMATIONAL>
 //| <INITIAL>
@@ -5493,6 +5500,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <SUBPARTITIONS>
 //| <SUBQUERIES>
 | <SUBSTITUTABLE>
+| <SUBTYPE> // XDBPM_ANALYZE_XMLSCHEMA 
 //| <SUCCESSFUL>
 //| <SUMMARY>
 //| <SUPPLEMENTAL>
@@ -5706,7 +5714,7 @@ Token ID(): {}
 		//<RECORD> | <RETURN> |  <SET> |<REF> | 
 		<RELEASE> | <REVERSE> | <ROLLBACK> | <ROWID> |
 		<ROWNUM> | <ROWTYPE> | <SAVEPOINT> | <SELECT> | <SEPARATE> | <SHARE> |
-		<SMALLINT> | <SQL> | <SQLCODE> | <SQLERRM> | <START> | <STDDEV> | <SUBTYPE> |
+		<SMALLINT> | <SQL> | <SQLCODE> | <SQLERRM> | <START> | <STDDEV> | // <SUBTYPE> |
 		<SUCCESSFUL> | <SUM> | <SYNONYM> | <SYSDATE> | <TABLE> | <THEN> | 
 		//<SPACE> | <TIME> | <TIMESTAMP> | <TIMEZONE_REGION> | <TIMEZONE_ABBR> | <TIMEZONE_MINUTE> | <TIMEZONE_HOUR> | 
 		<TO> | <TRIGGER> |
@@ -5953,7 +5961,7 @@ Token qualifiedID(): {}
 		| <SQLERRM>
 		//<START>
 		| <STDDEV>
-		| <SUBTYPE>
+		//| <SUBTYPE>
 		| <SUCCESSFUL>
 		| <SUM>
 		| <SYNONYM>
