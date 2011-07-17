@@ -1025,7 +1025,12 @@ void statement() throws SAXException :
 		( <ELSE> (statement())+ )*
 		<END> <IF> ";"
 	| <FOR> ID() <IN> [<REVERSE>] Expression()[".."Expression()] <LOOP> (statement())+ <END> <LOOP> [<IDENTIFIER>] ";"
-	| <FORALL> ID() <IN> Expression() [".." Expression()] [ <SAVE> <EXCEPTIONS> ] sqlStatement(null,";") ";"
+	| <FORALL> ID() <IN> 
+			    (
+	                     ( <INDICES> | <VALUES> ) <OF> Expression() // Add support for sparse collections
+	                     | Expression() [".." Expression()]
+			    )
+			    [ <SAVE> <EXCEPTIONS> ] sqlStatement(null,";") ";"
 	| LOOKAHEAD(2) <LOOP> (statement())+ <END> <LOOP> [<IDENTIFIER>] ";"
 	| <WHILE> Expression() <LOOP> (statement())+ <END> <LOOP> [<IDENTIFIER>] ";"
 	//
