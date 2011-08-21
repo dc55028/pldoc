@@ -5015,7 +5015,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <LINK>
 //| <LIST>
 //| <LOB>
-//| <LOCAL>
+| <LOCAL>
 //| <LOCAL_INDEXES>
 //| <LOCALTIME>
 //| <LOCALTIMESTAMP>
@@ -5722,7 +5722,7 @@ Token ID(): {}
 		|
 		<VARCHAR> | <VARCHAR2> | <DOUBLE> | <DEC> | <PRECISION> | <INT> |
 		<NUMERIC> | <SIGNTYPE> | <NCHAR> | <NVARCHAR2> | <STRING> | <UROWID> | <VARRAY> | <VARYING> | <BFILE> |
-		<BLOB> | <CLOB> | <NCLOB> | <LOCAL> | <WITH> | <WHILE> // | <ZONE> | <CHARACTER>
+		<BLOB> | <CLOB> | <NCLOB> | <WITH> | <WHILE> // | <LOCAL> | <ZONE> | <CHARACTER>
 		//| <PARENT>  | <MEMBER> 
 		| <CONSTRUCTOR> | <OBJECT> | <STATIC> | <UNDER> | <RESULT> 
 		| <FINAL> | <INSTANTIABLE> 
@@ -5997,7 +5997,7 @@ Token qualifiedID(): {}
 		| <BLOB>
 		| <CLOB>
 		| <NCLOB>
-		| <LOCAL>
+		//| <LOCAL>
 		//<WITH>
 		| <WHILE>
 		// | <ZONE>
