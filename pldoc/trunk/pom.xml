@@ -20,10 +20,10 @@
         <url>https://sourceforge.net/tracker/?group_id=38875</url>
     </issueManagement>
     <scm>
-        <connection>scm:cvs:pserver:anonymous@pldoc.cvs.sourceforge.net:/cvsroot/pldoc:sources</connection>
-        <developerConnection>scm:cvs:pserver:username@pldoc.cvs.sourceforge.net:/cvsroot/pldoc:sources</developerConnection>
+        <connection>scm:svn:https://pldoc.svn.sourceforge.net/svnroot/pldoc/pldoc/trunk</connection>
+        <developerConnection>scm:svn:https://pldoc.svn.sourceforge.net/svnroot/pldoc/pldoc/trunk</developerConnection>
         <tag>HEAD</tag>
-        <url>http://pldoc.cvs.sourceforge.net/viewvc/pldoc/sources/</url>
+        <url>http://pldoc.svn.sourceforge.net/viewvc/pldoc/pldoc/</url>
     </scm>
 
     <developers>
