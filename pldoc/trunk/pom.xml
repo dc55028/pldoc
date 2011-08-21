@@ -6,7 +6,7 @@
     <groupId>net.sourceforge.pldoc</groupId>
     <packaging>jar</packaging>
     <description>Documentation tool for PLSQL</description>
-    <version>0.9.1</version>
+    <version>0.9.1-SNAPSHOT</version>
     <url>http://pldoc.sourceforge.net</url>
     <licenses>
         <license>
@@ -20,10 +20,10 @@
         <url>https://sourceforge.net/tracker/?group_id=38875</url>
     </issueManagement>
     <scm>
-        <connection>scm:svn:https://pldoc.svn.sourceforge.net/svnroot/pldoc/pldoc/tags/pldoc-0.9.1</connection>
-        <developerConnection>scm:svn:https://pldoc.svn.sourceforge.net/svnroot/pldoc/pldoc/tags/pldoc-0.9.1</developerConnection>
+        <connection>scm:svn:https://pldoc.svn.sourceforge.net/svnroot/pldoc/pldoc/trunk</connection>
+        <developerConnection>scm:svn:https://pldoc.svn.sourceforge.net/svnroot/pldoc/pldoc/trunk</developerConnection>
         <tag>HEAD</tag>
-        <url>http://pldoc.svn.sourceforge.net/viewvc/pldoc/pldoc/tags/pldoc-0.9.1</url>
+        <url>http://pldoc.svn.sourceforge.net/viewvc/pldoc/pldoc/</url>
     </scm>
 
     <developers>
