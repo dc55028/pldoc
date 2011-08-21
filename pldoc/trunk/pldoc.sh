@@ -33,11 +33,11 @@ oldpwd=`pwd` ; cd "${pldir}"; pldir=`pwd`; cd "${oldpwd}"; unset oldpwd
 
 # Set bootclasspath.
 # NB: this is needed to make JDK1.4 use our Xerces version instead of internal parser
-bcp="${pldir}/xalan/bin/xalan.jar:${pldir}/xalan/bin/xml-apis.jar:${pldir}/xalan/bin/xercesImpl.jar"
+#bcp="${pldir}/xalan/bin/xalan.jar:${pldir}/xalan/bin/xml-apis.jar:${pldir}/xalan/bin/xercesImpl.jar"
 #
 # Set classpath
 # NB: classpath must contain the pldoc directory to be able to locate .xsl files
-cp="${pldir}:${pldir}/pldoc.jar"
+cp="${pldir}:${pldir}/target/pldoc-0.9.1-SNAPSHOT-jar-with-dependencies.jar"
 
 # Save arguments
 args=$*
@@ -52,7 +52,10 @@ do
       echo ERROR: Environment variable ORACLE_HOME not set. 1>&2
       exit 1
     else
-      cp="${cp}:$ORACLE_HOME/jdbc/lib/ojdbc14.jar:$ORACLE_HOME/jdbc/lib/classes12.jar"
+      #Normal ORACLE_HOME 
+      cp="${cp}:$ORACLE_HOME/jdbc/lib/ojdbc6.jar:$ORACLE_HOME/jdbc/lib/ojdbc5.jar:$ORACLE_HOME/jdbc/lib/ojdbc14.jar:$ORACLE_HOME/jdbc/lib/classes12.jar"
+      #InstantClienr ORACLE_HOME 
+      cp="${cp}:$ORACLE_HOME/ojdbc6.jar:$ORACLE_HOME/ojdbc5.jar:$ORACLE_HOME/ojdbc14.jar:$ORACLE_HOME/classes12.jar"
     fi
     break
   fi
@@ -61,4 +64,5 @@ done
 
 #
 # Call PLDoc
-java -Xbootclasspath/p:"$bcp" -cp "$cp" net.sourceforge.pldoc.PLDoc $args
+#java -jar ${pldir}/target/pldoc-0.9.1-SNAPSHOT-jar-with-dependencies.jar "$@"
+java -server -cp "$cp" net.sourceforge.pldoc.PLDoc $args
