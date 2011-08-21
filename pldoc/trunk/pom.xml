@@ -105,6 +105,10 @@
         </site>
     </distributionManagement>
 
+    <properties>
+      <project.build.sourceEncoding>UTF8</project.build.sourceEncoding>
+      <project.report.outputEncoding>UTF8</project.report.outputEncoding>
+    </properties>
     <build>
       <testOutputDirectory>${basedir}/test</testOutputDirectory>
    
