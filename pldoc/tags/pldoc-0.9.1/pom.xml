@@ -101,7 +101,7 @@
         <site>
             <id>site.pldoc.sf.net</id>
             <name>PLDoc Site</name>
-            <url>sftp://web.sourceforge.net/home/project-web/pldoc/htdocs/maven-site/</url>
+            <url>scp://shell.sourceforge.net/home/project-web/pldoc/htdocs/maven-site/</url>
         </site>
     </distributionManagement>
 
