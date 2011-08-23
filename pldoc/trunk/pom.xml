@@ -90,17 +90,17 @@
         <repository>
             <id>release.pldoc.sf.net</id>
             <name>PLDoc Release Repository</name>
-            <url>scp://shell.sourceforge.net/home/groups/p/pl/pldoc/htdocs/m2/</url>
+            <url>sftp://web.sourceforge.net/home/project-web/pldoc/htdocs/m2/</url>
         </repository>
         <snapshotRepository>
             <id>snapshot.pldoc.sf.net</id>
             <name>PLDoc Snapshot Repository</name>
-            <url>scp://shell.sourceforge.net/home/groups/p/pl/pldoc/htdocs/m2-snapshot/</url>
+            <url>sftp://web.sourceforge.net/home/project-web/pldoc/htdocs/m2-snapshot/</url>
         </snapshotRepository>
         <site>
             <id>site.pldoc.sf.net</id>
             <name>PLDoc Site</name>
-            <url>scp://shell.sourceforge.net/home/groups/p/pl/pldoc/htdocs/maven-site/</url>
+            <url>scp://shell.sourceforge.net/home/project-web/pldoc/htdocs/maven-site/</url>
         </site>
     </distributionManagement>
 
@@ -111,6 +111,14 @@
     <build>
       <testOutputDirectory>${basedir}/test</testOutputDirectory>
    
+    <extensions>
+      <extension>
+        <groupId>org.apache.maven.wagon</groupId>
+        <artifactId>wagon-ssh</artifactId>
+        <version>1.0-beta-6</version>
+      </extension>
+    </extensions>  
+	
         <plugins>
             <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
