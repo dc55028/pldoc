@@ -91,7 +91,7 @@
         <repository>
             <id>release.pldoc.sf.net</id>
             <name>PLDoc Release Repository</name>
-            <url>sftp://web.sourceforge.net/home/project-web/htdocs/m2/</url>
+            <url>sftp://web.sourceforge.net/home/project-web/pldoc/htdocs/m2/</url>
         </repository>
         <snapshotRepository>
             <id>snapshot.pldoc.sf.net</id>
