@@ -66,6 +66,14 @@
                 <role>Software Developer</role>
             </roles>
         </developer>
+        <developer>
+            <name>Stuart Turton</name>
+            <id>sturton</id>
+            <email>sturton at users.sourceforge.net</email>
+            <roles>
+                <role>Software Developer</role>
+            </roles>
+        </developer>
     </developers>
 
     <dependencies>
@@ -109,6 +117,8 @@
       <project.report.outputEncoding>UTF8</project.report.outputEncoding>
     </properties>
     <build>
+      <!-- Filter Java source in order to generate Version.java -->
+      <sourceDirectory>${basedir}/target/generated-sources/java</sourceDirectory>
       <testOutputDirectory>${basedir}/test</testOutputDirectory>
    
     <extensions>
@@ -237,6 +247,12 @@
 		<include>pldoc_drop.bat</include>
 	      </includes>
 	      <targetPath>${basedir}</targetPath>
+	    </resource>
+            <!-- Filter Java source in order to generate Version.java -->
+	   <resource>
+	      <filtering>true</filtering>
+	      <directory>${basedir}/src/main/java</directory>
+	      <targetPath>${basedir}/target/generated-sources/java</targetPath>
 	    </resource>
     </resources>
 
