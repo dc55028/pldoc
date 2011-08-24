@@ -20,13 +20,12 @@ package net.sourceforge.pldoc;
 /**
 * This class defines the current version of PLDoc.<P>
 * @author Albert Tumanov
-* @version $Header: /cvsroot/pldoc/sources/src/java/net/sourceforge/pldoc/Version.java,v 1.2 2009/01/30 22:37:58 zolyfarkas Exp $
+* @version ${project.version}
 */
 public class Version {
 
   // the Name will be substituted with release tag by CVS 
-  private static final String tagName = "$Name: MIGRATED_TO_SVN $";
-  private static final char dollar = '$';
+  private static final String tagName = "${project.version}";
 
   private Version() {
     // don't instantiate
@@ -36,30 +35,10 @@ public class Version {
   */
   public static String id() {
 
-    String id = "";
-
-    // if was not expanded, say it's experimental
-    if (tagName.equals(dollar + "Name:  " + dollar)) {
-
-      id = "(experimental)";
-
-    } else {
-
-      // extract numbers from the tag name (which is in the form "releaseXYZ")
-      for(int i = 0; i < tagName.length(); i++) {
-        char c = tagName.charAt(i);
-        if (c >= '0' && c <= '9') {
-          if (id.length() == 0) {
-            id += c;
-          } else {
-            id += "." + c;
-          }
-        }
-      }
-
-    }
-
-    return id;
+    /*
+     Simply use the maven project Version 
+    */
+    return tagName;
   }
 
 }
