@@ -17,7 +17,7 @@
 
         <menu name="Main Menu">
             <item name="Introduction" href="index.html"/>
-            <item name="Download" href="http://pldoc.sourceforge.net/m2/net/sourceforge/pldoc/pldoc/0.9.0/pldoc-0.9.0.jar"/>
+            <item name="Download" href="http://pldoc.sourceforge.net/m2/net/sourceforge/pldoc/pldoc/0.9.1/pldoc-0.9.1.jar"/>
             <item name="SourceForge Project" href="http://sourceforge.net/projects/pldoc/"/>
             <item name="User Documentation" href="docs/Users_Guide/index.html"/>
             <item name="Release Notes" href="readme.txt"/>
