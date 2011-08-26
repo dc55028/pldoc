@@ -95,22 +95,24 @@ Either define appropriate variables or make changes in the make.bat file.
 	GETTING THE LATEST SOURCE
 
 
-To get the latest source, you must have CVS client installed.
+To get the latest source, you must have SVN client installed.
 The basic command for getting the very latest source is:
 
-cvs -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/pldoc login
-cvs -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/pldoc checkout sources
+svn co https://pldoc.svn.sourceforge.net/svnroot/pldoc/pldoc/trunk pldoc
 
-If you need source from specific branch (say, "branchXYZ"), use:
+If you need source from specific release (say, "pldoc-X.Y.Z"), use:
 
-cvs -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/pldoc checkout -r branchXYZ sources
+svn co https://pldoc.svn.sourceforge.net/svnroot/pldoc/pldoc/tags/pldoc-X.Y.Z pldoc-X.Y.Z 
 
-See also SourceForge CVS usage instructions:
-http://sourceforge.net/cvs/?group_id=38875
+See also SourceForge SVN usage instructions:
+http://sourceforge.net/svn/?group_id=38875
 
 After downloading the source use use maven to build the project (mvn install)
+
+    mvn -U clean package resources:testResources
+
 there are 2 maven projects:
-    pldoc (located in the sources folder)
+    pldoc (located in the trunk folder)
     maven-pldoc-plugin (located in the maven-pldoc-plugin folder)
 
 ********************************************************************************

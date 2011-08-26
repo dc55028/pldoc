@@ -5,12 +5,12 @@ Review places where <IDENTIFIER> is used and replace with ID() if needed.
 Differentiate reserved words from SYS.STANDARD ?
 --------------------------------------------------------------------------------
 Handle package spec constructs: 
-    record_type_definition
-    recordDeclaration
+    (Done)record_type_definition
+    (Done)recordDeclaration
 --------------------------------------------------------------------------------
 Handle package body constructs: 
-  collection_type_definition
-  objectDeclaration
+  (Done)collection_type_definition
+  (Done)objectDeclaration
 --------------------------------------------------------------------------------
 reuse CommentParser object ?
 --------------------------------------------------------------------------------
