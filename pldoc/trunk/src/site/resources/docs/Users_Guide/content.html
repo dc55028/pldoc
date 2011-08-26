@@ -223,9 +223,9 @@ FUNCTION check_partner(id IN VARCHAR2) RETURN NUMBER;</font></p>
 --<br>
 FUNCTION check_partner(id IN VARCHAR2) RETURN NUMBER;</font></p>
 
-<h3><i>The package comment</i></h3>
+<h3><i>The package/object/collection comment</i></h3>
 
-<p>There are three ways to place a package comment. 
+<p>There are four ways to place a package, collection, schema-level function or procedure comment. 
 The result will be exactly the same in all cases. 
 Whichever you choose, it must be a formal comment.<p/>
 <p>The first method is to put the package comment text immediately before the package code:</p>
@@ -245,6 +245,7 @@ IS<br>
 END;<br>
 /</font></p>
 
+<p>This method has a disadvantage when running PLDoc against a database: the comment is not saved with the source code.</p>
 <p>Next method is to put the package comment text immediately before the IS keyword:</p>
 
 <p><font face="Courier New">
@@ -261,6 +262,26 @@ IS<br>
 ...<br>
 END;<br>
 /</font></p>
+
+<p>This method should not be used to document schema level functions and procedures; PLDoc requires that the comment is before the parameter list</p>
+
+<p>Next method is to put the object comment text between the object type and the object name:</p>
+
+<p><font face="Courier New">
+CREATE OR REPLACE<br>
+FUNCTION 
+<br>
+/**&nbsp;<br>
+* Retrieve name from supplied ID.<br>
+* 
+* @param p_id Person ID<br>
+*/<br>
+FN_GET_NAME ( p_id INTEGER) RETURN VARCHAR2 IS<br>
+...<br>
+END;<br>
+/</font></p>
+
+<p>This method has the advantage that comments are retained in the database, and may be extracted from compiled objects using PLDoc. This is the only practical way of adding effective PLDoc comments to collection, schema-level functions or procedures.</p>
 
 <p>And the last method is to put the package comment anywhere between the IS and the END keywords of the package spec 
 (but not inside the functions/procedures of the package). 
@@ -297,6 +318,7 @@ the partner we want to check<br>
 <font face="Courier New">/** Checking the partner record whether it exists or
 not.<br>
 * @param id The ID of the partner we want to check<br>
+* @return Full Name of the Person<br>
 */<br>
 FUNCTION check_partner(<br>
 &nbsp;&nbsp;&nbsp;</font> <font face="Courier New">id IN VARCHAR2<br>

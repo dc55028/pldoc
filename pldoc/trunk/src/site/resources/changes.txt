@@ -13,6 +13,30 @@ Project directory: http://pldoc.sourceforge.net
 
 
 
+	CHANGES IN RELEASE 0.9.1:
+
+* New: Now supported:-
+       Collections (see test/TestDoc3/cand2172_tab.html)
+       Object Types (see test/testinput/objecttypes, test/TestDoc3/cand2169_t.html)
+       Schema-level Procedures and Functions(see test/testinput/schemalevel)
+       11g Triggers (see test/testinput/11g-source, test/TestDoc3/_test_user.html 
+       Conditional Compilation tokens (see test/TestDoc3/_global.html#prc_conditional)
+       Q-quoted strings (normal cases - see test/TestDoc3/pkg_qstrings.html)
+       Default values (see test/testinput/datetime-source/pkg_datetime_literals.pks, test/TestDoc3/pkg_datetime_literals.html)
+       Most unreserved words (see test/TestDoc3/pkg_test_unreserved_keyword.html)
+       Split operators " 1 ! /* comment ... */ = 2 "  (see test/TestDoc3/split_operators.html)
+       Document schema-level functions and procedures within faux-package of the form "_SCHEMA-NAME"
+       inline tags (see test/testinput/objecttypes/TY_FIELD_AGGREGATOR.tps, test/TestDoc3/ty_field_aggregator.html)
+* New: Maven now creates 2 artefacts (original JAR and a standalone JAR containing all required classes)
+* New: Maven now creates ZIP, TGZ, and TBZ bundles of jar files, scripts and sample files
+* Changed: 
+        PLDoc repository moved to Subversion
+	Reuse cursors to prevent MAX_CURSORS exceeded problems
+	Allow case of identifiers and keywords to be specified (deviating from defaults would require stylesheet rewrite)
+	Attempt to automatically generate HTML links between objects
+        Extract metadata using specified SQL92 callable statement (for EnterpriseDB PLDoc generation)
+* Fixed: lots
+
 	CHANGES IN RELEASE 0.9.0:
 
 * New: pldoc maven 2 pom has been added, with maven 2 plugin (2.0)
