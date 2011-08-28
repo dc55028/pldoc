@@ -115,7 +115,14 @@
     <properties>
       <project.build.sourceEncoding>UTF8</project.build.sourceEncoding>
       <project.report.outputEncoding>UTF8</project.report.outputEncoding>
+      <!-- 
+	   apt uses velocity to replace variables, which does not support variable names containing periods/full stops 
+       -->
+      <velocityProjectVersion>${project.version}</velocityProjectVersion>
+      <velocityBuildFinalName>${project.build.finalName}</velocityBuildFinalName>
     </properties>
+
+
     <build>
       <!-- Filter Java source in order to generate Version.java -->
       <sourceDirectory>${basedir}/target/generated-sources/java</sourceDirectory>
