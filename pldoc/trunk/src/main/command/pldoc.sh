@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # pldoc.sh - Unix start script
-# $Id: pldoc.sh,v 1.8 2006/01/24 16:13:56 gpaulissen Exp $
+# $Id$
 #
 # Normally, editing this script should not be required.
 #

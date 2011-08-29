@@ -1,4 +1,4 @@
-# $Id: pldoc_test.sh,v 1.2 2003/10/28 17:30:28 altumano Exp $
+# $Id$
 ../pldoc.sh -doctitle \"TEST\" -overview testinput/overview1.html -d TestDoc testinput/*.sql 
 ../pldoc.sh -showSkippedPackages -doctitle \"TEST\" -overview testinput/overview1.html -d TestDoc2 -inputencoding utf-8 testinput/chinese.pks
 ../pldoc.sh -showSkippedPackages -doctitle \"TEST\" -overview testinput/overview1.html -d TestDoc3 testinput/packages/*.* testinput/objecttypes/*.* testinput/datetime-source/*.* testinput/schemalevel/*.*  testinput/triggers/*.* testinput/xe-problems/*.* testinput/11g-source/*.* testinput/bugs/*.sql 

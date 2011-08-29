@@ -5,7 +5,7 @@
 
 Copyright (C) 2002  Albert Tumanov (altumano@users.sourceforge.net)
 
-$Id: readme.txt,v 1.1 2009/02/13 23:03:46 zolyfarkas Exp $
+$Id$
 
 Project directory: http://pldoc.sourceforge.net
 
@@ -39,6 +39,7 @@ See file xalan/license for information on redistribution.
 
 1) Install Java runtime version 1.2 or above, if not yet installed
    (available from http://java.sun.com).
+   IMPORTANT - newer Java versions have significant performance improvements - Java 6 is recommended
 2) Unpack the pldoc zip file into a new directory.
 3) Run pldoc_example.bat (on Windows) or pldoc_example.sh (on UNIX) to verify installation
    and get sample output. It generates html output from the sample files
@@ -59,9 +60,12 @@ NB: the @headcom tag must be placed AFTER the main comment text.
 	KNOWN PROBLEMS AND LIMITATIONS
 
 
-* Currently, only package specs can be processed.
-  You should not have package bodies, standalone function/procedures or types in the input files.
-* PLDoc mostly conforms to PL/SQL 9.0.1 specification.
+* Currently, package specs, triggers, standalone function/procedures and types can be processed.
+  ALthough package and object type bodies are parsed, little or no processing is performed within them. 
+  In order to minimise the possibility of parsing problems in one module affecting another, 
+  we recommend storing each module in its own input files.
+* PLDoc mostly conforms to PL/SQL 9.0.1 specifications and recent changes have increased support for
+  new 10G and 11G.
 * PLDoc tries to read and understand informal comments like (--...) and (/*...*/)
   in those places where documentation comments are expected.
   But for the best results, use formal comments (/**...*/).
@@ -69,13 +73,21 @@ NB: the @headcom tag must be placed AFTER the main comment text.
 * Some SQL*Plus commands and variables in the source may cause PLDoc to fail.
 * Comment texts are treated as HTML, but only well-formed XHTML tags
   are allowed (must use <br/> instead of <br> etc).
-* Only @headcom, @deprecated, @param, @return and @throws tags are supported at the moment.
-* Deprecated and Index pages not generated.
+* PLDoc attempts to imitate Javadoc processing for tags such as @headcom, @deprecated, @param, @return, @throws etc.
+  It also attempts to process inline tags (@link, etc.) - this is still experimental.
+* PLDoc attempts to generate links between objects documented in the same process: try to process all 
+  files in one run. Alternatively, run PLDoc against the database directly.
+* Deprecated pages not generated.
 * One-line comments are ignored except before package members.
 
 
 	BUILDING FROM SOURCE
 
+
+During development of 0.91, PLDoc migrated from Ant to Maven: both methods should work but building 
+with Maven is recommended as it automates a lot of work building, packaging and releasing PLDoc. 
+
+        Traditional Method
 
 Both binaries and source are included in the distribution.
 You need not to rebuild the source unless you have it modified.
@@ -91,25 +103,34 @@ to the JavaCC directory. The environment variable ORACLE_HOME must point
 to the Oracle home directory where JDBC and SQLJ jar files are located.
 Either define appropriate variables or make changes in the make.bat file.
 
+        Maven Method
+ 
+Download and install Maven if you do not already have it installed (see http://maven.apache.org/download.html)
+
+After Maven installation and downloading the source use Maven to build the project (mvn install)
+
+    mvn -U clean package resources:testResources
+
+    IMPORTANT: building PLDoc now takes significantly longer than building version 0.9.0; 
+               build typically takes 30 minutes or so.
+
 
 	GETTING THE LATEST SOURCE
 
 
-To get the latest source, you must have SVN client installed.
+During development of 0.9.1, PLDoc migrated to Subversion (SVN): the CVS repository is no longer updated.
+
+To get the latest source, you must have an SVN client installed.
 The basic command for getting the very latest source is:
 
 svn co https://pldoc.svn.sourceforge.net/svnroot/pldoc/pldoc/trunk pldoc
 
-If you need source from specific release (say, "pldoc-X.Y.Z"), use:
+If you need source from a specific release (say, "pldoc-X.Y.Z"), use:
 
 svn co https://pldoc.svn.sourceforge.net/svnroot/pldoc/pldoc/tags/pldoc-X.Y.Z pldoc-X.Y.Z 
 
 See also SourceForge SVN usage instructions:
 http://sourceforge.net/svn/?group_id=38875
-
-After downloading the source use use maven to build the project (mvn install)
-
-    mvn -U clean package resources:testResources
 
 there are 2 maven projects:
     pldoc (located in the trunk folder)
