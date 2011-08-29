@@ -1,2 +1,2 @@
 # $Id$
-./pldoc.sh -doctitle \"Sample Application\" -overview test/samples/overview1.html -d test/SampleApplicationDoc test/samples/sample*.sql
+./pldoc.sh -doctitle \"Sample Application\" -overview samples/overview1.html -d SampleApplicationDoc samples/sample*.sql

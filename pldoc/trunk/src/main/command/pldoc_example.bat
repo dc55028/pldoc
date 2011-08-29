@@ -1,2 +1,2 @@
-call pldoc.bat -doctitle 'Sample Application' -overview test/samples/overview1.html -d test/SampleApplicationDoc test/samples/sample*.sql
+call pldoc.bat -doctitle 'Sample Application' -overview samples/overview1.html -d SampleApplicationDoc samples/sample*.sql
 PAUSE
