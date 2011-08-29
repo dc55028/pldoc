@@ -1,4 +1,4 @@
-REM $Id: pldoc_test.bat,v 1.3 2003/10/20 19:37:46 altumano Exp $
+REM $Id$
 setlocal
 
 call ..\pldoc.bat -showSkippedPackages -doctitle \"TEST\" -overview testinput/overview1.html -d TestDoc1 testinput/*.sql

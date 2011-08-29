@@ -5,7 +5,7 @@
 
 Copyright (C) 2002  Albert Tumanov (altumano at users.sourceforge.net)
 
-$Id: changes.txt,v 1.1 2009/02/13 23:03:46 zolyfarkas Exp $
+$Id$
 
 Project directory: http://pldoc.sourceforge.net
 
@@ -13,7 +13,16 @@ Project directory: http://pldoc.sourceforge.net
 
 
 
-	CHANGES IN RELEASE 0.9.1:
+	CHANGES IN RELEASE 0.9.2:
+
+* New: 
+       Maven now creates ZIP, TGZ, and TBZ bundles of JAR files, scripts and sample files
+
+* Changes:
+       Object/file parsing messages are now suppressed by default: use the new -verbose flag to display them
+
+       Site Download menu option now links to download page containing links to JAR files and bundles  
+
 
 * New: Now supported:-
        Collections (see test/TestDoc3/cand2172_tab.html)
@@ -28,7 +37,6 @@ Project directory: http://pldoc.sourceforge.net
        Document schema-level functions and procedures within faux-package of the form "_SCHEMA-NAME"
        inline tags (see test/testinput/objecttypes/TY_FIELD_AGGREGATOR.tps, test/TestDoc3/ty_field_aggregator.html)
 * New: Maven now creates 2 artefacts (original JAR and a standalone JAR containing all required classes)
-* New: Maven now creates ZIP, TGZ, and TBZ bundles of jar files, scripts and sample files
 * Changed: 
         PLDoc repository moved to Subversion
 	Reuse cursors to prevent MAX_CURSORS exceeded problems
