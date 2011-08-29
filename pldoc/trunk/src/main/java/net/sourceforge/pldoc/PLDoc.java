@@ -179,7 +179,7 @@ public class PLDoc
         final String packagename = inputFileName;
 
         // open the input file
-        System.out.println("Parsing file " + inputFileName + " ...");
+        if (settings.isVerbose() ) System.out.println("Parsing file " + inputFileName + " ...");
 
         try {
 	  /* Allow the schema to be defaulted even when parsing files */
@@ -253,11 +253,11 @@ public class PLDoc
                                         " ORDER BY "+
                                         " object_name"
                                         ;
-		   System.out.println("Using \"" + sqlStatement + "\"" );
+		   if (settings.isVerbose() ) System.out.println("Using \"" + sqlStatement + "\"" );
 
-		   System.out.println("Connecting ..");
+		   if (settings.isVerbose() ) System.out.println("Connecting ..");
            conn = DriverManager.getConnection( settings.getDbUrl(), settings.getDbUser(), settings.getDbPassword() );
-		   System.out.println("Connected");
+		   if (settings.isVerbose() ) System.out.println("Connected");
 
 
           pstmt = conn.prepareStatement(sqlStatement);
@@ -295,7 +295,7 @@ public class PLDoc
 		    do {
 			  final String packagename = inputSchemaName + "." + rset.getString(1);
 			  String objectType = rset.getString(2);
-			  System.out.println("Parsing " + objectType + " name " + packagename + " ...");
+			  if (settings.isVerbose() ) System.out.println("Parsing " + objectType + " name " + packagename + " ...");
 
                 //Remap DBA_OBJECTS.OBJECT_TYPE column contents to DBMS_METADATA.GET_DDL(OBJECT_TYPE) parameter if necessary
 			if ( hashMap.containsKey(objectType) )
@@ -304,7 +304,7 @@ public class PLDoc
 			}
 
 
-				System.err.println("Extracting DBMS_METADATA DDL for (object_type,object_name,schema)=(" + objectType + "," +rset.getString(1) + "," +inputSchemaName  + ") ...");
+				if (settings.isVerbose() ) System.err.println("Extracting DBMS_METADATA DDL for (object_type,object_name,schema)=(" + objectType + "," +rset.getString(1) + "," +inputSchemaName  + ") ...");
 
 			// Open the reader first to prevent failure to retrieve the source code
 			// crashing the application
