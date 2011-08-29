@@ -19,8 +19,8 @@ Bundles
 
 *---------------------------------------------------------------------------------+
 | {{{http://pldoc.sourceforge.net/m2/net/sourceforge/pldoc/pldoc/${velocityProjectVersion}/${velocityBuildFinalName}-distribution.zip}ZIP bundle}}|
-| {{{http://pldoc.sourceforge.net/m2/net/sourceforge/pldoc/pldoc/${velocityProjectVersion}/${velocityBuildFinalName}-distribution.tgz}TGZ bundle}}|
-| {{{http://pldoc.sourceforge.net/m2/net/sourceforge/pldoc/pldoc/${velocityProjectVersion}/${velocityBuildFinalName}-distribution.tbz}TBZ bundle}}|
+| {{{http://pldoc.sourceforge.net/m2/net/sourceforge/pldoc/pldoc/${velocityProjectVersion}/${velocityBuildFinalName}-distribution.tar.gz}TGZ bundle}}|
+| {{{http://pldoc.sourceforge.net/m2/net/sourceforge/pldoc/pldoc/${velocityProjectVersion}/${velocityBuildFinalName}-distribution.tar.bz2}TBZ bundle}}|
 *---------------------------------------------------------------------------------+
 Bundles
 
