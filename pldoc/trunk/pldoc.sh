@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # pldoc.sh - Unix start script
-# $Id: pldoc.sh,v 1.8 2006/01/24 16:13:56 gpaulissen Exp $
+# $Id$
 #
 # Normally, editing this script should not be required.
 #
@@ -37,7 +37,7 @@ oldpwd=`pwd` ; cd "${pldir}"; pldir=`pwd`; cd "${oldpwd}"; unset oldpwd
 #
 # Set classpath
 # NB: classpath must contain the pldoc directory to be able to locate .xsl files
-cp="${pldir}:${pldir}/target/pldoc-0.9.1-SNAPSHOT-jar-with-dependencies.jar"
+cp="${pldir}:${pldir}/target/pldoc-0.9.2-SNAPSHOT-jar-with-dependencies.jar"
 
 # Save arguments
 args=$*
@@ -64,5 +64,5 @@ done
 
 #
 # Call PLDoc
-#java -jar ${pldir}/target/pldoc-0.9.1-SNAPSHOT-jar-with-dependencies.jar "$@"
+#java -jar ${pldir}/target/pldoc-0.9.2-SNAPSHOT-jar-with-dependencies.jar "$@"
 java -server -cp "$cp" net.sourceforge.pldoc.PLDoc $args
