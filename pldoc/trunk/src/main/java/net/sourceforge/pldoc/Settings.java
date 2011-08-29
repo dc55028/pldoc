@@ -61,6 +61,7 @@ public class Settings
   // we cannot yet set output encoding dynamically, because of XSLs
   private String outputEncoding = "UTF-8";
   private boolean exitOnError = false;
+  private boolean verbose = false;
   private String driverName = DRIVER_NAME_DEFAULT ;
   private String getMetadataStatement = GET_METADATA_STATEMENT_DEFAULT ;
   private int    returnType = java.sql.Types.CLOB;
@@ -73,6 +74,7 @@ public class Settings
 
   private static final String usage =
     "Arguments: [options] inputfile(s)\n" +
+    "-verbose                  Verbose - report each object processed \n" +
     "-d <directory>            Destination directory for output files [default: current]\n" +
     "-doctitle <text>          Application name [default: MyApplication]\n" +
     "-overview <file>          Read overview documentation from HTML file [default: none]\n" +
@@ -274,6 +276,10 @@ public class Settings
         }
         this.inputEncoding = (String) it.next();
       }
+      else if (arg.equalsIgnoreCase("-verbose")) {
+        // consume  "-verbose"
+        this.verbose = true;
+      }
       else if (arg.equalsIgnoreCase("-exitonerror")) {
         // consume  "-exitonerror"
         this.exitOnError = true;
@@ -407,6 +413,9 @@ public class Settings
   public void setInputEncoding(String inputEncoding) {
           this.inputEncoding = inputEncoding;
   }
+  public void setVerbose(boolean verbose) {
+          this.verbose = verbose;
+  }
   public void setExitOnError(boolean exitOnError) {
           this.exitOnError = exitOnError;
   }
@@ -508,6 +517,10 @@ public class Settings
 
   public String getOutputEncoding() {
     return outputEncoding;
+  }
+
+  public boolean isVerbose() {
+    return verbose;
   }
 
   public boolean isExitOnError() {
