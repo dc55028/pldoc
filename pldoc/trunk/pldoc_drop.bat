@@ -8,7 +8,7 @@
 @rem    2) TEMP variable must be defined
 @rem    3) there must be a defalt browser defined for running .html files
 @rem
-@rem    $Id: pldoc_drop.bat,v 1.2 2005/11/29 08:25:00 gpaulissen Exp $
+@rem    $Id$
 
 REM Resolve the directory of pldoc
 set pldir=%~d0%~p0
