@@ -30,7 +30,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   xmlns:redirect="http://xml.apache.org/xalan/redirect"
   extension-element-prefixes="redirect str java">
 
-  <xsl:output method="html" indent="yes" encoding="iso-8859-1"/>
+  <xsl:output method="html" indent="yes" encoding="UTF-8"/>
   <xsl:variable name="uppercase">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
   <xsl:variable name="lowercase">abcdefghijklmnopqrstuvwxyz</xsl:variable>
   <xsl:param name="output-dir"/>
