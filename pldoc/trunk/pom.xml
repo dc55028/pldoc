@@ -6,7 +6,7 @@
     <groupId>net.sourceforge.pldoc</groupId>
     <packaging>jar</packaging>
     <description>Documentation tool for PLSQL</description>
-    <version>0.9.3-SNAPSHOT</version>
+    <version>0.9.3</version>
     <url>http://pldoc.sourceforge.net</url>
     <licenses>
         <license>
@@ -20,9 +20,9 @@
         <url>https://sourceforge.net/tracker/?group_id=38875</url>
     </issueManagement>
     <scm>
-        <connection>scm:svn:https://pldoc.svn.sourceforge.net/svnroot/pldoc/pldoc/trunk</connection>
-        <developerConnection>scm:svn:https://pldoc.svn.sourceforge.net/svnroot/pldoc/pldoc/trunk</developerConnection>
-        <url>http://pldoc.svn.sourceforge.net/viewvc/pldoc/pldoc/</url>
+        <connection>scm:svn:https://pldoc.svn.sourceforge.net/svnroot/pldoc/pldoc/tags/pldoc-0.9.3</connection>
+        <developerConnection>scm:svn:https://pldoc.svn.sourceforge.net/svnroot/pldoc/pldoc/tags/pldoc-0.9.3</developerConnection>
+        <url>http://pldoc.svn.sourceforge.net/viewvc/pldoc/pldoc/tags/pldoc-0.9.3</url>
     </scm>
 
     <developers>
@@ -148,7 +148,7 @@
                             <goal>run</goal>
                         </goals>
                         <configuration>
-                            <target unless="skipJavacc" >
+                            <target unless="skipJavacc">
                                 <concat destfile="${basedir}/src/main/javacc/concat/PLSQL.jj">
                                     <fileset dir="${basedir}/src/main/javacc">
                                         <include name="Parser.jj" />
@@ -173,13 +173,13 @@
 				<fileset dir="${basedir}/test/testinput" id="IT1.files">
 				    <include name="*.sql" />
 				</fileset>
-                                <pathconvert pathsep=" "  property="testInputFiles" refid="IT1.files" />
+                                <pathconvert pathsep=" " property="testInputFiles" refid="IT1.files" />
                                 <property name="runtime-classpath" refid="maven.runtime.classpath" />
                                 <java jar="${basedir}/target/pldoc-${project.version}-jar-with-dependencies.jar" fork="true">
 				   <arg line="-showSkippedPackages -doctitle TEST -overview ${basedir}/test/testinput/overview1.html -d ${basedir}/test/TestDoc ${testInputFiles}" />
                                 </java>
                                 <java jar="${basedir}/target/pldoc-${project.version}-jar-with-dependencies.jar" fork="true">
-				   <arg line="-showSkippedPackages -doctitle TEST2 -overview ${basedir}/test/testinput/overview1.html -d ${basedir}/test/TestDoc2  -inputencoding utf-8 ${basedir}/test/testinput/chinese.pks" />
+				   <arg line="-showSkippedPackages -doctitle TEST2 -overview ${basedir}/test/testinput/overview1.html -d ${basedir}/test/TestDoc2 -inputencoding utf-8 ${basedir}/test/testinput/chinese.pks" />
                                 </java>
 				<fileset dir="${basedir}/test/testinput" id="IT3.files">
 				    <include name="packages/*.*" />
@@ -192,7 +192,7 @@
 				    <include name="bugs/*.sql" />
 				    <exclude name="11g-source/test_fully_reserved.pks" />
 				</fileset>
-                                <pathconvert pathsep=" "  property="test3InputFiles" refid="IT3.files" />
+                                <pathconvert pathsep=" " property="test3InputFiles" refid="IT3.files" />
                                 <java jar="${basedir}/target/pldoc-${project.version}-jar-with-dependencies.jar" fork="true">
 				   <arg line="-showSkippedPackages -doctitle TEST3 -overview ${basedir}/test/testinput/overview1.html -d ${basedir}/test/TestDoc3 ${test3InputFiles}" />
                                 </java>
