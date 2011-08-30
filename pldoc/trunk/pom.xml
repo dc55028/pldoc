@@ -115,6 +115,7 @@
     <properties>
       <project.build.sourceEncoding>UTF8</project.build.sourceEncoding>
       <project.report.outputEncoding>UTF8</project.report.outputEncoding>
+      <exec.mainClass>net.sourceforge.pldoc.PLDoc</exec.mainClass>
       <!-- 
 	   apt uses velocity to replace variables, which does not support variable names containing periods/full stops 
        -->
@@ -147,7 +148,7 @@
                             <goal>run</goal>
                         </goals>
                         <configuration>
-                            <tasks>
+                            <target unless="skipJavacc" >
                                 <concat destfile="${basedir}/src/main/javacc/concat/PLSQL.jj">
                                     <fileset dir="${basedir}/src/main/javacc">
                                         <include name="Parser.jj" />
@@ -158,6 +159,43 @@
                                         <include name="ProductionsTriggers.jj" />
                                     </fileset>
                                 </concat>
+                            </target>
+                        </configuration>
+                    </execution>
+                    <execution>
+			<id>generate-pldoc</id>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+				<fileset dir="${basedir}/test/testinput" id="IT1.files">
+				    <include name="*.sql" />
+				</fileset>
+                                <pathconvert pathsep=" "  property="testInputFiles" refid="IT1.files" />
+                                <property name="runtime-classpath" refid="maven.runtime.classpath" />
+                                <java jar="${basedir}/target/pldoc-${project.version}-jar-with-dependencies.jar" fork="true">
+				   <arg line="-showSkippedPackages -doctitle TEST -overview ${basedir}/test/testinput/overview1.html -d ${basedir}/test/TestDoc ${testInputFiles}" />
+                                </java>
+                                <java jar="${basedir}/target/pldoc-${project.version}-jar-with-dependencies.jar" fork="true">
+				   <arg line="-showSkippedPackages -doctitle TEST2 -overview ${basedir}/test/testinput/overview1.html -d ${basedir}/test/TestDoc2  -inputencoding utf-8 ${basedir}/test/testinput/chinese.pks" />
+                                </java>
+				<fileset dir="${basedir}/test/testinput" id="IT3.files">
+				    <include name="packages/*.*" />
+				    <include name="objecttypes/*.*" />
+				    <include name="datetime-source/*.*" />
+				    <include name="schemalevel/*.*" />
+				    <include name="triggers/*.*" />
+				    <include name="xe-problems/*.*" />
+				    <include name="11g-source/*.*" />
+				    <include name="bugs/*.sql" />
+				    <exclude name="11g-source/test_fully_reserved.pks" />
+				</fileset>
+                                <pathconvert pathsep=" "  property="test3InputFiles" refid="IT3.files" />
+                                <java jar="${basedir}/target/pldoc-${project.version}-jar-with-dependencies.jar" fork="true">
+				   <arg line="-showSkippedPackages -doctitle TEST3 -overview ${basedir}/test/testinput/overview1.html -d ${basedir}/test/TestDoc3 ${test3InputFiles}" />
+                                </java>
                             </tasks>
                         </configuration>
                     </execution>
