@@ -13,6 +13,23 @@ Project directory: http://pldoc.sourceforge.net
 
 
 
+	CHANGES IN RELEASE 0.9.3:
+
+* New: 
+       pom.xml now supports: 
+
+          skipping PLSQL.jj generation (and subsequent unnecessary JavaCC and Javac steps) 
+	     use "skipJavacc=true"  on the comnmand line 
+
+          file-based integration tests from pldoc_test.sh/pldoc_test.bat
+
+* Changes:
+      module HTML pages are now encoded as UTF-8 rather than ISO-8859-1, preventing corruption of module pages
+      Bundled example scripts now run against bundled samples directory
+      Site menu link to Sourceforge development site corrected
+
+
+
 	CHANGES IN RELEASE 0.9.2:
 
 * New: 
