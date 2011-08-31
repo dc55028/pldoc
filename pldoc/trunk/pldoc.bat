@@ -10,7 +10,7 @@ REM NB: this is needed to make JDK1.4 use our Xerces version instead of internal
 @REM set bcp=%pldir%xalan\bin\xalan.jar;%pldir%xalan\bin\xml-apis.jar;%pldir%xalan\bin\xercesImpl.jar
 REM Set classpath
 REM NB: classpath must contain the pldoc directory to be able to locate .xsl files
-set cp=%pldir%\target\pldoc-0.9.3-SNAPSHOT-jar-with-dependencies.jar  
+set cp=%pldir%\target\pldoc-0.9.3-jar-with-dependencies.jar  
 
 :arg
 if "%1" == "" goto call
