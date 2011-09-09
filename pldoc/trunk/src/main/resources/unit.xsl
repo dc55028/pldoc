@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   <xsl:output method="html" indent="yes" encoding="UTF-8"/>
   <xsl:variable name="uppercase">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
   <xsl:variable name="lowercase">abcdefghijklmnopqrstuvwxyz</xsl:variable>
-  <xsl:param name="output-dir"/>
+  <xsl:param name="targetFolder"/>
   
   <!-- ********************** NAVIGATION BAR TEMPLATE ********************** -->
   <xsl:template name="NavigationBar">
@@ -711,7 +711,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   <!--<xsl:for-each select="PACKAGE | PACKAGE_BODY">-->
   <xsl:for-each select="PACKAGE | OBJECT_TYPE | TRIGGER">
 
-    <redirect:write file="{translate(@NAME, $uppercase, $lowercase)}.html">
+    <redirect:write file="{concat($targetFolder, translate(@NAME, $uppercase, $lowercase))}.html">
 
     <HTML>
     <HEAD>
@@ -951,7 +951,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   <!-- ********************** START OF TABLE PAGE ************************** -->
   <xsl:for-each select="TABLE | VIEW">
 
-    <redirect:write file="{translate(@NAME, $uppercase, $lowercase)}.html">
+    <redirect:write file="{concat($targetFolder, translate(@NAME, $uppercase, $lowercase))}.html">
 
     <HTML>
     <HEAD>

@@ -630,7 +630,8 @@ public class PLDoc
     System.out.println("Generating <unit>.html ...");
     transformer = tFactory.newTransformer(new StreamSource(
       resLoader.getResourceStream("unit.xsl")));
-    // Usgin this leaves Unit.xml in sub-sub-directoroes -- transformer.setParameter("targetFolder", settings.getOutputDirectory().getPath() + "/");
+    //Have to pass in Absolute location of output directory in order to avoid problems with spaces in paths
+    transformer.setParameter("targetFolder", settings.getOutputDirectory().getAbsolutePath() + File.separator );
     transformer.transform(new StreamSource(applicationFile), new DOMResult());
   }
 
