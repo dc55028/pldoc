@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 // $Header: /cvsroot/pldoc/sources/src/javacc/Parser.jj,v 1.2 2003/10/30 20:59:25 dvoytenko Exp $
 //
 options {
-	DEBUG_PARSER = false;
+	DEBUG_PARSER = false ;
 	DEBUG_TOKEN_MANAGER = false;
 	DEBUG_LOOKAHEAD = false;
 	IGNORE_CASE = true;
@@ -28,7 +28,7 @@ options {
 	CHOICE_AMBIGUITY_CHECK = 3;
 	OTHER_AMBIGUITY_CHECK = 1;
 	ERROR_REPORTING = true;
-  JAVA_UNICODE_ESCAPE = true;
+        JAVA_UNICODE_ESCAPE = true;
 	UNICODE_INPUT = false;
 	USER_TOKEN_MANAGER = false;
 	USER_CHAR_STREAM = false;
@@ -193,12 +193,15 @@ public class PLSQLParser {
 
                 //SRT 20110422 System.err.println("processPackageComment(" + ((null == token) ?  "<empty token>" : token.toString()) +")"  );
 		// get the text, if present
-		if (token != null && token.specialToken != null) {
+		while (token != null && token.specialToken != null) { //Tracker Issue 1433480 
 		//SRT 20110422 System.err.println("processPackageComment(specialToken)"  );
 			token = token.specialToken;
 			int kind = token.kind;
 			String comment = token.toString();
 		//SRT 20110422 System.err.println("processPackageComment(specialToken comment): ["+ comment +"]"  );
+			if (comment != null && kind == EOL) {//Tracker Issue 1433480 - skip EOLs 
+			  continue;
+			} 
 			if (comment != null && kind == FORMAL_COMMENT) {
 		//SRT 20110422 System.err.println("processPackageComment(specialToken comment FORMAL_COMMENT): ["+ comment +"]"  );
 				CommentParser commentParser = new CommentParser(comment);
@@ -212,6 +215,7 @@ public class PLSQLParser {
 					packageCommentTags.putAll(commentParser.getTags());
 				}
 			}
+		        break; // Tracker Issue 1433480 - Only process the first comment before the package
 		}
 
 		// print the package comment
@@ -274,6 +278,9 @@ public class PLSQLParser {
 			int kind = token.kind;
 			String comment = token.toString();
 
+			if (comment != null && kind == EOL) {//Tracker Issue 1433480 - skip EOLs 
+			  continue;
+			} 
 			//SRT 20110422 System.err.println("processMemberComment:  stepped to Token of kind(" + kind + ")=" + token.toString());
 			if (comment != null && (kind == FORMAL_COMMENT || ! ignoreInformalComments)) {
 
@@ -661,7 +668,7 @@ void sqlPlusCommand() : {}
   // Attach Library 
   | "." <ATTACH>
   )
-  skipPastNextOccurrence("\n")
+  skip2NextTokenOccurrence(EOL) //Tracker Issue 1433480 skip until next EOL Special Token   
   //[";" | "-"]
 }
 
@@ -1471,6 +1478,7 @@ void skip2NextOccurrence(String target) :
 {
   Token nextToken = getToken(1);
   while (!nextToken.image.equals(target)
+	 && (null == nextToken.specialToken || !nextToken.specialToken.image.equals(target) ) //In case the target is a Special Token
 	 && nextToken.kind!=EOF //SRT 20110521 - Prevent endless loop when target does not exist in the input stream
         )
   {
@@ -1489,6 +1497,38 @@ void skipPastNextOccurrence(String target) :
 {
   Token t = null;
   skip2NextOccurrence(target) ;
+  t = getNextToken(); // Chomp this one 
+}
+{
+	{ return; }
+}
+
+/*
+ Read Tokens up to but not including the target Token.kind. 
+*/
+void skip2NextTokenOccurrence(int target) :
+{
+  Token nextToken = getToken(1);
+  while (nextToken.kind!=target
+	 && (null == nextToken.specialToken || nextToken.specialToken.kind!=target ) //In case the target is a Special Token
+	 && nextToken.kind!=EOF //SRT 20110521 - Prevent endless loop when target does not exist in the input stream
+        )
+  {
+    nextToken = getNextToken();
+    nextToken = getToken(1);
+  }
+}
+{
+	{ return; }
+}
+
+/*
+ Read Tokens up to and including the target Token.kind. 
+*/
+void skipPastNextTokenOccurrence(int target) :
+{
+  Token t = null;
+  skip2NextTokenOccurrence(target) ;
   t = getNextToken(); // Chomp this one 
 }
 {
@@ -3994,7 +4034,10 @@ void alterTrigger() throws SAXException :
 
 SKIP :
 {
-	" " | "\t" | "\n" | "\r" | "\f"
+        //Tracker Issue 1433480 - skip2 and skipPast need to be able to check for EOL - so the characters 
+	//cannot be SKIPped
+	//" " | "\t" | "\n" | "\r" | "\f"
+	" " | "\t" | "\f"
 }
 
 /* COMMENTS */
@@ -4009,6 +4052,12 @@ MORE :
 SPECIAL_TOKEN :
 {
 	<SINGLE_LINE_COMMENT: "--"(~["\n","\r"])* ("\n"|"\r"|"\r\n")?>
+}
+
+//Tracker Issue 1433480 - skip2 and skipPast need to be able to check for EOL - so it cannot be SKIPped
+SPECIAL_TOKEN :
+{
+	<EOL: ("\n"|"\r"|"\r\n") >
 }
 
 <IN_FORMAL_COMMENT>
