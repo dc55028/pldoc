@@ -4,7 +4,10 @@
 
 SKIP :
 {
-	" " | "\t" | "\n" | "\r" | "\f"
+        //Tracker Issue 1433480 - skip2 and skipPast need to be able to check for EOL - so the characters 
+	//cannot be SKIPped
+	//" " | "\t" | "\n" | "\r" | "\f"
+	" " | "\t" | "\f"
 }
 
 /* COMMENTS */
@@ -19,6 +22,12 @@ MORE :
 SPECIAL_TOKEN :
 {
 	<SINGLE_LINE_COMMENT: "--"(~["\n","\r"])* ("\n"|"\r"|"\r\n")?>
+}
+
+//Tracker Issue 1433480 - skip2 and skipPast need to be able to check for EOL - so it cannot be SKIPped
+SPECIAL_TOKEN :
+{
+	<EOL: ("\n"|"\r"|"\r\n") >
 }
 
 <IN_FORMAL_COMMENT>
