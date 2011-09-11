@@ -9,6 +9,8 @@
     <body>
         <release version="0.9.4">
             <action type="fix" issue="1927841" dev="sturton" >Fixed problem with spaces in output directory paths</action>
+            <action type="fix" issue="1433480" dev="sturton" >SQL*Plus commands caused subsequent PL/SQL to be ignoreds</action>
+            <action type="fix" issue="3407913" dev="sturton" >SQL commands in scripts cause parsing to fail</action>
         </release>
 
         <release version="0.9.3" date="2011-08-31" >
