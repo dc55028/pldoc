@@ -517,6 +517,8 @@ TOKEN :
 < JAVA_INTERFACE_CLASS: ( "SQLData" | "CustomDatum" | "OraData" ) >
 //|
 //< #BOOLEAN_LITERAL: "TRUE" | "FALSE" >
+| 
+<SQLPLUS_TERMINATOR: ( ";" | "/" ) >
 }
 
 //SRT 2011-04-17 - START 

@@ -24,6 +24,7 @@ void input() throws org.xml.sax.SAXException : {}
 	 | alterTrigger()  
 	 | global()  
 	 | sqlPlusCommand() 
+	 |(<SELECT>|<UPDATE>|<INSERT>|<DELETE>|<COMMIT>|<ROLLBACK>|<SAVEPOINT>|<LOCK><TABLE>|<MERGE>|<WITH>) skipPastNextTokenOccurrence(SQLPLUS_TERMINATOR) //Ignore SQL statements in scripts
 	 )	
 	 ("/")*
 	)*
