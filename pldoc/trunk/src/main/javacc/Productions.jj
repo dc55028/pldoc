@@ -64,7 +64,7 @@ void sqlPlusCommand() : {}
   // Attach Library 
   | "." <ATTACH>
   )
-  skipPastNextOccurrence("\n")
+  skip2NextTokenOccurrence(EOL) //Tracker Issue 1433480 skip until next EOL Special Token   
   //[";" | "-"]
 }
 
@@ -874,6 +874,7 @@ void skip2NextOccurrence(String target) :
 {
   Token nextToken = getToken(1);
   while (!nextToken.image.equals(target)
+	 && (null == nextToken.specialToken || !nextToken.specialToken.image.equals(target) ) //In case the target is a Special Token
 	 && nextToken.kind!=EOF //SRT 20110521 - Prevent endless loop when target does not exist in the input stream
         )
   {
@@ -892,6 +893,38 @@ void skipPastNextOccurrence(String target) :
 {
   Token t = null;
   skip2NextOccurrence(target) ;
+  t = getNextToken(); // Chomp this one 
+}
+{
+	{ return; }
+}
+
+/*
+ Read Tokens up to but not including the target Token.kind. 
+*/
+void skip2NextTokenOccurrence(int target) :
+{
+  Token nextToken = getToken(1);
+  while (nextToken.kind!=target
+	 && (null == nextToken.specialToken || nextToken.specialToken.kind!=target ) //In case the target is a Special Token
+	 && nextToken.kind!=EOF //SRT 20110521 - Prevent endless loop when target does not exist in the input stream
+        )
+  {
+    nextToken = getNextToken();
+    nextToken = getToken(1);
+  }
+}
+{
+	{ return; }
+}
+
+/*
+ Read Tokens up to and including the target Token.kind. 
+*/
+void skipPastNextTokenOccurrence(int target) :
+{
+  Token t = null;
+  skip2NextTokenOccurrence(target) ;
   t = getNextToken(); // Chomp this one 
 }
 {
