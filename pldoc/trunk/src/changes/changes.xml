@@ -11,6 +11,8 @@
             <action type="fix" issue="1927841" dev="sturton" >Fixed problem with spaces in output directory paths</action>
             <action type="fix" issue="1433480" dev="sturton" >SQL*Plus commands caused subsequent PL/SQL to be ignoreds</action>
             <action type="fix" issue="3407913" dev="sturton" >SQL commands in scripts cause parsing to fail</action>
+            <action type="update" dev="sturton" > pom.xml - move reporting info to recommended Maven 3 location ; add mailing list information; added message about approximate duration of JAVACC phase </action>
+            <action type="update" dev="sturton" > changes.xml  - convert changes.txt to changes.xml </action>
         </release>
 
         <release version="0.9.3" date="2011-08-31" >
@@ -57,14 +59,43 @@
             <action type="add" dev="altumano" > pldoc maven 2 pom has been added, with maven 2 plugin (2.0)</action>
             <action type="add" dev="altumano" > synchronization with central maven repo initiated: http://jira.codehaus.org/browse/MAVENUPLOAD-2349</action>
             <action type="fix" dev="altumano" > cur dir issue, part of the documentation could be generated in a different folder.</action>
-            <action type="update" dev="altumano" > in pldoc.bat, pldoc.sh, removed obsolete Oracle jars and added new Oracle Jdbc driver ojdbc14</action>
+            <action type="update" dev="gpaulissen" > in pldoc.bat, pldoc.sh, removed obsolete Oracle jars and added new Oracle Jdbc driver ojdbc14</action>
             <action type="update" dev="altumano" > Oracle classes not necessary for building</action>
             <action type="fix" issue="1433480" dev="altumano" > SET Causes an error (#1433480)</action>
             <action type="fix" issue="1464791"  dev="altumano" > Use of GLOBAL keyword in a package name (#1464791)</action>
         </release>
 
+        <release version="0.8.3.1">
+            <action type="add" dev="altumano" > Lexical parser errors are handled like exceptions and will not interrupt the program any longer.</action>
+            <action type="add" dev="altumano" > More verbose output added at the end of parsing all packages.</action>
+            <action type="add" dev="altumano" > Added some new generator summary tags like creation date.</action>
+            <action type="add" dev="altumano" > Added the dummy package _GLOBAL for all global functions.</action>
+            <action type="add" dev="altumano" > Added documentation for triggers </action>
+            <action type="add" dev="altumano" > Refactored tag handling - linked tags like param, return and throws are are language dependent and those are handled like before.  
+	    Custom tags like author or deprecated and any other tag the user wishes to have will go under the custom tag node TAG.  </action>
+            <action type="add" dev="altumano" > XSLT: Added a generator summary page.  </action>
+            <action type="add" dev="altumano" > XSLT: Now the deprecated and index list work </action>
+            <action type="add" dev="altumano" > XSLT: Added triggers to the unit page </action>
+            <action type="add" dev="altumano" > XSLT: Refactored the navigation bar </action>
+        </release>
+
+        <release version="0.8.1.s1">
+            <action type="update" dev="altumano" >  successfully processes all kVASy p411 forms pld's </action>
+            <action type="fix" dev="altumano" >  expression: expression() [&lt;NOT&gt;] &lt;BETWEEN&gt; expression() &lt;AND&gt; expression() </action>
+            <action type="fix" dev="altumano" >   expression: [&lt;NOT&gt;] &lt;IN&gt; ... </action>
+            <action type="fix" dev="altumano" >   expression: [&lt;NOT&gt;] &lt;IN&gt; ... &lt;OR&gt; ... </action>
+            <action type="fix" dev="altumano" >   statement &lt;EXIT&gt; [&lt;WHEN&gt; expression() | &lt;IDENTIFIER&gt;] </action>
+            <action type="fix" dev="altumano" >   statement &lt;END&gt; &lt;LOOP&gt; [&lt;IDENTIFIER&gt;] ";" </action>
+            <action type="fix" dev="altumano" >   expression: &lt;LIKE&gt; </action>
+            <action type="update" dev="altumano" >   (statement())+ ==&gt; (statement())* </action>
+            <action type="fix" dev="altumano" >   pragma: name=&lt;INTERFACE&gt; "(" &lt;IDENTIFIER&gt; "," &lt;IDENTIFIER&gt; "," numericLiteral() ")" </action>
+            <action type="fix" dev="altumano" >   token: &lt; &lt;SELECT&gt; | &lt;INSERT&gt; | &lt;UPDATE&gt; | &lt;DELETE&gt; | &lt;COMMIT&gt; | &lt;ROLLBACK&gt;&gt; : IN_SQL_STATEMENT_ENDED_SEMICOLON </action>
+            <action type="fix" dev="altumano" >   qualifiedName(), qualifiedID(), unqualifiedID() </action>
+            <action type="fix" dev="altumano" >   much more ... </action>
+        </release>
+
         <release version="0.8.3">
-            <action type="add" dev="altumano" > added support for generating documentation from the Oracle dictionary (Oracle 9i or above).</action>
+            <action type="add" dev="gpaulissen" > added support for generating documentation from the Oracle dictionary (Oracle 9i or above).</action>
             <action type="add" dev="altumano" > improved format of the HTML output:</action>
             <action type="update" dev="altumano" > changed index.xsl to create the 3-frame view (as in normal javadoc) </action>
             <action type="add" dev="altumano" > added output for schema overview in upper left frame </action>
