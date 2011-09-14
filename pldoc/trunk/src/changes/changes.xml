@@ -18,7 +18,7 @@
         <release version="0.9.3" date="2011-08-31" description="More Mavenisation of the project" >
             <action type="add" dev="sturton" > Add ability to skip PLSQL.jj generation (and subsequent unnecessary JavaCC and Javac steps) to pom.xml use "skipJavacc=true" on the command line </action>
             <action type="add" dev="sturton" > file-based integration tests from pldoc_test.sh/pldoc_test.bat </action>
-            <action type="update" dev="sturton" dueTo="popalka" > Module HTML pages are now encoded as UTF-8 rather than ISO-8859-1, preventing corruption of module pages </action>
+            <action type="update" dev="sturton" due-to="popalka" > Module HTML pages are now encoded as UTF-8 rather than ISO-8859-1, preventing corruption of module pages </action>
             <action type="fix" dev="sturton" > Bundled example scripts now run against bundled samples directory </action>
             <action type="fix" dev="sturton" > Site menu link to Sourceforge development site corrected </action>
         </release>
@@ -55,7 +55,7 @@
             <action type="fix" dev="sturton" > lots of minor fixes</action>
         </release>
 
-        <release version="0.9.0" deescription="PLDoc Maven 2 Plugin" >
+        <release version="0.9.0" description="PLDoc Maven 2 Plugin" >
             <action type="add" dev="altumano" > pldoc maven 2 pom has been added, with maven 2 plugin (2.0)</action>
             <action type="add" dev="altumano" > synchronization with central maven repo initiated: http://jira.codehaus.org/browse/MAVENUPLOAD-2349</action>
             <action type="fix" dev="altumano" > cur dir issue, part of the documentation could be generated in a different folder.</action>
