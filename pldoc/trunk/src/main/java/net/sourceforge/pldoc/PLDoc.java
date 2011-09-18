@@ -80,6 +80,18 @@ public class PLDoc
   private static final String lineSeparator = System.getProperty("line.separator");
   private static String programName = "PLDoc version: " + Version.id();
   private static HashMap hashMap = new HashMap();
+  static {
+    /*
+    Put mappings for object types where the DBMS_METADATA.GET_DDL(OBJECT_TYPE) parameter
+    differs from the contents of the dba_objects.object_type column,
+    either because the  because we just want the spcification
+    */
+    hashMap.put( "PACKAGE", "PACKAGE_SPEC" );
+    hashMap.put( "TYPE", "TYPE_SPEC" );
+    hashMap.put( "PACKAGE BODY", "PACKAGE_BODY" );
+    hashMap.put( "TYPE BODY", "TYPE_BODY" );
+
+  }
 
   // Helper object for retrieving resources relative to the installation.
   public static final ResourceLoader resLoader = new ResourceLoader();
@@ -106,16 +118,6 @@ public class PLDoc
     Settings settings = new Settings();
     settings.processCommandString(args);
     PLDoc pldoc = new PLDoc(settings);
-
-    /*
-    Put mappings for object types where the DBMS_METADATA.GET_DDL(OBJECT_TYPE) parameter
-    differs from the contents of the dba_objects.object_type column,
-    either because the  because we just want the spcification
-    */
-    hashMap.put( "PACKAGE", "PACKAGE_SPEC" );
-    hashMap.put( "TYPE", "TYPE_SPEC" );
-    hashMap.put( "PACKAGE BODY", "PACKAGE_BODY" );
-    hashMap.put( "TYPE BODY", "TYPE_BODY" );
 
     // start running
     try {
