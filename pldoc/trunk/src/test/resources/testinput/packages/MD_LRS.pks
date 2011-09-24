@@ -1,5 +1,10 @@
 
-  CREATE OR REPLACE PACKAGE "MDSYS"."MD_LRS" wrapped
+  CREATE OR REPLACE PACKAGE 
+/**
+* Exercise wrapped PACKAGE comment.
+*@headcom
+**/
+  "MDSYS"."MD_LRS" wrapped
 a000000
 1
 abcd

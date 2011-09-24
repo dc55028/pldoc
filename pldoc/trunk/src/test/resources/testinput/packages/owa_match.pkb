@@ -1,18 +1,36 @@
 
   CREATE OR REPLACE PACKAGE BODY "SYS"."OWA_MATCH" 
+/**
+* Exercise PACKAGE BODY comment (IS-AS).
+*@headcom
+**/
 
 as
 
-    --- Special characters list, note 1 space in the beginning and
-    --- a single quote escaped at the end.
+    /** Special characters list, note 1 space in the beginning and
+    * a single quote escaped at the end.
+    *<p> These are all chracters with special significance within regular expressions.</p> 
+    */
     SPECIAL_CHARS constant varchar2(27) := ' @*()+-/=\<>;:"|&?{}[]'''
         || chr(9)   -- tab
         || chr(10)  -- new line
         || chr(12)  -- form feed
         || chr(13); -- cr
 
+    /** Special characters translation list.
+    */
     TRANS_CHARS   constant varchar2(27) := '***************************';
 
+/**
+* Match patterns in a string.
+*
+*@parameter p_string parameter the string to be searched 
+*@parameter p_simple_pattern match plain, vanilla string patterns
+*@parameter p_complex_pattern {@link http://en.wikipedia.org/wiki/Regular_expression Regular Expression} to attempt match within <i>p_string</i>
+*@parameter p_use_special_chars TRUE if we should be performing extended matching
+*@return true if pattern has been matched in the target string
+*
+*/
     function match_pattern
     (
         p_string            in varchar2,
