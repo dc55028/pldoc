@@ -444,7 +444,9 @@ public class Settings
           this.inputTypes = inputTypes;
   }
 
-
+  public void setShowSkippedPackages(boolean showSkippedPackages) {
+    this.showSkippedPackages = showSkippedPackages;
+  }
 
   public String getApplicationName() {
     return applicationName;
