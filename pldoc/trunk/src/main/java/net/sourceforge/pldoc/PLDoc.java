@@ -583,9 +583,13 @@ public class PLDoc
     System.out.println("Generating allschemas.html ...");
     transformer = tFactory.newTransformer(new StreamSource(
       resLoader.getResourceStream("allschemas.xsl")));
+    //Have to pass in Absolute location of output directory in order to avoid problems with redirect File locations when called from PLDocTask
+    transformer.setParameter("targetFolder", settings.getOutputDirectory().getAbsolutePath() + File.separator );
     transformer.transform(new StreamSource(applicationFile),
       new StreamResult(new FileOutputStream(
-        settings.getOutputDirectory().getPath() + File.separator + "allschemas.html")));
+        //settings.getOutputDirectory().getPath() + File.separator + "allschemas.html"
+	new File (settings.getOutputDirectory(), "allschemas.html")
+	)));
     // summary
     System.out.println("Generating summary.html ...");
     transformer = tFactory.newTransformer(new StreamSource(
