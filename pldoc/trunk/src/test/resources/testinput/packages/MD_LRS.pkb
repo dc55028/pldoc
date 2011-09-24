@@ -1,5 +1,10 @@
 
-  CREATE OR REPLACE PACKAGE BODY "MDSYS"."MD_LRS" wrapped
+  CREATE OR REPLACE PACKAGE BODY 
+/**
+* Exercise wrapped PACKAGE BODY comment.
+*@headcom
+**/
+  "MDSYS"."MD_LRS" wrapped
 a000000
 1
 abcd
