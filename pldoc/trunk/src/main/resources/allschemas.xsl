@@ -32,6 +32,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   <xsl:output method="html" indent="yes"/>
   <xsl:variable name="uppercase">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
   <xsl:variable name="lowercase">abcdefghijklmnopqrstuvwxyz</xsl:variable>
+  <xsl:param name="targetFolder"/>
 
   <xsl:key name="schemaInit" match="*[@SCHEMA]" use="@SCHEMA"/>
 
@@ -89,7 +90,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
       </A></FONT><BR></BR>
      
      <!-- generate the file: package list of this schema -->
-     <redirect:write file="{translate($theschema, $uppercase, $lowercase)}.html">
+     <redirect:write file="{concat($targetFolder, translate($theschema, $uppercase, $lowercase))}.html">
 	    <TABLE BORDER="0" WIDTH="100%">
 	    <TR>
 		    <TD><FONT size="+1" CLASS="FrameTitleFont">
@@ -229,7 +230,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     </redirect:write>
     
  	<!-- generate the file: package summary of this schema -->
-    <redirect:write file="{translate($theschema, $uppercase, $lowercase)}-summary.html">
+    <redirect:write file="{concat($targetFolder, translate($theschema, $uppercase, $lowercase))}-summary.html">
 	    
 		<HTML>
 	    <HEAD>
