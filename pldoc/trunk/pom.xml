@@ -404,12 +404,19 @@
 	    </resource>
 	   <resource>
 	      <filtering>true</filtering>
+	      <directory>${basedir}/src/main/command/ant</directory>
+	      <targetPath>${basedir}</targetPath>
+	    </resource>
+	   <resource>
+	      <filtering>true</filtering>
 	      <directory>${basedir}/src/main/command</directory>
 	      <includes>
 		<include>pldoc.bat</include>
 		<include>pldoc.sh</include>
 		<include>pldoc_example.bat</include>
 		<include>pldoc_example.sh</include>
+		<include>pldoc_ant_example.bat</include>
+		<include>pldoc_ant_example.sh</include>
 		<include>pldoc_drop.bat</include>
 	      </includes>
 	      <targetPath>${basedir}</targetPath>
