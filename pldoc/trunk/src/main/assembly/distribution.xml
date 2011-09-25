@@ -27,7 +27,19 @@
 	<include>pldoc.sh</include>
 	<include>pldoc_example.bat</include>
 	<include>pldoc_example.sh</include>
+	<include>pldoc_ant_example.bat</include>
+	<include>pldoc_ant_example.sh</include>
+	<include>ant_example.xml</include>
+	<include>ant_enterprise_example.xml</include>
 	<include>pldoc_drop.bat</include>
+      </includes>
+     <fileMode>0755</fileMode> 
+     <outputDirectory>/</outputDirectory> 
+    </fileSet>
+    <fileSet>
+      <directory>${project.basedir}/src/main/command/ant</directory>
+      <includes>
+	<include>ant_enterprise_example.properties</include>
       </includes>
      <fileMode>0755</fileMode> 
      <outputDirectory>/</outputDirectory> 

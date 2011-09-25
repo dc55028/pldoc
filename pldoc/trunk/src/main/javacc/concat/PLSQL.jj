@@ -811,24 +811,32 @@ void packageSpec() throws SAXException :
 }
 
 void packageBody() throws SAXException :
-{ 
-Token moduleType=null; 
-Token name=null; 
-}
+{ Token schema = null, name = null, tokenCreate = null, tokenModuleType = null, tokenIsAs = null; }
 {
-	[<CREATE> [<OR> <REPLACE>]]
-
-	( moduleType = <PACKAGE> | moduleType = <TYPE> ) <BODY> (LOOKAHEAD(2) ID()".")? name=ID()
+	[tokenCreate=<CREATE> [<OR> <REPLACE>]]
+	( tokenModuleType = <PACKAGE> | tokenModuleType = <TYPE> ) <BODY> (LOOKAHEAD(2) schema=ID()".")? name=ID()
 	{
 		if (m_out != null)
 		{
+			String schemaString = schemaName; //SRT 20110318 "";
+			if (schema != null) {
+				schemaString = schema.toString();
+			}
+			// now start printing the package
 			m_out.pushAttribute("NAME", purifyIdentifier(name.toString()));
+			m_out.pushAttribute("SCHEMA", purifyIdentifier(schemaString.toString()));
 			m_out.startElement(
-					    moduleType.image.toUpperCase().equals("PACKAGE")
+					    tokenModuleType.image.toUpperCase().equals("PACKAGE")
 			                    ?  "PACKAGE_BODY"
 			                    :  "OBJECT_BODY"
 			                  );
 		}
+		// possibly, package comment is here
+		if(null!= tokenCreate)
+		{
+			processPackageComment(tokenCreate);
+		}
+		processPackageComment(tokenModuleType);
 	}
 
 	(
@@ -837,7 +845,11 @@ Token name=null;
 	  )
 	  |
 	  (
-	  (<IS> | <AS>)
+	    (tokenIsAs=<IS> | tokenIsAs=<AS>)
+	    {
+		    // possibly, package comment is here
+		    processPackageComment(tokenIsAs);
+	    }
 
 		  declarativeSection(true) //SRT 20110524 Allow PLDOc in Type Bodies 
 
@@ -846,7 +858,7 @@ Token name=null;
 	)
 	{
 		if (m_out != null) m_out.endElement(
-						    moduleType.image.toUpperCase().equals("PACKAGE")
+						    tokenModuleType.image.toUpperCase().equals("PACKAGE")
 						    ?  "PACKAGE_BODY"
 						    :  "OBJECT_BODY"
 						   );
