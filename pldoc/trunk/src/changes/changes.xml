@@ -7,6 +7,12 @@
         <author email="altumano at users.sourceforge.net">Albert Tumanov</author>
     </properties>
     <body>
+        <release version="0.9.5" date="2011-09-26"  description="Add support for database-based PL/SQL to ANT task; update ANT examples for JAVA 5 and above" >
+            <action type="fix" dev="sturton" > Settings.java - add mising setter method required for PLDocTask</action>
+            <action type="fix" dev="sturton" > PLDoc.java -  when called from PLDocTask, redirect in allschemas.xsl showed same problem as unit.xsl had done. Same workaround applied (pass absolute path explicitly as targetFolder XSL parameter) </action>
+            <action type="update" dev="sturton" > pom.xml - Filter ANT example batch scripts </action>
+            <action type="update" dev="sturton" > pom.xml - Add ANT examples to distribution </action>
+        </release>
         <release version="0.9.4" date="2011-09-14"  description="Increased support for file-based PL/SQL" >
             <action type="fix" issue="1927841" dev="sturton" >Fixed problem with spaces in output directory paths</action>
             <action type="fix" issue="1433480" dev="sturton" >SQL*Plus commands caused subsequent PL/SQL to be ignored</action>

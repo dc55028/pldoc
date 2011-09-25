@@ -8,13 +8,13 @@ What is pldoc?
 
  Suppose you have PL/SQL code:
 
- {{{samples/sample1.sql}sample1.sql}}\
- {{{samples/sample2.sql}sample2.sql}}\
- {{{samples/sample3.sql}sample3.sql}}
+ {{{./samples/sample1.sql}sample1.sql}}\
+ {{{./samples/sample2.sql}sample2.sql}}\
+ {{{./samples/sample3.sql}sample3.sql}}
 
  And maybe a short description file:
 
- {{{samples/overview.html}overview.html}}
+ {{{./samples/overview.html}overview.html}}
 
 
  You then run pldoc using command like this:
@@ -39,9 +39,9 @@ Done (6.366 seconds).
  
  
 
-[result.png] Resulting HTML
+[./images/result.png] Resulting HTML
 
-  {{{sampleOutput/index.html}Resulting HTML}}
+  {{{./sampleOutput/index.html}Resulting HTML}}
 
 Notes
 
