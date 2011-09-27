@@ -57,6 +57,36 @@
           <td>Yes</td>
           <td>"yes" forces program exit when some input file cannot be processed. If "no" (the default), the file is skipped and processing continues.</td>
         </tr>
+        <tr>
+          <td>maven.pldoc.dbUrl</td>
+          <td>Yes</td>
+          <td>JDBC URL to connect to the target database - jdbc:oracle:thin:@//{HOST}:{PORT}/{SERVICE or SID}, e.g. "jdbc:oracle:thin:@//192.168.100.1:1521/orcl"</td>
+        </tr>
+        <tr>
+          <td>maven.pldoc.dbUser</td>
+          <td>Yes</td>
+          <td>Database user name</td>
+        </tr>
+        <tr>
+          <td>maven.pldoc.dbPassword</td>
+          <td>Yes</td>
+          <td>Database user password</td>
+        </tr>
+        <tr>
+          <td>maven.pldoc.inputTypes</td>
+          <td>Yes</td>
+          <td>Comma-separated list of Oracle Objects types which should be paused from the data dictionary</td>
+        </tr>
+        <tr>
+          <td>maven.pldoc.inputObjects</td>
+          <td>Yes</td>
+          <td>Comma separated list of SCHEME_NAME.OBJECT_NAME values to be checked for matching objects- these values may contain Oracle wildcards, e.g. "%" and "_"</td>
+        </tr>
+        <tr>
+          <td>maven.pldoc.showSkippedPackages</td>
+          <td>Yes</td>
+          <td>Display list of modules which failed to parse in log output and in generated documentation.</td>
+        </tr>
       </table>
     </section>
   </body>

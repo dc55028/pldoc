@@ -5,7 +5,7 @@
     <artifactId>maven-pldoc-plugin</artifactId>
     <packaging>maven-plugin</packaging>
     <version>2.1-SNAPSHOT</version>
-    <name>Maven PLDoc Plugin - ${version}</name>
+    <name>Maven PLDoc Plugin - ${project.version}</name>
     <description>The Maven PLDoc Plugin is a plugin that uses the pldoc tool for
             generating docs for the specified project.
     </description>
@@ -21,11 +21,21 @@
         <system>PLDoc Tracker</system>
         <url>https://sourceforge.net/tracker/?group_id=38875</url>
     </issueManagement>
+
+    <mailingLists>
+      <mailingList>
+	<name>PLDoc Development Mailing list</name>
+	<subscribe>http://lists.sourceforge.net/mailman/listinfo/pldoc-chat</subscribe>
+	<unsubscribe>http://lists.sourceforge.net/mailman/listinfo/pldoc-chat</unsubscribe>
+	<archive>http://sourceforge.net/mailarchive/forum.php?forum_name=pldoc-chat</archive>
+	<post>pldoc-chat@lists.sourceforge.net</post>
+      </mailingList>
+    </mailingLists>
+
     <scm>
-        <connection>scm:cvs:pserver:anonymous@pldoc.cvs.sourceforge.net:/cvsroot/pldoc:maven-pldoc-plugin</connection>
-        <developerConnection>scm:cvs:pserver:username@pldoc.cvs.sourceforge.net:/cvsroot/pldoc:maven-pldoc-plugin</developerConnection>
-        <tag>HEAD</tag>
-        <url>http://pldoc.cvs.sourceforge.net/viewvc/pldoc/sources/</url>
+        <connection>scm:svn:https://pldoc.svn.sourceforge.net/svnroot/pldoc/pldoc/trunk</connection>
+        <developerConnection>scm:svn:https://pldoc.svn.sourceforge.net/svnroot/pldoc/pldoc/trunk</developerConnection>
+        <url>http://pldoc.svn.sourceforge.net/viewvc/pldoc/pldoc/</url>
     </scm>
 
     <developers>
@@ -45,23 +55,31 @@
                 <role>Software Developer</role>
             </roles>
         </developer>
+        <developer>
+            <name>Stuart Turton</name>
+            <id>sturton</id>
+            <email>sturton@users.sourceforge.net</email>
+            <roles>
+                <role>Software Developer</role>
+            </roles>
+        </developer>
     </developers>
 
     <distributionManagement>
         <repository>
             <id>release.pldoc.sf.net</id>
             <name>PLDoc Release Repository</name>
-            <url>scp://shell.sourceforge.net/home/groups/p/pl/pldoc/htdocs/m2/</url>
+            <url>sftp://web.sourceforge.net/home/project-web/pldoc/htdocs/m2/</url>
         </repository>
         <snapshotRepository>
             <id>snapshot.pldoc.sf.net</id>
             <name>PLDoc Snapshot Repository</name>
-            <url>scp://shell.sourceforge.net/home/groups/p/pl/pldoc/htdocs/m2-snapshot/</url>
+            <url>sftp://web.sourceforge.net/home/project-web/pldoc/htdocs/m2-snapshot/</url>
         </snapshotRepository>
         <site>
             <id>site.pldoc.sf.net</id>
-            <name>PLDoc Plugin Site</name>
-            <url>scp://shell.sourceforge.net/home/groups/p/pl/pldoc/htdocs/maven-site/maven-pldoc-plugin</url>
+            <name>PLDoc Site</name>
+            <url>scp://shell.sourceforge.net/home/project-web/pldoc/htdocs/maven-site/maven-pldoc-plugin</url>
         </site>
     </distributionManagement>
 
@@ -80,7 +98,7 @@
         <dependency>
             <groupId>net.sourceforge.pldoc</groupId>
             <artifactId>pldoc</artifactId>
-            <version>0.9.1-SNAPSHOT</version>
+            <version>0.9.5</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.reporting</groupId>
@@ -94,11 +112,22 @@
         </dependency>
     </dependencies>
 
+    <properties>
+      <project.build.sourceEncoding>UTF8</project.build.sourceEncoding>
+      <project.report.outputEncoding>UTF8</project.report.outputEncoding>
+         <!-- 
+	   apt uses velocity to replace variables, which does not support variable names containing periods/full stops 
+       -->
+      <velocityProjectVersion>${project.version}</velocityProjectVersion>
+      <velocityBuildFinalName>${project.build.finalName}</velocityBuildFinalName>
+    </properties>
+
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
+		<version>3.0</version>
                 <configuration>
                     <xdocDirectory>src/site/xdocs</xdocDirectory>
                 </configuration>

@@ -44,6 +44,12 @@ import org.codehaus.plexus.util.StringUtils;
 <sourceDirectory>src/sql</sourceDirectory>
 <includes>*.sql</includes>
 <reportOutputDirectory>target/site/apidocs</reportOutputDirectory>
+<showskippedpackages>true</showskippedpackages>
+<dburl>jdbc:oracle:thin:@//192.168.100.22:1521/orcl</dburl>
+<dbuser>system</dbuser>
+<dbpassword>oracle</dbpassword>
+<inputtypes>PROCEDURE,FUNCTION,TRIGGER,PACKAGE,TYPE,PACKAGE BODY,TYPE BODY</inputtypes>
+<inputobjects>ANONYMOUS.%,APEX_040000.%,APEX_PUBLIC_USER.%,APPQOSSYS.%,BI.%,CACHEADM.%,CTXSYS.%,DBSNMP.%,DEMO.%,DIP.%,EXFSYS.%,FLOWS_FILES.%,HR.%,HR1.%,HR_TRIG.%,IX.%,MDDATA.%,MDSYS.%,MGMT_VIEW.%,OBE.%,OE.%,OE1.%,OLAPSYS.%,ORACLE_OCM.%,ORDDATA.%,ORDPLUGINS.%,ORDSYS.%,OUTLN.%,OWBSYS.%,OWBSYS_AUDIT.%,PHPDEMO.%,PLS.%,PM.%,SCOTT.%,SH.%,SI_INFORMTN_SCHEMA.%,SPATIAL_CSW_ADMIN_USR.%,SPATIAL_WFS_ADMIN_USR.%,SYS.%,SYSMAN.%,SYSTEM.%,TIMESTEN.%,TTHR.%,WMSYS.%,XDB.%,XDBMETADATA.%,XDBPM.%,XFILES.%,XS$NULL.%</inputobjects>
 </configuration>                    
 </plugin>
 
@@ -58,7 +64,15 @@ public class PLDoc
 implements MavenReport{
 
     /**
-     * The name of the destination directory.
+     * Specifies the application title
+     *
+     * @parameter expression="${application.title}" default-value="${project.name}"
+     * @required
+     */
+    private String applicationTitle;
+
+    /**
+     * The name of the destination subdirectory.
      * <br/>
      *
      * @since 2.1
@@ -86,25 +100,61 @@ implements MavenReport{
     /**
      * Specifies the source directory
      *
-     * @parameter expression="${sourceDirectory}" default-value="${basedir}/src/sql"
-     * @required
+     * @parameter expression="${sourceDirectory}" 
      */
     private File sourceDirectory;
 
     /**
      * Specifies the included files
      *
-     * @parameter expression="${includes}" default-value="*.sql"
-     * @required
+     * @parameter expression="${includes}" 
      */
     private String includes;
+
     /**
-     * Specifies the application title
+     * JDBC URL
      *
-     * @parameter expression="${application.title}" default-value="${project.name}"
-     * @required
+     * @parameter expression="${dburl}" 
      */
-    private String applicationTitle;
+    private String dbUrl ;
+    /**
+     * Database user name 
+     *
+     * @since 2.1
+     * @parameter expression="${dbuser}" 
+     */
+    private String dbUser ;
+    /**
+     * Database user password
+     *
+     * @since 2.1
+     * @parameter expression="${dbpassword}" 
+     */
+    private String dbPassword ;
+    /**
+     * Comma-separated list of input Object Types to process, for example: "PACKAGE,TYPE,FUNCTION,PROCEDURE,TRIGGER"
+     *
+     * @since 2.1
+     * @parameter expression="${inputtypes}" default-value="PACKAGE,TYPE,FUNCTION,PROCEDURE,TRIGGER"
+     */
+    private String inputTypes ;
+    /**
+     * Comma-separated list of input Objects to process, for example "SCOTT.%,HR.%,SH.%"
+     *
+     * @since 2.1
+     * @parameter expression="${inputobjects}" 
+     */
+    private String inputObjects ;
+    /**
+     * Display parsing errors for failed packages in Generator.html.
+     *
+     * @since 2.1
+     * @parameter expression="${showSkippedPackages}" default-value="false"
+     */
+    private boolean showSkippedPackages ;
+
+
+
     /**
      * The Maven Project Object
      *
@@ -134,18 +184,41 @@ implements MavenReport{
 
     public void execute()
             throws MojoExecutionException {
+	
+	System.err.println("destDir="+destDir);
+	System.err.println("outputDirectory="+outputDirectory);
+	System.err.println("reportOutputDirectory="+reportOutputDirectory);
+
+        File pldocDirectory = getReportOutputDirectory();
         PLDocTask task = new PLDocTask();
         task.init();
-        task.setDestdir(reportOutputDirectory);
+        task.setDestdir(pldocDirectory);
         task.setDoctitle(applicationTitle);
-        FileSet fset = new FileSet();
-        fset.setDir(sourceDirectory);
-        fset.setIncludes(includes);
-        task.addFileset(fset);
+	task.setDbUrl(dbUrl); 
+	task.setDbUser(dbUser);
+	task.setDbPassword(dbPassword);
+	task.setInputObjects(inputObjects);
+	task.setInputTypes(inputTypes);
+	task.setShowSkippedPackages(showSkippedPackages);
+
+	if (null != sourceDirectory && null != includes)
+	{
+	  FileSet fset = new FileSet();
+	  fset.setDir(sourceDirectory);
+	  fset.setIncludes(includes);
+	  task.addFileset(fset);
+	}
+
         Project proj = new Project();
-        proj.setBaseDir(reportOutputDirectory);
+        proj.setBaseDir(pldocDirectory);
         proj.setName(applicationTitle);
         task.setProject(proj);
+	System.err.println("applicationTitle="+applicationTitle);
+	System.err.println("dbUrl="+dbUrl);
+	System.err.println("dbUser="+dbUser);
+	System.err.println("inputTypes="+inputTypes);
+	System.err.println("includes="+includes);
+	System.err.println("inputObjects="+inputObjects);
         task.execute();
 
     }
