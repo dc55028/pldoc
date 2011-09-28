@@ -1,0 +1,20 @@
+Place into ${HOME}/.m2/settings.xml 
+...
+
+    <profiles>
+        <profile>
+	  <id>enterprise</id>
+	  <properties>
+	    <maven.pldoc.dbUser>system</maven.pldoc.dbUser>
+	    <maven.pldoc.dbPassword>oracle</maven.pldoc.dbPassword>
+	    <maven.pldoc.dbUrl>jdbc:oracle:thin:@//192.168.100.22:1521/orcl</maven.pldoc.dbUrl>
+	  </properties>
+        </profile>
+    </profiles>
+
+    <activeProfiles>
+      <activeProfile>enterprise</activeProfile>
+    </activeProfiles>
+
+...
+
