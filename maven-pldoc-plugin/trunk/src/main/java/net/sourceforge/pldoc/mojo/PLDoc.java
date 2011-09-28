@@ -38,7 +38,7 @@ import org.codehaus.plexus.util.StringUtils;
  *             <plugin>
 <groupId>net.sourceforge.pldoc</groupId>
 <artifactId>maven-pldoc-plugin</artifactId>
-<version>2.0-SNAPSHOT</version>
+<version>2.1-SNAPSHOT</version>
 <configuration>
 <applicationTitle>project-name</applicationTitle>
 <sourceDirectory>src/sql</sourceDirectory>
@@ -185,11 +185,9 @@ implements MavenReport{
     public void execute()
             throws MojoExecutionException {
 	
-	System.err.println("destDir="+destDir);
-	System.err.println("outputDirectory="+outputDirectory);
-	System.err.println("reportOutputDirectory="+reportOutputDirectory);
 
         File pldocDirectory = getReportOutputDirectory();
+	if (!pldocDirectory.exists()) pldocDirectory.mkdirs();
         PLDocTask task = new PLDocTask();
         task.init();
         task.setDestdir(pldocDirectory);
@@ -213,12 +211,6 @@ implements MavenReport{
         proj.setBaseDir(pldocDirectory);
         proj.setName(applicationTitle);
         task.setProject(proj);
-	System.err.println("applicationTitle="+applicationTitle);
-	System.err.println("dbUrl="+dbUrl);
-	System.err.println("dbUser="+dbUser);
-	System.err.println("inputTypes="+inputTypes);
-	System.err.println("includes="+includes);
-	System.err.println("inputObjects="+inputObjects);
         task.execute();
 
     }
@@ -258,7 +250,10 @@ implements MavenReport{
     }
 
     public void setReportOutputDirectory(File reportOutputDirectory) {
-        if ( ( reportOutputDirectory != null ) && ( !reportOutputDirectory.getAbsolutePath().endsWith( destDir ) ) )
+        if ( ( reportOutputDirectory != null ) 
+	     && ( destDir != null ) 
+	     && ( !reportOutputDirectory.getAbsolutePath().endsWith( destDir ) ) 
+	   )
         {
             this.reportOutputDirectory = new File( reportOutputDirectory, destDir );
         }
