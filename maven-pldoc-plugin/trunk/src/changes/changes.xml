@@ -7,7 +7,13 @@
         <author email="altumano at users.sourceforge.net">Albert Tumanov</author>
     </properties>
     <body>
-        <release version="2.1" date="2011-09-27"  description="Add support for database-based PL/SQL via updated ANT task (PlDoc 0.95)" >
+        <release version="2.2" date="2011-09-28"  description="Documentation fix " >
+            <action type="fix" dev="sturton" > PLDoc.java - Correct embedded example to reflect correct (mixed) case of new PLdoc properties</action>
+            <action type="fix" dev="sturton" > pldoc-*-pom.xml - correct Oracle JDBC plugin version to match the version in the placeholder POM.xml on Maven Central</action>
+            <action type="update" dev="sturton" > downloads.apt.vm - add links to plugin bundles; add information on installing the plugin into a local repository</action>
+        </release>
+
+        <release version="2.1" date="2011-09-28"  description="Add support for database-based PL/SQL via updated ANT task (PLDoc 0.95)" >
             <action type="update" dev="sturton" > pom.xml - Update to reflect migration to Subversion and amended Sourceforge site details</action>
         </release>
 
