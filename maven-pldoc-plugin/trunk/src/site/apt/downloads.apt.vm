@@ -57,7 +57,7 @@ Installation
  Alternatively, download {{{http://www.oracle.com/technetwork/database/features/instant-client/index-097480.html}Oracle Instant Client}} and follow the {{{http://www.oracle.com/technetwork/database/features/instant-client/index-100365.html}Installation instructions}}. Set the ORACLE_HOME environment variable to the location of the expanded Instant Client files.
 
 
- Install the Oracle JDBC drivers in the local repository: 
+ Install the Oracle JDBC drivers into the local repository: 
 
  * Windows
 
@@ -71,6 +71,12 @@ Installation
  mvn install:install-file -Dfile=${ORACLE_HOME}/ojdbc14.jar -Dpackaging=jar -DgroupId=com.oracle -DartifactId=ojdbc14 -Dversion=10.2.0.3 -Dpackage=jar -DgeneratePom=true 
 +--
 
+
+ Optionally, install the PLDoc Maven plugin into the local repository: 
+
++--
+ mvn install:install-file -Dfile=target/${velocityBuildFinalName}.jar -Dpackaging=jar -DgroupId=net.sourceforge.pldoc -DartifactId=maven-pldoc-plugin -Dversion=${velocityProjectVersion} -Dpackage=jar -DgeneratePom=true 
++--
 
  Check that installation has been successful:
 
