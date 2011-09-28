@@ -123,15 +123,100 @@
     </properties>
 
     <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-site-plugin</artifactId>
-		<version>3.0</version>
-                <configuration>
-                    <xdocDirectory>src/site/xdocs</xdocDirectory>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+      <plugins>
+        <!-- 
+	     Make executable JAR file 
+	--> 
+	<plugin>
+	  <artifactId>maven-assembly-plugin</artifactId>
+	  <version>2.2.1</version>
+	  <executions>
+	    <execution>
+	      <id>distribution</id> 
+	      <phase>package</phase> <!-- bind to the packaging phase -->
+	      <goals>
+		<goal>single</goal>
+	      </goals>
+	      <configuration>
+		    <descriptors>
+		      <descriptor>${basedir}/src/main/assembly/distribution.xml</descriptor>
+		    </descriptors>
+	      </configuration>
+	    </execution>
+	  </executions>
+	</plugin>
+	
+	<plugin>
+	  <artifactId>maven-clean-plugin</artifactId>
+	  <version>2.4.1</version>
+	  <configuration>
+	    <filesets>
+	      <fileset>
+		<directory>${basedir}</directory>
+		<includes>
+		  <include>**/*.tmp</include>
+		  <include>**/*.log</include>
+		  <include>pldoc.bat</include>
+		  <include>pldoc.sh</include>
+		  <include>pldoc_example.bat</include>
+		  <include>pldoc_example.sh</include>
+		  <include>pldoc_drop.bat</include>
+		  <include>samples</include>
+		  <include>testinput</include>
+		</includes>
+		<followSymlinks>false</followSymlinks>
+	      </fileset>
+	    </filesets>
+	  </configuration>
+	</plugin>
+      
+	<plugin>
+	    <groupId>org.apache.maven.plugins</groupId>
+	    <artifactId>maven-site-plugin</artifactId>
+	    <version>3.0</version>
+	    <!--
+	    <configuration>
+		<xdocDirectory>src/site/xdocs</xdocDirectory>
+	    </configuration>
+	    -->
+	</plugin>
+      </plugins>
+
+     <resources>
+	   <resource>
+	      <filtering>false</filtering>
+	      <directory>${basedir}/src/main/resources</directory>
+	    </resource>
+	   <resource>
+	      <filtering>true</filtering>
+	      <directory>${basedir}/src/main/command/maven</directory>
+	      <targetPath>${basedir}</targetPath>
+	    </resource>
+	   <resource>
+	      <filtering>true</filtering>
+	      <directory>${basedir}/src/main/command</directory>
+	      <includes>
+		<include>ojdbc_mvn_install.sh</include>
+		<include>ojdbc_mvn_install.bat</include>
+		<include>pldoc_maven_example.bat</include>
+		<include>pldoc_maven_example.sh</include>
+	      </includes>
+	      <targetPath>${basedir}</targetPath>
+	    </resource>
+    </resources>
+
+
+    <testResources>
+	   <testResource>
+	      <filtering>false</filtering>
+	      <directory>${basedir}/src/test/resources</directory>
+	    </testResource>
+	   <testResource>
+	      <filtering>false</filtering>
+	      <directory>${basedir}/src/test/resources/samples</directory>
+	      <targetPath>${basedir}/samples</targetPath>
+	    </testResource>
+    </testResources>
+	    
+  </build>
 </project>
