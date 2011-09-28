@@ -26,8 +26,8 @@
 	  </dependencies>
 	<configuration>
 	  <applicationTitle>PLDoc Maven Example</applicationTitle>
-	  <sourceDirectory>src/test/resources/samples</sourceDirectory>
-	  <overviewFile>src/test/resources/samples/overview.html</overviewFile>
+	  <sourceDirectory>samples</sourceDirectory>
+	  <overviewFile>samples/overview.html</overviewFile>
 	  <includes>*.sql</includes>
 	  <reportOutputDirectory>target/docs/apidocs</reportOutputDirectory>
 	  <destDir>pldoc</destDir>
@@ -47,8 +47,8 @@
 		    <version>${project.version}</version>
 		    <configuration>
 		      <applicationTitle>PLDoc Maven Site Report Example</applicationTitle>
-		      <sourceDirectory>${project.basedir}/src/test/resources/samples</sourceDirectory>
-		      <overviewFile>${project.basedir}/src/test/resources/samples/overview.html</overviewFile>
+		      <sourceDirectory>${project.basedir}/samples</sourceDirectory>
+		      <overviewFile>${project.basedir}/samples/overview.html</overviewFile>
 		      <includes>**/*.sql</includes>
 		      <reportOutputDirectory>${project.basedir}/target/site/apidocs</reportOutputDirectory>
 		      <showskippedpackages>true</showskippedpackages>
