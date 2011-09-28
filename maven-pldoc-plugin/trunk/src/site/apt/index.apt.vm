@@ -69,7 +69,7 @@ Here is a example if you want to change the default configuration (reading datab
 +-----+
 
 
-Database access requires Oracle JDBC classes: due to licensing restrictions, they are not hosted in Maven Central. A {{{http://repo2.maven.org/maven2/com/oracle/ojdbc14/10.2.0.3.0/ojdbc14-10.2.0.3.0.pom} pom.xml}} file exists, but you will have to download th JAR file(s) and install them into your local Maven repository. 
+Database access requires Oracle JDBC classes: due to licensing restrictions, they are not hosted in Maven Central. A {{{http://repo2.maven.org/maven2/com/oracle/ojdbc14/10.2.0.3.0/ojdbc14-10.2.0.3.0.pom} pom.xml}} file exists, but you will have to download the JAR file(s) and install them into your local Maven repository. 
 
 +-----+
 mvn install:install-file -Dfile=${ORACLE_HOME}/ojdbc14.jar -Dpackaging=jar -DgroupId=com.oracle -DartifactId=ojdbc14 -Dversion=10.2.0.3 -Dpackage=jar -DgeneratePom=true 
