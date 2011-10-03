@@ -61,7 +61,7 @@
 		      <includes>*.sql</includes -->
 		      <destDir>Site-Enterprise</destDir>
 		      <reportOutputDirectory>target/site/apidocs</reportOutputDirectory>
-		      <showSkippedpackages>true</showSkippedPackages>
+		      <showSkippedPackages>true</showSkippedPackages>
 		      <dbUrl>jdbc:oracle:thin:@//192.168.100.22:1521/orcl</dbUrl>
 		      <dbUser>system</dbUser>
 		      <dbPassword>oracle</dbPassword>

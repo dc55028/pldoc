@@ -51,7 +51,7 @@
 		      <overviewFile>${project.basedir}/samples/overview.html</overviewFile>
 		      <includes>**/*.sql</includes>
 		      <reportOutputDirectory>${project.basedir}/target/site/apidocs</reportOutputDirectory>
-		      <showskippedpackages>true</showskippedpackages>
+		      <showSkippedPackages>true</showSkippedPackages>
 		    </configuration>                    
 		  </plugin>
 		</reportPlugins>

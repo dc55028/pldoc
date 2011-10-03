@@ -31,10 +31,10 @@ else
 		#Run against all Oracle Enterprise schemas
 
 		#As goal 
-		mvn -f pldoc-enterprise-pom.xml pldoc:pldoc  
+		mvn -s maven_enterprise_settings.xml -f pldoc-enterprise-pom.xml pldoc:pldoc  
 
 		# As site report plug-in 
-		mvn -f pldoc-enterprise-pom.xml site 
+		mvn -s maven_enterprise_settings.xml -f pldoc-enterprise-pom.xml site 
 	fi
 fi
 
