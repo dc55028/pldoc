@@ -28,7 +28,9 @@
 	  <!-- sourceDirectory>src/test/resources/samples</sourceDirectory>
 	  <includes>*.sql</includes -->
 	  <destDir>Goal-Enterprise</destDir>
+	  <!-- Ignored unless reportOutputDirectory is undefined  
 	  <outputDirectory>target/docs/apidocs/outputDirectory</outputDirectory>
+	  -->
 	  <reportOutputDirectory>target/docs/apidocs</reportOutputDirectory>
 	  <showSkippedPackages>true</showSkippedPackages>
 	  <dbUrl>jdbc:oracle:thin:@//192.168.100.22:1521/orcl</dbUrl>
@@ -51,11 +53,12 @@
 		    <artifactId>maven-pldoc-plugin</artifactId>
 		    <version>${project.version}</version>
 		    <configuration>
-		      <applicationTitle>Maven Site PLDoc Enterprise Example</applicationTitle>
+		      <name>Maven Site PLDoc Database Example</name>
+		      <applicationTitle>Maven Site PLDoc Database Example</applicationTitle>
 		      <!--sourceDirectory>src/sql</sourceDirectory>
 		      <includes>*.sql</includes -->
 		      <destDir>Site-Enterprise</destDir>
-		      <reportOutputDirectory>target/site/apidocs</reportOutputDirectory>
+		      <!-- Ignored in Site Report reportOutputDirectory>target/site/apidocs</reportOutputDirectory -->
 		      <showSkippedPackages>true</showSkippedPackages>
 		      <dbUrl>jdbc:oracle:thin:@//192.168.100.22:1521/orcl</dbUrl>
 		      <dbUser>system</dbUser>

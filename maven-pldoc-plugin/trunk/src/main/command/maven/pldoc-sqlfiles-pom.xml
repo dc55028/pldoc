@@ -30,7 +30,7 @@
 	  <overviewFile>samples/overview.html</overviewFile>
 	  <includes>*.sql</includes>
 	  <reportOutputDirectory>target/docs/apidocs</reportOutputDirectory>
-	  <destDir>pldoc</destDir>
+	  <destDir>pldoc-goal-files</destDir>
 	  <showSkippedPackages>true</showSkippedPackages>
 	</configuration>                    
       </plugin>
@@ -46,11 +46,15 @@
 		    <artifactId>maven-pldoc-plugin</artifactId>
 		    <version>${project.version}</version>
 		    <configuration>
+		      <name>PLDoc Maven Site Report Example</name>
 		      <applicationTitle>PLDoc Maven Site Report Example</applicationTitle>
-		      <sourceDirectory>${project.basedir}/samples</sourceDirectory>
-		      <overviewFile>${project.basedir}/samples/overview.html</overviewFile>
+		      <sourceDirectory>samples</sourceDirectory>
+		      <overviewFile>samples/overview.html</overviewFile>
 		      <includes>**/*.sql</includes>
-		      <reportOutputDirectory>${project.basedir}/target/site/apidocs</reportOutputDirectory>
+		      <!-- Ignored within Site Report - use destDir 
+		      <reportOutputDirectory>target/site/apidocs</reportOutputDirectory>
+		      -->
+		      <destDir>pldoc-site-report</destDir>
 		      <showSkippedPackages>true</showSkippedPackages>
 		    </configuration>                    
 		  </plugin>
