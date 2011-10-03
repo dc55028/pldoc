@@ -15,7 +15,7 @@
       <plugin>
 	<groupId>net.sourceforge.pldoc</groupId>
 	<artifactId>maven-pldoc-plugin</artifactId>
-	<version>2.2-SNAPSHOT</version>
+	<version>2.3-SNAPSHOT</version>
 	  <dependencies>
 	    <dependency>
 	     <groupId>com.oracle</groupId>
@@ -54,14 +54,14 @@
 		  <plugin>
 		    <groupId>net.sourceforge.pldoc</groupId>
 		    <artifactId>maven-pldoc-plugin</artifactId>
-		    <version>2.2-SNAPSHOT</version>
+		    <version>2.3-SNAPSHOT</version>
 		    <configuration>
 		      <applicationTitle>Maven Site PLDoc Enterprise Example</applicationTitle>
 		      <!--sourceDirectory>src/sql</sourceDirectory>
 		      <includes>*.sql</includes -->
 		      <destDir>Site-Enterprise</destDir>
 		      <reportOutputDirectory>target/site/apidocs</reportOutputDirectory>
-		      <showSkippedpackages>true</showSkippedPackages>
+		      <showSkippedPackages>true</showSkippedPackages>
 		      <dbUrl>jdbc:oracle:thin:@//192.168.100.22:1521/orcl</dbUrl>
 		      <dbUser>system</dbUser>
 		      <dbPassword>oracle</dbPassword>

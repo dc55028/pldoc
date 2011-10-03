@@ -27,10 +27,10 @@ if "%ORACLE_HOME%" == "" ( echo INFO: Environment variable ORACLE_HOME not set. 
 	if "%JDBC_HOME%" == "" ( echo "WARN: Cannot locate JDBC directory. Ensure that JDBC files hav been installed into local Maven Repository" 1>&2 )
 
 	REM As goal 
-	CALL mvn -f pldoc-enterprise-pom.xml pldoc:pldoc  
+	CALL mvn -s maven_enterprise_settings.xml -f pldoc-enterprise-pom.xml pldoc:pldoc  
 
 	REM  As site report plug-in 
-	CALL mvn -f pldoc-enterprise-pom.xml site 
+	CALL mvn -s maven_enterprise_settings.xml -f pldoc-enterprise-pom.xml site 
 
 :end
 @PAUSE
