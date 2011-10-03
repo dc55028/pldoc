@@ -56,12 +56,20 @@
 		    <artifactId>maven-pldoc-plugin</artifactId>
 		    <version>2.3-SNAPSHOT</version>
 		    <configuration>
+		      <name>Maven Site PLDoc Enterprise Example</name>
 		      <applicationTitle>Maven Site PLDoc Enterprise Example</applicationTitle>
 		      <!--sourceDirectory>src/sql</sourceDirectory>
 		      <includes>*.sql</includes -->
 		      <destDir>Site-Enterprise</destDir>
+		      <!-- ignored within Site Report - use destDir  
 		      <reportOutputDirectory>target/site/apidocs</reportOutputDirectory>
+		      -->
 		      <showSkippedPackages>true</showSkippedPackages>
+		      <!-- Use Settings instaed 
+		      <dbUrl>jdbc:oracle:thin:@//192.168.100.22:1521/orcl</dbUrl>
+		      <dbUser>system</dbUser>
+		      <dbPassword>oracle</dbPassword>
+		      -->
 		      <dbUrl>jdbc:oracle:thin:@//192.168.100.22:1521/orcl</dbUrl>
 		      <dbUser>system</dbUser>
 		      <dbPassword>oracle</dbPassword>
