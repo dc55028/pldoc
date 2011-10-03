@@ -25,17 +25,16 @@ else
 	fi 
 	if [ "${JDBC_HOME}" =  "" ]
 	then
-		echo "WARN: Cannot locate JDBC directory. Ensure that JDBC_HOME is specified in ant_enterprise_example.properties" 1>&2 
-		ant -f ant_enterprise_example.xml -propertyfile ant_enterprise_example.properties
-	else
-		#Run against all Oracle Enterprise schemas
-
-		#As goal 
-		mvn -s maven_enterprise_settings.xml -f pldoc-enterprise-pom.xml pldoc:pldoc  
-
-		# As site report plug-in 
-		mvn -s maven_enterprise_settings.xml -f pldoc-enterprise-pom.xml site 
+		echo "WARN: Cannot locate JDBC directory. Ensure that JDBC files hav been installed into local Maven Repository" 1>&2 
 	fi
+
+	#Run against all Oracle Enterprise schemas
+
+	#As goal 
+	mvn -s maven_enterprise_settings.xml -f pldoc-enterprise-pom.xml pldoc:pldoc  
+
+	# As site report plug-in 
+	mvn -s maven_enterprise_settings.xml -f pldoc-enterprise-pom.xml site 
 fi
 
 
