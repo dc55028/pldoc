@@ -22,6 +22,9 @@ import java.io.File;
 import java.util.ResourceBundle;
 import net.sourceforge.pldoc.Settings;
 import net.sourceforge.pldoc.ant.PLDocTask;
+
+import org.apache.tools.ant.BuildException;
+
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.reporting.MavenReport;
@@ -44,6 +47,7 @@ import org.codehaus.plexus.util.StringUtils;
 <sourceDirectory>src/sql</sourceDirectory>
 <includes>*.sql</includes>
 <reportOutputDirectory>target/site/apidocs</reportOutputDirectory>
+<destDir>sql-apidocs<destDir>
 <showSkippedPackages>true</showSkippedPackages>
 <dbUrl>jdbc:oracle:thin:@//192.168.100.22:1521/orcl</dbUrl>
 <dbUser>system</dbUser>
@@ -114,35 +118,36 @@ implements MavenReport{
     /**
      * JDBC URL
      *
-     * @parameter expression="${dburl}" 
+     * @since 2.1
+     * @parameter expression="${dbUrl}" 
      */
     private String dbUrl ;
     /**
      * Database user name 
      *
      * @since 2.1
-     * @parameter expression="${dbuser}" 
+     * @parameter expression="${dbUser}" 
      */
     private String dbUser ;
     /**
      * Database user password
      *
      * @since 2.1
-     * @parameter expression="${dbpassword}" 
+     * @parameter expression="${dbPassword}" 
      */
     private String dbPassword ;
     /**
      * Comma-separated list of input Object Types to process, for example: "PACKAGE,TYPE,FUNCTION,PROCEDURE,TRIGGER"
      *
      * @since 2.1
-     * @parameter expression="${inputtypes}" default-value="PACKAGE,TYPE,FUNCTION,PROCEDURE,TRIGGER"
+     * @parameter expression="${inputTypes}" default-value="PACKAGE,TYPE,FUNCTION,PROCEDURE,TRIGGER"
      */
     private String inputTypes ;
     /**
      * Comma-separated list of input Objects to process, for example "SCOTT.%,HR.%,SH.%"
      *
      * @since 2.1
-     * @parameter expression="${inputobjects}" 
+     * @parameter expression="${inputObjects}" 
      */
     private String inputObjects ;
     /**
@@ -182,50 +187,97 @@ implements MavenReport{
     private String description;
 
 
+    /** {@inheritDoc} */
+
     public void execute()
             throws MojoExecutionException {
 	
+        try {
+	    //RenderingContext = new RenderingContext (outputDirectory, getOutPutName + ".html" ); 
+	    //SiteRendererSink = new SiteRendererSink (context);
+	    Sink sink = null; 
+	    Locale locale = Locale.getDefault();
+            generate(sink, locale );
+        } 
+	catch (MavenReportException ex) {
+            //throw new MavenReportException("Failed generating pldoc report",ex);
+	    throw new MojoExecutionException( "An error has occurred in " + getName (Locale.ENGLISH ) + " report generation" , ex);
+        }
+	catch (RuntimeException ex) {
+            //throw new MavenReportException("Failed generating pldoc report",ex);
+	    throw new MojoExecutionException( "An error has occurred in " + getName (Locale.ENGLISH ) + " report generation" , ex);
+        }
 
-        File pldocDirectory = getReportOutputDirectory();
-	if (!pldocDirectory.exists()) pldocDirectory.mkdirs();
-        PLDocTask task = new PLDocTask();
-        task.init();
-        task.setDestdir(pldocDirectory);
-        task.setDoctitle(applicationTitle);
-	task.setDbUrl(dbUrl); 
-	task.setDbUser(dbUser);
-	task.setDbPassword(dbPassword);
-	task.setInputObjects(inputObjects);
-	task.setInputTypes(inputTypes);
-	task.setShowSkippedPackages(showSkippedPackages);
-
-	if (null != sourceDirectory && null != includes)
-	{
-	  FileSet fset = new FileSet();
-	  fset.setDir(sourceDirectory);
-	  fset.setIncludes(includes);
-	  task.addFileset(fset);
-	}
-
-        Project proj = new Project();
-        proj.setBaseDir(pldocDirectory);
-        proj.setName(applicationTitle);
-        task.setProject(proj);
-        task.execute();
 
     }
 
-    public void generate(Sink arg0, Locale arg1) throws MavenReportException {
+    /** {@inheritDoc} 
+        This implementation current ignore ignores both parameters  
+    */
+
+    public void generate(Sink sink, Locale locale) throws MavenReportException {
+
+	outputDirectory = getReportOutputDirectory();
+	getLog().debug( "outputDirectory=" + outputDirectory  ) ;
+	getLog().debug( "destDir=" + destDir  ) ;
+	getLog().debug( "reportOutputDirectory=" + reportOutputDirectory  ) ;
+	getLog().debug( "applicationTitle=" + applicationTitle  ) ;
+	getLog().debug( "sourceDirectory=" + sourceDirectory  ) ;
+	getLog().debug( "includes=" + includes  ) ;
+	getLog().debug( "dbUrl=" + dbUrl  ) ;
+	getLog().debug( "dbUser=" + dbUser  ) ;
+	getLog().debug( "dbPassword=" + ((null == dbPassword) ? "undefined" : "defined" )   ) ;
+	getLog().debug( "inputObjects=" + inputObjects  ) ;
+	getLog().debug( "inputTypes=" + inputTypes  ) ;
+	getLog().debug( "showSkippedPackages=" + showSkippedPackages ) ;
+
         try {
-            execute();
-        } catch (MojoExecutionException ex) {
-            throw new MavenReportException("Failed generating pldoc report",ex);
+	    if (!outputDirectory.exists()) 
+	    {
+	      getLog().info( "Creating directory " + outputDirectory.toString()  ) ;
+	      outputDirectory.mkdirs();
+	    }
+	    PLDocTask task = new PLDocTask();
+	    task.init();
+	    task.setDestdir(outputDirectory);
+	    task.setDoctitle(applicationTitle);
+	    task.setDbUrl(dbUrl); 
+	    task.setDbUser(dbUser);
+	    task.setDbPassword(dbPassword);
+	    task.setInputObjects(inputObjects);
+	    task.setInputTypes(inputTypes);
+	    task.setShowSkippedPackages(showSkippedPackages);
+
+	    if (null != sourceDirectory && null != includes)
+	    {
+	      FileSet fset = new FileSet();
+	      fset.setDir(sourceDirectory);
+	      fset.setIncludes(includes);
+	      task.addFileset(fset);
+	    }
+
+	    Project proj = new Project();
+	    proj.setBaseDir(outputDirectory);
+	    proj.setName(applicationTitle);
+	    task.setProject(proj);
+	    task.execute();
+        } 
+	catch (BuildException ex) {
+	  //Convert Ant Build Exception into expected Maven Exception 
+	  throw new MavenReportException("Failed generating pldoc report",ex);
+        }
+	catch (RuntimeException ex) {
+	  throw new MavenReportException("Failed generating pldoc report",ex);
         }
     }
+
+    /** {@inheritDoc} */
 
     public String getOutputName() {
         return destDir + "/index";
     }
+
+    /** {@inheritDoc} */
 
     public String getName(Locale locale) {
         if ( StringUtils.isEmpty( name ) )
@@ -236,9 +288,13 @@ implements MavenReport{
         return name;
     }
 
+    /** {@inheritDoc} */
+
     public String getCategoryName() {
         return CATEGORY_PROJECT_REPORTS;
     }
+
+    /** {@inheritDoc} */
 
     public String getDescription(Locale locale) {
         if ( StringUtils.isEmpty( description ) )
@@ -249,7 +305,27 @@ implements MavenReport{
         return description;
     }
 
+    public void setDestDir(String destDir) {
+      this.destDir = destDir; 
+
+	getLog().debug( "setDestDir: param destDir=" + destDir  ) ;
+	getLog().debug( "setDestDir: outputDirectory=" + this.outputDirectory  ) ;
+	getLog().debug( "setDestDir: destDir=" + this.destDir  ) ;
+	getLog().debug( "setDestDir: reportOutputDirectory=" + this.reportOutputDirectory  ) ;
+      updateReportOutputDirectory(reportOutputDirectory, destDir) ;
+    }
+
+
     public void setReportOutputDirectory(File reportOutputDirectory) {
+
+	getLog().debug( "setReportOutPutDirectory: param reportOutputDirectory=" + reportOutputDirectory  ) ;
+	getLog().debug( "setReportOutPutDirectory: outputDirectory=" + this.outputDirectory  ) ;
+	getLog().debug( "setReportOutPutDirectory: destDir=" + this.destDir  ) ;
+	getLog().debug( "setReportOutPutDirectory: reportOutputDirectory=" + this.reportOutputDirectory  ) ;
+      updateReportOutputDirectory(reportOutputDirectory, destDir) ;
+    }
+
+    private void updateReportOutputDirectory(File reportOutputDirectory, String destDir) {
         if ( ( reportOutputDirectory != null ) 
 	     && ( destDir != null ) 
 	     && ( !reportOutputDirectory.getAbsolutePath().endsWith( destDir ) ) 
@@ -261,7 +337,10 @@ implements MavenReport{
         {
             this.reportOutputDirectory = reportOutputDirectory;
         }
+	getLog().debug( "updateReportOutPutDirectory: reportOutputDirectory=" + this.reportOutputDirectory  ) ;
     }
+
+    /** {@inheritDoc} */
 
     public File getReportOutputDirectory() {
         if ( reportOutputDirectory == null )
@@ -271,9 +350,13 @@ implements MavenReport{
         return reportOutputDirectory;
     }
 
+    /** {@inheritDoc} */
+
     public boolean isExternalReport() {
          return true;
     }
+
+    /** {@inheritDoc} */
 
     public boolean canGenerateReport() {
         return true;
