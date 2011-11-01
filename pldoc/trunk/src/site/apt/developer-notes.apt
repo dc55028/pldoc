@@ -42,6 +42,7 @@ mvn install                     Compile and install artefacts into local reposit
 Site Generation
 
   Site generation takes much less time (less than 2 minutes).
+
 +--
 mvn site         Site generation to target directory
 mvn site:deploy  Refresh site at Sourceforge
@@ -50,7 +51,6 @@ mvn site:deploy  Refresh site at Sourceforge
 Code Release 
 
   New versions should be released using the Maven releaes plugin which automates a lot of the steps needs to create a successful release. A successful release will automatically be deployed to the central Maven repository, via rsync synchronisation.
-
 
   For more information about the steps required to deploy to Sourceforge, refer to {{{http://maven.apache.org/plugins/maven-site-plugin/examples/site-deploy-to-sourceforge.net.html}Deployment to Sourceforge}}.
 
