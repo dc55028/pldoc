@@ -120,6 +120,10 @@
        -->
       <velocityProjectVersion>${project.version}</velocityProjectVersion>
       <velocityBuildFinalName>${project.build.finalName}</velocityBuildFinalName>
+      <!--
+	   Correct Change Log Report File Activity Report Links for subproject
+      -->
+      <maven.changelog.svn.baseurl>http://pldoc.svn.sourceforge.net/viewvc/pldoc/maven-pldoc-plugin/</maven.changelog.svn.baseurl>
     </properties>
 
     <build>
