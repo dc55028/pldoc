@@ -50,7 +50,7 @@ mvn site:deploy  Refresh site at Sourceforge
 
 Code Release 
 
-  New versions should be released using the Maven releaes plugin which automates a lot of the steps needs to create a successful release. A successful release will automatically be deployed to the central Maven repository, via rsync synchronisation.
+  New versions should be released using the Maven release plugin which automates a lot of the steps needs to create a successful release. A successful release will automatically be deployed to the {{{http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22net.sourceforge.pldoc%22%20AND%20a%3A%22pldoc%22}central Maven repository}}, via rsync synchronisation. The synchronisation process may take several days.
 
   For more information about the steps required to deploy to Sourceforge, refer to {{{http://maven.apache.org/plugins/maven-site-plugin/examples/site-deploy-to-sourceforge.net.html}Deployment to Sourceforge}}.
 
