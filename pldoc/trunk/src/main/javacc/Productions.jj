@@ -269,6 +269,8 @@ void declarativeUnit(boolean isPackageLevel) throws SAXException :
 		exceptionDeclaration(isPackageLevel) |
 		LOOKAHEAD((<TYPE>|<SUBTYPE>) qualifiedID() (<IS> | <AS> )  ) //SRT 20110616 - make sue soen't break object type
 		subtype_definition(isPackageLevel) |
+		LOOKAHEAD((<FUNCTION>|<PROCEDURE>) qualifiedID() ) //SRT 20111117 - Special case of parameterless methods:choose method in preference to variable 
+		programUnit(isPackageLevel)  |
 		LOOKAHEAD(4)
 		variableOrConstantDeclaration(isPackageLevel) |
 		LOOKAHEAD(2)
