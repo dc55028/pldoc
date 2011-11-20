@@ -582,6 +582,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     </TABLE>
 
     <xsl:for-each select="$mainTags">
+      <xsl:sort select="@NAME"/>
       <xsl:element name="A"><xsl:attribute name="NAME"><xsl:value-of select="translate(@NAME, $uppercase, $lowercase)" />
         <xsl:if test="*[name()=$childTags]">
         <xsl:text>(</xsl:text>
@@ -873,6 +874,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     </TABLE>
 
     <xsl:for-each select="CONSTANT | VARIABLE">
+      <xsl:sort select="@NAME"/>
       <A NAME="{@NAME}"></A><H3><xsl:value-of select="@NAME"/></H3>
       <PRE>
   public <xsl:value-of select="RETURN/@TYPE"/><xsl:text> </xsl:text><B><xsl:value-of select="@NAME"/></B>
