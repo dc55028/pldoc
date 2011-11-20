@@ -7,6 +7,11 @@
         <author email="altumano at users.sourceforge.net">Albert Tumanov</author>
     </properties>
     <body>
+        <release version="0.9.6" date="2011-11-20"  description="Minor bug fixes" >
+            <action type="fix" issue="3440459" dev="sturton" due-tt="wiley.te@gmail.com"> Productions.jj - Fix regression where packaged functions and procedures without parameter lists were parsed as fields. </action>
+            <action type="fix" dev="sturton" > pldoc_ant_example.sh -  set pldoc.home Ant property to the script&apos;s execution directory </action>
+            <action type="fix" dev="sturton" > Unit.xsl -  sort method and field detail by name</action>
+        </release>
         <release version="0.9.5" date="2011-09-26"  description="Add support for database-based PL/SQL to ANT task; update ANT examples for JAVA 5 and above" >
             <action type="fix" dev="sturton" > Settings.java - add mising setter method required for PLDocTask</action>
             <action type="fix" dev="sturton" > PLDoc.java -  when called from PLDocTask, redirect in allschemas.xsl showed same problem as unit.xsl had done. Same workaround applied (pass absolute path explicitly as targetFolder XSL parameter) </action>
