@@ -1,5 +1,12 @@
 
-export ANT_OPTS="-server" #Force server JVM 
+PLDOC_HOME=$( cd $(dirname "$0" ) && pwd )
+if [ "${PLDOC_HOME}" == "" ]
+then  
+    echo "ERROR: Environment variable PLDOC_HOME not set." 1>&2 && exit 1 
+fi
+
+export ANT_OPTS="-server -Dpldoc.home=\"${PLDOC_HOME}\" ${ANT_OPTS}" #Force server JVM 
+
 ant -f ant_example.xml
 
 # rem Include Oracle jars in the classpath 
