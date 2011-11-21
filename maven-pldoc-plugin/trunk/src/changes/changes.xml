@@ -7,8 +7,8 @@
         <author email="altumano at users.sourceforge.net">Albert Tumanov</author>
     </properties>
     <body>
-        <release version="2.4" date="2011-11213"  description="Release to incoporate PLDOc 0.9.6 ">
-            <action type="update" dev="sturton" > project POM file - make dependent PLDoc version LATEST to avoid manually updating after each PLDoc release </action>
+        <release version="2.4" date="2011-11213"  description="Release to incorporate PLDOc 0.9.6 ">
+            <action type="update" dev="sturton" > project POM file - update dependent PLDoc version to 0.9.6</action>
             <action type="update" dev="sturton" > Example POM files - make maven-pldoc-plugin version LATEST to avoid requirement for bundle download after every maven-pldoc-plugin release</action>
         </release>
         <release version="2.3" date="2011-10-03"  description="Documentation fix " >
