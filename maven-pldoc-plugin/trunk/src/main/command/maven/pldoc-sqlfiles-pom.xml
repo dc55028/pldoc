@@ -44,7 +44,7 @@
 		  <plugin>
 		    <groupId>net.sourceforge.pldoc</groupId>
 		    <artifactId>maven-pldoc-plugin</artifactId>
-		    <version>${project.version}</version>
+		    <version>LATEST</version>
 		    <configuration>
 		      <name>PLDoc Maven Site Report Example</name>
 		      <applicationTitle>PLDoc Maven Site Report Example</applicationTitle>

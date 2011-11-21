@@ -12,7 +12,7 @@ if [ "${ORACLE_HOME}" =  "" ]
 then
 	echo "INFO: Environment variable ORACLE_HOME not set. Skipping database example" 1>&2 
 else
-	set -xv
+	#set -xv
 	#export JAVA_TOOL_OPTIONS=" -Dfile.encoding=UTF-8"
 	#export JAVA_OPTS=" -Dfile.encoding=UTF-8"
 	export NLS_LANG=.UTF8

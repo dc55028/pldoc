@@ -16,7 +16,7 @@
       <plugin>
 	<groupId>net.sourceforge.pldoc</groupId>
 	<artifactId>maven-pldoc-plugin</artifactId>
-	<version>2.3-SNAPSHOT</version>
+	<version>2.4-SNAPSHOT</version>
 	  <dependencies>
 	    <dependency>
 	     <groupId>com.oracle</groupId>
@@ -44,7 +44,7 @@
 		  <plugin>
 		    <groupId>net.sourceforge.pldoc</groupId>
 		    <artifactId>maven-pldoc-plugin</artifactId>
-		    <version>2.3-SNAPSHOT</version>
+		    <version>LATEST</version>
 		    <configuration>
 		      <name>PLDoc Maven Site Report Example</name>
 		      <applicationTitle>PLDoc Maven Site Report Example</applicationTitle>
