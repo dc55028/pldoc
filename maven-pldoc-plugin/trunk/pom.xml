@@ -197,6 +197,47 @@
 	    </configuration>
 	    -->
 	</plugin>
+
+	<!--
+	 Override on the command-line 
+	 mvn -Dchanges.smtpHost=localhost -Dchanges.toAddresses=sturton@sf.net -Dchanges.fromDeveloperId=sturton changes:announcement-mail
+	-->
+	<plugin>
+	  <groupId>org.apache.maven.plugins</groupId>
+	  <artifactId>maven-changes-plugin</artifactId>
+	  <!-- <inherited>false</inherited> -->
+	  <version>2.6</version>
+	      <configuration>
+		<smtpHost>localhost</smtpHost>
+		<smtpPort implementation="java.lang.Integer">25</smtpPort>
+		<mailSender>
+		    <name>PLDoc Release Management</name>
+		    <email>noreply@pldoc.sourceforge.net</email>
+		</mailSender>
+		<toAddresses>
+		  <toAddress implementation="java.lang.String">altumano@sourceforge.net</toAddress>
+		  <toAddress implementation="java.lang.String">pldoc-chat@lists.sourceforge.net</toAddress>
+		</toAddresses>
+	      </configuration>
+	  <executions>
+	    <execution>
+	      <id>announcement-generate</id>
+	      <phase>deploy</phase>
+	      <goals>
+		  <goal>announcement-generate</goal>
+	      </goals>
+	    </execution>
+	    <execution>
+	      <id>announcement-mail</id>
+	      <phase>deploy</phase>
+	      <goals>
+		<goal>announcement-mail</goal>
+	      </goals>
+	    </execution>
+	    </executions>
+	</plugin>
+	  
+
       </plugins>
 
      <resources>
