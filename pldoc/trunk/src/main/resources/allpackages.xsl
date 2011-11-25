@@ -131,6 +131,32 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     </TABLE>
     </xsl:if>
 
+  <!-- Document Bodies Start -->
+
+    <xsl:if test="PACKAGE_BODY|OBJECT_BODY">
+    <BR />
+    <BR />
+    <TABLE BORDER="0" WIDTH="100%">
+    <TR>
+    <TD><FONT size="+1" CLASS="FrameHeadingFont">
+    All Bodies</FONT>
+    <BR />
+    <BR />
+
+    <xsl:for-each select="PACKAGE_BODY|OBJECT_BODY">
+      <xsl:sort select="@NAME"/>
+      <FONT CLASS="FrameItemFont"><A HREF="_{translate(@NAME, $uppercase, $lowercase)}_body.html" TARGET="packageFrame">
+        <xsl:value-of select="translate(@NAME, $lowercase, $uppercase)"/>
+      </A></FONT><BR></BR>
+    </xsl:for-each>
+
+    </TD>
+    </TR>
+    </TABLE>
+    </xsl:if>
+
+  <!-- Document Bodies End -->
+
     <xsl:if test="TABLE">
     <TABLE BORDER="0" WIDTH="100%">
     <TR>

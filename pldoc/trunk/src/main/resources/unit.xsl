@@ -708,7 +708,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
   <!-- ************************* START OF PAGE ***************************** -->
   <xsl:template match="/APPLICATION">
-  <!-- ********************* START OF PACKAGE PAGE ************************* -->
+  <!-- ********************* START OF top-level object PAGE ************************* -->
   <!--<xsl:for-each select="PACKAGE | PACKAGE_BODY">-->
   <xsl:for-each select="PACKAGE | OBJECT_TYPE | TRIGGER">
 
@@ -949,6 +949,251 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
     </redirect:write>
   </xsl:for-each> <!-- select="PACKAGE | PACKAGE_BODY" -->
+
+  <!--<xsl:for-each BODY object">
+    This is cut and paste of the callable Oracle Object XSLT with the exception of the output file name  
+  -->
+  <xsl:for-each select="PACKAGE_BODY | OBJECT_BODY">
+
+    <redirect:write file="{concat($targetFolder, '_', translate(@NAME, $uppercase, $lowercase))}_body.html">
+
+    <HTML>
+    <HEAD>
+      <TITLE><xsl:value-of select="../@NAME"/></TITLE>
+      <LINK REL="stylesheet" TYPE="text/css" HREF="stylesheet.css" TITLE="Style"/>
+    </HEAD>
+    <BODY BGCOLOR="white">
+
+    <!-- **************************** HEADER ******************************* -->
+    <xsl:call-template name="NavigationBar"/>
+
+    <!-- ********************** PACKAGE DESCRIPTION ************************* -->
+    <H2>
+    <FONT SIZE="-1"><xsl:value-of select="@SCHEMA"/></FONT><BR/>
+     <xsl:choose>
+	     <xsl:when test="local-name() = 'OBJECT_BODY'">
+	     <xsl:choose>
+		     <xsl:when test="./COLLECTIONTYPE">Object Collection</xsl:when>
+		     <xsl:when test="./SUPERTYPE">Subtype</xsl:when>
+		     <xsl:otherwise>Object Type</xsl:otherwise>
+	      </xsl:choose>
+	     </xsl:when>
+	      <xsl:otherwise>Package</xsl:otherwise>
+      </xsl:choose><xsl:text>&nbsp;</xsl:text><xsl:value-of select="@NAME"/>
+    </H2>
+
+	<!-- package comment -->
+    <xsl:for-each select="COMMENT">
+      <!-- SRT 20110501 <xsl:value-of select="." disable-output-escaping="yes" /> -->
+      <xsl:call-template name="processInlineTag">
+        <xsl:with-param name="comment" select="." />
+        <xsl:with-param name="tag" select="'link'" />
+      </xsl:call-template>
+    </xsl:for-each>
+
+	<P/>
+	
+	<!-- print custom tags -->    
+    <xsl:call-template name="CustomTagsTemplate"/>
+
+    <HR/>
+    <P/>
+
+    <!-- ************************** FIELD SUMMARY ************************** -->
+    <A NAME="field_summary"></A>
+    <xsl:if test="CONSTANT | VARIABLE | SUPERTYPE">
+
+    <TABLE BORDER="1" CELLPADDING="3" CELLSPACING="0" WIDTH="100%">
+    <TR CLASS="TableHeadingColor">
+    <TD COLSPAN="2"><FONT SIZE="+2">
+    <B>Field Summary</B></FONT></TD>
+    </TR>
+
+    <xsl:for-each select="CONSTANT | VARIABLE | SUPERTYPE">
+      <xsl:sort select="@NAME"/>
+      <TR CLASS="TableRowColor">
+      <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+      <CODE><xsl:text>&nbsp;</xsl:text>
+      <!-- If possible, convert the plain-text NAME to a link to a matching OBJECT TYPE in the Application-->
+      <xsl:choose>
+	      <xsl:when test="local-name() = 'SUPERTYPE'">
+		      <!--<xsl:when test="local-name() = 'SUPERTYPE' and /APPLICATION/OBJECT_TYPE[@NAME=./@NAME] ">
+	    <A>
+		<xsl:attribute name="href"><xsl:value-of select="translate(@NAME, $uppercase, $lowercase)" disable-output-escaping="yes"/>.html</xsl:attribute>
+		<xsl:value-of select="@NAME" disable-output-escaping="yes"/>
+            </A>
+	      <!- - If possible, convert the plain-text TYPE to a link to a matching OBJECT TYPE in the Application-->
+	    <xsl:variable name="fieldType" select="translate(@NAME, $uppercase, $lowercase)" />
+	      <xsl:call-template name="GenerateTypeLink">
+		    <xsl:with-param name="typeName" select="@NAME" />
+		    <xsl:with-param name="schemaName" select="ancestor-or-self::*/@SCHEMA"/>
+                    <xsl:with-param name="localTypeName" select="../TYPE[ translate(@NAME, $uppercase, $lowercase) = $fieldType ]/@NAME " />
+	      </xsl:call-template>
+       </xsl:when>
+	  <xsl:otherwise>
+	    <xsl:variable name="fieldType" select="translate(RETURN/@TYPE, $uppercase, $lowercase)" />
+	      <xsl:call-template name="GenerateTypeLink">
+		    <xsl:with-param name="typeName" select="RETURN/@TYPE" />
+		    <xsl:with-param name="schemaName" select="ancestor-or-self::*/@SCHEMA"/>
+                    <xsl:with-param name="localTypeName" select="../TYPE[ translate(@NAME, $uppercase, $lowercase) = $fieldType ]/@NAME " />
+	      </xsl:call-template>
+	  </xsl:otherwise>
+      </xsl:choose>
+      </CODE></FONT></TD>
+      <TD><CODE>
+      <xsl:choose>
+	  <xsl:when test="local-name() = 'SUPERTYPE'">SUPERTYPE</xsl:when>
+	  <xsl:otherwise>
+		      <B><A HREF="#{@NAME}"><xsl:value-of select="@NAME"/></A></B>
+	  </xsl:otherwise>
+      </xsl:choose>
+	 <xsl:if test="local-name() = 'CONSTANT'"> CONSTANT</xsl:if>
+	 <xsl:if test="@DEFAULT"> := <xsl:value-of select="@DEFAULT" disable-output-escaping="yes" /></xsl:if>
+        </CODE>
+      <BR/>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <xsl:if test="not(./TAG[@TYPE='@deprecated'])">
+        <xsl:for-each select="COMMENT_FIRST_LINE">
+          <!-- SRT 20110509 <xsl:value-of select="." disable-output-escaping="yes" /> -->
+          <xsl:call-template name="processInlineTag">
+            <xsl:with-param name="comment" select="." />
+            <xsl:with-param name="tag" select="'link'" />
+          </xsl:call-template>
+        </xsl:for-each>
+      </xsl:if>
+      <xsl:for-each select="TAG[@TYPE='@deprecated']">
+        <B>Deprecated.</B>&nbsp;<I>
+        <xsl:for-each select="COMMENT">
+          <!-- SRT 20110509 <xsl:value-of select="." disable-output-escaping="yes" /> -->
+          <xsl:call-template name="processInlineTag">
+            <xsl:with-param name="comment" select="." />
+            <xsl:with-param name="tag" select="'link'" />
+          </xsl:call-template>
+        </xsl:for-each></I>
+      </xsl:for-each>
+      </TD>
+      </TR>
+    </xsl:for-each>
+
+    </TABLE>
+    <P/>
+
+    </xsl:if>
+
+    <!-- ************************* TYPE SUMMARY ************************** -->
+    <xsl:call-template name="MethodOrTypeOrTriggerSummary">
+      <xsl:with-param name="fragmentName">type_summary</xsl:with-param>
+      <xsl:with-param name="title">Type Summary</xsl:with-param>
+      <xsl:with-param name="mainTags" select="TYPE" />
+      <xsl:with-param name="childTags" select="'FIELD'" />
+    </xsl:call-template>
+
+    <!-- ************************* METHOD SUMMARY ************************** -->
+    <xsl:call-template name="MethodOrTypeOrTriggerSummary">
+      <xsl:with-param name="fragmentName">method_summary</xsl:with-param>
+      <xsl:with-param name="title">Method Summary</xsl:with-param>
+      <xsl:with-param name="mainTags" select="FUNCTION | PROCEDURE" />
+      <xsl:with-param name="childTags" select="'ARGUMENT'" />
+    </xsl:call-template>
+
+    <!-- ************************* TRIGGER SUMMARY ************************** -->
+    <xsl:call-template name="MethodOrTypeOrTriggerSummary">
+      <xsl:with-param name="fragmentName">trigger_summary</xsl:with-param>
+      <xsl:with-param name="title">Trigger Summary</xsl:with-param>
+      <xsl:with-param name="mainTags" select="TRIGGER" />
+      <xsl:with-param name="childTags" select="'TIMINGPOINTSECTION'" /> <!-- 11 G Trigger Syntax -->
+      <xsl:with-param name="flagTrigger" select="'TRUE'" /> 
+    </xsl:call-template>
+
+    <!-- ************************** FIELD DETAIL *************************** -->
+    <A NAME="field_detail"></A>
+    <xsl:if test="CONSTANT | VARIABLE">
+
+    <TABLE BORDER="1" CELLPADDING="3" CELLSPACING="0" WIDTH="100%">
+    <TR CLASS="TableHeadingColor">
+    <TD COLSPAN="1"><FONT SIZE="+2">
+    <B>Field Detail</B></FONT></TD>
+    </TR>
+    </TABLE>
+
+    <xsl:for-each select="CONSTANT | VARIABLE">
+      <xsl:sort select="@NAME"/>
+      <A NAME="{@NAME}"></A><H3><xsl:value-of select="@NAME"/></H3>
+      <PRE>
+  public <xsl:value-of select="RETURN/@TYPE"/><xsl:text> </xsl:text><B><xsl:value-of select="@NAME"/></B>
+	 <xsl:if test="local-name() = 'CONSTANT'"> CONSTANT</xsl:if>
+	 <xsl:if test="@DEFAULT"> := <xsl:value-of select="@DEFAULT" disable-output-escaping="yes" /></xsl:if>
+      </PRE>
+      <DL>
+      <xsl:for-each select="TAG[@TYPE='@deprecated']">
+        <DD><B>Deprecated.</B>&nbsp;<I>
+          <xsl:for-each select="COMMENT">
+          <!-- SRT 20110509 <xsl:value-of select="." disable-output-escaping="yes" /> -->
+          <xsl:call-template name="processInlineTag">
+            <xsl:with-param name="comment" select="." />
+            <xsl:with-param name="tag" select="'link'" />
+          </xsl:call-template>
+          </xsl:for-each></I>
+        </DD><P/>
+      </xsl:for-each>
+      <DD>
+        <xsl:for-each select="COMMENT">
+          <!-- SRT 20110509 <xsl:value-of select="." disable-output-escaping="yes" /> -->
+          <xsl:call-template name="processInlineTag">
+            <xsl:with-param name="comment" select="." />
+            <xsl:with-param name="tag" select="'link'" />
+          </xsl:call-template>
+        </xsl:for-each>
+      </DD>
+
+      <DD><DL>
+    </DL>
+    </DD>
+    </DL>
+
+    <HR/>
+    </xsl:for-each>
+
+    </xsl:if>
+
+    <!-- ************************* TYPE DETAIL *************************** -->
+    <xsl:call-template name="MethodOrTypeOrTriggerDetail">
+      <xsl:with-param name="fragmentName">type_detail</xsl:with-param>
+      <xsl:with-param name="title">Type Detail</xsl:with-param>
+      <xsl:with-param name="mainTags" select="TYPE" />
+      <xsl:with-param name="childTags" select="'FIELD'" />
+      <xsl:with-param name="childDescription" select="'Parameters'"/>
+    </xsl:call-template>
+
+    <!-- ************************* METHOD DETAIL *************************** -->
+    <xsl:call-template name="MethodOrTypeOrTriggerDetail">
+      <xsl:with-param name="fragmentName">method_detail</xsl:with-param>
+      <xsl:with-param name="title">Method Detail</xsl:with-param>
+      <xsl:with-param name="mainTags" select="FUNCTION | PROCEDURE" />
+      <xsl:with-param name="childTags" select="'ARGUMENT'" />
+      <xsl:with-param name="childDescription" select="'Parameters'"/>
+    </xsl:call-template>
+
+    <!-- ************************* TRIGGER DETAIL *************************** -->
+    <xsl:call-template name="MethodOrTypeOrTriggerDetail">
+      <xsl:with-param name="fragmentName">trigger_detail</xsl:with-param>
+      <xsl:with-param name="title">Trigger Detail</xsl:with-param>
+      <xsl:with-param name="mainTags" select="TRIGGER" />
+      <xsl:with-param name="childTags" select="'TIMINGPOINTSECTION'" />
+      <xsl:with-param name="flagTrigger" select="'TRUE'" /> 
+      <xsl:with-param name="childDescription" select="'Timing Points'"/>
+    </xsl:call-template>
+
+    <!-- ***************************** FOOTER ****************************** -->
+    <xsl:call-template name="NavigationBar"/>
+
+    </BODY>
+    </HTML>
+
+    </redirect:write>
+  </xsl:for-each> <!-- select="PACKAGE | PACKAGE_BODY" -->
+
+  <!--<xsl:for-each BODY">-->
 
   <!-- ********************** START OF TABLE PAGE ************************** -->
   <xsl:for-each select="TABLE | VIEW">
