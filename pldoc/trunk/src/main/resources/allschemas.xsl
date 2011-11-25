@@ -189,6 +189,28 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 	    </TABLE>
 	    </xsl:if>
 	
+	    <xsl:if test="//*[ @SCHEMA=$theschema and ( local-name() = 'PACKAGE_BODY' or local-name()='OBJECT_BODY' ) ]">
+	    <BR />
+	    <BR />
+	    <TABLE BORDER="0" WIDTH="100%">
+	    <TR>
+	    <TD><FONT size="+1" CLASS="FrameHeadingFont">
+	    Bodies</FONT>
+	    <BR />
+	    <BR />
+	
+	    <xsl:for-each select="//*[ @SCHEMA=$theschema and ( local-name() = 'PACKAGE_BODY' or local-name()='OBJECT_BODY' ) ]">
+	      <xsl:sort select="@NAME"/>
+	      <FONT CLASS="FrameItemFont"><A HREF="_{translate(@NAME, $uppercase, $lowercase)}_body.html" TARGET="packageFrame">
+	        <xsl:value-of select="translate(@NAME, $lowercase, $uppercase)"/>
+	      </A></FONT><BR></BR>
+	    </xsl:for-each>
+	
+	    </TD>
+	    </TR>
+	    </TABLE>
+	    </xsl:if>
+	
 	    <xsl:if test="//TABLE[@SCHEMA=$theschema]">
 	    <TABLE BORDER="0" WIDTH="100%">
 	    <TR>
@@ -298,6 +320,28 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 			  <TR>
 		   	  <TD>
 		        <FONT CLASS="FrameItemFont"><A HREF="{translate(@NAME, $uppercase, $lowercase)}.html" TARGET="packageFrame">
+		           <xsl:value-of select="translate(@NAME, $lowercase, $uppercase)"/>
+		        </A></FONT>
+			    </TD>
+			    <TD>&nbsp;</TD>
+			  </TR>
+		    </xsl:for-each>
+		
+			</TABLE>
+			<P/><P/>
+	    </xsl:if>
+	
+	
+	    <!-- **************************** Package and Object Bodies ******************************* -->
+		<xsl:if test="//*[ @SCHEMA=$theschema and ( local-name() = 'PACKAGE_BODY' or local-name()='OBJECT_BODY' ) ]">
+			<TABLE BORDER="1" WIDTH="100%">
+			<TR><TD COLSPAN="2"><FONT size="+1" CLASS="FrameHeadingFont">Packages</FONT></TD></TR>
+		
+		    <xsl:for-each select="//*[ @SCHEMA=$theschema and ( local-name() = 'PACKAGE_BODY' or local-name()='OBJECT_BODY' ) ]">
+		      <xsl:sort select="@NAME"/>
+			  <TR>
+		   	  <TD>
+		        <FONT CLASS="FrameItemFont"><A HREF="_{translate(@NAME, $uppercase, $lowercase)}_body.html" TARGET="packageFrame">
 		           <xsl:value-of select="translate(@NAME, $lowercase, $uppercase)"/>
 		        </A></FONT>
 			    </TD>

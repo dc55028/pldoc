@@ -152,6 +152,94 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 		</xsl:for-each>
 
+<!-- Include Bodies in the index Start -->
+			<xsl:for-each select="OBJECT_BODY/child::*">
+		  	<xsl:sort select="@NAME"/>
+				
+				<xsl:if test="starts-with(translate(substring(@NAME, 1,1), $lowercase, $uppercase), $indexChar)">
+				<DD>	
+					<xsl:variable name="packagename" select="../@NAME"/>
+					<!-- create link referrer -->
+					<xsl:variable name="referrer">
+			      <xsl:value-of select="'_'"/>
+			      <xsl:value-of select="$packagename"/>
+   					      <xsl:value-of select="'_body.html#'"/>
+   					      <xsl:value-of select="@NAME" />
+               <xsl:if test="ARGUMENT">
+                <xsl:text>(</xsl:text>
+								<xsl:for-each select="ARGUMENT">
+ 									<xsl:value-of select="@TYPE"/>
+ 									<xsl:if test="not(position()=last())"><xsl:text>,</xsl:text></xsl:if>
+								</xsl:for-each>
+								<xsl:text>)</xsl:text>
+							</xsl:if>
+					</xsl:variable>
+									
+			    <!-- create link -->
+			    <xsl:element name="A">
+	        <xsl:attribute name="HREF">
+			        <xsl:value-of select="translate($referrer,$uppercase,$lowercase)"/>
+			      </xsl:attribute>
+					  <xsl:value-of select="@NAME"/>        
+					</xsl:element>
+					
+					&nbsp; <FONT SIZE="-1">(<xsl:value-of select="$packagename"/> body)</FONT>
+					
+					<BR/>
+				  
+				  <xsl:value-of select="COMMENT_FIRST_LINE"/>        
+				  
+				  <P/>
+				</DD>
+				</xsl:if>
+
+		</xsl:for-each>
+
+			<xsl:for-each select="PACKAGE_BODY/child::*">
+		  	<xsl:sort select="@NAME"/>
+				
+				<xsl:if test="starts-with(translate(substring(@NAME, 1,1), $lowercase, $uppercase), $indexChar)">
+				<DD>	
+					<xsl:variable name="packagename" select="../@NAME"/>
+					<!-- create link referrer -->
+					<xsl:variable name="referrer">
+   			      <xsl:value-of select="'_'"/>
+			      <xsl:value-of select="$packagename"/>
+   					      <xsl:value-of select="'_body.html#'"/>
+   					      <xsl:value-of select="@NAME" />
+               <xsl:if test="ARGUMENT">
+                <xsl:text>(</xsl:text>
+								<xsl:for-each select="ARGUMENT">
+ 									<xsl:value-of select="@TYPE"/>
+ 									<xsl:if test="not(position()=last())"><xsl:text>,</xsl:text></xsl:if>
+								</xsl:for-each>
+								<xsl:text>)</xsl:text>
+							</xsl:if>
+					</xsl:variable>
+									
+			    <!-- create link -->
+			    <xsl:element name="A">
+	        <xsl:attribute name="HREF">
+			        <xsl:value-of select="translate($referrer,$uppercase,$lowercase)"/>
+			      </xsl:attribute>
+					  <xsl:value-of select="@NAME"/>        
+					</xsl:element>
+					
+					&nbsp; <FONT SIZE="-1">(<xsl:value-of select="$packagename"/> body)</FONT>
+					
+					<BR/>
+				  
+				  <xsl:value-of select="COMMENT_FIRST_LINE"/>        
+				  
+				  <P/>
+				</DD>
+				</xsl:if>
+
+		</xsl:for-each>
+<!-- Include Bodies in the index End -->
+
+<!-- Include Bodies in the index End -->
+
 		</DL>
 
 	</xsl:template>
