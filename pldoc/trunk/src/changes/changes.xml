@@ -9,7 +9,7 @@
     <body>
         <release version="0.9.7" date="2011-11-26"  description="Minor bug fixes" >
             <action type="add" issue="3418199" dev="sturton" due-to="Gurpreet Singh" due-to-email="gskhurana@sourceforge.net" >Generate documentation for PACKAGE and OBJECT TYPE bodies. </action>
-            <action type="fix" issue="3442994" dev="sturton" >ProductionsObjectTypes.jj -  parse simplest inherited subtype</action>
+            <action type="fix" issue="3443147" dev="sturton" >ProductionsObjectTypes.jj -  parse simplest inherited subtype</action>
             <action type="fix" issue="3441906" dev="sturton" >Correctly generate deprecated page</action>
         </release>
         <release version="0.9.6" date="2011-11-20"  description="Minor bug fixes" >
