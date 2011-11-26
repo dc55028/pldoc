@@ -73,7 +73,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     <P/><P/>
 
     <!-- print packages -->
-    <xsl:if test="./PACKAGE/TAG[starts-with(@TYPE,'@DEPRECATED')] or ./OBJECT_TYPE/TAG[starts-with(@TYPE,'@DEPRECATED')] ">
+    <xsl:if test="./PACKAGE/TAG[starts-with(translate(@TYPE, $lowercase, $uppercase),'@DEPRECATED')] or ./OBJECT_TYPE/TAG[starts-with(translate(@TYPE, $lowercase, $uppercase),'@DEPRECATED')] ">
     
 	    <TABLE BORDER="1" CELLPADDING="3" CELLSPACING="0" WIDTH="100%">
   	  <TR CLASS="TableHeadingColor">
@@ -86,7 +86,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 	    <xsl:for-each select="PACKAGE|OBJECT_TYPE">
 	      <xsl:sort select="@NAME"/>
 
-        <xsl:if test="TAG[starts-with(@TYPE,'@DEPRECATED')]">
+        <xsl:if test="TAG[starts-with(translate(@TYPE, $lowercase, $uppercase),'@DEPRECATED')]">
           <xsl:variable name="packagename" select="@NAME"/>
 
 					<!-- create link referrer -->
@@ -106,7 +106,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 							
 							<P/>
 
-          	  <xsl:for-each select="TAG[starts-with(@TYPE,'@DEPRECATED')]">
+          	  <xsl:for-each select="TAG[starts-with(translate(@TYPE, $lowercase, $uppercase),'@DEPRECATED')]">
         	      <xsl:for-each select="COMMENT">
                   <xsl:value-of select="." disable-output-escaping="yes" />
         	      </xsl:for-each>
@@ -123,7 +123,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
     
     <!-- print function, prcoedures, triggers -->
-		<xsl:if test="PACKAGE/child::*/TAG[starts-with(@TYPE,'@DEPRECATED')]">
+		<xsl:if test="PACKAGE/child::*/TAG[starts-with(translate(@TYPE, $lowercase, $uppercase),'@DEPRECATED')]">
 			
 			<!-- print -->
 	    <TABLE BORDER="1" CELLPADDING="3" CELLSPACING="0" WIDTH="100%">
@@ -137,7 +137,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     	<xsl:for-each select="/APPLICATION/*[local-name() = 'PACKAGE' or local-name() =  'OBJECT_TYPE'  ]/child::*">
         <xsl:sort select="@NAME"/>
 
-	        <xsl:if test="TAG[starts-with(@TYPE,'@DEPRECATED')]">
+	        <xsl:if test="TAG[starts-with(translate(@TYPE, $lowercase, $uppercase),'@DEPRECATED')]">
 	          <xsl:variable name="packagename" select="../@NAME"/>
 
 						  <TR>
@@ -197,7 +197,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
                   </PRE>
 
 										<P/>        							
-          	        <xsl:for-each select="TAG[starts-with(@TYPE,'@DEPRECATED')]">
+          	        <xsl:for-each select="TAG[starts-with(translate(@TYPE, $lowercase, $uppercase),'@DEPRECATED')]">
         	            <xsl:for-each select="COMMENT">
                         <xsl:value-of select="." disable-output-escaping="yes" />
         	            </xsl:for-each>
