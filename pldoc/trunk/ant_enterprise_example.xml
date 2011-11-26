@@ -23,7 +23,7 @@
 
   <taskdef name="pldoc" classname="net.sourceforge.pldoc.ant.PLDocTask">
     <classpath>
-      <pathelement location="${pldoc.home}/target/pldoc-0.9.6-SNAPSHOT-jar-with-dependencies.jar"/>
+      <pathelement location="${pldoc.home}/target/pldoc-0.9.7-SNAPSHOT-jar-with-dependencies.jar"/>
       <pathelement location="${JDBC_HOME}/ojdbc6.jar"/>
       <pathelement location="${JDBC_HOME}/ojdbc5.jar"/>
       <pathelement location="${JDBC_HOME}/ojdbc14.jar"/>

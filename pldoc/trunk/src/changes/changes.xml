@@ -7,8 +7,13 @@
         <author email="altumano at users.sourceforge.net">Albert Tumanov</author>
     </properties>
     <body>
+        <release version="0.9.7" date="2011-11-26"  description="Minor bug fixes" >
+            <action type="add" issue="3418199" dev="sturton" due-to="Gurpreet Singh" due-to-email="gskhurana@sourceforge.net" >Generate documentation for PACKAGE and OBJECT TYPE bodies. </action>
+            <action type="fix" issue="3442994" dev="sturton" >ProductionsObjectTypes.jj -  parse simplest inherited subtype</action>
+            <action type="fix" issue="3441906" dev="sturton" >Correctly generate deprecated page</action>
+        </release>
         <release version="0.9.6" date="2011-11-20"  description="Minor bug fixes" >
-            <action type="fix" issue="3440459" dev="sturton" due-tt="wiley.te@gmail.com"> Productions.jj - Fix regression where packaged functions and procedures without parameter lists were parsed as fields. </action>
+            <action type="fix" issue="3440459" dev="sturton" due-to="Tom Wiley" due-to-email="wiley.te@gmail.com"> Productions.jj - Fix regression where packaged functions and procedures without parameter lists were parsed as fields. </action>
             <action type="fix" dev="sturton" > pldoc_ant_example.sh -  set pldoc.home Ant property to the script&apos;s execution directory </action>
             <action type="fix" dev="sturton" > Unit.xsl -  sort method and field detail by name</action>
         </release>
