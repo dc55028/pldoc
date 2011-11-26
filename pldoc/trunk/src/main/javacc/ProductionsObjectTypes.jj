@@ -391,7 +391,7 @@ void typeSpec() throws SAXException :
                 //Try matching against keywords first to allow FINCTION and procedure as a fallback
 		(LOOKAHEAD(2)  typeMethod(isPackageLevel,typeVersion,null) | attributeDeclaration(typeVersion,null) 
 		 | pragma_clause()
-		) 
+		)* //SRT 20111125 This part may be completely empty if is a subtype which is effectively an alias for the supertype 
 		( "," (  typeMethod(isPackageLevel,typeVersion,null) | LOOKAHEAD(2) attributeDeclaration(typeVersion,null) 
 		      | pragma_clause()
 		      ) 
