@@ -1,4 +1,6 @@
 
+set -x 
+
 PLDOC_HOME=$( cd $(dirname "$0" ) && pwd )
 if [ "${PLDOC_HOME}" == "" ]
 then  
