@@ -20,6 +20,7 @@
             <item name="Properties" href="properties.html"/>
             <item name="Downloads" href="downloads.html"/>
             <item name="Notes for Developers" href="developer-notes.html"/>
+            <item name="Change Log" href="changes-report.html"/>
         </menu>
 
 	<!-- Run mvn compile site:site to generate the reports for the project. -->
