@@ -89,9 +89,16 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
         <xsl:if test="TAG[starts-with(translate(@TYPE, $lowercase, $uppercase),'@DEPRECATED')]">
           <xsl:variable name="packagename" select="@NAME"/>
 
-					<!-- create link referrer -->
+		<!-- create link referrer -->
         	<xsl:variable name="referrer">
+			<xsl:choose>
+			<xsl:when test="translate(local-name(), $lowercase, $uppercase) = 'PACKAGE_BODY' or translate(local-name(), $lowercase, $uppercase) = 'OBJECT_BODY' ">
+						<xsl:value-of select="concat('_',$packagename, '_body.html')"/>
+			</xsl:when>
+			<xsl:otherwise>
 						<xsl:value-of select="concat($packagename, '.html')"/>
+			</xsl:otherwise>
+			</xsl:choose>
 					</xsl:variable>
         							
 					<TR>
@@ -139,14 +146,21 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 	        <xsl:if test="TAG[starts-with(translate(@TYPE, $lowercase, $uppercase),'@DEPRECATED')]">
 	          <xsl:variable name="packagename" select="../@NAME"/>
+	          <xsl:variable name="objecttype" select="local-name(..)"/>
 
 						  <TR>
 						    <TD VALIGN="top">&nbsp;<xsl:value-of select="RETURN/@TYPE"/>&nbsp;</TD>
 						    <TD>
-									<!-- create link referrer -->
+							<!-- create link referrer -->
     							<xsl:variable name="referrer">
-        				      <xsl:value-of select="$packagename"/>
-		    					      <xsl:value-of select="'.html#'"/>
+								<xsl:choose>
+								<xsl:when test="translate($objecttype, $lowercase, $uppercase) = 'PACKAGE_BODY' or translate(local-name(), $lowercase, $uppercase) = 'OBJECT_BODY' ">
+											<xsl:value-of select="concat('_',$packagename, '_body.html#')"/>
+								</xsl:when>
+								<xsl:otherwise>
+											<xsl:value-of select="concat($packagename, '.html#')"/>
+								</xsl:otherwise>
+								</xsl:choose>
 		    					      <xsl:value-of select="@NAME" />
                         <xsl:if test="ARGUMENT">
                           <xsl:text>(</xsl:text>
