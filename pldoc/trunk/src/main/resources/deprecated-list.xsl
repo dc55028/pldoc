@@ -72,7 +72,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     <CENTER><H2>Deprecated-List</H2></CENTER>
     <P/><P/>
 
-    <!-- print packages -->
+    <!-- print deprecated Package and Object Type Specifications -->
     <xsl:if test="./PACKAGE/TAG[starts-with(translate(@TYPE, $lowercase, $uppercase),'@DEPRECATED')] or ./OBJECT_TYPE/TAG[starts-with(translate(@TYPE, $lowercase, $uppercase),'@DEPRECATED')] or ./PACKAGE_BODY/TAG[starts-with(translate(@TYPE, $lowercase, $uppercase),'@DEPRECATED')] or ./OBJECT_BODY/TAG[starts-with(translate(@TYPE, $lowercase, $uppercase),'@DEPRECATED')] ">
     
 	    <TABLE BORDER="1" CELLPADDING="3" CELLSPACING="0" WIDTH="100%">
