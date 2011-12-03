@@ -34,8 +34,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   <xsl:variable name="uppercase">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
   <xsl:variable name="lowercase">abcdefghijklmnopqrstuvwxyz</xsl:variable>
   <xsl:param name="targetFolder"/>
-  
-  
+  <xsl:variable name="boldDeprecated"><b>Deprecated</b></xsl:variable>
+
+ 
   <!-- ***************** string-replace-all - perform case insensitive replace ****************** -->
   <xsl:template name="string-replace-all">
   <xsl:param name="text"/>
@@ -47,7 +48,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     <xsl:when test="contains($lowerCaseText,$lowerCaseReplace)">
      <xsl:variable name="preMatchLength" select="string-length(substring-before($lowerCaseText,$lowerCaseReplace))" />
       <xsl:value-of select="substring($text,1,$preMatchLength)" disable-output-escaping="yes" />
-      <xsl:value-of select="$by" disable-output-escaping="yes" />
+      <xsl:copy-of select="$by" />
       <xsl:call-template name="string-replace-all">
         <xsl:with-param name="text" select="substring($text,($preMatchLength + string-length($replace) + 1 ) )"/>
         <xsl:with-param name="replace" select="$replace"/>
@@ -98,9 +99,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 	<DL>
 		<!-- deprecated -->
-        <xsl:if test="TAG[@TYPE='@deprecated' or @TYPE='@DEPRECATED' ]">
+        <xsl:if test="TAG[starts-with(@TYPE,'@deprecated') or starts-with(@TYPE,'@DEPRECATED') ]">
   	      <DT>Deprecated:</DT>
-		  <xsl:for-each select="TAG[@TYPE='@deprecated' or @TYPE='@DEPRECATED']">
+		  <xsl:for-each select="TAG[starts-with(@TYPE,'@deprecated') or starts-with(@TYPE,'@DEPRECATED') ]">
 	        <DD>
 	        <xsl:for-each select="COMMENT">
           <!-- SRT 20110509 <xsl:value-of select="." disable-output-escaping="yes" /> -->
@@ -483,7 +484,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
         
       </xsl:when>
       <xsl:otherwise> <!-- The fragment does not contain the specifed link-->
-        <xsl:value-of select="$comment" disable-output-escaping="yes"/>
+        <xsl:copy-of select="$comment" />
       </xsl:otherwise>
     </xsl:choose>
     </xsl:template>
@@ -561,7 +562,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
         </CODE>
       <BR/>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      <xsl:if test="not(./TAG[@TYPE='@deprecated' or @TYPE='@DEPRECATED' ])">
+      <xsl:if test="not(./TAG[starts-with(@TYPE,'@deprecated') or starts-with(@TYPE,'@DEPRECATED') ])">
         <xsl:for-each select="COMMENT_FIRST_LINE">
           <!-- SRT 20110501 <xsl:value-of select="." disable-output-escaping="yes" /> -->
           <xsl:call-template name="processInlineTag">
@@ -570,7 +571,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
           </xsl:call-template>
         </xsl:for-each>
       </xsl:if>
-      <xsl:for-each select="TAG[@TYPE='@deprecated' or @TYPE='@DEPRECATED' ]">
+      <xsl:for-each select="TAG[starts-with(@TYPE,'@deprecated') or starts-with(@TYPE,'@DEPRECATED') ]">
         <B>Deprecated.</B>&nbsp;<I>
         <xsl:for-each select="COMMENT">
           <!-- SRT 20110501 <xsl:value-of select="." disable-output-escaping="yes" /> -->
@@ -662,11 +663,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
           <!-- SRT 20110501 <xsl:value-of select="." disable-output-escaping="yes" /> -->
           <xsl:call-template name="processInlineTag">
             <xsl:with-param name="comment" >
-		  <xsl:call-template name="string-replace-all">
-		   <xsl:with-param name="text" select="." />
-		   <xsl:with-param name="replace" select="'@deprecated'"  />
-		   <xsl:with-param name="by" select="''"  />
-		  </xsl:call-template>
+	      <xsl:call-template name="string-replace-all">
+		<xsl:with-param name="text" select="." />
+		<xsl:with-param name="replace" select="'@deprecated'"  />
+		<xsl:with-param name="by" select = "$boldDeprecated" />
+	      </xsl:call-template>
             </xsl:with-param>
             <xsl:with-param name="tag" select="'link'" />
           </xsl:call-template>
@@ -683,11 +684,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
                 <!-- SRT 20110501 <xsl:value-of select="." disable-output-escaping="yes" /> -->
                 <xsl:call-template name="processInlineTag">
 		    <xsl:with-param name="comment" >
-			  <xsl:call-template name="string-replace-all">
-			   <xsl:with-param name="text" select="." />
-			   <xsl:with-param name="replace" select="'@deprecated'"  />
-			   <xsl:with-param name="by" select="''"  />
-			  </xsl:call-template>
+			<xsl:call-template name="string-replace-all">
+			  <xsl:with-param name="text" select="." />
+			  <xsl:with-param name="replace" select="'@deprecated'"  />
+			  <xsl:with-param name="by" select = "$boldDeprecated" />
+			</xsl:call-template>
 		    </xsl:with-param>
                   <xsl:with-param name="tag" select="'link'" />
                 </xsl:call-template>
@@ -704,9 +705,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
             <xsl:call-template name="processInlineTag">
             <xsl:with-param name="comment" >
 		  <xsl:call-template name="string-replace-all">
-		   <xsl:with-param name="text" select="." />
-		   <xsl:with-param name="replace" select="'@deprecated'"  />
-		   <xsl:with-param name="by" select="''"  />
+		    <xsl:with-param name="text" select="." />
+		    <xsl:with-param name="replace" select="'@deprecated'"  />
+		    <xsl:with-param name="by" select = "$boldDeprecated" />
 		  </xsl:call-template>
             </xsl:with-param>
               <xsl:with-param name="tag" select="'link'" />
@@ -855,22 +856,22 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
         </CODE>
       <BR/>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      <xsl:if test="not(./TAG[@TYPE='@deprecated' or @TYPE='@DEPRECATED' ])">
+      <xsl:if test="not(./TAG[starts-with(@TYPE,'@deprecated') or starts-with(@TYPE,'@DEPRECATED') ])">
         <xsl:for-each select="COMMENT_FIRST_LINE">
           <!-- SRT 20110509 <xsl:value-of select="." disable-output-escaping="yes" /> -->
           <xsl:call-template name="processInlineTag">
             <xsl:with-param name="comment" >
 		  <xsl:call-template name="string-replace-all">
-		   <xsl:with-param name="text" select="." />
-		   <xsl:with-param name="replace" select="'@deprecated'"  />
-		   <xsl:with-param name="by" select="''"  />
+		    <xsl:with-param name="text" select="." />
+		    <xsl:with-param name="replace" select="'@deprecated'"  />
+		    <xsl:with-param name="by" select = "$boldDeprecated" />
 		  </xsl:call-template>
             </xsl:with-param>
             <xsl:with-param name="tag" select="'link'" />
           </xsl:call-template>
         </xsl:for-each>
       </xsl:if>
-      <xsl:for-each select="TAG[@TYPE='@deprecated' or @TYPE='@DEPRECATED' ]">
+      <xsl:for-each select="TAG[starts-with(@TYPE,'@deprecated') or starts-with(@TYPE,'@DEPRECATED') ]">
         <B>Deprecated.</B>&nbsp;<I>
         <xsl:for-each select="COMMENT">
           <!-- SRT 20110509 <xsl:value-of select="." disable-output-escaping="yes" /> -->
@@ -950,11 +951,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
           <!-- SRT 20110509 <xsl:value-of select="." disable-output-escaping="yes" /> -->
           <xsl:call-template name="processInlineTag">
             <xsl:with-param name="comment" >
-		  <xsl:call-template name="string-replace-all">
-		   <xsl:with-param name="text" select="." />
-		   <xsl:with-param name="replace" select="'@deprecated'"  />
-		   <xsl:with-param name="by" select="''"  />
-		  </xsl:call-template>
+		<xsl:call-template name="string-replace-all">
+		  <xsl:with-param name="text" select="." />
+		  <xsl:with-param name="replace" select="'@deprecated'"  />
+		  <xsl:with-param name="by" select = "$boldDeprecated" />
+		 </xsl:call-template>
             </xsl:with-param>
             <xsl:with-param name="tag" select="'link'" />
           </xsl:call-template>
@@ -1110,7 +1111,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
         </CODE>
       <BR/>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      <xsl:if test="not(./TAG[@TYPE='@deprecated' or @TYPE='@DEPRECATED' ])">
+      <xsl:if test="not(./TAG[starts-with(@TYPE,'@deprecated') or starts-with(@TYPE,'@DEPRECATED') ])">
         <xsl:for-each select="COMMENT_FIRST_LINE">
           <!-- SRT 20110509 <xsl:value-of select="." disable-output-escaping="yes" /> -->
           <xsl:call-template name="processInlineTag">
@@ -1119,7 +1120,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
           </xsl:call-template>
         </xsl:for-each>
       </xsl:if>
-      <xsl:for-each select="TAG[@TYPE='@deprecated' or @TYPE='@DEPRECATED' ]">
+      <xsl:for-each select="TAG[starts-with(@TYPE,'@deprecated') or starts-with(@TYPE,'@DEPRECATED') ]">
         <B>Deprecated.</B>&nbsp;<I>
         <xsl:for-each select="COMMENT">
           <!-- SRT 20110509 <xsl:value-of select="." disable-output-escaping="yes" /> -->
@@ -1183,7 +1184,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 	 <xsl:if test="@DEFAULT"> := <xsl:value-of select="@DEFAULT" disable-output-escaping="yes" /></xsl:if>
       </PRE>
       <DL>
-      <xsl:for-each select="TAG[@TYPE='@deprecated' or @TYPE='@DEPRECATED' ]">
+      <xsl:for-each select="TAG[starts-with(@TYPE,'@deprecated') or starts-with(@TYPE,'@DEPRECATED') ]">
         <DD><B>Deprecated.</B>&nbsp;<I>
           <xsl:for-each select="COMMENT">
           <!-- SRT 20110509 <xsl:value-of select="." disable-output-escaping="yes" /> -->
@@ -1273,7 +1274,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     <FONT SIZE="-1"><xsl:value-of select="@SCHEMA"/></FONT><BR/>
     <xsl:value-of select="local-name(.)"/><xsl:text> </xsl:text><xsl:value-of select="@NAME"/>
     </H2>
-    <xsl:for-each select="TAG[@TYPE='@deprecated' or @TYPE='@DEPRECATED' ]">
+    <xsl:for-each select="TAG[starts-with(@TYPE,'@deprecated') or starts-with(@TYPE,'@DEPRECATED') ]">
       <P>
       <B>Deprecated.</B>&nbsp;<I>
       <xsl:for-each select="COMMENT">
@@ -1318,7 +1319,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
         </CODE>
       <BR/>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      <xsl:if test="not(./TAG[@TYPE='@deprecated' or @TYPE='@DEPRECATED' ])">
+      <xsl:if test="not(./TAG[starts-with(@TYPE,'@deprecated') or starts-with(@TYPE,'@DEPRECATED') ])">
         <xsl:for-each select="COMMENT">
           <!-- SRT 20110509 <xsl:value-of select="." disable-output-escaping="yes" /> -->
           <xsl:call-template name="processInlineTag">
@@ -1327,7 +1328,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
           </xsl:call-template>
         </xsl:for-each>
       </xsl:if>
-      <xsl:for-each select="TAG[@TYPE='@deprecated' or @TYPE='@DEPRECATED' ]">
+      <xsl:for-each select="TAG[starts-with(@TYPE,'@deprecated') or starts-with(@TYPE,'@DEPRECATED') ]">
         <B>Deprecated.</B>&nbsp;<I>
         <xsl:for-each select="COMMENT">
           <!-- SRT 20110509 <xsl:value-of select="." disable-output-escaping="yes" /> -->
