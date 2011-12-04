@@ -422,6 +422,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
       LOOKING for TAG=<xsl:value-of select="$tag" /> in
       LOOKING for TAGSTART=<xsl:value-of select="$tagStart" /> in
       COMMENT==<xsl:value-of select="$comment" />
+      COMMENT-NODES==<xsl:value-of select="count(exslt:node-set($comment))" />
     </xsl:comment>
     -->
     <xsl:choose>
@@ -432,7 +433,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
           Bit before linkTag=START<xsl:value-of select="substring-before($comment, $tagStart)" disable-output-escaping="yes"/>END
         </xsl:comment>
         -->
-        <xsl:value-of select="substring-before($comment, $tagStart)" disable-output-escaping="yes"/>
+        <xsl:value-of select="substring-before($comment, $tagStart)" disable-output-escaping="yes" />
         <!-- Process the the tag text -->
         <xsl:variable name="linkTag">
           <!-- <xsl:value-of select="substring-after(substring-before($comment, '}' ),$tagStart)" /> -->
@@ -456,7 +457,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
               <xsl:with-param name="link" select="substring-before($linkTag, ' ')" />
               <xsl:with-param name="label" select="substring-after($linkTag, ' ')" />
             </xsl:call-template>
-          </xsl:when >
+          </xsl:when>
           <xsl:otherwise >
             <!--
             <xsl:comment>
@@ -478,13 +479,20 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
         </xsl:comment>
         -->
         <xsl:call-template name="processInlineTag">
-          <xsl:with-param name="comment" select="substring-after($comment, '}')" />
+          <xsl:with-param name="comment" select="exslt:node-set(substring-after($comment, '}'))" />
           <xsl:with-param name="tag" select="$tag"/>
         </xsl:call-template>
         
       </xsl:when>
       <xsl:otherwise> <!-- The fragment does not contain the specifed link-->
-        <xsl:copy-of select="$comment" />
+	<xsl:choose>
+	  <xsl:when test="exslt:node-set($comment)/*" >
+            <xsl:copy-of select="$comment" />
+	  </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="$comment" disable-output-escaping="yes" />
+          </xsl:otherwise>
+	</xsl:choose>
       </xsl:otherwise>
     </xsl:choose>
     </xsl:template>
