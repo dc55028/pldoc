@@ -9,15 +9,17 @@
     NB: if you are using Java 1.4 or later, you'll need to override the embedded XML classes.
     iN Java 1.4, the simplest way to do this is to define environment variable ANT_OPTS before running Ant:
 
-      export ANT_OPTS=-Djava.endorsed.dirs=$PLDOC_HOME/xalan/bin
+      export ANT_OPTS=-Djava.endorsed.dirs=$PLDOC_HOME/target
 
     or on Windows:
 
-      set ANT_OPTS=-Djava.endorsed.dirs=%PLDOC_HOME%\xalan\bin
+      set ANT_OPTS=-Djava.endorsed.dirs=%PLDOC_HOME%\target
 
     where PLDOC_HOME is the directory where pldoc is installed.
 
-    This example is now written for Java 5 and greater:later versions of XML and XSLT may be executed simply by installing them in the classpath. 
+    ${project.build.finalName}-jar-with-dependencies.jar contains all runtime Xalan and Xerces classes
+    to run PLDoc successfully.
+
     <!-- fileset dir="test" includes="**//*.sql"/> <!- - here should be included any other masks for PL/SQL files -->
   </description>
 
