@@ -7,6 +7,11 @@
         <author email="altumano at users.sourceforge.net">Albert Tumanov</author>
     </properties>
     <body>
+        <release version="0.9.8" date="2011-12-06"  description="Bug fixes" >
+            <action type="fix" issue="3441966" dev="sturton" due-to="Gurpreet Singh" due-to-email="gskhurana@sourceforge.net" >XML parsing error when running pldoc in ANT.</action>
+            <action type="fix" issue="3449496" dev="sturton" >Correctly generate deprecated markup in body pages</action>
+            <action type="update" dev="sturton" >Generate sample documentation using ISO-8859-15 input encoding to demonstrate national character settings</action>
+        </release>
         <release version="0.9.7" date="2011-11-26"  description="Minor bug fixes" >
             <action type="add" issue="3418199" dev="sturton" due-to="Gurpreet Singh" due-to-email="gskhurana@sourceforge.net" >Generate documentation for PACKAGE and OBJECT TYPE bodies. </action>
             <action type="fix" issue="3443147" dev="sturton" >ProductionsObjectTypes.jj -  parse simplest inherited subtype</action>
