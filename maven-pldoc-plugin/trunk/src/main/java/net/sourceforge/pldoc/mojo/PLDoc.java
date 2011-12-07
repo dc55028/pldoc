@@ -37,7 +37,7 @@ import org.codehaus.plexus.util.StringUtils;
 /**
  * Goal which touches a timestamp file.
  *
- * Here i a sample configuration for the plugin with the defaults:
+ * Here is a sample configuration for the plugin with the defaults:
  *             <plugin>
 <groupId>net.sourceforge.pldoc</groupId>
 <artifactId>maven-pldoc-plugin</artifactId>
@@ -46,6 +46,7 @@ import org.codehaus.plexus.util.StringUtils;
 <applicationTitle>project-name</applicationTitle>
 <sourceDirectory>src/sql</sourceDirectory>
 <includes>*.sql</includes>
+<inputEncoding>ISO-8859-15</inputEncoding>
 <reportOutputDirectory>target/site/apidocs</reportOutputDirectory>
 <destDir>sql-apidocs<destDir>
 <showSkippedPackages>true</showSkippedPackages>
@@ -114,6 +115,14 @@ implements MavenReport{
      * @parameter expression="${includes}" 
      */
     private String includes;
+
+    /**
+     * Specifies the character encoding of the input files
+     *
+     * @since 2.6
+     * @parameter expression="${inputEncoding}" 
+     */
+    private String inputEncoding = System.getProperty("file.encoding");
 
     /**
      * JDBC URL
@@ -224,6 +233,7 @@ implements MavenReport{
 	getLog().debug( "applicationTitle=" + applicationTitle  ) ;
 	getLog().debug( "sourceDirectory=" + sourceDirectory  ) ;
 	getLog().debug( "includes=" + includes  ) ;
+	getLog().debug( "inputEncoding=" + inputEncoding  ) ;
 	getLog().debug( "dbUrl=" + dbUrl  ) ;
 	getLog().debug( "dbUser=" + dbUser  ) ;
 	getLog().debug( "dbPassword=" + ((null == dbPassword) ? "undefined" : "defined" )   ) ;
@@ -246,6 +256,7 @@ implements MavenReport{
 	    task.setDbPassword(dbPassword);
 	    task.setInputObjects(inputObjects);
 	    task.setInputTypes(inputTypes);
+	    task.setInputEncoding(inputEncoding);
 	    task.setShowSkippedPackages(showSkippedPackages);
 
 	    if (null != sourceDirectory && null != includes)

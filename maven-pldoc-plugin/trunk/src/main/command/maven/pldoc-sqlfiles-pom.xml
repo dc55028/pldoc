@@ -29,6 +29,7 @@
 	  <sourceDirectory>samples</sourceDirectory>
 	  <overviewFile>samples/overview.html</overviewFile>
 	  <includes>*.sql</includes>
+	  <inputEncoding>ISO-8859-15</inputEncoding>
 	  <reportOutputDirectory>target/docs/apidocs</reportOutputDirectory>
 	  <destDir>pldoc-goal-files</destDir>
 	  <showSkippedPackages>true</showSkippedPackages>
@@ -51,6 +52,7 @@
 		      <sourceDirectory>samples</sourceDirectory>
 		      <overviewFile>samples/overview.html</overviewFile>
 		      <includes>**/*.sql</includes>
+	              <inputEncoding>ISO-8859-15</inputEncoding>
 		      <!-- Ignored within Site Report - use destDir 
 		      <reportOutputDirectory>target/site/apidocs</reportOutputDirectory>
 		      -->
