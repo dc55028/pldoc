@@ -9,6 +9,7 @@
     <body>
         <release version="2.6" date="2011-12-07"  description="Release to incorporate PLDoc 0.9.8 ">
             <action type="update" dev="sturton" > project POM file - update dependent PLDoc version to 0.9.7</action>
+            <action type="add" dev="sturton" > Add inputEncoding property</action>
         </release>
         <release version="2.5" date="2011-11-27"  description="Release to incorporate PLDoc 0.9.7 ">
             <action type="update" dev="sturton" > project POM file - update dependent PLDoc version to 0.9.7</action>
