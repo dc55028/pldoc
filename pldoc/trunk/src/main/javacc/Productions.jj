@@ -504,7 +504,8 @@ void programUnit(boolean isPackageLevel) throws SAXException :
 	                   |  //20110531
 			   (( <ORDER> | <CLUSTER> ) [ID()] <BY> "(" ID() ( "," ID() )*  ")" ) 
 			 ] //  drvparx.IndexMapDocuments
-	   | <RESULT_CACHE> ) *
+	   | <RESULT_CACHE> [ <RELIES_ON> "(" ID() ["." ID()] ( "," ID() ["." ID()])*  ")" ]
+	) *
 	
 	[ <AGGREGATE> <USING> tokenODCIAggregateType=ID() ] 
 

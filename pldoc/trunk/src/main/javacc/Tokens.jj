@@ -267,6 +267,7 @@ TOKEN [IGNORE_CASE]:
 <RECORD: "RECORD"> |
 <REF: "REF"> |
 <RELEASE: "RELEASE"> |
+<RELIES_ON: "RELIES_ON"> | 
 <RENAME: "RENAME"> | //SRT 2011-04-17
 <RESOURCE: "RESOURCE"> | //SRT 2011-04-17
 <RESULT: "RESULT"> |
@@ -1733,7 +1734,7 @@ Token ID(): {}
 		//	<PROCEDURE> | // this causes bug 643043 Procedure w/o params appears as variable
 		<PUBLIC> | <RAISE> | <RAW> | <REAL> |
 		//<RECORD> | <RETURN> |  <SET> |<REF> | 
-		<RELEASE> | <REVERSE> | <ROLLBACK> | <ROWID> |
+		<RELEASE> | <RELIES_ON> | <REVERSE> | <ROLLBACK> | <ROWID> |
 		<ROWNUM> | <ROWTYPE> | <SAVEPOINT> | <SELECT> | <SEPARATE> | <SHARE> |
 		<SMALLINT> | <SQL> | <SQLCODE> | <SQLERRM> | <START> | <STDDEV> | // <SUBTYPE> |
 		<SUCCESSFUL> | <SUM> | <SYNONYM> | <SYSDATE> | <TABLE> | <THEN> | 
