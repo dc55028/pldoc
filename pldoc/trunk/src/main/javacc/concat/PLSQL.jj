@@ -2155,9 +2155,9 @@ String TrimExpression() :
   (
 	(thisToken = <TRIM> ) { sb.append(thisToken.image);} 
 	"(" { sb.append("(");} 
-	  ( <LEFT> | <RIGHT> | <BOTH> ){ sb.append(" "); sb.append(token.toString()); }  
-	( string = StringExpression() { sb.append(" "); sb.append(string); }  )
-	( <FROM>  )  { sb.append(thisToken.image);} 
+	 [ ( <LEADING> | <TRAILING> | <BOTH> ){ sb.append(" "); sb.append(token.toString()); }  ]
+	 [ string = StringExpression() { sb.append(" "); sb.append(string); } ]
+	 ( <FROM>  )  { sb.append(thisToken.image);} 
 	 string = StringExpression() { sb.append(" "); sb.append(string); }  
 	")" { sb.append(")");} 
   )
@@ -2269,6 +2269,14 @@ String RelationalExpression() :
      | (<BETWEEN> ) { sb.append(" BETWEEN "); }
      | (<LIKE> ) { sb.append(" LIKE "); }
      | (<FROM>) { sb.append(" FROM "); }
+     | (
+	 (
+	   (<MEMBER>) { sb.append(" MEMBER "); }
+	   |
+	   (<SUBMULTISET>) { sb.append(" SUBMULTISET "); }
+	 )
+         <OF> { sb.append(" OF "); }
+       )
      ) 
    ) 
    (string=AdditiveExpression() ) { sb.append(string); }
@@ -2404,6 +2412,7 @@ String PrimaryPrefix() :
 {
 (
   ( string = Literal() ) { sb.append(string) ; } 
+| LOOKAHEAD(MultiSetCondition()) string = MultiSetCondition()
 | LOOKAHEAD(TrimExpression()) string = TrimExpression() //SRT 20110613.3
 | LOOKAHEAD(CaseExpression()) ( string =CaseExpression() ) { sb.append(string) ; } //SRT 20110520
 | LOOKAHEAD(ObjectExpression() ) ( string = ObjectExpression() ) { sb.append(string) ; } //SRT 20110604
@@ -2534,6 +2543,20 @@ String NullLiteral() :
   //Essentially unchanged
   (
   <NULL> { literal = " NULL " ; }
+  )
+ { 
+  return literal; 
+  }
+}
+
+String MultiSetCondition() :
+{String literal = null ; }
+{
+  //Essentially unchanged
+  (
+  <A> <SET> { literal = " A SET " ; }
+  |
+  <EMPTY> { literal = " EMPTY " ; }
   )
  { 
   return literal; 
@@ -4484,6 +4507,11 @@ TOKEN [IGNORE_CASE]:
 | <LEFT : "LEFT">
 | <RIGHT : "RIGHT">
 | <BOTH : "BOTH">
+| <EMPTY : "EMPTY">
+| <MULTISET : "MULTISET">
+| <SUBMULTISET : "SUBMULTISET">
+| <LEADING : "LEADING">
+| <TRAILING : "TRAILING">
 }
 
 /**
@@ -4891,7 +4919,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <ELIMINATE_JOIN>
 //| <ELIMINATE_OBY>
 //| <ELIMINATE_OUTER_JOIN>
-//| <EMPTY>
+| <EMPTY>
 | <ENABLE>
 //| <ENCRYPT>
 //| <ENCRYPTION>
@@ -5068,7 +5096,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <LDAP_REG_SYNC_INTERVAL>
 //| <LDAP_REGISTRATION>
 //| <LDAP_REGISTRATION_ENABLED>
-//| <LEADING>
+| <LEADING>
 | <LEFT>
 | <LENGTH>
 //| <LESS>
@@ -5154,7 +5182,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <MOUNT>
 //| <MOVE>
 //| <MOVEMENT>
-//| <MULTISET>
+| <MULTISET>
 //| <MV_MERGE>
 | <NAME>
 //| <NAMED>
@@ -5437,6 +5465,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <REKEY>
 //| <RELATIONAL>
 //| <RELY>
+| <RELIES_ON>
 | <REMARK>
 //| <REMOTE_MAPPED>
 //| <REPAIR>
@@ -5562,7 +5591,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <STRIP>
 | <STRUCT>
 //| <STRUCTURE>
-//| <SUBMULTISET>
+| <SUBMULTISET>
 //| <SUBPARTITION>
 //| <SUBPARTITION_REL>
 //| <SUBPARTITIONS>
@@ -5624,7 +5653,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <TRACE>
 //| <TRACING>
 //| <TRACKING>
-//| <TRAILING>
+| <TRAILING>
 | <TRANSACTION>
 //| <TRANSITIONAL>
 | <TREAT>
@@ -5780,7 +5809,7 @@ Token ID(): {}
 		//	<PROCEDURE> | // this causes bug 643043 Procedure w/o params appears as variable
 		<PUBLIC> | <RAISE> | <RAW> | <REAL> |
 		//<RECORD> | <RETURN> |  <SET> |<REF> | 
-		<RELEASE> | <RELIES_ON> | <REVERSE> | <ROLLBACK> | <ROWID> |
+		<RELEASE> | <REVERSE> | <ROLLBACK> | <ROWID> |
 		<ROWNUM> | <ROWTYPE> | <SAVEPOINT> | <SELECT> | <SEPARATE> | <SHARE> |
 		<SMALLINT> | <SQL> | <SQLCODE> | <SQLERRM> | <START> | <STDDEV> | // <SUBTYPE> |
 		<SUCCESSFUL> | <SUM> | <SYNONYM> | <SYSDATE> | <TABLE> | <THEN> | 

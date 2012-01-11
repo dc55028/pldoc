@@ -1551,9 +1551,9 @@ String TrimExpression() :
   (
 	(thisToken = <TRIM> ) { sb.append(thisToken.image);} 
 	"(" { sb.append("(");} 
-	  ( <LEFT> | <RIGHT> | <BOTH> ){ sb.append(" "); sb.append(token.toString()); }  
-	( string = StringExpression() { sb.append(" "); sb.append(string); }  )
-	( <FROM>  )  { sb.append(thisToken.image);} 
+	 [ ( <LEADING> | <TRAILING> | <BOTH> ){ sb.append(" "); sb.append(token.toString()); }  ]
+	 [ string = StringExpression() { sb.append(" "); sb.append(string); } ]
+	 ( <FROM>  )  { sb.append(thisToken.image);} 
 	 string = StringExpression() { sb.append(" "); sb.append(string); }  
 	")" { sb.append(")");} 
   )
@@ -1665,6 +1665,14 @@ String RelationalExpression() :
      | (<BETWEEN> ) { sb.append(" BETWEEN "); }
      | (<LIKE> ) { sb.append(" LIKE "); }
      | (<FROM>) { sb.append(" FROM "); }
+     | (
+	 (
+	   (<MEMBER>) { sb.append(" MEMBER "); }
+	   |
+	   (<SUBMULTISET>) { sb.append(" SUBMULTISET "); }
+	 )
+         <OF> { sb.append(" OF "); }
+       )
      ) 
    ) 
    (string=AdditiveExpression() ) { sb.append(string); }
@@ -1800,6 +1808,7 @@ String PrimaryPrefix() :
 {
 (
   ( string = Literal() ) { sb.append(string) ; } 
+| LOOKAHEAD(MultiSetCondition()) string = MultiSetCondition()
 | LOOKAHEAD(TrimExpression()) string = TrimExpression() //SRT 20110613.3
 | LOOKAHEAD(CaseExpression()) ( string =CaseExpression() ) { sb.append(string) ; } //SRT 20110520
 | LOOKAHEAD(ObjectExpression() ) ( string = ObjectExpression() ) { sb.append(string) ; } //SRT 20110604
@@ -1930,6 +1939,20 @@ String NullLiteral() :
   //Essentially unchanged
   (
   <NULL> { literal = " NULL " ; }
+  )
+ { 
+  return literal; 
+  }
+}
+
+String MultiSetCondition() :
+{String literal = null ; }
+{
+  //Essentially unchanged
+  (
+  <A> <SET> { literal = " A SET " ; }
+  |
+  <EMPTY> { literal = " EMPTY " ; }
   )
  { 
   return literal; 
