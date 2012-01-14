@@ -1748,7 +1748,7 @@ void subtype_definition(boolean isPackageLevel) throws SAXException :
 				  }
 			  }
 			  |
-			  ( constraint = <RANGE> startElement = Literal()  ".." endElement = Literal() ) // RANGE 1 .. 31
+			  ( constraint = <RANGE> startElement = UnaryExpression()  ".." endElement = UnaryExpression() ) // In "RANGE -1 .. 31" -1 is a unary Expression
 			  {
 				  if (constraint != null) {
 					  returnType += " RANGE " + startElement + ".." + endElement ;
