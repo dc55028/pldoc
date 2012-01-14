@@ -1671,8 +1671,19 @@ String RelationalExpression() :
 	   |
 	   (<SUBMULTISET>) { sb.append(" SUBMULTISET "); }
 	 )
-         <OF> { sb.append(" OF "); }
+         [ <OF> { sb.append(" OF "); } ]
        )
+     ) 
+    // MULTISET Operators 
+    | ( 
+       <MULTISET> { sb.append (" MULTISET " );}  
+       (   <EXCEPT>  { sb.append (" EXCEPT " );}  
+         | <INTERSECT>  { sb.append (" INTERSECT " );} 
+	 | <UNION>  { sb.append (" UNION " ); }    
+       )
+       [   <DISTINCT>  { sb.append (" DISTINCT " );} 
+         | <ALL>  { sb.append (" ALL " );}   
+       ]
      ) 
    ) 
    (string=AdditiveExpression() ) { sb.append(string); }

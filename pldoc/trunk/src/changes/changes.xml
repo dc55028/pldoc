@@ -7,6 +7,12 @@
         <author email="altumano at users.sourceforge.net">Albert Tumanov</author>
     </properties>
     <body>
+        <release version="0.9.10" date="2012-01-12"  description="Bug fixes" >
+            <action type="fix" issue="3469812" dev="sturton" due-to="Wernfried Domscheit" due-to-email="wernfried@sourceforge.net" >
+	    Support MULTISET operators.
+	    "OF" keyword in MULTISET conditions is optional;
+	    </action>
+        </release>
         <release version="0.9.9" date="2012-01-12"  description="Bug fixes" >
             <action type="fix" issue="3469812" dev="sturton" due-to="Wernfried Domscheit" due-to-email="wernfried@sourceforge.net" >
 	    Add "RELIES_ON (table(,table)*)" clause to RESULT_CACHE pragma;
