@@ -2275,8 +2275,19 @@ String RelationalExpression() :
 	   |
 	   (<SUBMULTISET>) { sb.append(" SUBMULTISET "); }
 	 )
-         <OF> { sb.append(" OF "); }
+         [ <OF> { sb.append(" OF "); } ]
        )
+     ) 
+    // MULTISET Operators 
+    | ( 
+       <MULTISET> { sb.append (" MULTISET " );}  
+       (   <EXCEPT>  { sb.append (" EXCEPT " );}  
+         | <INTERSECT>  { sb.append (" INTERSECT " );} 
+	 | <UNION>  { sb.append (" UNION " ); }    
+       )
+       [   <DISTINCT>  { sb.append (" DISTINCT " );} 
+         | <ALL>  { sb.append (" ALL " );}   
+       ]
      ) 
    ) 
    (string=AdditiveExpression() ) { sb.append(string); }
@@ -4211,6 +4222,7 @@ TOKEN [IGNORE_CASE]:
 <ENABLE: "ENABLE"> | // Needed for 11G Trigger Syntax 
 <END: "END"> |
 <ESCAPE: "ESCAPE"> |
+<EXCEPT: "EXCEPT"> |
 <EXCEPTION: "EXCEPTION"> |
 <EXCEPTIONS: "EXCEPTIONS"> |
 <EXCLUSIVE: "EXCLUSIVE"> |
@@ -4551,7 +4563,6 @@ TOKEN :
 	( "\""  <LETTER> ( <LETTER> | <DIGIT> | "$" | "_" | "#" )* "\"" )
 >
 |
-
 < UNSIGNED_NUMERIC_LITERAL: <FLOAT_LITERAL> ( ["e","E"] (["-","+"])? <FLOAT_LITERAL> )? (["f","F","d","D"])? >
 |
 < #FLOAT_LITERAL: <INTEGER_LITERAL> ( "." <INTEGER_LITERAL> )? | "." <INTEGER_LITERAL> >
@@ -4938,7 +4949,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <EVALNAME>
 //| <EVALUATION>
 //| <EVENTS>
-//| <EXCEPT>
+| <EXCEPT>
 | <EXCEPTIONS>
 //| <EXCHANGE>
 //| <EXCLUDING>
