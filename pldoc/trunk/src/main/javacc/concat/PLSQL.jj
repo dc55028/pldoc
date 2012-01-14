@@ -1277,8 +1277,8 @@ String collection_type_name() :
 
 
 String scalar_datatype_name() :
-{ Token size=null, precision=null;
-	String name = null;
+{ Token size=null, precision=null ;
+	String name = null, precisionString=null ;
 	String string = null;
 }
 {
@@ -1340,7 +1340,7 @@ String scalar_datatype_name() :
       }
     }
 	(LOOKAHEAD(2) "(" size=numericLiteral() {name += "(" + size;}
-		["," precision=numericLiteral() {name += "," + precision;}]
+		["," precisionString=UnaryExpression() {name += "," + precisionString;}] //NUMBERS may have negative precision
 		[ <CHAR> {name += " CHAR" ;}]
 		[ <BYTE> {name += " BYTE" ;}]
 	")" {name += ")";})?
