@@ -736,7 +736,7 @@ String scalar_datatype_name() :
       }
     }
 	(LOOKAHEAD(2) "(" size=numericLiteral() {name += "(" + size;}
-		["," precisionString=UnaryExpression() {name += "," + precisionString;}] //NUMBERS may have negative precision
+		["," precisionString=UnaryExpression(true) {name += "," + precisionString;}] //NUMBERS may have negative precision
 		[ <CHAR> {name += " CHAR" ;}]
 		[ <BYTE> {name += " BYTE" ;}]
 	")" {name += ")";})?
@@ -1144,7 +1144,7 @@ void subtype_definition(boolean isPackageLevel) throws SAXException :
 				  }
 			  }
 			  |
-			  ( constraint = <RANGE> startElement = UnaryExpression()  ".." endElement = UnaryExpression() ) // In "RANGE -1 .. 31" -1 is a unary Expression
+			  ( constraint = <RANGE> startElement = UnaryExpression(true)  ".." endElement = UnaryExpression(true) ) // In "RANGE -1 .. 31" -1 is a unary Expression
 			  {
 				  if (constraint != null) {
 					  returnType += " RANGE " + startElement + ".." + endElement ;
@@ -1739,14 +1739,14 @@ String MultiplicativeExpression() :
 
   //UnaryExpression() ( ( "*" | "/" | <MOD> ) UnaryExpression() )*
  (
-  (string = UnaryExpression() ) { sb.append(string); }
+  (string = UnaryExpression(true) ) { sb.append(string); }
   ( 
     ( ("**"  ) { sb.append(" ** "); } //Exponentiation 
     | ("*"  ) { sb.append(" * "); }
     | ("/"  ) { sb.append(" / "); }
     | (<MOD>  ) { sb.append(" MOD "); }
     ) 
-    (string = UnaryExpression() ) { sb.append(string); }
+    (string = UnaryExpression(true) ) { sb.append(string); }
   )*
  )
  { 
@@ -1754,14 +1754,14 @@ String MultiplicativeExpression() :
  }
 }
 
-String UnaryExpression() :
+String UnaryExpression(boolean isUnarySign) :
 { String string = null; StringBuffer sb = new StringBuffer() ; }
 {
  (
-   ( ("+" ) { sb.append(" + "); }
-   | ("-" ) { sb.append(" - "); }
+   ( ("+" ) { sb.append(isUnarySign ? " +" : " + "); }
+   | ("-" ) { sb.append(isUnarySign ? " -" : " - "); }
    ) 
-   (string = UnaryExpression() ) { sb.append(string); }
+   (string = UnaryExpression(false) ) { sb.append(string); }
   |
    (string = UnaryExpressionNotPlusMinus() ) { sb.append(string); }
  )
@@ -1775,7 +1775,7 @@ String UnaryExpressionNotPlusMinus() :
 {
   (
   (<NOT>) {sb.append(" NOT "); } 
-  (string = UnaryExpression() ) { sb.append(string); }
+  (string = UnaryExpression(false) ) { sb.append(string); }
   |
    (string = PrimaryExpression() ) { sb.append(string); }
   )
