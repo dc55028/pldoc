@@ -1,6 +1,26 @@
 CREATE OR REPLACE
 PACKAGE pldoc_bug.testcase_3473352_noescapes
 AS
+	/** Marker for Unicode Escape Characters */
+        gUnicodeEscapePrefix  CONSTANT VARCHAR2(2 CHAR) := '\u'; -- Workaround to PLDoc Unicode Escape problem 
+	/** Linear B Stallion - {@link http://www.fileformat.info/info/unicode/char/10085/index.htm}
+	 *<p>This is a 4 byte Unicode Character
+	*/
+        gLinearBStallionTwoChar      CONSTANT VARCHAR2(2 CHAR) := '\U0001\U0085'; 
+        gLinearBStallionOneEscape    CONSTANT VARCHAR2(2 CHAR) := '\U00010085'; 
+
+        /**  Æ 	U+00E6 æ 	Latin	As in modern English "hat" */
+        gAsh	VARCHAR2(1 CHAR) := '\U00C6' ;  
+        /**  Þ	U+00FE þ	Futharc	þorn: modern "th" (survives in Icelandic) */
+        gThorn	VARCHAR2(1 CHAR) := '\U00DE' ;  
+        /**  Ð	U+00F0 ð	Old Irish 	Eð, þæt: modern "th" (survives in Icelandic) */
+        gEth	VARCHAR2(1 CHAR) := '\U00D0' ;  
+        /**  Ȝ	U+021D ȝ	Old Irish	Y, gh, g, w (not to be confused with Ezh) */
+        gYogh	VARCHAR2(1 CHAR) := '\U021C' ;  
+        /**  Ƿ	U+01BF ƿ	Futharc	(or Wen): modern "w" */
+        gWynn	VARCHAR2(1 CHAR) := '\U01F7' ;  
+
+
 FUNCTION unicode_escape
 /** Convert string to escaped version.
  *<p>
@@ -40,7 +60,6 @@ IS
 	aString		VARCHAR2(32767);
 	aBuffer		VARCHAR2(40);
 	aNumber		NUMBER;
-        cUnicodeEscapePrefix  CONSTANT VARCHAR2(2) := '\'||'u'; -- Workaround to PLDoc Unicode Escape problem 
 BEGIN
 	IF (theString IS NULL) THEN
 		RETURN '""';
@@ -60,10 +79,8 @@ BEGIN
 		ELSE
 			IF (ASCII(aBuffer) < 32) THEN
 				aBuffer := '\u' || REPLACE(SUBSTR(TO_CHAR(ASCII(aBuffer), 'XXXX'), 2, 4), ' ', '0');
-				--aBuffer := cUnicodeEscapePrefix || REPLACE(SUBSTR(TO_CHAR(ASCII(aBuffer), 'XXXX'), 2, 4), ' ', '0');
 			ELSIF (theAsciiOutputFlag) THEN
 				aBuffer := REPLACE(ASCIISTR(aBuffer), '\', '\u');
-				--aBuffer := REPLACE(ASCIISTR(aBuffer), '\', cUnicodeEscapePrefix);
 			END IF;
 		END CASE;
 
