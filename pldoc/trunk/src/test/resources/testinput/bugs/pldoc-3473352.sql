@@ -2,23 +2,26 @@ CREATE OR REPLACE
 PACKAGE pldoc_bug.testcase_3473352_noescapes
 AS
 	/** Marker for Unicode Escape Characters */
-        gUnicodeEscapePrefix  CONSTANT VARCHAR2(2 CHAR) := '\u'; -- Workaround to PLDoc Unicode Escape problem 
-	/** Linear B Stallion - {@link http://www.fileformat.info/info/unicode/char/10085/index.htm}
-	 *<p>This is a 4 byte Unicode Character
+        g_UnicodeEscapePrefix  CONSTANT VARCHAR2(2 CHAR) := '\u'; -- PLDoc Unicode Escape problem 
+	/** Linear B Stallion B105M' - {@link http://www.fileformat.info/info/unicode/char/10085/index.htm}
+	 *<p>This is a 4 byte Unicode Character (&#65669; - this might not be visible unless your font supports
+	 * Linear B - try 
+	 * {@link http://www.fonts2u.com/code2001.font Code2001} by {@link http://home.att.net/~jameskass/ James Kass} (Freeware)
+	 * or {@link http://guindo.pntic.mec.es/~jmag0042/alphabet.html Alphabetum} by Juan José Marcos (small registration fee)
 	*/
-        gLinearBStallionTwoChar      CONSTANT VARCHAR2(2 CHAR) := '\U0001\U0085'; 
-        gLinearBStallionOneEscape    CONSTANT VARCHAR2(2 CHAR) := '\U00010085'; 
+        g_LinearBStallionTwoChar      CONSTANT VARCHAR2(2 CHAR) := '\U0001\U0085'; 
+        g_LinearBStallionOneEscape    CONSTANT VARCHAR2(2 CHAR) := '\U00010085'; 
 
         /**  Æ 	U+00E6 æ 	Latin	As in modern English "hat" */
-        gAsh	VARCHAR2(1 CHAR) := '\U00C6' ;  
+        g_Ash	VARCHAR2(1 CHAR) := '\U00C6' ;  
         /**  Þ	U+00FE þ	Futharc	þorn: modern "th" (survives in Icelandic) */
-        gThorn	VARCHAR2(1 CHAR) := '\U00DE' ;  
+        g_Thorn	VARCHAR2(1 CHAR) := '\U00DE' ;  
         /**  Ð	U+00F0 ð	Old Irish 	Eð, þæt: modern "th" (survives in Icelandic) */
-        gEth	VARCHAR2(1 CHAR) := '\U00D0' ;  
+        g_Eth	VARCHAR2(1 CHAR) := '\U00D0' ;  
         /**  Ȝ	U+021D ȝ	Old Irish	Y, gh, g, w (not to be confused with Ezh) */
-        gYogh	VARCHAR2(1 CHAR) := '\U021C' ;  
+        g_Yogh	VARCHAR2(1 CHAR) := '\U021C' ;  
         /**  Ƿ	U+01BF ƿ	Futharc	(or Wen): modern "w" */
-        gWynn	VARCHAR2(1 CHAR) := '\U01F7' ;  
+        g_Wynn	VARCHAR2(1 CHAR) := '\U01F7' ;  
 
 
 FUNCTION unicode_escape
