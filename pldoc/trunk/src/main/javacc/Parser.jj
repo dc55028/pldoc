@@ -28,8 +28,8 @@ options {
 	CHOICE_AMBIGUITY_CHECK = 3;
 	OTHER_AMBIGUITY_CHECK = 1;
 	ERROR_REPORTING = true;
-        JAVA_UNICODE_ESCAPE = true;
-	UNICODE_INPUT = false;
+        JAVA_UNICODE_ESCAPE = false; //true 
+	UNICODE_INPUT = true;
 	USER_TOKEN_MANAGER = false;
 	USER_CHAR_STREAM = false;
 	BUILD_PARSER = true;
