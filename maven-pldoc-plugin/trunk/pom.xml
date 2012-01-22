@@ -265,7 +265,7 @@
 		    <email>noreply@pldoc.sourceforge.net</email>
 		</mailSender>
 		<toAddresses>
-		  <toAddress implementation="java.lang.String">altumano@sourceforge.net</toAddress>
+		  <toAddress implementation="java.lang.String">altumano@users.sourceforge.net</toAddress>
 		  <toAddress implementation="java.lang.String">pldoc-chat@lists.sourceforge.net</toAddress>
 		</toAddresses>
 	      </configuration>
