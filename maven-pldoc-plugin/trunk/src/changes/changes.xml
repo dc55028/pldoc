@@ -7,6 +7,9 @@
         <author email="altumano at users.sourceforge.net">Albert Tumanov</author>
     </properties>
     <body>
+        <release version="2.8" date="2012-01-22"  description="Release to incorporate PLDoc 0.9.10 ">
+            <action type="update" dev="sturton" > project POM file - update dependent PLDoc version to 0.9.10</action>
+        </release>
         <release version="2.7" date="2012-01-12"  description="Release to incorporate PLDoc 0.9.9 ">
             <action type="update" dev="sturton" > project POM file - update dependent PLDoc version to 0.9.9</action>
         </release>
