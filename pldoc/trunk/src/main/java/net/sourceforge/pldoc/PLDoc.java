@@ -174,6 +174,8 @@ public class PLDoc
         xmlOut.endElement("OVERVIEW");
       }
 
+      //Frig to allow compilation with JAVA_UNICODE_ESCAPE without allowing Unicode Escape characters  
+      //String oldpropertyValue = settings.getDefines().setProperty("\\u","\\\\");
       // for all the input files
       Iterator it = settings.getInputFiles().iterator();
       while (it.hasNext()) {
@@ -186,12 +188,26 @@ public class PLDoc
         try {
 	  /* Allow the schema to be defaulted even when parsing files */
 	  String schemaName = settings.getDbUser() ;
+          InputStreamReader inputStreamReader;
+	  BufferedReader bufferedReader = 
+            new BufferedReader(
+              inputStreamReader = new InputStreamReader(
+				                         new FileInputStream(inputFileName)
+		                                         ,settings.getInputEncoding()
+				                         )
+	      )
+            ;
+
+          if (settings.isVerbose() ) 
+	  {
+	  	System.out.println("Processing : " + inputFileName + " as inputEncoding=\"" + settings.getInputEncoding() 
+	                     + "\" via inputStreamReader encoding=\""+inputStreamReader.getEncoding() +"\""
+	                    );
+	  }
 
           final Throwable throwable = processPackage(
-            new BufferedReader(
-              new InputStreamReader(
-                new FileInputStream(inputFileName), settings.getInputEncoding())
-	      ),
+	      bufferedReader
+	      ,
               xmlOut, packagename
 	      , (null == schemaName || schemaName.equals("") ) ? "" :  schemaName//SRT 20110418"" 
 	      , (null == schemaName || schemaName.equals("") ) ? "_GLOBAL" : ("_" + schemaName) //SRT 20110418
