@@ -7,7 +7,7 @@
         <author email="altumano at users.sourceforge.net">Albert Tumanov</author>
     </properties>
     <body>
-        <release version="0.9.10" date="2012-01-12"  description="Bug fixes" >
+        <release version="0.9.10" date="2012-01-22"  description="Bug fixes" >
             <action type="update" dev="sturton" >Update POM.XML to use JAVACC Maven plugin 2.6</action>
             <action type="fix" issue="3473753" dev="sturton" due-to="Wernfried Domscheit" due-to-email="wernfried@sourceforge.net" >
 	    Support MULTISET operators.
