@@ -417,7 +417,7 @@
 
    <resources>
 	   <resource>
-	      <filtering>false</filtering>
+	      <filtering>true</filtering>
 	      <directory>${basedir}/src/main/resources</directory>
 	    </resource>
 	   <resource>

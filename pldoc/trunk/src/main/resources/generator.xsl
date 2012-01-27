@@ -82,6 +82,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   <xsl:template match="GENERATOR">
 	  <P>
 	  	<B>Created:</B>&nbsp;
+	  	by PLDoc (${project.version}) on
   		<xsl:value-of select="CREATED/@DATE"/>&nbsp;-&nbsp;<xsl:value-of select="CREATED/@TIME"/>
   	</P>
   
