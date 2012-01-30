@@ -98,7 +98,7 @@
         <dependency>
             <groupId>net.sourceforge.pldoc</groupId>
             <artifactId>pldoc</artifactId>
-            <version>0.9.10</version>
+            <version>1.0.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.reporting</groupId>
