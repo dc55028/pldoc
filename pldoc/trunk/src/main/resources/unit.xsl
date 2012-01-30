@@ -618,6 +618,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     </TR>
     </TABLE>
 
+    <xsl:variable name="containerName" select="local-name()"/>
     <xsl:for-each select="$mainTags">
       <xsl:sort select="@NAME"/>
       <xsl:element name="A"><xsl:attribute name="NAME"><xsl:value-of select="translate(@NAME, $uppercase, $lowercase)" />
@@ -633,10 +634,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
       <H3><xsl:value-of select="@NAME"/></H3>
       <PRE>
         <xsl:variable name="methodText">
-		<xsl:if test="not($flagTrigger)">public</xsl:if><xsl:text> </xsl:text><xsl:value-of select="RETURN/@TYPE"/><xsl:text> </xsl:text><B><xsl:value-of select="@NAME"/></B>
+		<xsl:if test="not($flagTrigger or $containerName = 'TRIGGER' or $containerName = 'PACKAGE_BODY' or $containerName = 'OBJECT_BODY' )">public</xsl:if><xsl:text> </xsl:text><xsl:value-of select="RETURN/@TYPE"/><xsl:text> </xsl:text><B><xsl:value-of select="@NAME"/></B>
         </xsl:variable>
         <xsl:variable name="methodTextString" select="java:lang.String.new($methodText)"/>
-	<xsl:if test="not($flagTrigger)">public</xsl:if><xsl:text> </xsl:text>
+	<xsl:if test="not($flagTrigger or $containerName = 'TRIGGER' or $containerName = 'PACKAGE_BODY' or $containerName = 'OBJECT_BODY' )">public</xsl:if><xsl:text> </xsl:text>
       <!-- 20110428 <xsl:value-of select="RETURN/@TYPE"/> -->
       <!-- If possible, convert the plain-text TYPE to a link to a matching OBJECT TYPE in the Application-->
       <xsl:variable name="fieldType" select="translate(RETURN/@TYPE, $uppercase, $lowercase)" />
@@ -1020,7 +1021,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   <!--<xsl:for-each BODY object">
     This is cut and paste of the callable Oracle Object XSLT with the exception of the output file name  
   -->
-  <xsl:for-each select="PACKAGE_BODY | OBJECT_BODY">
+  <xsl:for-each select="PACKAGE_BODY | OBJECT_BODY | */TRIGGER[@TYPE='COMPOUND'] ">
 
     <redirect:write file="{concat($targetFolder, '_', translate(@NAME, $uppercase, $lowercase))}_body.html">
 
@@ -1045,7 +1046,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 		     <xsl:otherwise>Object Type</xsl:otherwise>
 	      </xsl:choose>
 	     </xsl:when>
-	      <xsl:otherwise>Package</xsl:otherwise>
+	     <xsl:when test="local-name() = 'TRIGGER'">Trigger</xsl:when>
+	     <xsl:otherwise>Package</xsl:otherwise>
       </xsl:choose><xsl:text>&nbsp;</xsl:text><xsl:value-of select="@NAME"/>
     </H2>
 
@@ -1172,6 +1174,16 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
       <xsl:with-param name="flagTrigger" select="'TRUE'" /> 
     </xsl:call-template>
 
+    <!-- Cope with Compound Triggers treated as package bodies -->
+      <xsl:if test="local-name() = 'TRIGGER'">
+	<xsl:call-template name="MethodOrTypeOrTriggerSummary">
+	  <xsl:with-param name="fragmentName">trigger_summary</xsl:with-param>
+	  <xsl:with-param name="title">Timing Summary</xsl:with-param>
+	  <xsl:with-param name="mainTags" select="TIMINGPOINTSECTION" />
+	  <xsl:with-param name="childTags" select="'NOTHING'" /> <!-- 11 G Trigger Syntax -->
+	  <xsl:with-param name="flagTrigger" select="'TRUE'" /> 
+	</xsl:call-template>
+      </xsl:if>
     <!-- ************************** FIELD DETAIL *************************** -->
     <A NAME="field_detail"></A>
     <xsl:if test="CONSTANT | VARIABLE">
@@ -1251,6 +1263,17 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
       <xsl:with-param name="childDescription" select="'Timing Points'"/>
     </xsl:call-template>
 
+    <!-- Cope with Compound Triggers treated as package bodies -->
+      <xsl:if test="local-name() = 'TRIGGER'">
+	<xsl:call-template name="MethodOrTypeOrTriggerDetail">
+	  <xsl:with-param name="fragmentName">trigger_detail</xsl:with-param>
+	  <xsl:with-param name="title">Timing Detail</xsl:with-param>
+	  <xsl:with-param name="mainTags" select="TIMINGPOINTSECTION" />
+	  <xsl:with-param name="childTags" select="'NOTHING'" /> <!-- 11 G Trigger Syntax -->
+	  <xsl:with-param name="flagTrigger" select="'TRUE'" /> 
+      <xsl:with-param name="childDescription" select="'Timing Points'"/>
+	</xsl:call-template>
+      </xsl:if>
     <!-- ***************************** FOOTER ****************************** -->
     <xsl:call-template name="NavigationBar"/>
 

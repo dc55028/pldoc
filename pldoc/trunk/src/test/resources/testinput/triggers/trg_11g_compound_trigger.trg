@@ -106,9 +106,27 @@ COMPOUND TRIGGER
       /** List of actions performed on the table/row. */
       l_tab t_tab := t_tab();
 
+      /** Clear down l_tab */
+      PROCEDURE clear_down
+      IS
+      BEGIN
+        l_tab.delete;
+      END clear_down;
+
+      /** Display l_tab */
+      PROCEDURE display
+      IS
+      BEGIN
+        FOR i IN l_tab.first .. l_tab.last LOOP
+          DBMS_OUTPUT.put_line(l_tab(i));
+        END LOOP;
+      END display;
+
       /** Before statement action */
       BEFORE STATEMENT IS
       BEGIN
+	clear_down;
+
         l_tab.extend;
         CASE
           WHEN INSERTING THEN
@@ -160,11 +178,8 @@ COMPOUND TRIGGER
           WHEN DELETING THEN
             l_tab(l_tab.last) := 'AFTER STATEMENT - DELETE';
         END CASE;
-        
-        FOR i IN l_tab.first .. l_tab.last LOOP
-          DBMS_OUTPUT.put_line(l_tab(i));
-        END LOOP;
-        l_tab.delete;
+        display;
+        clear_down;
       END AFTER STATEMENT;
 
 
