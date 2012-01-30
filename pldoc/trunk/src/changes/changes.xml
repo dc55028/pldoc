@@ -7,7 +7,7 @@
         <author email="altumano at users.sourceforge.net">Albert Tumanov</author>
     </properties>
     <body>
-        <release version="1.0.0" date="2012-01-30"  description="Bug fixes" >
+        <release version="1.0.0" date="2012-01-30"  description="Bug fixes - declare success and release as 1.0.0" >
             <action type="update" dev="sturton" >Output PLDoc release version in Generator page</action>
             <action type="update" dev="sturton" >Document Compound Triggers like package bodies</action>
         </release>
