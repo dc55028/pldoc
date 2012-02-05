@@ -1368,7 +1368,7 @@ void cursorUnit(boolean isPackageLevel) throws SAXException :
 	{
 		// element generated only on the package level
 		if (m_out != null && isPackageLevel) {
-			tags = processMemberComment(start, start.toString().toUpperCase(), name.toString());
+			tags = processMemberComment(start, purifyKeyword(start.toString()), name.toString());
 		} else {
 			tags = new Hashtable();
 		}
@@ -1403,7 +1403,7 @@ void cursorUnit(boolean isPackageLevel) throws SAXException :
 	{
 		// element generated only on the package level
 		if (m_out != null && isPackageLevel) {
-			m_out.endElement(purifyIdentifier(start.toString().toUpperCase()));
+			m_out.endElement(purifyKeyword(start.toString()));
 		}
 	}
 	[<IS> ("(")* sqlStatement(null,";")] ";"
