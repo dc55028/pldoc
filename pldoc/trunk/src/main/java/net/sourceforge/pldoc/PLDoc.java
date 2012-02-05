@@ -408,6 +408,21 @@ public class PLDoc
       xmlOut.startElement("CREATED");
       xmlOut.endElement("CREATED");
 
+      xmlOut.pushAttribute("VERBOSE",   settings.isVerbose() ? "TRUE" : "FALSE"  );
+      xmlOut.pushAttribute("SHOW_SKIPPED_PACKAGES",   settings.isShowSkippedPackages() ? "TRUE" : "FALSE"  );
+      xmlOut.pushAttribute("IGNORE_INFORMAL_COMMENTS",   settings.isIgnoreInformalComments() ? "TRUE" : "FALSE"  );
+      xmlOut.pushAttribute("INPUT_ENCODING",   settings.getInputEncoding() );
+      xmlOut.pushAttribute("DEFAULT_NAMES_CASE",   settings.getDefaultNamescase().toUpperCase() );
+      xmlOut.pushAttribute("DEFAULT_KEYWORDS_CASE",   settings.getDefaultKeywordscase().toUpperCase() );
+      xmlOut.pushAttribute("NAMES_TO_DEFAULT_CASE",   settings.isNamesDefaultcase() ? "TRUE" : "FALSE"  );
+      xmlOut.pushAttribute("NAMES_TO_UPPER_CASE",   settings.isNamesUppercase() ? "TRUE" : "FALSE"  );
+      xmlOut.pushAttribute("NAMES_TO_LOWER_CASE",   settings.isNamesLowercase() ? "TRUE" : "FALSE"  );
+      xmlOut.pushAttribute("KEYWORDS_TO_DEFAULT_CASE",   settings.isKeywordsDefaultcase() ? "TRUE" : "FALSE"  );
+      xmlOut.pushAttribute("KEYWORDS_TO_UPPER_CASE",   settings.isKeywordsUppercase() ? "TRUE" : "FALSE"  );
+      xmlOut.pushAttribute("KEYWORDS_TO_LOWER_CASE",   settings.isKeywordsLowercase() ? "TRUE" : "FALSE"  );
+      xmlOut.startElement("SETTINGS");
+      xmlOut.endElement("SETTINGS");
+
       xmlOut.endElement("GENERATOR");
 
       xmlOut.endElement("APPLICATION");
