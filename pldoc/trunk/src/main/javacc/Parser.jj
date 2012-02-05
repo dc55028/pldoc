@@ -450,7 +450,7 @@ public class PLSQLParser {
 
     // SRT 20100418 Change case of unquoted identifiers to default case
 
-    if (namesDefaultcase && -1 == name.indexOf('"') )
+    if (namesDefaultcase && -1 == name.indexOf('"') && !defaultNamescase.equalsIgnoreCase("mixed") )
     {
       name = defaultNamescase.equalsIgnoreCase("upper") ? name.toUpperCase() : name.toLowerCase() ;
     }

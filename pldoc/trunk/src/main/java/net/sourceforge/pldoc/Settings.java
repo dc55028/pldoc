@@ -243,8 +243,8 @@ public class Settings
           processInvalidUsage("Option " + arg + " requires a value !");
         }
         this.defaultNamescase = (String) it.next();
-        if (!this.defaultNamescase.equalsIgnoreCase("upper") && !this.defaultNamescase.equalsIgnoreCase("lower")  ) {
-          processInvalidUsage( "Option " + arg + " had incorrect value \"" + this.defaultNamescase + "\" - this option requires a value of \"upper\" or \"lower\" " );
+        if (!this.defaultNamescase.equalsIgnoreCase("upper") && !this.defaultNamescase.equalsIgnoreCase("lower")  && !this.defaultNamescase.equalsIgnoreCase("mixed")  ) {
+          processInvalidUsage( "Option " + arg + " had incorrect value \"" + this.defaultNamescase + "\" - this option requires a value of \"upper\" or \"lower\" or \"mixed\" " );
         }
       }
       else if (arg.equalsIgnoreCase("-defaultkeywordscase")) {
@@ -395,10 +395,10 @@ public class Settings
   public void setNamesLowercase(boolean namesLowercase) {
           this.namesLowercase = namesLowercase;
   }
-  public void setDefaultNamescase(String defaultNamesUppercase) {
+  public void setDefaultNamescase(String defaultNamescase) {
           this.defaultNamescase = defaultNamescase;
   }
-  public void setDefaultKeywordscase(String defaultKeywordsUppercase) {
+  public void setDefaultKeywordscase(String defaultKeywordscase) {
           this.defaultKeywordscase = defaultKeywordscase;
   }
   public void setKeywordsDefaultcase(boolean keywordsDefaultcase) {
