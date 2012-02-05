@@ -36,7 +36,51 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   <xsl:param name="targetFolder"/>
   <xsl:variable name="boldDeprecated"><b>Deprecated</b></xsl:variable>
 
- 
+
+
+  <!-- Issue 3477662 -->
+  <xsl:variable name="samecase">ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz</xsl:variable>
+  <xsl:variable name="namesLowerCase" select="/APPLICATION/GENERATOR/SETTINGS/@NAMES_TO_LOWER_CASE" />
+  <xsl:variable name="namesUpperCase" select="/APPLICATION/GENERATOR/SETTINGS/@NAMES_TO_UPPER_CASE" />
+  <xsl:variable name="namesDefaultCase" select="/APPLICATION/GENERATOR/SETTINGS/@NAMES_TO_DEFAULT_CASE" />
+  <xsl:variable name="defaultNamesCase" select="/APPLICATION/GENERATOR/SETTINGS/@DEFAULT_NAMES_CASE" />
+  <xsl:variable name="namesFromCase" >
+    <xsl:choose>
+      <xsl:when test="$namesLowerCase='TRUE'" >
+        <xsl:value-of select="$uppercase" />
+      </xsl:when>
+      <xsl:when test="$namesUpperCase='TRUE'" >
+        <xsl:value-of select="$lowercase" />
+      </xsl:when>
+      <xsl:when test="$namesDefaultCase='TRUE'" >
+        <xsl:value-of select="$samecase" />
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="$samecase" />
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+  <xsl:variable name="namesToCase" >
+    <xsl:choose>
+      <xsl:when test="$namesLowerCase='TRUE'" >
+        <xsl:value-of select="$lowercase" />
+      </xsl:when>
+      <xsl:when test="$namesUpperCase='TRUE'" >
+        <xsl:value-of select="$uppercase" />
+      </xsl:when>
+      <xsl:when test="$namesDefaultCase='TRUE'" >
+        <xsl:value-of select="$samecase" />
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="$samecase" />
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+  <!-- Issue 3477662 -->
+  
+  
+
+
   <!-- ***************** string-replace-all - perform case insensitive replace ****************** -->
   <xsl:template name="string-replace-all">
   <xsl:param name="text"/>
@@ -246,44 +290,47 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     <xsl:param name="typeName" />
     <xsl:param name="schemaName" />
     <xsl:param name="localTypeName" />
-    <xsl:variable name="fieldType" select="translate($typeName, $uppercase, $lowercase)" />
+    <xsl:variable name="fieldType" select="translate($typeName, $namesFromCase, $namesToCase)" />
       <xsl:choose>
       <xsl:when test=" string-length($localTypeName) > 0  ">
            <xsl:comment>localTypeNameParameter</xsl:comment>
 	    <A>
-		<xsl:attribute name="href">#<xsl:value-of select="translate($localTypeName, $uppercase, $lowercase)" disable-output-escaping="yes"/></xsl:attribute>
+	      <xsl:attribute name="href">#<xsl:value-of select="translate($localTypeName, $namesFromCase, $namesToCase)" disable-output-escaping="yes"/></xsl:attribute>
 		<xsl:value-of select="$typeName" disable-output-escaping="yes"/>
             </A>
       </xsl:when>
-      <xsl:when test="/APPLICATION/OBJECT_TYPE[ translate(@NAME, $uppercase, $lowercase)  = $fieldType ] ">
+        <xsl:when test="/APPLICATION/OBJECT_TYPE[ translate(@NAME, $namesFromCase, $namesToCase) = $fieldType ] ">
 	    <A>
 		<xsl:attribute name="href"><xsl:value-of select="$fieldType" disable-output-escaping="yes"/>.html</xsl:attribute>
 		<xsl:value-of select="$typeName" disable-output-escaping="yes"/>
             </A>
       </xsl:when>
                  <!-- Package Type owned by same schema -->
-      <xsl:when test="contains ($typeName, '.') and /APPLICATION/PACKAGE[ translate(@NAME, $uppercase, $lowercase)  = translate(substring-before($typeName,'.'), $uppercase, $lowercase)  ]/TYPE[ translate(@NAME, $uppercase, $lowercase)  = translate(substring-after($typeName,'.'), $uppercase, $lowercase)  ] ">
+        <xsl:when test="contains ($typeName, '.') 
+                        and /APPLICATION/PACKAGE[ translate(@NAME, $namesFromCase, $namesToCase)  = translate(substring-before($typeName,'.'), $namesFromCase, $namesToCase)  ]/TYPE[ translate(@NAME, $namesFromCase, $namesToCase)  = translate(substring-after($typeName,'.'), $namesFromCase, $namesToCase)  ] ">
 	    <A>
-		<xsl:attribute name="href"><xsl:value-of select="concat(translate(substring-before($typeName,'.'),$uppercase,$lowercase) , '.html#', translate(substring-after($typeName,'.'),$uppercase,$lowercase) )" disable-output-escaping="yes"/></xsl:attribute>
+	      <xsl:attribute name="href"><xsl:value-of select="concat(translate(substring-before($typeName,'.'),  $namesFromCase, $namesToCase) , '.html#', translate(substring-after($typeName,'.'), $namesFromCase, $namesToCase) )" disable-output-escaping="yes"/></xsl:attribute>
 		<xsl:value-of select="$typeName" disable-output-escaping="yes"/>
             </A>
       </xsl:when>
                  <!-- Object Type owned by other schema -->
-		 <xsl:when test="contains ($typeName, '.') and /APPLICATION/OBJECT_TYPE[ translate(@SCHEMA, $uppercase, $lowercase)  = translate(substring-before($typeName,'.'), $uppercase, $lowercase)  and translate(@NAME, $uppercase, $lowercase)  = translate(substring-after($typeName,'.'), $uppercase, $lowercase)  ] ">
+		 <xsl:when test="contains ($typeName, '.') and /APPLICATION/OBJECT_TYPE[ translate(@SCHEMA, $uppercase, $lowercase)  = translate(substring-before($typeName,'.'), $uppercase, $lowercase)  
+		   and translate(@NAME, $namesFromCase, $namesToCase) = translate(substring-after($typeName,'.'), $namesFromCase, $namesToCase)  ] ">
 	    <A>
-		<xsl:attribute name="href"><xsl:value-of select="translate(substring-after($typeName,'.'), $uppercase, $lowercase)" disable-output-escaping="yes"/>.html</xsl:attribute>
+	      <xsl:attribute name="href"><xsl:value-of select="translate(substring-after($typeName,'.'), $namesFromCase, $namesToCase)" disable-output-escaping="yes"/>.html</xsl:attribute>
 		<xsl:value-of select="$typeName" disable-output-escaping="yes"/>
             </A>
      </xsl:when>
                  <!-- Package Type owned by other schema -->
-     <xsl:when test="contains ($typeName, '.') and /APPLICATION/PACKAGE[ translate(@SCHEMA, $uppercase, $lowercase)  = translate(substring-before($typeName,'.'), $uppercase, $lowercase)  and translate(@NAME, $uppercase, $lowercase)  = translate(substring-before(substring-after($typeName, '.'),'.'), $uppercase, $lowercase)  ]/TYPE[ translate(@NAME, $uppercase, $lowercase)  = translate(substring-after(substring-after($typeName,'.'),'.'), $uppercase, $lowercase)  ] ">
+     <xsl:when test="contains ($typeName, '.') and /APPLICATION/PACKAGE[ translate(@SCHEMA, $uppercase, $lowercase)  = translate(substring-before($typeName,'.'), $uppercase, $lowercase)  
+       and translate(@NAME, $namesFromCase, $namesToCase)  = translate(substring-before(substring-after($typeName, '.'),'.'), $namesFromCase, $namesToCase)  ]/TYPE[ translate(@NAME, $namesFromCase, $namesToCase)  = translate(substring-after(substring-after($typeName,'.'),'.'), $namesFromCase, $namesToCase)  ] ">
 	    <A>
-		<xsl:attribute name="href"><xsl:value-of select="concat(translate(substring-before(substring-after($typeName,'.'),'.'),$uppercase,$lowercase), '.html#', translate(substring-after(substring-after($typeName,'.'),'.'),$uppercase,$lowercase))" disable-output-escaping="yes"/></xsl:attribute>
-		<xsl:value-of select="$typeName" disable-output-escaping="yes"/>
+	      <xsl:attribute name="href"><xsl:value-of select="concat(translate(substring-before(substring-after($typeName,'.'),'.'), $namesFromCase, $namesToCase), '.html#', translate(substring-after(substring-after($typeName,'.'),'.'), $namesFromCase, $namesToCase) )" disable-output-escaping="yes"/></xsl:attribute>
+	      <xsl:value-of select="translate($typeName, $namesFromCase, $namesToCase)" disable-output-escaping="yes"/>
             </A>
      </xsl:when>
      <xsl:otherwise>
-		  <xsl:value-of select="$typeName" />
+       <xsl:value-of select="translate($typeName, $namesFromCase, $namesToCase)" />
      </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
@@ -361,7 +408,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
                   methodName=START<xsl:value-of select="$methodName" disable-output-escaping="yes"/>END
                 </xsl:comment>
                 -->
-              <xsl:attribute name="href"><xsl:value-of select="translate(concat($objectName,'.html#',$methodName), $uppercase, $lowercase)" disable-output-escaping="yes"/></xsl:attribute>
+              <xsl:attribute name="href"><xsl:value-of select="translate(concat($objectName,'.html#',$methodName), $namesFromCase, $namesToCase)" disable-output-escaping="yes"/></xsl:attribute>
                 <xsl:value-of select="$label" disable-output-escaping="yes"/>
               </xsl:when>
             <!-- Attempt to match assuming that the link has been written as a normal PL/SQL entry (object_name.method_name) rather than object_name#method_name   
@@ -375,7 +422,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
                 methodName=START<xsl:value-of select="$methodName" disable-output-escaping="yes"/>END
                 </xsl:comment>
               -->
-              <xsl:attribute name="href"><xsl:value-of select="translate(concat($schemaName,'.html#',$objectName), $uppercase, $lowercase)" disable-output-escaping="yes"/></xsl:attribute>
+              <xsl:attribute name="href"><xsl:value-of select="translate(concat($schemaName,'.html#',$objectName), $namesFromCase, $namesToCase)" disable-output-escaping="yes"/></xsl:attribute>
               <xsl:value-of select="$label" disable-output-escaping="yes"/>
             </xsl:when>
             <xsl:when test="string-length($objectName) &gt; 0 and /APPLICATION/*[ translate(@NAME , $uppercase, $lowercase)= translate($objectName, $uppercase, $lowercase) ] ">
@@ -387,7 +434,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
                   methodName=START<xsl:value-of select="$methodName" disable-output-escaping="yes"/>END
                 </xsl:comment>
                 -->
-                <xsl:attribute name="href"><xsl:value-of select="translate($objectName, $uppercase, $lowercase)" disable-output-escaping="yes"/>.html</xsl:attribute>
+              <xsl:attribute name="href"><xsl:value-of select="translate($objectName, $namesFromCase, $namesToCase)" disable-output-escaping="yes"/>.html</xsl:attribute>
                 <xsl:value-of select="$label" disable-output-escaping="yes"/>
               </xsl:when>
               <xsl:otherwise>
@@ -400,7 +447,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
                   Assuming page internal link
                 </xsl:comment>
                 -->
-                <xsl:attribute name="href"><xsl:value-of select="translate(concat('#',$link), $uppercase, $lowercase)" disable-output-escaping="yes"/></xsl:attribute>
+                <xsl:attribute name="href"><xsl:value-of select="translate(concat('#',$link),  $namesFromCase, $namesToCase)" disable-output-escaping="yes"/></xsl:attribute>
                 <xsl:value-of select="$label" disable-output-escaping="yes"/>
               </xsl:otherwise>
             </xsl:choose>
@@ -517,7 +564,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     </TR>
 
     <xsl:for-each select="$mainTags">
-      <xsl:sort select="@NAME"/>
+      <xsl:sort select="translate(@NAME, $namesFromCase, $namesToCase)"/>
       <TR CLASS="TableRowColor">
       <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
       <CODE><xsl:text>&nbsp;</xsl:text>
@@ -544,7 +591,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 	<xsl:element name="A"><xsl:attribute name="NAME"><xsl:value-of select="$nameLowerCase" /></xsl:attribute></xsl:element>
 	</xsl:if>
       <TD><CODE>
-        <B><xsl:element name="A"><xsl:attribute name="HREF">#<xsl:value-of select="translate(@NAME, $uppercase, $lowercase)" />
+        <B><xsl:element name="A"><xsl:attribute name="HREF">#<xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)" />
         <xsl:if test="*[name()=$childTags]">
         <xsl:text>(</xsl:text>
         <xsl:for-each select="*[name()=$childTags]">
@@ -553,10 +600,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
         </xsl:for-each>
         <xsl:text>)</xsl:text>
         </xsl:if>
-        </xsl:attribute><xsl:value-of select="@NAME"/></xsl:element></B>
+        </xsl:attribute><xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/></xsl:element></B>
         <xsl:if test="not($flagTrigger)"><xsl:text>(</xsl:text></xsl:if>
         <xsl:for-each select="*[name()=$childTags]">
-          <xsl:value-of select="translate(@NAME, $uppercase, $lowercase)"/>
+          <xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/>
           <xsl:if test="string-length(@MODE) &gt; 0">
             <xsl:text> </xsl:text><xsl:value-of select="@MODE"/>
           </xsl:if>
@@ -620,8 +667,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
     <xsl:variable name="containerName" select="local-name()"/>
     <xsl:for-each select="$mainTags">
-      <xsl:sort select="@NAME"/>
-      <xsl:element name="A"><xsl:attribute name="NAME"><xsl:value-of select="translate(@NAME, $uppercase, $lowercase)" />
+      <xsl:sort select="translate(@NAME, $namesFromCase, $namesToCase)"/>
+      <xsl:element name="A"><xsl:attribute name="NAME"><xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)" />
         <xsl:if test="*[name()=$childTags]">
         <xsl:text>(</xsl:text>
         <xsl:for-each select="*[name()=$childTags]">
@@ -631,7 +678,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
         <xsl:text>)</xsl:text>
         </xsl:if>
         </xsl:attribute></xsl:element>
-      <H3><xsl:value-of select="@NAME"/></H3>
+      <H3><xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/></H3>
       <PRE>
         <xsl:variable name="methodText">
 		<xsl:if test="not($flagTrigger or $containerName = 'TRIGGER' or $containerName = 'PACKAGE_BODY' or $containerName = 'OBJECT_BODY' )">public</xsl:if><xsl:text> </xsl:text><xsl:value-of select="RETURN/@TYPE"/><xsl:text> </xsl:text><B><xsl:value-of select="@NAME"/></B>
@@ -645,13 +692,13 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 	    <xsl:with-param name="typeName" select="RETURN/@TYPE" />
             <xsl:with-param name="schemaName" select="ancestor-or-self::*/@SCHEMA"/>
             <xsl:with-param name="localTypeName" select="../TYPE[ translate(@NAME, $uppercase, $lowercase) = $fieldType ]/@NAME " />
-      </xsl:call-template><xsl:text> </xsl:text><B><xsl:value-of select="@NAME"/></B>
+      </xsl:call-template><xsl:text> </xsl:text><B><xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/></B>
           <xsl:if test="not($flagTrigger)">
 	        <xsl:text>(</xsl:text>
 	        <xsl:for-each select="*[name()=$childTags]">
 	          <!-- pad arguments with appropriate number of spaces -->
 	          <xsl:if test="not(position()=1)"><BR/><xsl:value-of select="str:padding(java:length($methodTextString)+1)"/></xsl:if>
-	          <xsl:value-of select="translate(@NAME, $uppercase, $lowercase)"/>
+	          <xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/>
 	          <xsl:if test="string-length(@MODE) &gt; 0">
 	            <xsl:text> </xsl:text><xsl:value-of select="@MODE"/>
 	          </xsl:if>
@@ -688,7 +735,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
         <DT><xsl:value-of select="$childDescription"/>:
         <xsl:for-each select="*[name()=$childTags]">
           <xsl:if test="COMMENT">
-            <DD><CODE><xsl:value-of select="translate(@NAME, $uppercase, $lowercase)"/></CODE> -
+            <DD><CODE><xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/></CODE> -
               <xsl:for-each select="COMMENT">
                 <!-- SRT 20110501 <xsl:value-of select="." disable-output-escaping="yes" /> -->
                 <xsl:call-template name="processInlineTag">
@@ -727,7 +774,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
         <xsl:if test="THROWS">
         <DT>Throws:
         <xsl:for-each select="THROWS">
-            <DD><CODE><xsl:value-of select="@NAME"/></CODE> -
+          <DD><CODE><xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/></CODE> -
               <xsl:for-each select="COMMENT">
                 <!-- SRT 20110501 <xsl:value-of select="." disable-output-escaping="yes" /> -->
                 <xsl:call-template name="processInlineTag">
@@ -768,12 +815,21 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   <!--<xsl:for-each select="PACKAGE | PACKAGE_BODY">-->
   <xsl:for-each select="PACKAGE | OBJECT_TYPE | TRIGGER">
 
-    <redirect:write file="{concat($targetFolder, translate(@NAME, $uppercase, $lowercase))}.html">
+    <redirect:write file="{concat($targetFolder, translate(@NAME, $namesFromCase, $namesToCase))}.html">
 
     <HTML>
     <HEAD>
-      <TITLE><xsl:value-of select="../@NAME"/></TITLE>
+      <TITLE><xsl:value-of select="translate(../@NAME, $namesFromCase, $namesToCase)"/></TITLE>
       <LINK REL="stylesheet" TYPE="text/css" HREF="stylesheet.css" TITLE="Style"/>
+      <xsl:comment>
+        sameCase=<xsl:value-of select="$samecase" />
+        namesLowerCase=<xsl:value-of select="$namesLowerCase"  />
+        namesUpperCase=<xsl:value-of select="$namesUpperCase"  />
+        namesDefaultCase=<xsl:value-of select="$namesDefaultCase"  />
+        defaultNamesCase=<xsl:value-of select="$defaultNamesCase"  />
+        namesFromCase=<xsl:value-of select="$namesFromCase" />
+        namesToCase=<xsl:value-of select="$namesToCase" />
+      </xsl:comment>
     </HEAD>
     <BODY BGCOLOR="white">
 
@@ -792,7 +848,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 	      </xsl:choose>
 	     </xsl:when>
 	      <xsl:otherwise>Package</xsl:otherwise>
-      </xsl:choose><xsl:text>&nbsp;</xsl:text><xsl:value-of select="@NAME"/>
+     </xsl:choose><xsl:text>&nbsp;</xsl:text><xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/>
     </H2>
 
 	<!-- package comment -->
@@ -823,7 +879,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     </TR>
 
     <xsl:for-each select="CONSTANT | VARIABLE | SUPERTYPE">
-      <xsl:sort select="@NAME"/>
+      <xsl:sort select="translate(@NAME, $namesFromCase, $namesToCase)"/>
       <TR CLASS="TableRowColor">
       <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
       <CODE><xsl:text>&nbsp;</xsl:text>
@@ -836,9 +892,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 		<xsl:value-of select="@NAME" disable-output-escaping="yes"/>
             </A>
 	      <!- - If possible, convert the plain-text TYPE to a link to a matching OBJECT TYPE in the Application-->
-	    <xsl:variable name="fieldType" select="translate(@NAME, $uppercase, $lowercase)" />
+	        <xsl:variable name="fieldType" select="translate(@NAME, $namesFromCase, $namesToCase)" />
 	      <xsl:call-template name="GenerateTypeLink">
-		    <xsl:with-param name="typeName" select="@NAME" />
+	        <xsl:with-param name="typeName" select="translate(@NAME, $namesFromCase, $namesToCase)" />
 		    <xsl:with-param name="schemaName" select="ancestor-or-self::*/@SCHEMA"/>
                     <xsl:with-param name="localTypeName" select="../TYPE[ translate(@NAME, $uppercase, $lowercase) = $fieldType ]/@NAME " />
 	      </xsl:call-template>
@@ -857,7 +913,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
       <xsl:choose>
 	  <xsl:when test="local-name() = 'SUPERTYPE'">SUPERTYPE</xsl:when>
 	  <xsl:otherwise>
-		      <B><A HREF="#{@NAME}"><xsl:value-of select="@NAME"/></A></B>
+	    <B><A HREF="#{translate(@NAME, $namesFromCase, $namesToCase)}"><xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/></A></B>
 	  </xsl:otherwise>
       </xsl:choose>
 	 <xsl:if test="local-name() = 'CONSTANT'"> CONSTANT</xsl:if>
@@ -936,10 +992,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     </TABLE>
 
     <xsl:for-each select="CONSTANT | VARIABLE">
-      <xsl:sort select="@NAME"/>
+      <xsl:sort select="translate(@NAME, $namesFromCase, $namesToCase)"/>
       <A NAME="{@NAME}"></A><H3><xsl:value-of select="@NAME"/></H3>
       <PRE>
-  public <xsl:value-of select="RETURN/@TYPE"/><xsl:text> </xsl:text><B><xsl:value-of select="@NAME"/></B>
+        public <xsl:value-of select="RETURN/@TYPE"/><xsl:text> </xsl:text><B><xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/></B>
 	 <xsl:if test="local-name() = 'CONSTANT'"> CONSTANT</xsl:if>
 	 <xsl:if test="@DEFAULT"> := <xsl:value-of select="@DEFAULT" disable-output-escaping="yes" /></xsl:if>
       </PRE>
@@ -1023,12 +1079,22 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   -->
   <xsl:for-each select="PACKAGE_BODY | OBJECT_BODY | */TRIGGER[@TYPE='COMPOUND'] ">
 
-    <redirect:write file="{concat($targetFolder, '_', translate(@NAME, $uppercase, $lowercase))}_body.html">
+    <redirect:write file="{concat($targetFolder, '_', translate(@NAME, $namesFromCase, $namesToCase))}_body.html">
 
     <HTML>
     <HEAD>
-      <TITLE><xsl:value-of select="../@NAME"/></TITLE>
+      <TITLE><xsl:value-of select="translate(../@NAME, $namesFromCase, $namesToCase)"/></TITLE>
       <LINK REL="stylesheet" TYPE="text/css" HREF="stylesheet.css" TITLE="Style"/>
+      <xsl:comment>
+        sameCase=<xsl:value-of select="$samecase" />
+        namesLowerCase=<xsl:value-of select="$namesLowerCase"  />
+        namesUpperCase=<xsl:value-of select="$namesUpperCase"  />
+        namesDefaultCase=<xsl:value-of select="$namesDefaultCase"  />
+        defaultNamesCase=<xsl:value-of select="$defaultNamesCase"  />
+        namesFromCase=<xsl:value-of select="$namesFromCase" />
+        namesToCase=<xsl:value-of select="$namesToCase" />
+      </xsl:comment>
+      
     </HEAD>
     <BODY BGCOLOR="white">
 
@@ -1048,7 +1114,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 	     </xsl:when>
 	     <xsl:when test="local-name() = 'TRIGGER'">Trigger</xsl:when>
 	     <xsl:otherwise>Package</xsl:otherwise>
-      </xsl:choose><xsl:text>&nbsp;</xsl:text><xsl:value-of select="@NAME"/>
+     </xsl:choose><xsl:text>&nbsp;</xsl:text><xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/>
     </H2>
 
 	<!-- package comment -->
@@ -1079,7 +1145,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     </TR>
 
     <xsl:for-each select="CONSTANT | VARIABLE | SUPERTYPE">
-      <xsl:sort select="@NAME"/>
+      <xsl:sort select="translate(@NAME, $namesFromCase, $namesToCase)"/>
       <TR CLASS="TableRowColor">
       <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
       <CODE><xsl:text>&nbsp;</xsl:text>
@@ -1092,19 +1158,19 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 		<xsl:value-of select="@NAME" disable-output-escaping="yes"/>
             </A>
 	      <!- - If possible, convert the plain-text TYPE to a link to a matching OBJECT TYPE in the Application-->
-	    <xsl:variable name="fieldType" select="translate(@NAME, $uppercase, $lowercase)" />
+	        <xsl:variable name="fieldType" select="translate(@NAME, $namesFromCase, $namesToCase)" />
 	      <xsl:call-template name="GenerateTypeLink">
-		    <xsl:with-param name="typeName" select="@NAME" />
+	        <xsl:with-param name="typeName" select="translate(@NAME, $namesFromCase, $namesToCase)" />
 		    <xsl:with-param name="schemaName" select="ancestor-or-self::*/@SCHEMA"/>
-                    <xsl:with-param name="localTypeName" select="../TYPE[ translate(@NAME, $uppercase, $lowercase) = $fieldType ]/@NAME " />
+	        <xsl:with-param name="localTypeName" select="../TYPE[ translate(@NAME, $namesFromCase, $namesToCase) = $fieldType ]/@NAME " />
 	      </xsl:call-template>
        </xsl:when>
 	  <xsl:otherwise>
-	    <xsl:variable name="fieldType" select="translate(RETURN/@TYPE, $uppercase, $lowercase)" />
+	    <xsl:variable name="fieldType" select="translate(RETURN/@TYPE, $namesFromCase, $namesToCase)" />
 	      <xsl:call-template name="GenerateTypeLink">
 		    <xsl:with-param name="typeName" select="RETURN/@TYPE" />
 		    <xsl:with-param name="schemaName" select="ancestor-or-self::*/@SCHEMA"/>
-                    <xsl:with-param name="localTypeName" select="../TYPE[ translate(@NAME, $uppercase, $lowercase) = $fieldType ]/@NAME " />
+	        <xsl:with-param name="localTypeName" select="../TYPE[ translate(@NAME, $namesFromCase, $namesToCase) = $fieldType ]/@NAME " />
 	      </xsl:call-template>
 	  </xsl:otherwise>
       </xsl:choose>
@@ -1113,7 +1179,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
       <xsl:choose>
 	  <xsl:when test="local-name() = 'SUPERTYPE'">SUPERTYPE</xsl:when>
 	  <xsl:otherwise>
-		      <B><A HREF="#{@NAME}"><xsl:value-of select="@NAME"/></A></B>
+	    <B><A HREF="#{translate(@NAME, $namesFromCase, $namesToCase)}"><xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/></A></B>
 	  </xsl:otherwise>
       </xsl:choose>
 	 <xsl:if test="local-name() = 'CONSTANT'"> CONSTANT</xsl:if>
@@ -1196,10 +1262,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     </TABLE>
 
     <xsl:for-each select="CONSTANT | VARIABLE">
-      <xsl:sort select="@NAME"/>
-      <A NAME="{@NAME}"></A><H3><xsl:value-of select="@NAME"/></H3>
+      <xsl:sort select="translate(@NAME, $namesFromCase, $namesToCase)"/>
+      <A NAME="{translate(@NAME, $namesFromCase, $namesToCase)}"></A><H3><xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/></H3>
       <PRE>
-  public <xsl:value-of select="RETURN/@TYPE"/><xsl:text> </xsl:text><B><xsl:value-of select="@NAME"/></B>
+        public <xsl:value-of select="RETURN/@TYPE"/><xsl:text> </xsl:text><B><xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/></B>
 	 <xsl:if test="local-name() = 'CONSTANT'"> CONSTANT</xsl:if>
 	 <xsl:if test="@DEFAULT"> := <xsl:value-of select="@DEFAULT" disable-output-escaping="yes" /></xsl:if>
       </PRE>
@@ -1288,12 +1354,23 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   <!-- ********************** START OF TABLE PAGE ************************** -->
   <xsl:for-each select="TABLE | VIEW">
 
-    <redirect:write file="{concat($targetFolder, translate(@NAME, $uppercase, $lowercase))}.html">
+    <redirect:write file="{concat($targetFolder, translate(@NAME, $namesFromCase, $namesToCase))}.html">
 
     <HTML>
     <HEAD>
-      <TITLE><xsl:value-of select="../@NAME"/></TITLE>
+      <TITLE><xsl:value-of select="translate(../@NAME, $namesFromCase, $namesToCase)"/></TITLE>
       <LINK REL="stylesheet" TYPE="text/css" HREF="stylesheet.css" TITLE="Style"/>
+ 
+      <xsl:comment>
+        sameCase=<xsl:value-of select="$samecase" />
+        namesLowerCase=<xsl:value-of select="$namesLowerCase"  />
+        namesUpperCase=<xsl:value-of select="$namesUpperCase"  />
+        namesDefaultCase=<xsl:value-of select="$namesDefaultCase"  />
+        defaultNamesCase=<xsl:value-of select="$defaultNamesCase"  />
+        namesFromCase=<xsl:value-of select="$namesFromCase" />
+        namesToCase=<xsl:value-of select="$namesToCase" />
+      </xsl:comment>
+      
     </HEAD>
     <BODY BGCOLOR="white">
 
@@ -1303,7 +1380,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     <!-- ********************** TABLE DECRIPTION ************************* -->
     <H2>
     <FONT SIZE="-1"><xsl:value-of select="@SCHEMA"/></FONT><BR/>
-    <xsl:value-of select="local-name(.)"/><xsl:text> </xsl:text><xsl:value-of select="@NAME"/>
+      <xsl:value-of select="local-name(.)"/><xsl:text> </xsl:text><xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/>
     </H2>
     <xsl:for-each select="TAG[starts-with(@TYPE,'@deprecated') or starts-with(@TYPE,'@DEPRECATED') ]">
       <P>
@@ -1345,8 +1422,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
       <CODE><xsl:text>&nbsp;</xsl:text>
       <xsl:value-of select="@TYPE"/>
       </CODE></FONT></TD>
-      <TD><CODE><B><A HREF="#{@NAME}">
-        <xsl:value-of select="@NAME"/></A></B>
+        <TD><CODE><B><A HREF="#{translate(@NAME, $namesFromCase, $namesToCase)}">
+          <xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/></A></B>
         </CODE>
       <BR/>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
