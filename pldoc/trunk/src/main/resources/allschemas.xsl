@@ -35,9 +35,50 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   <xsl:param name="targetFolder"/>
 
   <xsl:key name="schemaInit" match="*[@SCHEMA]" use="@SCHEMA"/>
-
-  <xsl:template match="/">
-	  <xsl:for-each select="APPLICATION">
+	
+	<!-- Issue 3477662 -->
+	<xsl:variable name="samecase">ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz</xsl:variable>
+	<xsl:variable name="namesLowerCase" select="/APPLICATION/GENERATOR/SETTINGS/@NAMES_TO_LOWER_CASE" />
+	<xsl:variable name="namesUpperCase" select="/APPLICATION/GENERATOR/SETTINGS/@NAMES_TO_UPPER_CASE" />
+	<xsl:variable name="namesDefaultCase" select="/APPLICATION/GENERATOR/SETTINGS/@NAMES_TO_DEFAULT_CASE" />
+	<xsl:variable name="defaultNamesCase" select="/APPLICATION/GENERATOR/SETTINGS/@DEFAULT_NAMES_CASE" />
+	<xsl:variable name="namesFromCase" >
+		<xsl:choose>
+			<xsl:when test="$namesLowerCase='TRUE'" >
+				<xsl:value-of select="$uppercase" />
+			</xsl:when>
+			<xsl:when test="$namesUpperCase='TRUE'" >
+				<xsl:value-of select="$lowercase" />
+			</xsl:when>
+			<xsl:when test="$namesDefaultCase='TRUE'" >
+				<xsl:value-of select="$samecase" />
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:value-of select="$samecase" />
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:variable>
+	<xsl:variable name="namesToCase" >
+		<xsl:choose>
+			<xsl:when test="$namesLowerCase='TRUE'" >
+				<xsl:value-of select="$lowercase" />
+			</xsl:when>
+			<xsl:when test="$namesUpperCase='TRUE'" >
+				<xsl:value-of select="$uppercase" />
+			</xsl:when>
+			<xsl:when test="$namesDefaultCase='TRUE'" >
+				<xsl:value-of select="$samecase" />
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:value-of select="$samecase" />
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:variable>
+	<!-- Issue 3477662 -->
+	
+	
+	<xsl:template match="/">
+		<xsl:for-each select="APPLICATION">
 	    <HTML>
 	    <HEAD>
 	    <TITLE><xsl:value-of select="@NAME" /></TITLE>
@@ -85,17 +126,17 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
      <xsl:param name="theschema"/>
      
 	  <!-- generate a link to the only-schema-packages list -->
-      <FONT CLASS="FrameItemFont"><A HREF="{translate($theschema, $uppercase, $lowercase)}.html" TARGET="listFrame">
-        <xsl:value-of select="translate($theschema, $lowercase, $uppercase)"/>
+      <FONT CLASS="FrameItemFont"><A HREF="{translate($theschema, $namesFromCase, $namesToCase)}.html" TARGET="listFrame">
+        <xsl:value-of select="translate($theschema, $namesFromCase, $namesToCase)"/>
       </A></FONT><BR></BR>
      
      <!-- generate the file: package list of this schema -->
-     <redirect:write file="{concat($targetFolder, translate($theschema, $uppercase, $lowercase))}.html">
+     <redirect:write file="{concat($targetFolder, translate($theschema, $namesFromCase, $namesToCase))}.html">
 	    <TABLE BORDER="0" WIDTH="100%">
 	    <TR>
 		    <TD><FONT size="+1" CLASS="FrameTitleFont">
-		    <B><A HREF="{translate($theschema, $uppercase, $lowercase)}-summary.html" TARGET="packageFrame">
-		    	<xsl:value-of select="translate($theschema, $lowercase, $uppercase)" />
+		    <B><A HREF="{translate($theschema, $namesFromCase, $namesToCase)}-summary.html" TARGET="packageFrame">
+		    	<xsl:value-of select="translate($theschema, $namesFromCase, $namesToCase)" />
 		    </A></B>
 		    </FONT></TD>
 	    </TR>
@@ -110,9 +151,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 	    <BR />
 	
 	    <xsl:for-each select="//OBJECT_TYPE[@SCHEMA=$theschema and COLLECTIONTYPE ]">
-	      <xsl:sort select="@NAME"/>
-	      <FONT CLASS="FrameItemFont"><A HREF="{translate(@NAME, $uppercase, $lowercase)}.html" TARGET="packageFrame">
-	        <xsl:value-of select="translate(@NAME, $lowercase, $uppercase)"/>
+              <xsl:sort select="translate(@NAME,$namesFromCase,$namesToCase)"/>
+	      <FONT CLASS="FrameItemFont"><A HREF="{translate(@NAME, $namesFromCase, $namesToCase)}.html" TARGET="packageFrame">
+	        <xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/>
 	      </A></FONT><BR></BR>
 	    </xsl:for-each>
 	
@@ -132,9 +173,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 	    <BR />
 	
 	    <xsl:for-each select="//OBJECT_TYPE[@SCHEMA=$theschema and not(COLLECTIONTYPE) ]">
-	      <xsl:sort select="@NAME"/>
-	      <FONT CLASS="FrameItemFont"><A HREF="{translate(@NAME, $uppercase, $lowercase)}.html" TARGET="packageFrame">
-	        <xsl:value-of select="translate(@NAME, $lowercase, $uppercase)"/>
+              <xsl:sort select="translate(@NAME,$namesFromCase,$namesToCase)"/>
+	      <FONT CLASS="FrameItemFont"><A HREF="{translate(@NAME, $namesFromCase, $namesToCase)}.html" TARGET="packageFrame">
+	        <xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/>
 	      </A></FONT><BR></BR>
 	    </xsl:for-each>
 	
@@ -155,9 +196,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 	    <BR />
 	
 	    <xsl:for-each select="//TRIGGER[@SCHEMA=$theschema]">
-	      <xsl:sort select="@NAME"/>
-	      <FONT CLASS="FrameItemFont"><A HREF="{translate(@NAME, $uppercase, $lowercase)}.html" TARGET="packageFrame">
-	        <xsl:value-of select="translate(@NAME, $lowercase, $uppercase)"/>
+              <xsl:sort select="translate(@NAME,$namesFromCase,$namesToCase)"/>
+	      <FONT CLASS="FrameItemFont"><A HREF="{translate(@NAME, $namesFromCase, $namesToCase)}.html" TARGET="packageFrame">
+	        <xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/>
 	      </A></FONT><BR></BR>
 	    </xsl:for-each>
 	
@@ -178,9 +219,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 	    <BR />
 	
 	    <xsl:for-each select="//PACKAGE[@SCHEMA=$theschema]">
-	      <xsl:sort select="@NAME"/>
-	      <FONT CLASS="FrameItemFont"><A HREF="{translate(@NAME, $uppercase, $lowercase)}.html" TARGET="packageFrame">
-	        <xsl:value-of select="translate(@NAME, $lowercase, $uppercase)"/>
+              <xsl:sort select="translate(@NAME,$namesFromCase,$namesToCase)"/>
+	      <FONT CLASS="FrameItemFont"><A HREF="{translate(@NAME, $namesFromCase, $namesToCase)}.html" TARGET="packageFrame">
+	        <xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/>
 	      </A></FONT><BR></BR>
 	    </xsl:for-each>
 	
@@ -200,9 +241,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 	    <BR />
 	
 	    <xsl:for-each select="//*[ @SCHEMA=$theschema and ( local-name() = 'PACKAGE_BODY' or local-name()='OBJECT_BODY' ) ]">
-	      <xsl:sort select="@NAME"/>
-	      <FONT CLASS="FrameItemFont"><A HREF="_{translate(@NAME, $uppercase, $lowercase)}_body.html" TARGET="packageFrame">
-	        <xsl:value-of select="translate(@NAME, $lowercase, $uppercase)"/>
+              <xsl:sort select="translate(@NAME,$namesFromCase,$namesToCase)"/>
+	      <FONT CLASS="FrameItemFont"><A HREF="_{translate(@NAME, $namesFromCase, $namesToCase)}_body.html" TARGET="packageFrame">
+	        <xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/>
 	      </A></FONT><BR></BR>
 	    </xsl:for-each>
 	
@@ -219,9 +260,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 	    <BR></BR>
 	
 	    <xsl:for-each select="//TABLE[@SCHEMA=$theschema]">
-	      <xsl:sort select="@NAME"/>
-	      <FONT CLASS="FrameItemFont"><A HREF="{translate(@NAME, $uppercase, $lowercase)}.html" TARGET="packageFrame">
-	        <xsl:value-of select="translate(@NAME, $lowercase, $uppercase)"/>
+              <xsl:sort select="translate(@NAME,$namesFromCase,$namesToCase)"/>
+	      <FONT CLASS="FrameItemFont"><A HREF="{translate(@NAME, $namesFromCase, $namesToCase)}.html" TARGET="packageFrame">
+	        <xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/>
 	      </A></FONT><BR></BR>
 	    </xsl:for-each>
 	
@@ -238,9 +279,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 	    <BR></BR>
 	
 	    <xsl:for-each select="//VIEW[@SCHEMA=$theschema]">
-	      <xsl:sort select="@NAME"/>
-	      <FONT CLASS="FrameItemFont"><A HREF="{translate(@NAME, $uppercase, $lowercase)}.html" TARGET="packageFrame">
-	        <xsl:value-of select="translate(@NAME, $lowercase, $uppercase)"/>
+              <xsl:sort select="translate(@NAME,$namesFromCase,$namesToCase)"/>
+	      <FONT CLASS="FrameItemFont"><A HREF="{translate(@NAME, $namesFromCase, $namesToCase)}.html" TARGET="packageFrame">
+	        <xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/>
 	      </A></FONT><BR></BR>
 	    </xsl:for-each>
 	
@@ -252,7 +293,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     </redirect:write>
     
  	<!-- generate the file: package summary of this schema -->
-    <redirect:write file="{concat($targetFolder, translate($theschema, $uppercase, $lowercase))}-summary.html">
+    <redirect:write file="{concat($targetFolder, translate($theschema, $namesFromCase, $namesToCase))}-summary.html">
 	    
 		<HTML>
 	    <HEAD>
@@ -274,11 +315,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 			<TR><TD COLSPAN="2"><FONT size="+1" CLASS="FrameHeadingFont">Object Collections</FONT></TD></TR>
 		
 		    <xsl:for-each select="//OBJECT_TYPE[@SCHEMA=$theschema]">
-		      <xsl:sort select="@NAME"/>
+                      <xsl:sort select="translate(@NAME,$namesFromCase,$namesToCase)"/>
 			  <TR>
 		   	  <TD>
-		        <FONT CLASS="FrameItemFont"><A HREF="{translate(@NAME, $uppercase, $lowercase)}.html" TARGET="packageFrame">
-		           <xsl:value-of select="translate(@NAME, $lowercase, $uppercase)"/>
+		        <FONT CLASS="FrameItemFont"><A HREF="{translate(@NAME, $namesFromCase, $namesToCase)}.html" TARGET="packageFrame">
+		           <xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/>
 		        </A></FONT>
 			    </TD>
 			    <TD>&nbsp;</TD>
@@ -295,11 +336,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 			<TR><TD COLSPAN="2"><FONT size="+1" CLASS="FrameHeadingFont">Object Types</FONT></TD></TR>
 		
 		    <xsl:for-each select="//OBJECT_TYPE[@SCHEMA=$theschema]">
-		      <xsl:sort select="@NAME"/>
+                      <xsl:sort select="translate(@NAME,$namesFromCase,$namesToCase)"/>
 			  <TR>
 		   	  <TD>
-		        <FONT CLASS="FrameItemFont"><A HREF="{translate(@NAME, $uppercase, $lowercase)}.html" TARGET="packageFrame">
-		           <xsl:value-of select="translate(@NAME, $lowercase, $uppercase)"/>
+		        <FONT CLASS="FrameItemFont"><A HREF="{translate(@NAME, $namesFromCase, $namesToCase)}.html" TARGET="packageFrame">
+		           <xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/>
 		        </A></FONT>
 			    </TD>
 			    <TD>&nbsp;</TD>
@@ -316,11 +357,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 			<TR><TD COLSPAN="2"><FONT size="+1" CLASS="FrameHeadingFont">Packages</FONT></TD></TR>
 		
 		    <xsl:for-each select="//PACKAGE[@SCHEMA=$theschema]">
-		      <xsl:sort select="@NAME"/>
+                      <xsl:sort select="translate(@NAME,$namesFromCase,$namesToCase)"/>
 			  <TR>
 		   	  <TD>
-		        <FONT CLASS="FrameItemFont"><A HREF="{translate(@NAME, $uppercase, $lowercase)}.html" TARGET="packageFrame">
-		           <xsl:value-of select="translate(@NAME, $lowercase, $uppercase)"/>
+		        <FONT CLASS="FrameItemFont"><A HREF="{translate(@NAME, $namesFromCase, $namesToCase)}.html" TARGET="packageFrame">
+		           <xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/>
 		        </A></FONT>
 			    </TD>
 			    <TD>&nbsp;</TD>
@@ -338,11 +379,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 			<TR><TD COLSPAN="2"><FONT size="+1" CLASS="FrameHeadingFont">Packages</FONT></TD></TR>
 		
 		    <xsl:for-each select="//*[ @SCHEMA=$theschema and ( local-name() = 'PACKAGE_BODY' or local-name()='OBJECT_BODY' ) ]">
-		      <xsl:sort select="@NAME"/>
+                      <xsl:sort select="translate(@NAME,$namesFromCase,$namesToCase)"/>
 			  <TR>
 		   	  <TD>
-		        <FONT CLASS="FrameItemFont"><A HREF="_{translate(@NAME, $uppercase, $lowercase)}_body.html" TARGET="packageFrame">
-		           <xsl:value-of select="translate(@NAME, $lowercase, $uppercase)"/>
+		        <FONT CLASS="FrameItemFont"><A HREF="_{translate(@NAME, $namesFromCase, $namesToCase)}_body.html" TARGET="packageFrame">
+		           <xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/>
 		        </A></FONT>
 			    </TD>
 			    <TD>&nbsp;</TD>
@@ -359,11 +400,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 			<TR><TD COLSPAN="2"><FONT size="+1" CLASS="FrameHeadingFont">Tables</FONT></TD></TR>
 		
 		    <xsl:for-each select="//TABLE[@SCHEMA=$theschema]">
-		      <xsl:sort select="@NAME"/>
+                      <xsl:sort select="translate(@NAME,$namesFromCase,$namesToCase)"/>
 			  <TR>
 		   	  <TD>
-		        <FONT CLASS="FrameItemFont"><A HREF="{translate(@NAME, $uppercase, $lowercase)}.html" TARGET="packageFrame">
-		           <xsl:value-of select="translate(@NAME, $lowercase, $uppercase)"/>
+		        <FONT CLASS="FrameItemFont"><A HREF="{translate(@NAME, $namesFromCase, $namesToCase)}.html" TARGET="packageFrame">
+		           <xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/>
 		        </A></FONT>
 			    </TD>
 			    <TD>&nbsp;</TD>
@@ -380,11 +421,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 			<TR><TD COLSPAN="2"><FONT size="+1" CLASS="FrameHeadingFont">Views</FONT></TD></TR>
 		
 		    <xsl:for-each select="//VIEW[@SCHEMA=$theschema]">
-		      <xsl:sort select="@NAME"/>
+                      <xsl:sort select="translate(@NAME,$namesFromCase,$namesToCase)"/>
 			  <TR>
 		   	  <TD>
-		        <FONT CLASS="FrameItemFont"><A HREF="{translate(@NAME, $uppercase, $lowercase)}.html" TARGET="packageFrame">
-		           <xsl:value-of select="translate(@NAME, $lowercase, $uppercase)"/>
+		        <FONT CLASS="FrameItemFont"><A HREF="{translate(@NAME, $namesFromCase, $namesToCase)}.html" TARGET="packageFrame">
+		           <xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/>
 		        </A></FONT>
 			    </TD>
 			    <TD>&nbsp;</TD>

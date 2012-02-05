@@ -31,6 +31,49 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
   <xsl:variable name="uppercase">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
   <xsl:variable name="lowercase">abcdefghijklmnopqrstuvwxyz</xsl:variable>
+	
+	
+	<!-- Issue 3477662 -->
+	<xsl:variable name="samecase">ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz</xsl:variable>
+	<xsl:variable name="namesLowerCase" select="/APPLICATION/GENERATOR/SETTINGS/@NAMES_TO_LOWER_CASE" />
+	<xsl:variable name="namesUpperCase" select="/APPLICATION/GENERATOR/SETTINGS/@NAMES_TO_UPPER_CASE" />
+	<xsl:variable name="namesDefaultCase" select="/APPLICATION/GENERATOR/SETTINGS/@NAMES_TO_DEFAULT_CASE" />
+	<xsl:variable name="defaultNamesCase" select="/APPLICATION/GENERATOR/SETTINGS/@DEFAULT_NAMES_CASE" />
+	<xsl:variable name="namesFromCase" >
+		<xsl:choose>
+			<xsl:when test="$namesLowerCase='TRUE'" >
+				<xsl:value-of select="$uppercase" />
+			</xsl:when>
+			<xsl:when test="$namesUpperCase='TRUE'" >
+				<xsl:value-of select="$lowercase" />
+			</xsl:when>
+			<xsl:when test="$namesDefaultCase='TRUE'" >
+				<xsl:value-of select="$samecase" />
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:value-of select="$samecase" />
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:variable>
+	<xsl:variable name="namesToCase" >
+		<xsl:choose>
+			<xsl:when test="$namesLowerCase='TRUE'" >
+				<xsl:value-of select="$lowercase" />
+			</xsl:when>
+			<xsl:when test="$namesUpperCase='TRUE'" >
+				<xsl:value-of select="$uppercase" />
+			</xsl:when>
+			<xsl:when test="$namesDefaultCase='TRUE'" >
+				<xsl:value-of select="$samecase" />
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:value-of select="$samecase" />
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:variable>
+	<!-- Issue 3477662 -->
+	
+	
 
   <xsl:key name="schemaInit" match="*[@SCHEMA]" use="@SCHEMA"/>
 
@@ -71,16 +114,16 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 			</DT>
 			
 			<xsl:for-each select="OBJECT_TYPE/child::*">
-		  	<xsl:sort select="@NAME"/>
+		  	<xsl:sort select="translate(@NAME, $namesFromCase, $namesToCase)"/>
 				
 				<xsl:if test="starts-with(translate(substring(@NAME, 1,1), $lowercase, $uppercase), $indexChar)">
 				<DD>	
-					<xsl:variable name="packagename" select="../@NAME"/>
+					<xsl:variable name="packagename" select="translate(../@NAME, $namesFromCase, $namesToCase)"/>
 					<!-- create link referrer -->
 					<xsl:variable name="referrer">
 			      <xsl:value-of select="$packagename"/>
    					      <xsl:value-of select="'.html#'"/>
-   					      <xsl:value-of select="@NAME" />
+						<xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)" />
                <xsl:if test="ARGUMENT">
                 <xsl:text>(</xsl:text>
 								<xsl:for-each select="ARGUMENT">
@@ -96,7 +139,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 	        <xsl:attribute name="HREF">
 			        <xsl:value-of select="translate($referrer,$uppercase,$lowercase)"/>
 			      </xsl:attribute>
-					  <xsl:value-of select="@NAME"/>        
+			    	<xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/>        
 					</xsl:element>
 					
 					&nbsp; <FONT SIZE="-1">(<xsl:value-of select="$packagename"/>)</FONT>
@@ -112,16 +155,16 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 		</xsl:for-each>
 
 			<xsl:for-each select="PACKAGE/child::*">
-		  	<xsl:sort select="@NAME"/>
+				<xsl:sort select="translate(@NAME, $namesFromCase, $namesToCase)"/>
 				
 				<xsl:if test="starts-with(translate(substring(@NAME, 1,1), $lowercase, $uppercase), $indexChar)">
 				<DD>	
-					<xsl:variable name="packagename" select="../@NAME"/>
+					<xsl:variable name="packagename" select="translate(../@NAME, $namesFromCase, $namesToCase)"/>
 					<!-- create link referrer -->
 					<xsl:variable name="referrer">
 			      <xsl:value-of select="$packagename"/>
    					      <xsl:value-of select="'.html#'"/>
-   					      <xsl:value-of select="@NAME" />
+						<xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)" />
                <xsl:if test="ARGUMENT">
                 <xsl:text>(</xsl:text>
 								<xsl:for-each select="ARGUMENT">
@@ -135,9 +178,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 			    <!-- create link -->
 			    <xsl:element name="A">
 	        <xsl:attribute name="HREF">
-			        <xsl:value-of select="translate($referrer,$uppercase,$lowercase)"/>
+			        <xsl:value-of select="$referrer"/>
 			      </xsl:attribute>
-					  <xsl:value-of select="@NAME"/>        
+			    	<xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/>        
 					</xsl:element>
 					
 					&nbsp; <FONT SIZE="-1">(<xsl:value-of select="$packagename"/>)</FONT>
@@ -154,17 +197,17 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 <!-- Include Bodies in the index Start -->
 			<xsl:for-each select="OBJECT_BODY/child::*">
-		  	<xsl:sort select="@NAME"/>
+				<xsl:sort select="translate(@NAME, $namesFromCase, $namesToCase)"/>
 				
 				<xsl:if test="starts-with(translate(substring(@NAME, 1,1), $lowercase, $uppercase), $indexChar)">
 				<DD>	
-					<xsl:variable name="packagename" select="../@NAME"/>
+					<xsl:variable name="packagename" select="translate(../@NAME, $namesFromCase, $namesToCase)"/>
 					<!-- create link referrer -->
 					<xsl:variable name="referrer">
 			      <xsl:value-of select="'_'"/>
 			      <xsl:value-of select="$packagename"/>
    					      <xsl:value-of select="'_body.html#'"/>
-   					      <xsl:value-of select="@NAME" />
+						<xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)" />
                <xsl:if test="ARGUMENT">
                 <xsl:text>(</xsl:text>
 								<xsl:for-each select="ARGUMENT">
@@ -178,9 +221,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 			    <!-- create link -->
 			    <xsl:element name="A">
 	        <xsl:attribute name="HREF">
-			        <xsl:value-of select="translate($referrer,$uppercase,$lowercase)"/>
+			        <xsl:value-of select="$referrer"/>
 			      </xsl:attribute>
-					  <xsl:value-of select="@NAME"/>        
+			    	<xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/>        
 					</xsl:element>
 					
 					&nbsp; <FONT SIZE="-1">(<xsl:value-of select="$packagename"/> body)</FONT>
@@ -196,17 +239,17 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 		</xsl:for-each>
 
 			<xsl:for-each select="PACKAGE_BODY/child::*">
-		  	<xsl:sort select="@NAME"/>
+				<xsl:sort select="translate(@NAME, $namesFromCase, $namesToCase)"/>
 				
 				<xsl:if test="starts-with(translate(substring(@NAME, 1,1), $lowercase, $uppercase), $indexChar)">
 				<DD>	
-					<xsl:variable name="packagename" select="../@NAME"/>
+					<xsl:variable name="packagename" select="translate(../@NAME, $namesFromCase, $namesToCase)"/>
 					<!-- create link referrer -->
 					<xsl:variable name="referrer">
    			      <xsl:value-of select="'_'"/>
 			      <xsl:value-of select="$packagename"/>
    					      <xsl:value-of select="'_body.html#'"/>
-   					      <xsl:value-of select="@NAME" />
+						<xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)" />
                <xsl:if test="ARGUMENT">
                 <xsl:text>(</xsl:text>
 								<xsl:for-each select="ARGUMENT">
@@ -220,9 +263,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 			    <!-- create link -->
 			    <xsl:element name="A">
 	        <xsl:attribute name="HREF">
-			        <xsl:value-of select="translate($referrer,$uppercase,$lowercase)"/>
+			        <xsl:value-of select="$referrer"/>
 			      </xsl:attribute>
-					  <xsl:value-of select="@NAME"/>        
+			    	<xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/>        
 					</xsl:element>
 					
 					&nbsp; <FONT SIZE="-1">(<xsl:value-of select="$packagename"/> body)</FONT>
@@ -250,6 +293,15 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     <HEAD>
     <TITLE><xsl:value-of select="@NAME" />: Index-List</TITLE>
     <LINK REL ="stylesheet" TYPE="text/css" HREF="stylesheet.css" TITLE="Style" />
+    	<xsl:comment>
+        sameCase=<xsl:value-of select="$samecase" />
+        namesLowerCase=<xsl:value-of select="$namesLowerCase"  />
+        namesUpperCase=<xsl:value-of select="$namesUpperCase"  />
+        namesDefaultCase=<xsl:value-of select="$namesDefaultCase"  />
+        defaultNamesCase=<xsl:value-of select="$defaultNamesCase"  />
+        namesFromCase=<xsl:value-of select="$namesFromCase" />
+        namesToCase=<xsl:value-of select="$namesToCase" />
+      </xsl:comment>
     </HEAD>
 
     <BODY BGCOLOR="white">
