@@ -46,6 +46,7 @@ import org.codehaus.plexus.util.StringUtils;
 <applicationTitle>project-name</applicationTitle>
 <sourceDirectory>src/sql</sourceDirectory>
 <includes>*.sql</includes>
+<namesCase>default</namesCase>
 <inputEncoding>ISO-8859-15</inputEncoding>
 <reportOutputDirectory>target/site/apidocs</reportOutputDirectory>
 <destDir>sql-apidocs<destDir>
@@ -123,6 +124,14 @@ implements MavenReport{
      * @parameter expression="${inputEncoding}" 
      */
     private String inputEncoding = System.getProperty("file.encoding");
+
+    /**
+     * Specifies the desired case of names 
+     *
+     * @since 2.10
+     * @parameter expression="${namesCase}" 
+     */
+    private String namesCase = "default";
 
     /**
      * JDBC URL
@@ -234,6 +243,7 @@ implements MavenReport{
 	getLog().debug( "sourceDirectory=" + sourceDirectory  ) ;
 	getLog().debug( "includes=" + includes  ) ;
 	getLog().debug( "inputEncoding=" + inputEncoding  ) ;
+	getLog().debug( "namesCase=" + namesCase  ) ;
 	getLog().debug( "dbUrl=" + dbUrl  ) ;
 	getLog().debug( "dbUser=" + dbUser  ) ;
 	getLog().debug( "dbPassword=" + ((null == dbPassword) ? "undefined" : "defined" )   ) ;
@@ -257,6 +267,9 @@ implements MavenReport{
 	    task.setInputObjects(inputObjects);
 	    task.setInputTypes(inputTypes);
 	    task.setInputEncoding(inputEncoding);
+	    PLDocTask.NamesCase antNamesCase = new PLDocTask.NamesCase();
+	    antNamesCase.setValue(namesCase);
+	    task.setNamesCase(antNamesCase);
 	    task.setShowSkippedPackages(showSkippedPackages);
 
 	    if (null != sourceDirectory && null != includes)
