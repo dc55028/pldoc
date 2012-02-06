@@ -22,49 +22,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 
   <xsl:output method="html" indent="yes"/>
-  <xsl:variable name="uppercase">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
-  <xsl:variable name="lowercase">abcdefghijklmnopqrstuvwxyz</xsl:variable>
   
-  
-  <!-- Issue 3477662 -->
-  <xsl:variable name="samecase">ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz</xsl:variable>
-  <xsl:variable name="namesLowerCase" select="/APPLICATION/GENERATOR/SETTINGS/@NAMES_TO_LOWER_CASE" />
-  <xsl:variable name="namesUpperCase" select="/APPLICATION/GENERATOR/SETTINGS/@NAMES_TO_UPPER_CASE" />
-  <xsl:variable name="namesDefaultCase" select="/APPLICATION/GENERATOR/SETTINGS/@NAMES_TO_DEFAULT_CASE" />
-  <xsl:variable name="defaultNamesCase" select="/APPLICATION/GENERATOR/SETTINGS/@DEFAULT_NAMES_CASE" />
-  <xsl:variable name="namesFromCase" >
-    <xsl:choose>
-      <xsl:when test="$namesLowerCase='TRUE'" >
-        <xsl:value-of select="$uppercase" />
-      </xsl:when>
-      <xsl:when test="$namesUpperCase='TRUE'" >
-        <xsl:value-of select="$lowercase" />
-      </xsl:when>
-      <xsl:when test="$namesDefaultCase='TRUE'" >
-        <xsl:value-of select="$samecase" />
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="$samecase" />
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:variable>
-  <xsl:variable name="namesToCase" >
-    <xsl:choose>
-      <xsl:when test="$namesLowerCase='TRUE'" >
-        <xsl:value-of select="$lowercase" />
-      </xsl:when>
-      <xsl:when test="$namesUpperCase='TRUE'" >
-        <xsl:value-of select="$uppercase" />
-      </xsl:when>
-      <xsl:when test="$namesDefaultCase='TRUE'" >
-        <xsl:value-of select="$samecase" />
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="$samecase" />
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:variable>
-  <!-- Issue 3477662 -->
+  <xsl:include href="common.xsl" />
   
 
   <xsl:template match="/">

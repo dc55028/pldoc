@@ -93,7 +93,8 @@ public class PLDoc
 
   }
 
-  // Helper object for retrieving resources relative to the installation.
+  // Helper objects for retrieving resources relative to the installation.
+  public static final ResourceResolver resResolver = new ResourceResolver();
   public static final ResourceLoader resLoader = new ResourceLoader();
 
   // Runtime settings
@@ -609,6 +610,7 @@ public class PLDoc
     // apply xsl to generate the HTML frames
     System.out.println("Generating HTML files ...");
     TransformerFactory tFactory = TransformerFactory.newInstance();
+    tFactory.setURIResolver(resResolver);
     Transformer transformer;
     // list of schemas
     System.out.println("Generating allschemas.html ...");
