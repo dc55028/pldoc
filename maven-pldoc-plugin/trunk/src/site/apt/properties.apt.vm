@@ -15,6 +15,8 @@
 *--------*--------*-----------*------*
 | maven.pldoc.inputEncoding |Yes| The encoding used in the input files. Default value is the operating system default encoding.  | |
 *--------*--------*-----------*------*
+| maven.pldoc.namesCase |Yes| Desired output format for PL/SQL identifiers- it has 4 options:-"lower" (coerce all names to lower case), "upper" (coerce all names to upper case), "mixed" (all names are left as-is, relying on the coder to ensure that case matches) and "default" (Oracle default: unquoted names are upper case, quoted names are mixed case).  | |
+*--------*--------*-----------*------*
 | maven.pldoc.overviewfile |Yes| The overview file in HTML format.  | |
 *--------*--------*-----------*------*
 | maven.pldoc.stylesheet |Yes| File with CSS-stylesheet for the result documentation. If omitted, default CSS will be used.  | |
