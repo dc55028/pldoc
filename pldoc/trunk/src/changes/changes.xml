@@ -7,6 +7,11 @@
         <author email="altumano at users.sourceforge.net">Albert Tumanov</author>
     </properties>
     <body>
+        <release version="1.1.0" date="2012-02-06"  description="Allow Document mixed-case generation in PLDOc and ANT task and Minor Bug fixes" >
+            <action type="update" issue="3477662" dev="sturton" >PLDocTask ANT task "namesCase" setting now has 4 options:-"lower" (coerce all names to lower case), "upper" (coerce all names to upper case), "mixed" (all names are left as-is, relying on the coder to ensure that case matches) and "default" (Oracle default: unquoted names are upper case, quoted names are mixed case)</action>
+            <action type="update" issue="3477662" dev="sturton" >Allow mixed case documentation generation - add this to the command-line "-defaultNamesCase mixed"</action>
+            <action type="fix" dev="sturton" >Correct CURSOR documentation generation</action>
+        </release>
         <release version="1.0.0" date="2012-01-30"  description="Bug fixes - declare success and release as 1.0.0" >
             <action type="update" dev="sturton" >Output PLDoc release version in Generator page</action>
             <action type="update" dev="sturton" >Document Compound Triggers like package bodies</action>

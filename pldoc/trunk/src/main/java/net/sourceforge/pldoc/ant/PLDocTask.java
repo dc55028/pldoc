@@ -29,7 +29,7 @@ import net.sourceforge.pldoc.*;
  *     destdir = dir-path
  *     overview = file-path
  *     stylesheet = file-path (default: stylesheet from library)
- *     namesCase = "upper" | "lower"
+ *     namesCase = "upper" | "lower" | "mixed" | "default"  
  *     inputEncoding = encoding (default: OS dependant) &gt;
  *     ignoreInformalComments = (false | true) 
  *     showSkippePackages = (false | true) 
@@ -48,10 +48,10 @@ import net.sourceforge.pldoc.*;
  *  <dt>destdir</dt><dd>Directory to store documentation files (created if doesn't exist)</dd>
  *  <dt>overview</dt><dd>File with overview in HTML format</dd>
  *  <dt>stylesheet</dt><dd>File with CSS-stylesheet for the result documentation. If omitted, default CSS will be used.</dd>
- *  <dt>namesCase</dt><dd>Upper/lower case to format PL/SQL names. If omitted, no case conversion is done.</dd>
+ *  <dt>namesCase</dt><dd>Upper/Lower/Mixed/Default case to format PL/SQL names. If omitted, Oracle standard case conversion is done (unquoted to upper case, quoted left as mixed case).</dd>
  *  <dt>inputEncoding</dt><dd>Input files encoding</dd>
  *  <dt>ignoreInformalComments</dt><dd> true if documentation should be generated from formal comments only</dd>
- *  <dt>showSkippedPackages</dt><dd>Dispplay list of packages which failed to parse</dd>
+ *  <dt>showSkippedPackages</dt><dd>Display list of packages which failed to parse</dd>
  *  <dt>driver</dt><dd>JDBC driver class to use to connect to the database</dd>
  *  <dt>url</dt><dd>Database connection URL</dd>
  *  <dt>user</dt><dd>Database username </dd>
@@ -88,7 +88,7 @@ public class PLDocTask extends Task {
     m_overviewFile = null;
     m_filesets = new ArrayList();
     m_stylesheet = null;
-    m_namesCase = '0';
+    m_namesCase = 'D'; //Default to Oracle standard 
     m_inEnc = null;
     m_exitOnError = false;
     m_dbUrl = null;
@@ -146,7 +146,7 @@ public class PLDocTask extends Task {
 
   public static class NamesCase extends EnumeratedAttribute {
     public String[] getValues() {
-      return new String[] {"upper", "lower"};
+      return new String[] {"upper", "lower","mixed","default"};
     }
   }
 
@@ -174,10 +174,28 @@ public class PLDocTask extends Task {
       settings.setApplicationName(m_doctitle);
       switch (m_namesCase) {
         case 'U':
+          settings.setDefaultNamescase("upper");
+          settings.setNamesLowercase(false);
           settings.setNamesUppercase(true);
+          settings.setNamesDefaultcase(true);
           break;
         case 'L':
+          settings.setDefaultNamescase("lower");
           settings.setNamesLowercase(true);
+          settings.setNamesUppercase(false);
+          settings.setNamesDefaultcase(true);
+          break;
+        case 'M': // Leave names case entirely untouched 
+          settings.setDefaultNamescase("mixed");
+          settings.setNamesLowercase(false);
+          settings.setNamesUppercase(false);
+          settings.setNamesDefaultcase(true);
+          break;
+        case 'D': // Leave settings as per PLDoc/Oracle defaults 
+          settings.setDefaultNamescase("upper");
+          settings.setNamesLowercase(false);
+          settings.setNamesUppercase(false);
+          settings.setNamesDefaultcase(true);
           break;
       }
       settings.setInputEncoding(m_inEnc);
