@@ -312,14 +312,14 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 	<xsl:variable name="predecessors" select="count(preceding-sibling::*[$nameLowerCase = translate(@NAME,$uppercase,$lowercase)])" /> 
 	<xsl:variable name="siblingsWithoutArguments" select="count(preceding-sibling::*[$nameLowerCase = translate(@NAME,$uppercase,$lowercase) and not(ARGUMENT) ]) + count(following-sibling::*[$nameLowerCase = translate(@NAME,$uppercase,$lowercase) and not(ARGUMENT) ])" /> 
 	<xsl:if test="$arguments > 0 and $predecessors = 0 and $siblingsWithoutArguments = 0" >
-	<xsl:element name="A"><xsl:attribute name="NAME"><xsl:value-of select="$nameLowerCase" /></xsl:attribute></xsl:element>
+	<xsl:element name="A"><xsl:attribute name="NAME"><xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)" /></xsl:attribute></xsl:element>
 	</xsl:if>
       <TD><CODE>
         <B><xsl:element name="A"><xsl:attribute name="HREF">#<xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)" />
         <xsl:if test="*[name()=$childTags]">
         <xsl:text>(</xsl:text>
         <xsl:for-each select="*[name()=$childTags]">
-          <xsl:value-of select="translate(@TYPE, $uppercase, $lowercase)"/>
+          <xsl:value-of select="translate(@TYPE, $namesFromCase, $namesToCase)" />
           <xsl:if test="not(position()=last())"><xsl:text>,</xsl:text></xsl:if>
         </xsl:for-each>
         <xsl:text>)</xsl:text>
@@ -396,7 +396,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
         <xsl:if test="*[name()=$childTags]">
         <xsl:text>(</xsl:text>
         <xsl:for-each select="*[name()=$childTags]">
-          <xsl:value-of select="translate(@TYPE, $uppercase, $lowercase)"/>
+          <xsl:value-of select="translate(@TYPE, $namesFromCase, $namesToCase)" />
           <xsl:if test="not(position()=last())"><xsl:text>,</xsl:text></xsl:if>
         </xsl:for-each>
         <xsl:text>)</xsl:text>
