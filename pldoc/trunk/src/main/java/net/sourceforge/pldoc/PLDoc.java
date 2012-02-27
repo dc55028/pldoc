@@ -23,6 +23,7 @@ import java.util.*;
 import java.text.DateFormat;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.URIResolver;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.dom.DOMResult;
@@ -470,6 +471,8 @@ public class PLDoc
     System.out.println(""+processedPackages+" packages processed successfully.");
   }
 
+  
+  
   /**
   * Processes a package.
   *
@@ -483,7 +486,7 @@ public class PLDoc
   *                               All other throwables will be caught.
   */
 
-  private Throwable processPackage(BufferedReader packageSpec, XMLWriter xmlOut, String pPackageName
+  public Throwable processPackage(BufferedReader packageSpec, XMLWriter xmlOut, String pPackageName
 		                   , String pSchemaName, String pGlobalPackageName
 				  )
       throws SystemExitException
@@ -557,6 +560,20 @@ public class PLDoc
     }
 
     return result;
+  }
+
+  /*
+  * Helper method to return fixed resources to alternative applications
+  */
+  public static InputStream getResourceStream(String path) throws java.io.IOException {
+      return resLoader.getResourceStream(path);
+  }
+
+ /*
+  * Helper method to return fixed URIResolver to alternative applications
+  */
+  public static URIResolver getResourceResolver() {
+      return resResolver;
   }
 
   /**
