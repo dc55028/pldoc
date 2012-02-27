@@ -7,6 +7,9 @@
         <author email="altumano at users.sourceforge.net">Albert Tumanov</author>
     </properties>
     <body>
+        <release version="2.11" date="2012-02-27"  description="Release to incorporate PLDoc 1.1.1 ">
+            <action type="update" dev="sturton" > project POM file - update dependent PLDoc version to 1.1.1</action>
+        </release>
         <release version="2.10" date="2012-02-06"  description="Release to incorporate PLDoc 1.1.0 ">
             <action type="update" dev="sturton" > project POM file - update dependent PLDoc version to 1.0.0</action>
             <action type="update" issue="3477662" dev="sturton" >Plugin gains new "namesCase" setting from the PLDocTask ANT task: it has 4 options:-"lower" (coerce all names to lower case), "upper" (coerce all names to upper case), "mixed" (all names are left as-is, relying on the coder to ensure that case matches) and "default" (Oracle default: unquoted names are upper case, quoted names are mixed case)</action>
