@@ -7,6 +7,9 @@
         <author email="altumano at users.sourceforge.net">Albert Tumanov</author>
     </properties>
     <body>
+        <release version="1.1.2" date="2012-03-14"  description="Minor Bug fixes" >
+            <action type="fix" dev="sturton" issue="3495570" >Correct PLDoc usage message on encountering invalid command-line</action>
+        </release>
         <release version="1.1.1" date="2012-02-27"  description="Minor Bug fixes" >
             <action type="update" dev="sturton" >Experimental- expose PLDoc Resolver, Resources, and parse() method; create net.sourceforge.PLDoc.database.PLDocParser class to define PLDoc parsing within databases- this is an intermediate stage to allowing PL/SQL access to PLDoc parsing</action>
             <action type="fix" dev="sturton" >unit.xsl generate method landing page nmes in correct case, rather than lower case</action>

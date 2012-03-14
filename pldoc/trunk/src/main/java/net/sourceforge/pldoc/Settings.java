@@ -78,37 +78,37 @@ public class Settings
     "-d <directory>            Destination directory for output files [default: current]\n" +
     "-doctitle <text>          Application name [default: MyApplication]\n" +
     "-overview <file>          Read overview documentation from HTML file [default: none]\n" +
-    "-defaultnamecase          Case of unquoted names [default upper]\n" +
-    "-defaultkeywordcase       Case of keywords [default upper]\n" +
-    "-namesdefaultcase         To convert all names to defaultcase [default true]\n" +
-    "-namesuppercase           To convert all names to uppercase\n" +
-    "-nameslowercase           To convert all names to lowercase\n" +
-    "-keywordsdefaultcase      To convert all names to defaultcase [default true]\n" +
-    "-keywordsuppercase        To convert all keywords to uppercase\n" +
-    "-keywordslowercase        To convert all keywords to lowercase\n" +
+    "-defaultnamescase         Case of unquoted names [default upper] - {upper, lower, mixed}\n" +
+    "-defaultkeywordscase      Case of keywords [default upper] - {upper, lower}\n" +
+    "-namesdefaultcase         Convert all names to defaultcase [default true]\n" +
+    "-namesuppercase           Convert all names to uppercase\n" +
+    "-nameslowercase           Convert all names to lowercase\n" +
+    "-keywordsdefaultcase      Convert all names to defaultcase [default true]\n" +
+    "-keywordsuppercase        Convert all keywords to uppercase\n" +
+    "-keywordslowercase        Convert all keywords to lowercase\n" +
     "-stylesheetfile <path>    File to change style of the generated document [default: defaultstylesheet.css]\n" +
     "-definesfile <path>       File containing SQL*Plus-style variable substitutions [default: none], for example:\n" +
     "                          &myvar1=123456\n" +
     "                          &myvar2=abcdef\n" +
     "-inputencoding <enc>      Encoding used in the input files [default: operation system default encoding]\n" +
-    "-exitonerror              Forces program exit when some input file cannot be processed\n" +
+    "-exitonerror              Force program to exit when some input file cannot be processed\n" +
     "                          [by default, the file is skipped and processing continues]\n" +
     "-driver <JDBC class>      Name of JDBC driver class, for example oracle.jdbc.OracleDriver, com.edb.Driver, or org.postgresql.Driver [default: " + DRIVER_NAME_DEFAULT + "].\n" +
     "-getmetadata <String>     SQL 92 CallableStatement Statement that retrieves the object source (EnterpriseDB does not support Oracle BEGIN .. END statements) [default: Oracle DBMS_METADATA anonymous block ].\n" +
     "                          	Statement structure is (\"call\" and function are case sensitive} \"{ ? = call GET_SOURCE( ? ,  ? ,  ? ,  ? , ? , ? ) }\"  where GET_SOURCE(...) mimics \n" +
-    "                          	\"{ <RESULT_SET> =  call DBMS_METADAT.GET_DDL( <object_type> ,  <object_name> ,  <schema_name> ,  'COMPATIBLE' , 'ORACLE' , 'DDL' ) }\" \n" +
+    "                          	\"{ <RESULT_SET> =  call DBMS_METADATA.GET_DDL( <object_type> ,  <object_name> ,  <schema_name> ,  'COMPATIBLE' , 'ORACLE' , 'DDL' ) }\" \n" +
     "-returntype <java.sql.Types.?>  number corresponding to java.sql.Types.CLOB (2005) or java.sql.Types.VARCHAR (12) [default: java.sql.Types.CLOB].\n" +
     "-url <database url>       Database URL, for example jdbc:oracle:thin:@HOST:PORT:SID, jdbc:oracle:thin:@HOST:PORT/SERVICE, jdbc:edb://HOST:PORT/DATABASE,\n" +
     "                          or jdbc:postgresql://HOST:PORT/DATABASE [default: none].\n" +
     "                          Required when generating from the Oracle dictionary.\n" +
     "-user <db schema>         Schema name.\n" +
-    "                          Required when generating from the Oracle dictionary. The schema name is\n" +
-    "                          case sensitive since Oracle stores schema names like \"My schema\" (name with\n" +
+    "                          Required when generating from the Oracle dictionary. The user name is\n" +
+    "                          case sensitive since Oracle stores user/schema names like \"My schema\" (name wit \n" +
     "                          double quotes) as 'My schema' in the dictionary. Ordinary schema names\n" +
     "                          like scott are stored as 'SCOTT' (upper case).\n" +
-    "-password <db password>   Password of the schema.\n" +
+    "-password <db password>   Password of the logon user.\n" +
     "                          Required when generating from the Oracle dictionary.\n" +
-    "-types <object type(s)>     Comma separated list of object type(s) to generate documentation for.\n" +
+    "-types <object type(s)>   Comma separated list of object type(s) to generate documentation for.\n" +
     "                          Defaults to all procedural types (PACKAGES, TYPES, FUNCTIONS PROCEDURES).\n" +
     "-sql <object name(s)>     Comma separated list of object name(s) to generate documentation for.\n" +
     "                          Required when generating from the Oracle dictionary.\n" +
@@ -117,9 +117,9 @@ public class Settings
     "                          An object name may be prepended by a schema name and may have SQL\n" +
     "                          wildcards.\n" +
     "                          When the object belongs to a different schema than the logon user (as specified by\n" +
-    "                          the -user parameter), the logon user must have been granted the role SELECT_CATALOG_ROLE or the SELECT ANY DICTIONARY system privilege.\n" +
-    "-ignoreinformalcomments   To ignore informal comments" +
-    "-showSkippedPackages      To show the skipped packages in the summary of the documentation."
+    "                          the -user parameter), the logon user must have been granted the SELECT_CATALOG_ROLE role or the SELECT ANY DICTIONARY system privilege.\n" +
+    "-ignoreinformalcomments   Ignore informal comments when generating documentation.\n" +
+    "-showSkippedPackages      Show the skipped packages in the summary of the documentation (generator.html)."
     ;
 //    "                          &myvar2=abcdef\n" +
 
