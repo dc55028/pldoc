@@ -4731,7 +4731,7 @@ Token KEYWORD_UNRESERVED (): {}
 | <ASSOCIATE>
 //| <AT>
 | <ATTACH>
-//| <ATTRIBUTE>test_unreserved_keyword.pks
+| <ATTRIBUTE> //PLDoc Bug 3512149  test_unreserved_keyword.pks
 //| <ATTRIBUTES>
 | <AUDIT>
 //| <AUTHENTICATED>
@@ -5143,6 +5143,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <MANAGED>
 //| <MANAGEMENT>
 //| <MANUAL>
+| <MAP> // Bug 3512150
 //| <MAPPING>
 //| <MASTER>
 //| <MATCHED>
@@ -5834,7 +5835,7 @@ Token ID(): {}
 		//| <PARENT>  | <MEMBER> 
 		| <CONSTRUCTOR> | <OBJECT> | <STATIC> | <UNDER> | <RESULT> 
 		| <FINAL> | <INSTANTIABLE> 
-	        | <MAP>
+	        // PlDoc Bug 3512150 | <MAP>
 	        | <OVERRIDING>
 	        | <OID> 
 		| <AGGREGATE>
@@ -5843,7 +5844,7 @@ Token ID(): {}
 		| <EXTERNAL>
                 //SRT 20090608 ALTER TYPE key words 
 		//| <ADD>
-		| <ATTRIBUTE>
+		//PLDoc Bug 3512149  | <ATTRIBUTE>
 		//| <ELEMENT>
 		//| <LIMIT>
 		| <MODIFY>
