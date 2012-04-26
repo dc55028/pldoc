@@ -1512,7 +1512,7 @@ Token KEYWORD_UNRESERVED (): {}
 | <STARTUP>
 | <STATEMENT>
 //| <STATEMENT_ID>
-//| <STATIC>
+| <STATIC>
 | <STATISTICS>
 //| <STOP>
 //| <STORAGE>
@@ -1753,7 +1753,9 @@ Token ID(): {}
 		<NUMERIC> | <SIGNTYPE> | <NCHAR> | <NVARCHAR2> | <STRING> | <UROWID> | <VARRAY> | <VARYING> | <BFILE> |
 		<BLOB> | <CLOB> | <NCLOB> | <WITH> | <WHILE> // | <LOCAL> | <ZONE> | <CHARACTER>
 		//| <PARENT>  | <MEMBER> 
-		| <CONSTRUCTOR> | <OBJECT> | <STATIC> | <UNDER> | <RESULT> 
+		| <CONSTRUCTOR> | <OBJECT> 
+		//PLDoc Bug 3512150  | <STATIC> 
+		| <UNDER> | <RESULT> 
 		| <FINAL> | <INSTANTIABLE> 
 	        // PlDoc Bug 3512150 | <MAP>
 	        | <OVERRIDING>
