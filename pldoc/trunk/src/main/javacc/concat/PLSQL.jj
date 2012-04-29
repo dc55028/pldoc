@@ -4714,6 +4714,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <ADVISE>
 //| <ADVISOR>
 | <AFTER>
+| <AGGREGATE>
 //| <ALIAS>
 //| <ALL_ROWS>
 //| <ALLOCATE>
@@ -4964,7 +4965,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <EXTENDS>
 //| <EXTENT>
 //| <EXTENTS>
-//| <EXTERNAL>
+| <EXTERNAL>
 //| <EXTERNALLY>
 | <EXTRACT>
 //| <FACT>
@@ -4977,7 +4978,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <FIC_PIV>
 //| <FILE>
 //| <FILTER>
-//| <FINAL>
+| <FINAL>
 //| <FINE>
 //| <FINISH>
 //| <FIRST>
@@ -5075,7 +5076,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <INNER>
 //| <INSTANCE>
 //| <INSTANCES>
-//| <INSTANTIABLE>
+| <INSTANTIABLE>
 //| <INSTANTLY>
 //| <INSTEAD>
 //| <INT>
@@ -5188,7 +5189,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <MODEL_NO_ANALYSIS>
 //| <MODEL_PBY>
 //| <MODEL_PUSH_REF>
-//| <MODIFY>
+| <MODIFY>
 //| <MONITORING>
 | <MONTH>
 //| <MOUNT>
@@ -5329,7 +5330,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <OBJNO_REUSE>
 //| <OFF>
 //| <OFFLINE>
-//| <OID>
+| <OID>
 //| <OIDINDEX>
 | <OLD>
 //| <OLD_PUSH_PRED>
@@ -5361,6 +5362,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <OVERFLOW>
 //| <OVERFLOW_NOMOVE>
 //| <OVERLAPS>
+| <OVERRIDING>
 //| <OWN>
 //| <P>
 //| <PACKAGE>
@@ -5494,6 +5496,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <RESTRICT_ALL_REF_CONS>
 //| <RESTRICTED>
 //| <RESUMABLE>
+| <RESULT>
 //| <RESUME>
 //| <RETENTION>
 | <RETURN>
@@ -5686,7 +5689,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <UNBOUND>
 //| <UNBOUNDED>
 | <UNDEFINE>
-//| <UNDER>
+| <UNDER>
 //| <UNDO>
 //| <UNDROP>
 //| <UNIFORM>
@@ -5706,7 +5709,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <UPDATED>
 //| <UPGRADE>
 //| <UPSERT>
-//| <UROWID>
+| <UROWID>
 //| <USAGE>
 //| <USE>
 //| <USE_ANTI>
@@ -5729,9 +5732,9 @@ Token KEYWORD_UNRESERVED (): {}
 //| <VALIDATE>
 //| <VALIDATION>
 //| <VALUE>
-//| <VARRAY>
+| <VARRAY>
 | <VARIABLE>
-//| <VARYING>
+| <VARYING>
 //| <VECTOR_READ>
 //| <VECTOR_READ_TRACE>
 //| <VERSION>
@@ -5830,26 +5833,29 @@ Token ID(): {}
 		<TYPE> | <UI> | <UPDATE>
 		|
 		<VARCHAR> | <VARCHAR2> | <DOUBLE> | <DEC> | <PRECISION> | <INT> |
-		<NUMERIC> | <SIGNTYPE> | <NCHAR> | <NVARCHAR2> | <STRING> | <UROWID> | <VARRAY> | <VARYING> | <BFILE> |
-		<BLOB> | <CLOB> | <NCLOB> | <WITH> | <WHILE> // | <LOCAL> | <ZONE> | <CHARACTER>
+		<NUMERIC> | <SIGNTYPE> | <NCHAR> | <NVARCHAR2> | <STRING> 
+		//| <UROWID> | <VARRAY> | <VARYING> 
+		| <BFILE> |
+		<BLOB> | <CLOB> | <NCLOB> 
+		| <WITH> | <WHILE> // | <LOCAL> | <ZONE> | <CHARACTER>
 		//| <PARENT>  | <MEMBER> 
 		| <CONSTRUCTOR> | <OBJECT> 
 		//PLDoc Bug 3512150  | <STATIC> 
-		| <UNDER> | <RESULT> 
-		| <FINAL> | <INSTANTIABLE> 
+		//20120427 | <UNDER> | <RESULT> 
+		//20120428 | <FINAL> | <INSTANTIABLE> 
 	        // PlDoc Bug 3512150 | <MAP>
-	        | <OVERRIDING>
-	        | <OID> 
-		| <AGGREGATE>
+	        //20120427 | <OVERRIDING>
+	        //20120427 | <OID> 
+		//20120428 | <AGGREGATE>
 		//| <SYS_REFCURSOR>
 		| <JAVA_INTERFACE_CLASS> | <SQLDATA_CLASS> | <CUSTOMDATUM_CLASS> | <ORADATA_CLASS>
-		| <EXTERNAL>
+		//20120427 | <EXTERNAL>
                 //SRT 20090608 ALTER TYPE key words 
 		//| <ADD>
 		//PLDoc Bug 3512149  | <ATTRIBUTE>
 		//| <ELEMENT>
 		//| <LIMIT>
-		| <MODIFY>
+		//20120427 | <MODIFY>
 		//SRT 20110524 | <SELF> 
 	)
 	{ return token; }
@@ -5882,7 +5888,7 @@ Token unqualifiedID(): {}
 		| <LOOP> 
 		| <INT>
 		| <ARRAY>
-		| <RESULT>
+		//| <RESULT>
 	        //| KEYWORD_UNRESERVED()  //SRT 2011-04-17
 	)
 	{ return token; }
@@ -6101,9 +6107,9 @@ Token qualifiedID(): {}
 		| <NCHAR>
 		| <NVARCHAR2>
 		| <STRING>
-		| <UROWID>
-		| <VARRAY>
-		| <VARYING>
+		//| <UROWID>
+		//| <VARRAY>
+		//| <VARYING>
 		| <BFILE>
 		| <BLOB>
 		| <CLOB>
