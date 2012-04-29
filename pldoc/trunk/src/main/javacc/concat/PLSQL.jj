@@ -4730,14 +4730,14 @@ Token KEYWORD_UNRESERVED (): {}
 //| <ARCHIVELOG>
 //| <ARRAY>test_unreserved_keyword.pks
 | <ASSOCIATE>
-//| <AT>
+| <AT>
 | <ATTACH>
 | <ATTRIBUTE> //PLDoc Bug 3512149  test_unreserved_keyword.pks
 //| <ATTRIBUTES>
 | <AUDIT>
 //| <AUTHENTICATED>
 //| <AUTHENTICATION>
-//| <AUTHID>
+| <AUTHID>
 //| <AUTHORIZATION>
 //| <AUTO>
 //| <AUTOALLOCATE>
@@ -4751,7 +4751,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <BEGIN>
 //| <BEGIN_OUTLINE_DATA>test_unreserved_keyword.pks
 //| <BEHALF>
-//| <BFILE>test_unreserved_keyword.pks
+| <BFILE> //-test_unreserved_keyword.pks
 //| <BIGFILE>
 //| <BINARY_DOUBLE>
 //| <BINARY_DOUBLE_INFINITY>
@@ -4764,7 +4764,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <BITMAP_TREE>
 //| <BITMAPS>
 //| <BITS>
-//| <BLOB>
+| <BLOB>
 //| <BLOCK>
 //| <BLOCK_RANGE>
 //| <BLOCKS>
@@ -4807,7 +4807,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <CIV_GB>
 //| <CLASS>
 //| <CLEAR>
-//| <CLOB>
+| <CLOB>
 //| <CLONE>
 //| <CLOSE>
 //| <CLOSE_CACHED_OPEN_CURSORS>
@@ -4840,6 +4840,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <CONSISTENT>
 //| <CONSTRAINT>
 //| <CONSTRAINTS>
+| <CONSTRUCTOR> 
 //| <CONTAINER>
 //| <CONTENT>
 //| <CONTENTS>
@@ -5205,9 +5206,9 @@ Token KEYWORD_UNRESERVED (): {}
 //| <NATIVE_FULL_OUTER_JOIN>
 //| <NATURAL>
 //| <NAV>
-//| <NCHAR>
+| <NCHAR>
 //| <NCHAR_CS>
-//| <NCLOB>
+| <NCLOB>
 //| <NEEDED>
 | <NESTED>
 //| <NESTED_TABLE_FAST_INSERT>
@@ -5324,8 +5325,8 @@ Token KEYWORD_UNRESERVED (): {}
 //| <NULLS>
 //| <NUM_INDEX_KEYS>
 //| <NUMERIC>
-//| <NVARCHAR2>
-//| <OBJECT>
+| <NVARCHAR2>
+| <OBJECT>
 //| <OBJNO>
 //| <OBJNO_REUSE>
 //| <OFF>
@@ -5794,7 +5795,9 @@ Token ID(): {}
 		<REPLACE> | <DEFINER> | <SERIALLY_REUSABLE> | <RESTRICT_REFERENCES> |
 		<EXCEPTION_INIT> | <AUTONOMOUS_TRANSACTION> // | <LANGUAGE>
 		|
-		<ALL> | <ALTER> | <AND> | <ANY> | <ARRAY> | <AS> | <ASC> | <AT> | <AUTHID> | <AVG> |
+		<ALL> | <ALTER> | <AND> | <ANY> | <ARRAY> | <AS> | <ASC> 
+		//20120429 | <AT> | <AUTHID> 
+		| <AVG> |
 		//	<BEGIN> |
 		<BETWEEN> | <BINARY_INTEGER> | <BODY> | <BOOLEAN> | <BULK> | <BY> | <BYTE> |
 		<CASE> | <CHAR> | <CHAR_BASE> | <CHECK> | <CLOSE> | <CLUSTER> |//-<COALESCE> |
@@ -5817,8 +5820,9 @@ Token ID(): {}
 		<CLOB_BASE> |
 		<DATE_BASE> |
 		<OPEN> | <OPERATOR> | <OPTION> | <OR> | <ORDER> | <ORGANIZATION> //| <OTHERS> 
-		| <OUT> |
-		<PACKAGE> | <PCTFREE> | <PLS_INTEGER> | <POSITIVE> | <POSITIVEN> |
+		| <OUT> 
+		| <PACKAGE> 
+		| <PCTFREE> | <PLS_INTEGER> | <POSITIVE> | <POSITIVEN> |
 		// <PRAGMA> |<PARTITION> | <RANGE> | <NEW> | <OLD> | 
 		<PRIOR> | <PRIVATE> | <PROMPT> |
 		//	<PROCEDURE> | // this causes bug 643043 Procedure w/o params appears as variable
@@ -5827,19 +5831,22 @@ Token ID(): {}
 		<RELEASE> | <REVERSE> | <ROLLBACK> | <ROWID> |
 		<ROWNUM> | <ROWTYPE> | <SAVEPOINT> | <SELECT> | <SEPARATE> | <SHARE> |
 		<SMALLINT> | <SQL> | <SQLCODE> | <SQLERRM> | <START> | <STDDEV> | // <SUBTYPE> |
-		<SUCCESSFUL> | <SUM> | <SYNONYM> | <SYSDATE> | <TABLE> | <THEN> | 
+		<SUCCESSFUL> | <SUM> | <SYNONYM> | <SYSDATE> | <TABLE> 
+		| <THEN> 
+		| 
 		//<SPACE> | <TIME> | <TIMESTAMP> | <TIMEZONE_REGION> | <TIMEZONE_ABBR> | <TIMEZONE_MINUTE> | <TIMEZONE_HOUR> | 
 		<TO> | <TRIGGER> |
 		<TYPE> | <UI> | <UPDATE>
 		|
 		<VARCHAR> | <VARCHAR2> | <DOUBLE> | <DEC> | <PRECISION> | <INT> |
-		<NUMERIC> | <SIGNTYPE> | <NCHAR> | <NVARCHAR2> | <STRING> 
+		<NUMERIC> | <SIGNTYPE> 
+		//20120429 | <NCHAR> | <NVARCHAR2> 
+		| <STRING> 
 		//| <UROWID> | <VARRAY> | <VARYING> 
-		| <BFILE> |
-		<BLOB> | <CLOB> | <NCLOB> 
+		//20120429 | <BFILE> | <BLOB> | <CLOB> | <NCLOB> 
 		| <WITH> | <WHILE> // | <LOCAL> | <ZONE> | <CHARACTER>
 		//| <PARENT>  | <MEMBER> 
-		| <CONSTRUCTOR> | <OBJECT> 
+		//20120429 | <CONSTRUCTOR> | <OBJECT> 
 		//PLDoc Bug 3512150  | <STATIC> 
 		//20120427 | <UNDER> | <RESULT> 
 		//20120428 | <FINAL> | <INSTANTIABLE> 
@@ -5931,7 +5938,7 @@ Token qualifiedID(): {}
 		//<AS>
 		//<ASC>
 		//<AT>
-		| <AUTHID>
+		//20120429 | <AUTHID>
 		| <AVG>
 		//<BEGIN>
 		//<BETWEEN>
@@ -6104,16 +6111,16 @@ Token qualifiedID(): {}
 		| <INT>
 		| <NUMERIC>
 		| <SIGNTYPE>
-		| <NCHAR>
-		| <NVARCHAR2>
+		//20120429 | <NCHAR>
+		//20120429 | <NVARCHAR2>
 		| <STRING>
 		//| <UROWID>
 		//| <VARRAY>
 		//| <VARYING>
-		| <BFILE>
-		| <BLOB>
-		| <CLOB>
-		| <NCLOB>
+		//20120429 | <BFILE>
+		//20120429 | <BLOB>
+		//20120429 | <CLOB>
+		//20120429 | <NCLOB>
 		//| <LOCAL>
 		//<WITH>
 		| <WHILE>
