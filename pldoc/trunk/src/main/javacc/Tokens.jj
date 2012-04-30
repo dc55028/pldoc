@@ -697,10 +697,11 @@ Token KEYWORD_UNRESERVED (): {}
 //| <BUFFER_CACHE>test_unreserved_keyword.pks
 //| <BUFFER_POOL>
 //| <BUILD>
-//| <BULK>
+| <BULK>
 //| <BYPASS_RECURSIVE_CHECK>
 //| <BYPASS_UJVC>
-//| <BYTE>test_unreserved_keyword.pks
+| <BY>
+| <BYTE>//test_unreserved_keyword.pks
 //| <CACHE>
 //| <CACHE_CB>
 //| <CACHE_INSTANCES>
@@ -1719,7 +1720,11 @@ Token ID(): {}
 		//20120429 | <AT> | <AUTHID> 
 		| <AVG> |
 		//	<BEGIN> |
-		<BETWEEN> | <BINARY_INTEGER> | <BODY> | <BOOLEAN> | <BULK> | <BY> | <BYTE> |
+		<BETWEEN> | <BINARY_INTEGER> | <BODY> | <BOOLEAN> 
+		//201020430 | <BULK> 
+		//201020430 | <BY> 
+		//201020430 | <BYTE> 
+		|
 		<CASE> | <CHAR> | <CHAR_BASE> | <CHECK> | <CLOSE> | <CLUSTER> |//-<COALESCE> |
 		<COLLECT> | <COMPRESS> | <CONNECT> | <CONSTANT> | <CREATE> |
 		<CURRENT> | <CURRVAL> | <DATE> | <DECLARE> | <DECIMAL> |
@@ -1865,9 +1870,9 @@ Token qualifiedID(): {}
 		| <BINARY_INTEGER>
 		| <BODY>
 		| <BOOLEAN>
-		| <BULK>
+		//201020430 | <BULK>
 		//<BY>
-		<BYTE>
+		//201020430 <BYTE>
 		//<CASE>
 		| <CHAR>
 		| <CHAR_BASE>
