@@ -97,6 +97,7 @@ The problem keywords are those highlighted in GVIM (railscast.vim colour schema 
   @param P_BULK Unreserved keyword - P_BULK
   @param P_BYPASS_RECURSIVE_CHECK Unreserved keyword - P_BYPASS_RECURSIVE_CHECK
   @param P_BYPASS_UJVC Unreserved keyword - P_BYPASS_UJVC
+  @param P_BY Unreserved keyword - P_BY
   @param P_BYTE Unreserved keyword - P_BYTE
   @param P_CACHE Unreserved keyword - P_CACHE
   @param P_CACHE_CB Unreserved keyword - P_CACHE_CB
@@ -1141,6 +1142,7 @@ The problem keywords are those highlighted in GVIM (railscast.vim colour schema 
   ,P_BULK VARCHAR2
   ,P_BYPASS_RECURSIVE_CHECK VARCHAR2
   ,P_BYPASS_UJVC VARCHAR2
+  ,P_BY VARCHAR2
   ,P_BYTE VARCHAR2
   ,P_CACHE VARCHAR2
   ,P_CACHE_CB VARCHAR2
@@ -2264,6 +2266,8 @@ AS
   BUILD VARCHAR2(240);
 /** Unreserved Keyword Word BULK **/
   BULK VARCHAR2(240);
+/** Unreserved Keyword Word BY **/
+  BY VARCHAR2(240);
 /** Unreserved Keyword Word BYPASS_RECURSIVE_CHECK **/
   BYPASS_RECURSIVE_CHECK VARCHAR2(240);
 /** Unreserved Keyword Word BYPASS_UJVC **/
@@ -4274,10 +4278,11 @@ BEGIN
   BUFFER_CACHE := 'BUFFER_CACHE' ; -- BUFFER_CACHE VARCHAR2(240)
   BUFFER_POOL := 'BUFFER_POOL' ; -- BUFFER_POOL VARCHAR2(240)
   BUILD := 'BUILD' ; -- BUILD VARCHAR2(240)
-  --SRT 20110508 BULK := 'BULK' ; -- BULK VARCHAR2(240)
+  BULK := 'BULK' ; -- BULK VARCHAR2(240)
+  BY := 'BY' ; -- BY VARCHAR2(240)
   BYPASS_RECURSIVE_CHECK := 'BYPASS_RECURSIVE_CHECK' ; -- BYPASS_RECURSIVE_CHECK VARCHAR2(240)
   BYPASS_UJVC := 'BYPASS_UJVC' ; -- BYPASS_UJVC VARCHAR2(240)
-  --SRT 20110508 BYTE := 'BYTE' ; -- BYTE VARCHAR2(240)
+  BYTE := 'BYTE' ; -- BYTE VARCHAR2(240)
   CACHE := 'CACHE' ; -- CACHE VARCHAR2(240)
   CACHE_CB := 'CACHE_CB' ; -- CACHE_CB VARCHAR2(240)
   CACHE_INSTANCES := 'CACHE_INSTANCES' ; -- CACHE_INSTANCES VARCHAR2(240)
@@ -5252,6 +5257,7 @@ BEGIN
   "BFILE" := 'BFILE' ; -- BFILE VARCHAR2(240)
   "BLOB" := 'BLOB' ; -- BLOB VARCHAR2(240)
   "BULK" := 'BULK' ; -- BULK VARCHAR2(240)
+  "BY" := 'BY' ; -- BY VARCHAR2(240)
   "BYTE" := 'BYTE' ; -- BYTE VARCHAR2(240)
   "CASE" := 'CASE' ; -- CASE VARCHAR2(240)
   "CHARACTER" := 'CHARACTER' ; -- CHARACTER VARCHAR2(240)
