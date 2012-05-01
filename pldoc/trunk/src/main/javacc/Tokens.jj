@@ -700,7 +700,7 @@ Token KEYWORD_UNRESERVED (): {}
 | <BULK>
 //| <BYPASS_RECURSIVE_CHECK>
 //| <BYPASS_UJVC>
-| <BY>
+//| <BY> // RESERVED WORD !!!
 | <BYTE>//test_unreserved_keyword.pks
 //| <CACHE>
 //| <CACHE_CB>
@@ -1712,64 +1712,160 @@ Token ID(): {}
 		|<EXTRACT> | <FALSE> | <TRUE>  | <SECOND> | <MINUTE> | <HOUR> | <DAY> | <MONTH> | <YEAR> 
 		 | <NO> |<ROW>  | <COMMENT> | <CURSOR> 
 		*/
-		|
-		<REPLACE> | <DEFINER> | <SERIALLY_REUSABLE> | <RESTRICT_REFERENCES> |
-		<EXCEPTION_INIT> | <AUTONOMOUS_TRANSACTION> // | <LANGUAGE>
-		|
-		<ALL> | <ALTER> | <AND> | <ANY> | <ARRAY> | <AS> | <ASC> 
+		| <REPLACE> //SYNTAX  
+		| <DEFINER> | <SERIALLY_REUSABLE> | <RESTRICT_REFERENCES> 
+		| <EXCEPTION_INIT> | <AUTONOMOUS_TRANSACTION> // | <LANGUAGE>
+		| <ALL>  //RESERVED WORD 
+		| <ALTER>  //SYNTAX  //RESERVED WORD 
+		| <AND>  //SYNTAX  //RESERVED WORD 
+		| <ANY>  //RESERVED WORD 
+		| <ARRAY> 
+		| <AS>  //SYNTAX  //RESERVED WORD 
+		| <ASC>  //RESERVED WORD 
 		//20120429 | <AT> | <AUTHID> 
-		| <AVG> |
+		| <AVG> 
 		//	<BEGIN> |
-		<BETWEEN> | <BINARY_INTEGER> | <BODY> | <BOOLEAN> 
+		| <BETWEEN>  //RESERVED WORD
+		| <BINARY_INTEGER> 
+		| <BODY> //SYNTAX 
+		| <BOOLEAN> 
 		//201020430 | <BULK> 
-		//201020430 | <BY> 
+		| <BY> //RESERVED WORD 
 		//201020430 | <BYTE> 
-		|
-		<CASE> | <CHAR> | <CHAR_BASE> | <CHECK> | <CLOSE> | <CLUSTER> |//-<COALESCE> |
-		<COLLECT> | <COMPRESS> | <CONNECT> | <CONSTANT> | <CREATE> |
-		<CURRENT> | <CURRVAL> | <DATE> | <DECLARE> | <DECIMAL> |
-		<_DEFAULT> | <DELETE> | <DESC> | <DISTINCT> | <DO> | <DROP> | <ELSE> | <ELSIF> |
-		// <END> |<CURRENT_USER> | 
-		<EXCEPTION> | <EXCLUSIVE> | <EXECUTE> | <EXISTS> | <EXIT> | <EXTENDS> 
-		| <FETCH> | <FLOAT> | <FOR> | <FORALL> | <FROM> |
+		| <CASE> //SYNTAX 
+		| <CHAR>  //RESERVED WPRDS 
+		| <CHAR_BASE> 
+		| <CHECK>  //RESERVED WPRDS 
+		| <CLOSE> //SYNTAX 
+		| <CLUSTER> //-<COALESCE> |
+		| <COLLECT> 
+		| <COMPRESS>  //RESERVED WPRDS 
+		| <CONNECT> //SYNTAX //RESERVED WORD 
+		| <CONSTANT> 
+		| <CREATE> //SYNTAX //RESERVED WORD 
+		| <CURRENT> | <CURRVAL> 
+		| <DATE> //RESERVED WORD 
+		| <DECLARE> //SYNTAX 
+		| <DECIMAL> //RESERVED WORD  
+		| <_DEFAULT> //RESERVED WORD 
+		| <DELETE>  //RESERVED WORD 
+		| <DESC>  //RESERVED WORD 
+		| <DISTINCT>  //RESERVED WORD 
+		| <DO> 
+		| <DROP>  //RESERVED WORD 
+		| <ELSE> //SYNTAX //RESERVED WORD 
+		| <ELSIF> //SYNTAX 
+		
+		//| <END> |<CURRENT_USER> 
+		| <EXCEPTION> //SYNTAX 
+		| <EXCLUSIVE> //SYNTAX //RESERVED WORD 
+		| <EXECUTE> //SYNTAX 
+		| <EXISTS> //SYNTAX //RESERVED WORD 
+		| <EXIT> //SYNTAX 
+		| <EXTENDS> 
+		| <FETCH> //SYNTAX 
+		| <FLOAT> //SYNTAX //RESERVED WORD 
+		| <FOR>  //RESERVED WORD 
+		| <FORALL> //SYNTAX 
+		| <FROM>  //RESERVED WORD 
+		
 		// <COMMIT> | <FUNCTION> |	// this causes bug 643043 Procedure w/o params appears as variable
-		<GOTO> | <GROUP> | <HAVING> | <HEAP> | <IF> | <IMMEDIATE> | <IN> |
-		<INDEX> | <INDICATOR> | <INSERT> | <INTEGER> | <INTERFACE> | <INTERSECT> | <INTERVAL> |
-		<INTO> | <IS> | <ISOLATION> | <JAVA> | <LEVEL> | <LIKE> | <LIMITED> | <LOCK> |
-		<LONG> | <LOOP> | <MAX> | <MIN> | <MINUS> | <MLSLABEL> | <MOD> | <MODE> |
-		<NATURAL> | <NATURALN> | <NEXTVAL> | <NOCOPY> | <NOT> | <NOWAIT> |
-		<NULL> | <NULLIF> | <NUMBER> | <NUMBER_BASE> | <OCIROWID> | <OF> | <ON> | <OPAQUE> |
-		<BFILE_BASE> |
-		<BLOB_BASE> |
+		| <GOTO> //SYNTAX 
+		| <GROUP>  //RESERVED WORD 
+		| <HAVING>  //RESERVED WORD 
+		| <HEAP> 
+		| <IF> //SYNTAX 
+		| <IMMEDIATE> 
+		| <IN> //RESERVED WORD 
+		| <INDEX> //RESERVED WORD  
+		| <INDICATOR> 
+		| <INSERT> //SYNTAX  //RESERVED WORD  
+		| <INTEGER>  //RESERVED WORD  
+		| <INTERFACE> 
+		| <INTERSECT>  //RESERVED WORD  
+		| <INTERVAL> 
+		| <INTO>  //RESERVED WORD  
+		| <IS> //SYNTAX
+		| <ISOLATION> | <JAVA> | <LEVEL> 
+		| <LIKE>  //RESERVED WORD  
+		| <LIMITED> 
+		| <LOCK> //SYNTAX  //RESERVED WORD  
+		| <LONG>  //RESERVED WORD  
+		| <LOOP> //SYNTAX 
+		| <MAX> | <MIN> 
+		| <MINUS>  //RESERVED WORD  
+		| <MLSLABEL> | <MOD> 
+		| <MODE> //RESERVED WORD   
+		| <NATURAL> | <NATURALN> | <NEXTVAL> | <NOCOPY> 
+		| <NOT> //SYNTAX  //RESERVED WORD  
+		| <NOWAIT>  //RESERVED WORD  
+		| <NULL>  //RESERVED WORD  
+		| <NULLIF> 
+		| <NUMBER>  //RESERVED WORD  
+		| <NUMBER_BASE> 
+		| <OCIROWID> 
+		| <OF>  //RESERVED WORD  
+		| <ON>  //RESERVED WORD  
+		| <OPAQUE> 
+		| <BFILE_BASE> 
+		| <BLOB_BASE> |
 		//<CHAR_BASE> |
 		<CLOB_BASE> |
 		<DATE_BASE> |
-		<OPEN> | <OPERATOR> | <OPTION> | <OR> | <ORDER> | <ORGANIZATION> //| <OTHERS> 
+		<OPEN> | <OPERATOR> | <OPTION> 
+		| <OR> //SYNTAX  //RESERVED WORD  
+		| <ORDER>  //RESERVED WORD  
+		| <ORGANIZATION> //| <OTHERS> 
 		| <OUT> 
-		| <PACKAGE> 
-		| <PCTFREE> | <PLS_INTEGER> | <POSITIVE> | <POSITIVEN> |
+		| <PACKAGE> //SYNTAX 
+		| <PCTFREE>  //RESERVED WORD  
+		| <PLS_INTEGER> | <POSITIVE> | <POSITIVEN> 
 		// <PRAGMA> |<PARTITION> | <RANGE> | <NEW> | <OLD> | 
-		<PRIOR> | <PRIVATE> | <PROMPT> |
+		| <PRIOR>  //RESERVED WORD  
+		| <PRIVATE> 
+		| <PROMPT> //SYNTAX 
+		
 		//	<PROCEDURE> | // this causes bug 643043 Procedure w/o params appears as variable
-		<PUBLIC> | <RAISE> | <RAW> | <REAL> |
+		| <PUBLIC>  //RESERVED WORD  
+		| <RAISE> //SYNTAX 
+		| <RAW>  //RESERVED WORD  
+		| <REAL> 
 		//<RECORD> | <RETURN> |  <SET> |<REF> | 
-		<RELEASE> | <REVERSE> | <ROLLBACK> | <ROWID> |
-		<ROWNUM> | <ROWTYPE> | <SAVEPOINT> | <SELECT> | <SEPARATE> | <SHARE> |
-		<SMALLINT> | <SQL> | <SQLCODE> | <SQLERRM> | <START> | <STDDEV> | // <SUBTYPE> |
-		<SUCCESSFUL> | <SUM> | <SYNONYM> | <SYSDATE> | <TABLE> 
-		| <THEN> 
-		| 
+		| <RELEASE> 
+		| <REVERSE> 
+		| <ROLLBACK> //SYNTAX 
+		| <ROWID> 
+		| <ROWNUM> 
+		| <ROWTYPE> 
+		| <SAVEPOINT> //SYNTAX 
+		| <SELECT>  //SYNTAX  //RESERVED WORD  
+		| <SEPARATE> 
+		| <SHARE>  //RESERVED WORD  
+		| <SMALLINT>  //RESERVED WORD  
+		| <SQL> | <SQLCODE> | <SQLERRM> 
+		| <START>  //RESERVED WORD  
+		| <STDDEV> // <SUBTYPE> |
+		| <SUCCESSFUL> | <SUM> 
+		| <SYNONYM>  //RESERVED WORD  
+		| <SYSDATE> 
+		| <TABLE>  //RESERVED WORD  
+		| <THEN> //SYNTAX  //RESERVED WORD  
 		//<SPACE> | <TIME> | <TIMESTAMP> | <TIMEZONE_REGION> | <TIMEZONE_ABBR> | <TIMEZONE_MINUTE> | <TIMEZONE_HOUR> | 
-		<TO> | <TRIGGER> |
-		<TYPE> | <UI> | <UPDATE>
-		|
-		<VARCHAR> | <VARCHAR2> | <DOUBLE> | <DEC> | <PRECISION> | <INT> |
-		<NUMERIC> | <SIGNTYPE> 
+		| <TO>  //RESERVED WORD  
+		| <TRIGGER>  //RESERVED WORD  
+		| <TYPE> 
+		| <UI> 
+		| <UPDATE> //SYNTAX 
+		| <VARCHAR>  //RESERVED WORD  
+		| <VARCHAR2>  //RESERVED WORD  
+		| <DOUBLE> | <DEC> | <PRECISION> | <INT> | <NUMERIC> | <SIGNTYPE> 
 		//20120429 | <NCHAR> | <NVARCHAR2> 
 		| <STRING> 
 		//| <UROWID> | <VARRAY> | <VARYING> 
 		//20120429 | <BFILE> | <BLOB> | <CLOB> | <NCLOB> 
-		| <WITH> | <WHILE> // | <LOCAL> | <ZONE> | <CHARACTER>
+		| <WITH>  //RESERVED WORD  
+		| <WHILE> //SYNTAX 
+		// | <LOCAL> | <ZONE> | <CHARACTER>
 		//| <PARENT>  | <MEMBER> 
 		//20120429 | <CONSTRUCTOR> | <OBJECT> 
 		//PLDoc Bug 3512150  | <STATIC> 
