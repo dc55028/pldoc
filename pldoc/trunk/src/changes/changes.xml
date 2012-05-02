@@ -7,11 +7,13 @@
         <author email="altumano at users.sourceforge.net">Albert Tumanov</author>
     </properties>
     <body>
-        <release version="1.1.3" date="2012-04-30"  description="Minor Bug fixes" >
+        <release version="1.1.3" date="2012-05-02"  description="Minor Bug fixes" >
             <action type="fix" dev="sturton" issue="3512149" due-to="Gary Bentley" due-to-email="barrygently@sourceforge.net" >Allow ATTRIBUTE keyword as a name</action>
             <action type="fix" dev="sturton" issue="3512150" due-to="Gary Bentley" due-to-email="barrygently@sourceforge.net" >Allow MAP keyword as a name in body code</action>
             <action type="fix" dev="sturton" due-to="Gary Bentley" due-to-email="barrygently@sourceforge.net" >Allow others (STATIC|UROWID|VARRAY|VARYING|EXTERNAL|MODIFY|AGGREGATE|OVERRIDING|OID|UNDER|RESULT|FINAL|INSTANTIABLE) unreserved keywords as names in body code</action>
             <action type="fix" dev="sturton" >Allow STATIC keyword as a name</action>
+            <action type="fix" dev="sturton" >Allow these keywords as names in body code (some of which need quoting to compile ...): BULK|BY|BYTE|AT|AUTHID|NCHAR|NVARCHAR2|BFILE|BLOB|CLOB|NCLOB|CLOSE|COLLECT|COMMIT|CURRENT|DEC|DEFINER|DOUBLE|EXTENDS|FUNCTION|HEAP|IMMEDIATE|INDICATOR|INTERVAL|ISOLATION|JAVA|LEVEL|MAX|MIN|MLSLABEL|NATURAL|NUMERIC|OPAQUE|OPEN|ORGANIZATION|PACKAGE|PRECISION|REAL|RETURN|REVERSE|ROLLBACK|ROWID|ROWNUM|SAVEPOINT|SUCCESSFUL|TIMESTAMP
+	    </action>
         </release>
         <release version="1.1.2" date="2012-03-14"  description="Minor Bug fixes" >
             <action type="fix" dev="sturton" issue="3495570" >Correct PLDoc usage message on encountering invalid command-line</action>

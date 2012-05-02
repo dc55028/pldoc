@@ -4810,12 +4810,12 @@ Token KEYWORD_UNRESERVED (): {}
 //| <CLEAR>
 | <CLOB>
 //| <CLONE>
-//| <CLOSE>
+| <CLOSE>
 //| <CLOSE_CACHED_OPEN_CURSORS>
 //| <CLUSTERING_FACTOR>
 | <COALESCE>
 //| <COARSE>
-//| <COLLECT>
+| <COLLECT>
 | <COLUMN>
 //| <COLUMN_STATS>
 //| <COLUMN_VALUE>
@@ -4859,7 +4859,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <CROSS>
 //| <CUBE>
 //| <CUBE_GB>
-//| <CURRENT>
+| <CURRENT>
 //| <CURRENT_DATE>
 //| <CURRENT_SCHEMA>
 //| <CURRENT_TIME>
@@ -4885,14 +4885,14 @@ Token KEYWORD_UNRESERVED (): {}
 | <DDL>
 //| <DEALLOCATE>
 //| <DEBUG>
-//| <DEC>
+| <DEC>
 //| <DECLARE>
 //| <DECREMENT>
 //| <DECRYPT>
 //| <DEFERRABLE>
 //| <DEFERRED>
 //| <DEFINED>
-//| <DEFINER>
+| <DEFINER>
 //| <DEGREE>
 //| <DELAY>
 //| <DEMAND>
@@ -4920,7 +4920,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <DOCUMENT>
 //| <DOMAIN_INDEX_NO_SORT>
 //| <DOMAIN_INDEX_SORT>
-//| <DOUBLE>
+| <DOUBLE>
 //| <DOWNGRADE>
 //| <DRIVING_SITE>
 //| <DUMP>
@@ -4964,7 +4964,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <EXPLOSION>
 //| <EXPORT>
 //| <EXPR_CORR_CHECK>
-//| <EXTENDS>
+| <EXTENDS>
 //| <EXTENT>
 //| <EXTENTS>
 | <EXTERNAL>
@@ -5020,7 +5020,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <HASH_SJ>
 //| <HASHKEYS>
 //| <HEADER>
-//| <HEAP>
+| <HEAP>
 //| <HIERARCHY>
 //| <HIGH>
 //| <HINTSET_BEGIN>
@@ -5037,7 +5037,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <IGNORE>
 //| <IGNORE_OPTIM_EMBEDDED_HINTS>
 //| <IGNORE_WHERE_CLAUSE>
-//| <IMMEDIATE>
+| <IMMEDIATE>
 //| <IMPORT>
 //| <IN_MEMORY_METADATA>
 //| <INCLUDE_VERSION>
@@ -5065,7 +5065,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <INDEXES>
 | <INDEXTYPE>
 //| <INDEXTYPES>
-//| <INDICATOR>
+| <INDICATOR>
 | <INDICES> // FORALL i I INDICES OF collection - SPARSE COLLECTIONS 
 //| <INFINITE>
 //| <INFORMATIONAL>
@@ -5086,13 +5086,13 @@ Token KEYWORD_UNRESERVED (): {}
 //| <INTERNAL_CONVERT>
 //| <INTERNAL_USE>
 //| <INTERPRETED>
-//| <INTERVAL>
+| <INTERVAL>
 | <INVALIDATE>
-//| <ISOLATION>
+| <ISOLATION>
 //| <ISOLATION_LEVEL>
 //| <ITERATE>
 //| <ITERATION_NUMBER>
-//| <JAVA>
+| <JAVA>
 //| <JOB>
 //| <JOIN>
 //| <K>
@@ -5114,7 +5114,7 @@ Token KEYWORD_UNRESERVED (): {}
 | <LEFT>
 | <LENGTH>
 //| <LESS>
-//| <LEVEL>
+| <LEVEL>
 //| <LEVELS>
 | <LIBRARY>
 //| <LIKE_EXPAND>
@@ -5152,7 +5152,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <MATCHED>
 //| <MATERIALIZE>
 //| <MATERIALIZED>
-//| <MAX>
+| <MAX>
 //| <MAXARCHLOGS>
 //| <MAXDATAFILES>
 //| <MAXEXTENTS>
@@ -5174,7 +5174,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <MERGE_SJ>
 //| <METHOD>
 //| <MIGRATE>
-//| <MIN>
+| <MIN>
 //| <MINEXTENTS>
 //| <MINIMIZE>
 //| <MINIMUM>
@@ -5182,7 +5182,7 @@ Token KEYWORD_UNRESERVED (): {}
 | <MINUTE>
 //| <MINVALUE>
 //| <MIRROR>
-//| <MLSLABEL>
+| <MLSLABEL>
 //| <MODEL>
 //| <MODEL_COMPILE_SUBQUERY>
 //| <MODEL_DONTVERIFY_UNIQUENESS>
@@ -5205,7 +5205,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <NATIONAL>
 //| <NATIVE>
 //| <NATIVE_FULL_OUTER_JOIN>
-//| <NATURAL>
+| <NATURAL>
 //| <NAV>
 | <NCHAR>
 //| <NCHAR_CS>
@@ -5325,7 +5325,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <NOVALIDATE>
 //| <NULLS>
 //| <NUM_INDEX_KEYS>
-//| <NUMERIC>
+| <NUMERIC>
 | <NVARCHAR2>
 | <OBJECT>
 //| <OBJNO>
@@ -5338,11 +5338,11 @@ Token KEYWORD_UNRESERVED (): {}
 //| <OLD_PUSH_PRED>
 //| <ONLINE>
 //| <ONLY>
-//| <OPAQUE>
+| <OPAQUE>
 //| <OPAQUE_TRANSFORM>
 //| <OPAQUE_XCANONICAL>
 //| <OPCODE>
-//| <OPEN>
+| <OPEN>
 //| <OPERATOR>
 //| <OPT_ESTIMATE>
 //| <OPT_PARAM>
@@ -5354,7 +5354,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <ORDERED>
 //| <ORDERED_PREDICATES>
 //| <ORDINALITY>
-//| <ORGANIZATION>
+| <ORGANIZATION>
 | <OTHERS>
 //| <OUT_OF_LINE>
 //| <OUTER>
@@ -5367,7 +5367,7 @@ Token KEYWORD_UNRESERVED (): {}
 | <OVERRIDING>
 //| <OWN>
 //| <P>
-//| <PACKAGE>
+| <PACKAGE>
 //| <PACKAGES>
 //| <PARALLEL>
 //| <PARALLEL_INDEX>
@@ -5416,7 +5416,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <PQ_NOMAP>
 //| <PREBUILT>
 //| <PRECEDING>
-//| <PRECISION>
+| <PRECISION>
 //| <PRECOMPUTE_SUBQUERY>
 //| <PREPARE>
 //| <PRESENT>
@@ -5456,7 +5456,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <RBO_OUTLINE>
 //| <READ>
 //| <READS>
-//| <REAL>
+| <REAL>
 //| <REBALANCE>
 //| <REBUILD>
 | <RECORD>
@@ -5504,20 +5504,20 @@ Token KEYWORD_UNRESERVED (): {}
 | <RETURN>
 //| <RETURNING>
 //| <REUSE>
-//| <REVERSE>
+| <REVERSE>
 //| <REWRITE>
 //| <REWRITE_OR_ERROR>
 | <RIGHT>
 //| <ROLE>
 //| <ROLES>
-//| <ROLLBACK>
+| <ROLLBACK>
 //| <ROLLING>
 //| <ROLLUP>
 | <ROW>
 //| <ROW_LENGTH>
 //| <ROWDEPENDENCIES>
-//| <ROWID>
-//| <ROWNUM>
+| <ROWID>
+| <ROWNUM>
 | <ROWS>
 //| <RULE>
 //| <RULES>
@@ -5525,7 +5525,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <SAMPLE>
 | <SAVE>
 //| <SAVE_AS_INTERVALS>
-//| <SAVEPOINT>
+| <SAVEPOINT>
 //| <SB4>
 //| <SCALE>
 //| <SCALE_ROWS>
@@ -5615,7 +5615,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <SUBQUERIES>
 | <SUBSTITUTABLE>
 | <SUBTYPE> // XDBPM_ANALYZE_XMLSCHEMA 
-//| <SUCCESSFUL>
+| <SUCCESSFUL>
 //| <SUMMARY>
 //| <SUPPLEMENTAL>
 | <SUSPEND>
@@ -5793,7 +5793,8 @@ Token ID(): {}
 		 | <NO> |<ROW>  | <COMMENT> | <CURSOR> 
 		*/
 		| <REPLACE> //SYNTAX  
-		| <DEFINER> | <SERIALLY_REUSABLE> | <RESTRICT_REFERENCES> 
+		//20120501 | <DEFINER> 
+		| <SERIALLY_REUSABLE> | <RESTRICT_REFERENCES> 
 		| <EXCEPTION_INIT> | <AUTONOMOUS_TRANSACTION> // | <LANGUAGE>
 		| <ALL>  //RESERVED WORD 
 		| <ALTER>  //SYNTAX  //RESERVED WORD 
@@ -5816,14 +5817,15 @@ Token ID(): {}
 		| <CHAR>  //RESERVED WPRDS 
 		| <CHAR_BASE> 
 		| <CHECK>  //RESERVED WPRDS 
-		| <CLOSE> //SYNTAX 
+		//20120501 | <CLOSE> //SYNTAX 
 		| <CLUSTER> //-<COALESCE> |
-		| <COLLECT> 
+		//20120501 | <COLLECT> 
 		| <COMPRESS>  //RESERVED WPRDS 
 		| <CONNECT> //SYNTAX //RESERVED WORD 
 		| <CONSTANT> 
 		| <CREATE> //SYNTAX //RESERVED WORD 
-		| <CURRENT> | <CURRVAL> 
+		//20120501 | <CURRENT> 
+		| <CURRVAL> 
 		| <DATE> //RESERVED WORD 
 		| <DECLARE> //SYNTAX 
 		| <DECIMAL> //RESERVED WORD  
@@ -5842,7 +5844,7 @@ Token ID(): {}
 		| <EXECUTE> //SYNTAX 
 		| <EXISTS> //SYNTAX //RESERVED WORD 
 		| <EXIT> //SYNTAX 
-		| <EXTENDS> 
+		//20120501 | <EXTENDS> 
 		| <FETCH> //SYNTAX 
 		| <FLOAT> //SYNTAX //RESERVED WORD 
 		| <FOR>  //RESERVED WORD 
@@ -5853,30 +5855,32 @@ Token ID(): {}
 		| <GOTO> //SYNTAX 
 		| <GROUP>  //RESERVED WORD 
 		| <HAVING>  //RESERVED WORD 
-		| <HEAP> 
+		//20120501 | <HEAP> 
 		| <IF> //SYNTAX 
-		| <IMMEDIATE> 
+		//20120501 | <IMMEDIATE> 
 		| <IN> //RESERVED WORD 
 		| <INDEX> //RESERVED WORD  
-		| <INDICATOR> 
+		//20120501 | <INDICATOR> 
 		| <INSERT> //SYNTAX  //RESERVED WORD  
 		| <INTEGER>  //RESERVED WORD  
 		| <INTERFACE> 
 		| <INTERSECT>  //RESERVED WORD  
-		| <INTERVAL> 
+		//20120501 | <INTERVAL> 
 		| <INTO>  //RESERVED WORD  
 		| <IS> //SYNTAX
-		| <ISOLATION> | <JAVA> | <LEVEL> 
+		//20120501 | <ISOLATION> | <JAVA> | <LEVEL> 
 		| <LIKE>  //RESERVED WORD  
 		| <LIMITED> 
 		| <LOCK> //SYNTAX  //RESERVED WORD  
 		| <LONG>  //RESERVED WORD  
 		| <LOOP> //SYNTAX 
-		| <MAX> | <MIN> 
+		//20120501 | <MAX> | <MIN> 
 		| <MINUS>  //RESERVED WORD  
-		| <MLSLABEL> | <MOD> 
+		//20120501 | <MLSLABEL> 
+		| <MOD> 
 		| <MODE> //RESERVED WORD   
-		| <NATURAL> | <NATURALN> | <NEXTVAL> | <NOCOPY> 
+		//20120501 | <NATURAL> 
+		| <NATURALN> | <NEXTVAL> | <NOCOPY> 
 		| <NOT> //SYNTAX  //RESERVED WORD  
 		| <NOWAIT>  //RESERVED WORD  
 		| <NULL>  //RESERVED WORD  
@@ -5886,18 +5890,19 @@ Token ID(): {}
 		| <OCIROWID> 
 		| <OF>  //RESERVED WORD  
 		| <ON>  //RESERVED WORD  
-		| <OPAQUE> 
+		//20120501 | <OPAQUE> 
 		| <BFILE_BASE> 
 		| <BLOB_BASE> |
 		//<CHAR_BASE> |
 		<CLOB_BASE> |
-		<DATE_BASE> |
-		<OPEN> | <OPERATOR> | <OPTION> 
+		<DATE_BASE> 
+		//20120501 | <OPEN> 
+		| <OPERATOR> | <OPTION> 
 		| <OR> //SYNTAX  //RESERVED WORD  
 		| <ORDER>  //RESERVED WORD  
-		| <ORGANIZATION> //| <OTHERS> 
+		//20120501 | <ORGANIZATION> //| <OTHERS> 
 		| <OUT> 
-		| <PACKAGE> //SYNTAX 
+		//20120501 | <PACKAGE> //SYNTAX 
 		| <PCTFREE>  //RESERVED WORD  
 		| <PLS_INTEGER> | <POSITIVE> | <POSITIVEN> 
 		// <PRAGMA> |<PARTITION> | <RANGE> | <NEW> | <OLD> | 
@@ -5909,23 +5914,25 @@ Token ID(): {}
 		| <PUBLIC>  //RESERVED WORD  
 		| <RAISE> //SYNTAX 
 		| <RAW>  //RESERVED WORD  
-		| <REAL> 
+		//20120501 | <REAL> 
 		//<RECORD> | <RETURN> |  <SET> |<REF> | 
 		| <RELEASE> 
-		| <REVERSE> 
-		| <ROLLBACK> //SYNTAX 
-		| <ROWID> 
-		| <ROWNUM> 
+		//20120501 | <REVERSE> 
+		//20120501 | <ROLLBACK> //SYNTAX 
+		//20120501 | <ROWID> 
+		//20120501 | <ROWNUM> 
 		| <ROWTYPE> 
-		| <SAVEPOINT> //SYNTAX 
+		//20120501 | <SAVEPOINT> //SYNTAX 
 		| <SELECT>  //SYNTAX  //RESERVED WORD  
 		| <SEPARATE> 
 		| <SHARE>  //RESERVED WORD  
 		| <SMALLINT>  //RESERVED WORD  
-		| <SQL> | <SQLCODE> | <SQLERRM> 
+		| <SQL>  
+		| <SQLCODE> | <SQLERRM> 
 		| <START>  //RESERVED WORD  
 		| <STDDEV> // <SUBTYPE> |
-		| <SUCCESSFUL> | <SUM> 
+		//20120501 | <SUCCESSFUL> 
+		| <SUM> 
 		| <SYNONYM>  //RESERVED WORD  
 		| <SYSDATE> 
 		| <TABLE>  //RESERVED WORD  
@@ -5938,7 +5945,12 @@ Token ID(): {}
 		| <UPDATE> //SYNTAX 
 		| <VARCHAR>  //RESERVED WORD  
 		| <VARCHAR2>  //RESERVED WORD  
-		| <DOUBLE> | <DEC> | <PRECISION> | <INT> | <NUMERIC> | <SIGNTYPE> 
+		//20120501 | <DOUBLE> 
+		//20120501 | <DEC> 
+		//20120501 | <PRECISION> 
+		| <INT> 
+		//20120501 | <NUMERIC> 
+		| <SIGNTYPE> 
 		//20120429 | <NCHAR> | <NVARCHAR2> 
 		| <STRING> 
 		//| <UROWID> | <VARRAY> | <VARYING> 
@@ -5979,7 +5991,7 @@ Token unqualifiedID(): {}
 		| <QUOTED_LITERAL>
 	        | KEYWORD_UNRESERVED()  //SRT 2011-04-17
 		| <BODY>
-		| <INTERVAL>
+		//20120501 | <INTERVAL>
 		| <MOD>
 		| <OPERATOR>
 		| <PRIVATE>
@@ -6024,7 +6036,7 @@ Token qualifiedID(): {}
 		| <NO> //SRT 
 		*/
 		| <REPLACE>
-		| <DEFINER>
+		//20120501 | <DEFINER>
 		//| <CURRENT_USER>
 		| <SERIALLY_REUSABLE>
 		| <RESTRICT_REFERENCES>
@@ -6053,10 +6065,10 @@ Token qualifiedID(): {}
 		| <CHAR>
 		| <CHAR_BASE>
 		//<CHECK>
-		| <CLOSE>
+		//20120501 | <CLOSE>
 		//<CLUSTER>
 		//| <COALESCE>
-		| <COLLECT>
+		//20120501 | <COLLECT>
 		//| <COMMENT>
 		//| <COMMIT>
 		//<COMPRESS>
@@ -6083,7 +6095,7 @@ Token qualifiedID(): {}
 		| <EXECUTE>
 		| <EXISTS>
 		| <EXIT>
-		| <EXTENDS>
+		//20120501 | <EXTENDS>
 		//<FETCH>
 		| <FLOAT>
 		//<FOR>
@@ -6093,34 +6105,34 @@ Token qualifiedID(): {}
 		//<GOTO>
 		//<GROUP>
 		//<HAVING>
-		| <HEAP>
+		//20120501 | <HEAP>
 		//<IF>
-		| <IMMEDIATE>
+		//20120501 | <IMMEDIATE>
 		//<IN>
 		//<INDEX>
-		| <INDICATOR>
+		//20120501 | <INDICATOR>
 		//<INSERT>
 		| <INTEGER>
 		| <INTERFACE>
 		//<INTERSECT>
-		| <INTERVAL>
+		//20120501 | <INTERVAL>
 		//<INTO>
 		//<IS>
-		| <ISOLATION>
-		| <JAVA>
-		| <LEVEL>
+		//20120501 | <ISOLATION>
+		//20120501 | <JAVA>
+		//20120501 | <LEVEL>
 		//<LIKE>
 		//| <LIMITED>
 		//<LOCK>
 		| <LONG>
 		| <LOOP>
-		| <MAX>
-		| <MIN>
+		//20120501 | <MAX>
+		//20120501 | <MIN>
 		//<MINUS>
-		| <MLSLABEL>
+		//20120501 | <MLSLABEL>
 		| <MOD>
 		//<MODE>
-		| <NATURAL>
+		//20120501 | <NATURAL>
 		| <NATURALN>
 		//| <NEW>
 		| <NEXTVAL>
@@ -6139,16 +6151,16 @@ Token qualifiedID(): {}
 		| <OCIROWID>
 		//<OF>
 		//<ON>
-		| <OPAQUE>
-		| <OPEN>
+		//20120501 | <OPAQUE>
+		//20120501 | <OPEN>
 		| <OPERATOR>
 		//<OPTION>
 		//<OR>
 		//<ORDER>
-		| <ORGANIZATION>
+		//20120501 | <ORGANIZATION>
 		//| <OTHERS>
 		| <OUT>
-		| <PACKAGE>
+		//20120501 | <PACKAGE>
 		//| <PARTITION>
 		//<PCTFREE>
 		| <PLS_INTEGER>
@@ -6163,18 +6175,18 @@ Token qualifiedID(): {}
 		| <RAISE>
 		//| <RANGE>
 		| <RAW>
-		| <REAL>
+		//20120501 | <REAL>
 		//| <RECORD>
 		//| <REF>
 		| <RELEASE>
 		//| <RETURN>
-		| <REVERSE>
-		| <ROLLBACK>
+		//20120501 | <REVERSE>
+		//20120501 | <ROLLBACK>
 		//| <ROW>
-		| <ROWID>
-		| <ROWNUM>
+		//20120501 | <ROWID>
+		//20120501 | <ROWNUM>
 		| <ROWTYPE>
-		| <SAVEPOINT>
+		//20120501 | <SAVEPOINT>
 		//<SELECT>
 		| <SEPARATE>
 		//<SET>
@@ -6187,7 +6199,7 @@ Token qualifiedID(): {}
 		//<START>
 		| <STDDEV>
 		//| <SUBTYPE>
-		| <SUCCESSFUL>
+		//20120501 | <SUCCESSFUL>
 		| <SUM>
 		| <SYNONYM>
 		| <SYSDATE>
@@ -6206,11 +6218,11 @@ Token qualifiedID(): {}
 		//<UPDATE>
 		| <VARCHAR>
 		| <VARCHAR2>
-		| <DOUBLE>
-		| <DEC>
-		| <PRECISION>
+		//20120501 | <DOUBLE>
+		//20120501 | <DEC>
+		//20120501 | <PRECISION>
 		| <INT>
-		| <NUMERIC>
+		//20120501 | <NUMERIC>
 		| <SIGNTYPE>
 		//20120429 | <NCHAR>
 		//20120429 | <NVARCHAR2>

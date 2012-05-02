@@ -8,9 +8,9 @@ Introduction
 
  * JavaCC - the PL/SQL parser adding entries to application.xml 
 
- * Java - main PLdoc class and utility classes
+ * Java - main PLDoc class and utility classes
 
- * XSLT - creates all HTML files from application.xml  using XSLT
+ * XSLT - creates all HTML files from application.xml using XSLT
 
  * Batch and Shell scripts - Windows and Unix/linux shell scripts to call PLDoc java
 
@@ -36,6 +36,12 @@ mvn package                     Compilation including JavaCC generation
 mvn -D skipJavacc=true package  Compilation skipping JavaCC generation
 mvn install                     Compile and install artefacts into local repository (required for subsequent 
                                 use in maven-pldoc-plugin)
++--
+
+ <<Since PLDoc version 1.1.3 Maven may require a larger heap size to complete JavaCC generation; when I encountered generation errors, I specified lots of heap memory just to get the parser generated, i.e.>>   
+
++--
+export MAVEN_OPTS=-Xmx1024m 
 +--
 
 
