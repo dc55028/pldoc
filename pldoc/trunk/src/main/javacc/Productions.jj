@@ -1562,6 +1562,25 @@ String TrimExpression() :
  }
 }
 
+
+/*
+String UsingCharacterSetExpression() :
+{ Token thisToken;  String string = null; StringBuffer sb = new StringBuffer() ; }
+{
+  (
+	 ( <CHR> | <TRANSLATE> ){ sb.append(token.toString()); } 
+	"(" { sb.append("(");} 
+	 string = StringExpression() { sb.append(" "); sb.append(string); } 
+	 ( <USING>  )  { sb.append(thisToken.image);} 
+	 ( <CHAR_CS> | <NCHAR_CS>  )  { sb.append(thisToken.image);} 
+	")" { sb.append(")");} 
+  )
+ { 
+ return sb.toString(); 
+ }
+}
+*/
+
 /*
 TREAT ( Expression AS datatype)
 CAST ( Expression AS datatype)
@@ -1821,6 +1840,7 @@ String PrimaryPrefix() :
   ( string = Literal() ) { sb.append(string) ; } 
 | LOOKAHEAD(MultiSetCondition()) string = MultiSetCondition()
 | LOOKAHEAD(TrimExpression()) string = TrimExpression() //SRT 20110613.3
+//| LOOKAHEAD(UsingCharacterSetExpression()) string = UsingCharacterSetExpression() //SRT 20110613.3
 | LOOKAHEAD(CaseExpression()) ( string =CaseExpression() ) { sb.append(string) ; } //SRT 20110520
 | LOOKAHEAD(ObjectExpression() ) ( string = ObjectExpression() ) { sb.append(string) ; } //SRT 20110604
 //| LOOKAHEAD(LikeExpression()) ( string = LikeExpression() ) { sb.append(string) ; } //SRT 20110604 
@@ -2060,6 +2080,11 @@ String Argument() :
 	//[LOOKAHEAD(2) unqualifiedID() "=>"] Expression()
 	[LOOKAHEAD(2) (thisToken=unqualifiedID()) {sb.append(thisToken); } ("=>" | <AS> ) { sb.append(" "); sb.append(token.image.toUpperCase()); sb.append(" "); } ] 
         (string = Expression() ) {sb.append(string); } 
+	//Allow Using CharacterSet suffix clause  
+	[
+	   ( <USING>  )  { sb.append(" "); sb.append(token.image.toUpperCase()); } 
+	   ( <CHAR_CS> | <NCHAR_CS>  )  { sb.append(" "); sb.append(token.image.toUpperCase()); } 
+	]
  { 
  return sb.toString(); 
  }
