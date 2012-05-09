@@ -4,7 +4,7 @@
     <groupId>net.sourceforge.pldoc</groupId>
     <artifactId>maven-pldoc-plugin</artifactId>
     <packaging>maven-plugin</packaging>
-    <version>2.14</version>
+    <version>2.15-SNAPSHOT</version>
     <name>Maven PLDoc Plugin - ${project.version}</name>
     <description>The Maven PLDoc Plugin is a plugin that uses the pldoc tool for
             generating docs for the specified project.
@@ -33,9 +33,9 @@
     </mailingLists>
 
     <scm>
-        <connection>scm:svn:https://pldoc.svn.sourceforge.net/svnroot/pldoc/maven-pldoc-plugin/tags/maven-pldoc-plugin-2.14</connection>
-        <developerConnection>scm:svn:https://pldoc.svn.sourceforge.net/svnroot/pldoc/maven-pldoc-plugin/tags/maven-pldoc-plugin-2.14</developerConnection>
-        <url>http://pldoc.svn.sourceforge.net/viewvc/pldoc/maven-pldoc-plugin/tags/maven-pldoc-plugin-2.14</url>
+        <connection>scm:svn:https://pldoc.svn.sourceforge.net/svnroot/pldoc/maven-pldoc-plugin/trunk</connection>
+        <developerConnection>scm:svn:https://pldoc.svn.sourceforge.net/svnroot/pldoc/maven-pldoc-plugin/trunk</developerConnection>
+        <url>http://pldoc.svn.sourceforge.net/viewvc/pldoc/maven-pldoc-plugin/</url>
     </scm>
 
     <developers>
