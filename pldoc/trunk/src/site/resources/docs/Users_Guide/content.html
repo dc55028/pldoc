@@ -190,6 +190,14 @@ You will find more detailed info in the <i> pldoc_drop.bat</i> file itself.
     When the object belongs to a different schema than the logon user (as specified by
     the -user parameter), the logon user must have been granted the role SELECT_CATALOG_ROLE.</td>
   </tr>
+  <tr>
+    <td width="28%">-getmetadata &lt;<i>getmetadata</i>&gt;</td>
+    <td width="72%">Callable statement to retrieve PL/SQL code, e.g. <br/>"'{ ? = call GET_SOURCE( ? ,  ? ,  ? ,  ? , ? , ? ) }'"<br/> <b>Required only when running against a non-Oracle database</b>.</td>
+  </tr>
+  <tr>
+    <td width="28%">-returntype &lt;<i>returntype</i>&gt;</td>
+    <td width="72%">Number corresponding to the java.sql.types constant equivalent to the the object type returned by getmetadata, e.g. 12<br/> <b>Required only when running against a non-Oracle database</b>.</td>
+  </tr>
 </table>
 
 <h3>&nbsp;</h3>

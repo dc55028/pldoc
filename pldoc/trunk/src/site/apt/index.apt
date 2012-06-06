@@ -43,6 +43,10 @@ Done (6.366 seconds).
 
   {{{./sampleOutput/index.html}Resulting HTML}}
 
+Supported Databases
+
+ Although PL/SQL originally ran only in Oracle's family of databases, other database manufacturers have implemented PL/SQL compatibility layers and, given some effort, PLDoc may also be run against these additional {{{./OtherDatabases.html}databases}}.
+
 Notes
 
     * Although pldoc can process code without any comments and can handle some usual /**/ and -- comments, you will get the best result if you use formal comments (/** ...*/) in your PL/SQL code.
