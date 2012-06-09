@@ -32,15 +32,17 @@ import net.sourceforge.pldoc.*;
  *     namesCase = "upper" | "lower" | "mixed" | "default"  
  *     inputEncoding = encoding (default: OS dependant) &gt;
  *     ignoreInformalComments = (false | true) 
- *     showSkippePackages = (false | true) 
- *     driver = text
+ *     showSkippedPackages = (false | true) 
  *     url = text
  *     user = text
  *     password = text
  *     types = text
  *     sql = text
  *     &lt;!-- fileset+ --&gt;
- *   &lt;/pldoc&gt;
+ *     &lt;/pldoc&gt;
+ *     driverName = text
+ *     getMetadataStatement = text
+ *     returntype = integer
  * </pre>
  * <p>Where:</p>
  * <dl>
@@ -52,13 +54,15 @@ import net.sourceforge.pldoc.*;
  *  <dt>inputEncoding</dt><dd>Input files encoding</dd>
  *  <dt>ignoreInformalComments</dt><dd> true if documentation should be generated from formal comments only</dd>
  *  <dt>showSkippedPackages</dt><dd>Display list of packages which failed to parse</dd>
- *  <dt>driver</dt><dd>JDBC driver class to use to connect to the database</dd>
+ *  <dt>driverName</dt><dd>JDBC driver class to use to connect to the database</dd>
  *  <dt>url</dt><dd>Database connection URL</dd>
  *  <dt>user</dt><dd>Database username </dd>
  *  <dt>password</dt><dd>Database password</dd>
  *  <dt>types</dt><dd>Comma separated list of database types to parse from the database</dd>
  *  <dt>sql</dt><dd>Comma separated list of database objects to parse from the database</dd>
  *  <dt>fileset</dt><dd>Specifies files to be parsed. See <a href="http://ant.apache.org/manual/CoreTypes/fileset.html">Ant FileSet</a> for more details.</dd>
+ *  <dt>getMetadataStatement</dt><dd>Callable statement to retrieve source text for each object, in this form "' ? = call GET_SOURCE( ? , ? , ? , ? , ? , ? ) '" </dd>
+ *  <dt>getMetadataStatementReturnType</dt><dd>integer equal to java.sql.Types constant of the the object type returned by getMetadataStatement </dd>
  * </dl>
  */
 public class PLDocTask extends Task {
@@ -78,6 +82,9 @@ public class PLDocTask extends Task {
   private String m_inputTypes ;
   private String m_inputObjects ;
   private boolean m_showSkippedPackages ;
+  private String  m_driverName ;
+  private String  m_getMetadataStatement ;
+  private Integer m_getMetadataStatementReturnType ;
 
 
 
@@ -97,6 +104,9 @@ public class PLDocTask extends Task {
     m_inputTypes =  null;
     m_inputObjects =  null;
     m_showSkippedPackages = false;
+    m_driverName = null;
+    m_getMetadataStatement = null;
+    m_getMetadataStatementReturnType = null;
   }
 
   public void setVerbose(boolean verbose) {
@@ -141,6 +151,15 @@ public class PLDocTask extends Task {
   }
   public void setShowSkippedPackages(boolean showSkippedPackages) {
     this.m_showSkippedPackages = showSkippedPackages;
+  }
+  public void setDriverName(String driverName) {
+          this.m_driverName = driverName;
+  }
+  public void setGetMetadataStatement(String getMetadataStatement) {
+          this.m_getMetadataStatement = getMetadataStatement;
+  }
+  public void setReturnType(Integer getMetadataStatementReturnType) {
+          this.m_getMetadataStatementReturnType = getMetadataStatementReturnType;
   }
 
 
@@ -212,6 +231,13 @@ public class PLDocTask extends Task {
 			       :  Arrays.asList(m_inputObjects.split(","))
 			     );
       settings.setShowSkippedPackages(m_showSkippedPackages);
+
+      /* Set the non-Oracle settings only if defined, otherwise 
+       * let the defaults apply  
+       */
+      if (null != m_driverName) settings.setDriverName(m_driverName);
+      if (null != m_getMetadataStatement) settings.setGetMetadataStatement(m_getMetadataStatement);
+      if (null != m_getMetadataStatementReturnType) settings.setReturnType(m_getMetadataStatementReturnType);
 
 
       Collection inputPaths = new ArrayList(); 
