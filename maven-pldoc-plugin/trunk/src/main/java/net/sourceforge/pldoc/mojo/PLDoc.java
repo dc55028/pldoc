@@ -51,6 +51,9 @@ import org.codehaus.plexus.util.StringUtils;
 <reportOutputDirectory>target/site/apidocs</reportOutputDirectory>
 <destDir>sql-apidocs<destDir>
 <showSkippedPackages>true</showSkippedPackages>
+<driverName>oracle.jdbc.OracleDriver</driverName>
+<getMetadataStatement>CallableStatement text</getMetadataStatement>
+<getMetadataStatementReturnType>2005</getMetadataStatementReturnType>
 <dbUrl>jdbc:oracle:thin:@//192.168.100.22:1521/orcl</dbUrl>
 <dbUser>system</dbUser>
 <dbPassword>oracle</dbPassword>
@@ -176,6 +179,29 @@ implements MavenReport{
      */
     private boolean showSkippedPackages ;
 
+    /**
+     * Class name of JDBC driver.
+     *
+     * @since 2.15
+     * @parameter expression="${driverName}" 
+     */
+    private String driverName ;
+
+    /**
+     * Callable statement to retrieve object source.
+     *
+     * @since 2.15
+     * @parameter expression="${getMetadataStatement}" 
+     */
+    private String getMetadataStatement ;
+
+    /**
+     * Return Type (see java.sql.Types).
+     *
+     * @since 2.15
+     * @parameter expression="${getMetadataStatementReturnType}" 
+     */
+    private Integer getMetadataStatementReturnType ;
 
 
     /**
@@ -250,6 +276,9 @@ implements MavenReport{
 	getLog().debug( "inputObjects=" + inputObjects  ) ;
 	getLog().debug( "inputTypes=" + inputTypes  ) ;
 	getLog().debug( "showSkippedPackages=" + showSkippedPackages ) ;
+	getLog().debug( "driverName=" + driverName ) ;
+	getLog().debug( "getMetadataStatement=" + getMetadataStatement ) ;
+	getLog().debug( "getMetadataStatementReturnType=" + getMetadataStatementReturnType ) ;
 
         try {
 	    if (!outputDirectory.exists()) 
@@ -270,7 +299,13 @@ implements MavenReport{
 	    PLDocTask.NamesCase antNamesCase = new PLDocTask.NamesCase();
 	    antNamesCase.setValue(namesCase);
 	    task.setNamesCase(antNamesCase);
-	    task.setShowSkippedPackages(showSkippedPackages);
+
+	    /* Set non-Oracle settings only if ther are not null;
+	     * otherwise, rely on the defaults  
+	     */
+	    if (null != driverName) task.setDriverName(driverName);
+	    if (null != getMetadataStatement) task.setGetMetadataStatement(getMetadataStatement);
+	    if (null != getMetadataStatementReturnType) task.setReturnType(getMetadataStatementReturnType);
 
 	    if (null != sourceDirectory && null != includes)
 	    {
