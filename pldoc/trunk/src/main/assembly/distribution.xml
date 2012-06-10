@@ -38,6 +38,7 @@
     </fileSet>
     <fileSet>
       <directory>${project.basedir}/src/main/command/ant</directory>
+      <filtered>true</filtered>
       <includes>
 	<include>ant_*_example.properties</include>
 	<include>ant_*_example.xml</include>
@@ -47,6 +48,7 @@
     </fileSet>
     <fileSet>
       <directory>${project.basedir}/src/main/command</directory>
+      <filtered>true</filtered>
       <includes>
 	<include>pldoc_ant_*.sh</include>
 	<include>OtherDatabases.txt</include>
