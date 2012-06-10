@@ -7,6 +7,9 @@
         <author email="altumano at users.sourceforge.net">Albert Tumanov</author>
     </properties>
     <body>
+        <release version="2.15" date="2012-06-10"  description="Allow PLDoc to document Other Database Types" >
+            <action type="add" dev="sturton" >Add properties to allow the PLDoc Maven tasks to process non-Oracle databases</action>
+        </release>
         <release version="2.14" date="2012-05-09"  description="Release to incorporate PLDoc 1.1.4 ">
             <action type="update" dev="sturton" > project POM file - update dependent PLDoc version to 1.1.4</action>
         </release>

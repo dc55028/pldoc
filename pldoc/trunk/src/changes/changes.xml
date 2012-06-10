@@ -7,6 +7,9 @@
         <author email="altumano at users.sourceforge.net">Albert Tumanov</author>
     </properties>
     <body>
+        <release version="1.2" date="2012-06-10"  description="Allow PLDoc to document Other Database Types" >
+            <action type="add" dev="sturton" >Add properties to allow the PLDoc ANT tasks to process non-Oracle databases</action>
+        </release>
         <release version="1.1.4" date="2012-05-09"  description="Minor Bug fixes" >
             <action type="fix" dev="sturton" issue="3521945" due-to="Harald Jocham" due-to-email="jarry87@sourceforge.net" >Allow USING (CHAR_CS|NCHAR_CS) character set specification within arguments</action>
         </release>
