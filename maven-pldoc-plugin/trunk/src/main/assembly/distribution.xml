@@ -36,9 +36,10 @@
     <fileSet>
       <directory>${project.basedir}/src/main/command/maven</directory>
       <includes>
-	<include>maven_enterprise_settings.xml</include>
-	<include>pldoc-oracle-pom.xml</include>
-	<include>pldoc-oracle-settings.xml</include>
+	<include>maven_*_settings.xml</include>
+	<include>pldoc-*-pom.xml</include>
+	<include>pldoc-*-settings.xml</include>
+	<include>OtherDatabases.txt</include>
       </includes>
      <fileMode>0755</fileMode> 
      <outputDirectory>/</outputDirectory> 
