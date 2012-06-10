@@ -22,6 +22,7 @@
     </fileSet>
     <fileSet>
       <directory>${project.basedir}</directory>
+      <filtered>true</filtered>
       <includes>
 	<include>ojdbc_mvn_install.bat</include>
 	<include>ojdbc_mvn_install.sh</include>
@@ -35,6 +36,7 @@
     </fileSet>
     <fileSet>
       <directory>${project.basedir}/src/main/command/maven</directory>
+      <filtered>true</filtered>
       <includes>
 	<include>maven_*_settings.xml</include>
 	<include>pldoc-*-pom.xml</include>
