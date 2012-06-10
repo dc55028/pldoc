@@ -7,6 +7,10 @@
         <author email="altumano at users.sourceforge.net">Albert Tumanov</author>
     </properties>
     <body>
+        <release version="2.15.1" date="2012-06-10"  description="Allow PLDoc to document Other Database Types" >
+            <action type="update" dev="sturton" >Improve documentation for non-Oracle databases</action>
+            <action type="add" dev="sturton" >Bundled distribution archives: add scripts to install JDBC JAR files into local Maven repository</action>
+        </release>
         <release version="2.15" date="2012-06-10"  description="Allow PLDoc to document Other Database Types" >
             <action type="add" dev="sturton" >Add properties to allow the PLDoc Maven tasks to process non-Oracle databases</action>
         </release>
