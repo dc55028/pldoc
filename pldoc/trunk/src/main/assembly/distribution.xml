@@ -39,9 +39,17 @@
     <fileSet>
       <directory>${project.basedir}/src/main/command/ant</directory>
       <includes>
-	<include>ant_enterprise_example.properties</include>
-	<include>ant_oracle_example.properties</include>
-	<include>ant_oracle_example.xml</include>
+	<include>ant_*_example.properties</include>
+	<include>ant_*_example.xml</include>
+      </includes>
+     <fileMode>0755</fileMode> 
+     <outputDirectory>/</outputDirectory> 
+    </fileSet>
+    <fileSet>
+      <directory>${project.basedir}/src/main/command</directory>
+      <includes>
+	<include>pldoc_ant_*.sh</include>
+	<include>OtherDatabases.txt</include>
       </includes>
      <fileMode>0755</fileMode> 
      <outputDirectory>/</outputDirectory> 
