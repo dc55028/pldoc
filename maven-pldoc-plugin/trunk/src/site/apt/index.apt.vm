@@ -1,7 +1,7 @@
 Maven 2 PLDoc plugin - document PL/SQL in Oracle and other Databases.
 
  In operation, maven-pldoc-plugin is similar to the Javadoc plugin.
- The bundled downloads also contain example Maven POM and execution settings files for Oracle and other {{{../OtherDatabase.html}databases}}.
+ The bundled downloads also contain example Maven POM and execution settings files for Oracle and other {{{../OtherDatabases.html}databases}}.
 
 Summary
  You need to add the following to your reporting section of your pom:
