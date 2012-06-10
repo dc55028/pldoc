@@ -46,5 +46,14 @@
      <fileMode>0755</fileMode> 
      <outputDirectory>/</outputDirectory> 
     </fileSet>
+    <fileSet>
+      <directory>${project.basedir}/src/main/command</directory>
+      <filtered>true</filtered>
+      <includes>
+	<include>*jdbc-mvn-install.sh</include>
+      </includes>
+     <fileMode>0755</fileMode> 
+     <outputDirectory>/</outputDirectory> 
+    </fileSet>
   </fileSets>
 </assembly>
