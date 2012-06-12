@@ -4,7 +4,8 @@ Maven 2 PLDoc plugin - document PL/SQL in Oracle and other Databases.
  The bundled downloads also contain example Maven POM and execution settings files for Oracle and other {{{../OtherDatabases.html}databases}}.
 
 Summary
- You need to add the following to your reporting section of your pom:
+
+ You need to add the following to your reporting section of your POM file:
 
 +-----+
  <reporting>
