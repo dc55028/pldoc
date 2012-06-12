@@ -7,6 +7,9 @@
         <author email="altumano at users.sourceforge.net">Albert Tumanov</author>
     </properties>
     <body>
+        <release version="2.15.2" date="2012-06-12"  description="Release to incorporate PLDoc 1.2.1" >
+            <action type="add" dev="sturton" >project POM file - update dependent PLDoc version to 1.2.1</action>
+        </release>
         <release version="2.15.1" date="2012-06-10"  description="Allow PLDoc to document Other Database Types" >
             <action type="update" dev="sturton" >Improve documentation for non-Oracle databases</action>
             <action type="add" dev="sturton" >Bundled distribution archives: add scripts to install JDBC JAR files into local Maven repository</action>
