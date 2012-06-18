@@ -81,6 +81,7 @@ public class PLDocTask extends Task {
   private String m_dbPassword ;
   private String m_inputTypes ;
   private String m_inputObjects ;
+  private boolean m_ignoreInformalComments ;
   private boolean m_showSkippedPackages ;
   private String  m_driverName ;
   private String  m_getMetadataStatement ;
@@ -104,6 +105,7 @@ public class PLDocTask extends Task {
     m_inputTypes =  null;
     m_inputObjects =  null;
     m_showSkippedPackages = false;
+    m_ignoreInformalComments = false;
     m_driverName = null;
     m_getMetadataStatement = null;
     m_getMetadataStatementReturnType = null;
@@ -151,6 +153,9 @@ public class PLDocTask extends Task {
   }
   public void setShowSkippedPackages(boolean showSkippedPackages) {
     this.m_showSkippedPackages = showSkippedPackages;
+  }
+  public void setIgnoreInformalComments(boolean ignoreInformalComments) {
+    this.m_ignoreInformalComments = ignoreInformalComments;
   }
   public void setDriverName(String driverName) {
           this.m_driverName = driverName;
@@ -231,6 +236,7 @@ public class PLDocTask extends Task {
 			       :  Arrays.asList(m_inputObjects.split(","))
 			     );
       settings.setShowSkippedPackages(m_showSkippedPackages);
+      settings.setIgnoreInformalComments(m_ignoreInformalComments);
 
       /* Set the non-Oracle settings only if defined, otherwise 
        * let the defaults apply  
@@ -303,6 +309,7 @@ public class PLDocTask extends Task {
     m_inputTypes = null;
     m_inputObjects = null;
     m_showSkippedPackages = false;
+    m_ignoreInformalComments = false;
   }
   
   private BufferedReader getInputReader(File file)
