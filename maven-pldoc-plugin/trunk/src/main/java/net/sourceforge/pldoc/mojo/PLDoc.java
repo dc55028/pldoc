@@ -51,6 +51,7 @@ import org.codehaus.plexus.util.StringUtils;
 <reportOutputDirectory>target/site/apidocs</reportOutputDirectory>
 <destDir>sql-apidocs<destDir>
 <showSkippedPackages>true</showSkippedPackages>
+<ignoreInformalComments>true</ignoreInformalComments>
 <driverName>oracle.jdbc.OracleDriver</driverName>
 <getMetadataStatement>CallableStatement text</getMetadataStatement>
 <getMetadataStatementReturnType>2005</getMetadataStatementReturnType>
@@ -205,6 +206,14 @@ implements MavenReport{
 
 
     /**
+     * Ignore informal PL/SQL comments (--) when searching for PLDoc comments.
+     *
+     * @since 2.16
+     * @parameter expression="${ignoreInformalComments}" default-value="false"
+     */
+    private boolean ignoreInformalComments ;
+
+    /**
      * The Maven Project Object
      *
      * @parameter expression="${project}"
@@ -276,6 +285,7 @@ implements MavenReport{
 	getLog().debug( "inputObjects=" + inputObjects  ) ;
 	getLog().debug( "inputTypes=" + inputTypes  ) ;
 	getLog().debug( "showSkippedPackages=" + showSkippedPackages ) ;
+	getLog().debug( "ignoreInformalComments=" + ignoreInformalComments ) ;
 	getLog().debug( "driverName=" + driverName ) ;
 	getLog().debug( "getMetadataStatement=" + getMetadataStatement ) ;
 	getLog().debug( "getMetadataStatementReturnType=" + getMetadataStatementReturnType ) ;
@@ -296,11 +306,13 @@ implements MavenReport{
 	    task.setInputObjects(inputObjects);
 	    task.setInputTypes(inputTypes);
 	    task.setInputEncoding(inputEncoding);
+	    task.setShowSkippedPackages(showSkippedPackages);
+	    task.setIgnoreInformalComments(ignoreInformalComments);
 	    PLDocTask.NamesCase antNamesCase = new PLDocTask.NamesCase();
 	    antNamesCase.setValue(namesCase);
 	    task.setNamesCase(antNamesCase);
 
-	    /* Set non-Oracle settings only if ther are not null;
+	    /* Set non-Oracle settings only if they are not null;
 	     * otherwise, rely on the defaults  
 	     */
 	    if (null != driverName) task.setDriverName(driverName);
