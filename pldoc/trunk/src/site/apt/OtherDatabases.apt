@@ -32,7 +32,7 @@ Other Databases
 
  *  -getmetadata - a callable statement taking the same parameters as Oracle's DBMS_METADATA.GET_DDL 
 
- *  -returntype - an integer corresponding to java.sql.type constant returned by getmetadata, typically 12 (VARCHAR2 or 2005 (CLOB)  
+ *  -returntype - an integer corresponding to the java.sql.types constant for the object type returned by getmetadata, typically 12 (VARCHAR2) or 2005 (CLOB)  
 
  []
 
@@ -43,9 +43,9 @@ Other Databases
 *---*---*---*---*---*---*---*---+
 |TimesTen 11.2.1 direct|Y|ttjdbc6.jar ttjdbc5.jar|com.timesten.jdbc.TimesTenDriver|jdbc:timesten:direct:plsqldb|12|"'{ ? = call PLS.GET_SOURCE( ? ,  ? ,  ? ,  ? , ? , ? ) }'"|This {{{http://www.oracledistilled.com/java/connect-to-an-oracle-timesten-in-memory-database-using-java-and-jdbc/}JDBC-ODBC}} driver also requires $OTT_HOME/lib specified in the appropriate PATH, LD_LIBRARY_PATH, or DYLD_LIBRARY_PATH|
 *---*---*---*---*---*---*---*---*
-|TimesTen 11.2.2 direct|N|ttjdbc6.jar ttjdbc5.jar|com.timesten.jdbc.TimesTenDriver|jdbc:timesten:direct:plsqldb|2005 (default)|"'{ ? = call PLS.GET_SOURCE_LOB( ? ,  ? ,  ? ,  ? , ? , ? ) }'"|also requires $OTT_HOME/lib in PATH, LD_LIBRARY_PATH, or DYLD_LIBRARY_PATH|
+|TimesTen 11.2.2 direct|Y|ttjdbc6.jar ttjdbc5.jar|com.timesten.jdbc.TimesTenDriver|jdbc:timesten:direct:plsqldb|2005 (default)|"'{ ? = call PLS.GET_SOURCE_LOB( ? ,  ? ,  ? ,  ? , ? , ? ) }'"|also requires $OTT_HOME/lib in PATH, LD_LIBRARY_PATH, or DYLD_LIBRARY_PATH|
 *---*---*---*---*---*---*---*---*
-|TimesTen 11.2.* client|N|ttjdbc6.jar or ttjdbc5.jar |com.timesten.jdbc.TimesTenDriver|"jdbc:timesten:client: TT_SERVER=server_host_name; TT_SERVER_DNS=Server_DSN; TCP_PORT=server_port"|12|"'{ ? = call PLS.GET_SOURCE( ? ,  ? ,  ? ,  ? , ? , ? ) }'"|ditto|
+|TimesTen 11.2.* client|Y|ttjdbc6.jar or ttjdbc5.jar |com.timesten.jdbc.TimesTenDriver|"jdbc:timesten:client: TT_SERVER=server_host_name; TT_SERVER_DNS=Server_DSN; TCP_PORT=server_port"|12|"'{ ? = call PLS.GET_SOURCE( ? ,  ? ,  ? ,  ? , ? , ? ) }'"|ditto|
 *---*---*---*---*---*---*---*---*
 |DB2 Express 9.7.5 local database|Y|db2jcc4.jar db2jcc_license_cu.jar|com.ibm.db2.jcc.DB2Driver|jdbc:db2://host:port/db|2005 (default)|"'BEGIN ? := DB2INST1.GET_SOURCE_LOB( ? ,  ? ,  ? ,  ? , ? , ? ); END;'"| |
 *---*---*---*---*---*---*---*---+
