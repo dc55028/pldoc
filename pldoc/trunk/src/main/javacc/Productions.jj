@@ -1853,7 +1853,12 @@ String PrimarySuffix() :
 {
   (
   (".") {sb.append(".");}  (suffixToken = qualifiedID() ) { sb.append(suffixToken.toString()) ; }
-|
+  //Bug 3535118 - Method call may include dblink 
+  //String dblink = null;
+  //["@" dblink = qualifiedName() {sb.append("@"); sb.append(dblink); } ]
+  | //Possible dblink 
+  ("@") {sb.append("@");}  (suffixToken = qualifiedID() ) { sb.append(suffixToken.toString()) ; }
+  |
   ( arguments = Arguments() ) {sb.append(arguments) ; }
   )
  { 
@@ -2005,9 +2010,9 @@ String Name() :
     ("." {sb.append(".");} | "%" {sb.append("%");}) //qualifiedID() 
     thisToken = qualifiedID() {sb.append(thisToken);}
   )*
-	{
-	return(sb.toString()); 
-	}
+  {
+  return(sb.toString()); 
+  }
 }
 
 String qualifiedName() :
