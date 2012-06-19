@@ -37,7 +37,7 @@ END;
 
 SHOW ERRORS
 
-CREATE OR REPLACE PACKAGE BODY pldoc_bug.testcase_3532414 IS
+CREATE OR REPLACE PACKAGE BODY pldoc_bug.testcase_3535118 IS
 /**
 * Testpackage for pldoc bug.
 * @headcom
