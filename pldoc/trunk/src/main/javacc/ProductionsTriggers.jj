@@ -195,13 +195,13 @@ void triggerUnit() throws SAXException :
 	(
 	 <CALL> PrimaryExpression() ";"
 	 //compound_trigger_block 
-	| compound_trigger_block()
+	| compound_trigger_block(name)
 
 	|//plsql_block  
 	  (
 	    [
 	    <DECLARE>
-		    declarativeSection(false)
+		    declarativeSection(false,name)
 	    ]
 	    
 	    <BEGIN> (statement())* (exceptionHandler())? <END> [ID()] ";"
@@ -210,6 +210,7 @@ void triggerUnit() throws SAXException :
 	)
 	
 	
+	{ printSummary("Trigger", name.beginLine, name, token); }
 	{
 		if (m_out != null)
 		{
@@ -259,7 +260,7 @@ void timing_point_section() throws SAXException :
 
 
 
-void compound_trigger_block() throws SAXException :
+void compound_trigger_block(Token objectStart) throws SAXException :
 {
 	Token start = null;
 	Token node = null;
@@ -291,7 +292,7 @@ void compound_trigger_block() throws SAXException :
 		cursorSpec(true) |
 		cursorBody(true) |
 		collectionDeclaration(true) |
-		programUnit(true) 
+		programUnit(true,objectStart) 
 	)*
 
 
