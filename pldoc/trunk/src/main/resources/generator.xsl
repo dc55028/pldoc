@@ -86,6 +86,23 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   		<xsl:value-of select="CREATED/@DATE"/>&nbsp;-&nbsp;<xsl:value-of select="CREATED/@TIME"/>
   	</P>
   
+		<!-- Draw Skipped versus Processed as a pie-chart -->
+ 		<!-- Draw Skipped versus Processed as a pie-chart -->
+ 		<P>
+ 		<xsl:variable name="numSkipped" select="OBJECTS/SKIPPED/@COUNT" /> 
+ 		<xsl:variable name="numProcessed" select="OBJECTS/PROCESSED/@COUNT" /> 
+ 		<xsl:variable name="numAttempted" select="$numSkipped + $numProcessed" /> 
+ 		<xsl:variable name="percentageSkipped" select="(100 * $numSkipped ) div $numAttempted" /> 
+ 		<xsl:variable name="percentageProcessed" select="(100 * $numProcessed ) div $numAttempted" /> 
+ 		<xsl:element name= "IMG">
+ 		  <xsl:attribute name="SRC" >
+ <xsl:value-of select="concat('https://chart.googleapis.com//chart?cht=p3&amp;chd=t:', string($percentageSkipped),  ',', string($percentageProcessed), '&amp;chs=300x100&amp;chl=Skipped|Processed') " disable-output-escaping="yes" />  
+ 		  </xsl:attribute>
+ 		<!--
+ 		-->
+ 		</xsl:element>
+ 		</P>
+ 
 		<P>
 			<B>Objects successfully processed:</B>&nbsp;
 			<xsl:value-of select="OBJECTS/PROCESSED/@COUNT"/>
