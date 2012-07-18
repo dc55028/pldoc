@@ -1,5 +1,5 @@
 
-void typeMethod(boolean isPackageLevel,int typeVersion, String alterTypeAction) throws SAXException :
+void typeMethod(boolean isPackageLevel,int typeVersion, String alterTypeAction, Token objectStart) throws SAXException :
 {
 	Token schemaName = null;
 	Token scope, start,  name;
@@ -213,13 +213,13 @@ void typeMethod(boolean isPackageLevel,int typeVersion, String alterTypeAction) 
  		  [ ";" ] // This only exists in the type body
 		  | // SRT 20110524 Not really a Declaration any more ...  
 		  (
-			declarativeSection(false)
+			declarativeSection(false,objectStart)
 			 <BEGIN> (statement())* (exceptionHandler())?  <END> [ID()] 
 			 ";" // This only exists in the type body
 		  )
 		)
 	]
-
+        { printSummary("Object Type Method", objectStart.beginLine, name, token); }
 
 	{
 		// element generated only on the package level
@@ -389,10 +389,10 @@ void typeSpec() throws SAXException :
 			processPackageComment(tokenIsAsUnder);
 		}
                 //Try matching against keywords first to allow FINCTION and procedure as a fallback
-		(LOOKAHEAD(2)  typeMethod(isPackageLevel,typeVersion,null) | attributeDeclaration(typeVersion,null) 
+		(LOOKAHEAD(2)  typeMethod(isPackageLevel,typeVersion,null,name) | attributeDeclaration(typeVersion,null) 
 		 | pragma_clause()
 		)* //SRT 20111125 This part may be completely empty if is a subtype which is effectively an alias for the supertype 
-		( "," (  typeMethod(isPackageLevel,typeVersion,null) | LOOKAHEAD(2) attributeDeclaration(typeVersion,null) 
+		( "," (  typeMethod(isPackageLevel,typeVersion,null,name) | LOOKAHEAD(2) attributeDeclaration(typeVersion,null) 
 		      | pragma_clause()
 		      ) 
 		)*
@@ -409,7 +409,7 @@ void typeSpec() throws SAXException :
 	)*
 
         //Original Type Specification may be followed by a series of modifications
-        ( alterTypeSpec(++typeVersion) ) *
+        ( alterTypeSpec(++typeVersion,name) ) *
 
 
         [
@@ -419,15 +419,16 @@ void typeSpec() throws SAXException :
 		// possibly, package comment is here
 		processPackageComment(tokenTypeTerminator);
 	}
-        ( alterTypeSpec(++typeVersion) ( "/" | ";" ) )* //SRT 20110529 There may be more after the first terminator 
+        ( alterTypeSpec(++typeVersion,name) ( "/" | ";" ) )* //SRT 20110529 There may be more after the first terminator 
         ]
+	 { printSummary("Object Type Specification", name.beginLine, name, token); }
 	{
 		if (m_out != null) m_out.endElement("OBJECT_TYPE"); //OBJECT_TYPE
 	}
 }
 
 
-void alterTypeSpec(int typeVersion) throws SAXException :
+void alterTypeSpec(int typeVersion, Token objectStart) throws SAXException :
 { Token schema = null, name = null, tokenCreate = null, tokenType = null
         , schemaSuperType = null, nameSuperType = null, tokenSuperType = null
         ,tokenIsAsUnder = null, tokenSpecificationForm = null
@@ -467,7 +468,7 @@ void alterTypeSpec(int typeVersion) throws SAXException :
         (
 	      // Move typeMethidMatching above attribure matvhing becausse FUNCTION is a valid attribute name 
              ( 
-		 (typeMethod(isPackageLevel,typeVersion, tokenAlterTypeString) ) 
+		 (typeMethod(isPackageLevel,typeVersion, tokenAlterTypeString, objectStart) ) 
 		  //( "," ( typeMethod(isPackageLevel,typeVersion, tokenAlterTypeString) ) )*
              )
             |
@@ -498,7 +499,7 @@ void alterTypeSpec(int typeVersion) throws SAXException :
             )
             |
              ( 
-		 (typeMethod(isPackageLevel,typeVersion, tokenAlterTypeString) ) 
+		 (typeMethod(isPackageLevel,typeVersion, tokenAlterTypeString, objectStart) ) 
 		  //( "," ( typeMethod(isPackageLevel,typeVersion, tokenAlterTypeString) ) )*
              )
         )+
@@ -605,8 +606,8 @@ void alterTypeSpec(int typeVersion) throws SAXException :
 			processPackageComment(tokenIsAsUnder);
 		}
 
-		(LOOKAHEAD(2) typeMethod(isPackageLevel,typeVersion, tokenAlterTypeString) | attributeDeclaration(typeVersion, tokenAlterTypeString) ) 
-		( "," ( LOOKAHEAD(2) typeMethod(isPackageLevel,typeVersion, tokenAlterTypeString) | attributeDeclaration(typeVersion, tokenAlterTypeString) ) )*
+		(LOOKAHEAD(2) typeMethod(isPackageLevel,typeVersion, tokenAlterTypeString, objectStart) | attributeDeclaration(typeVersion, tokenAlterTypeString) ) 
+		( "," ( LOOKAHEAD(2) typeMethod(isPackageLevel,typeVersion, tokenAlterTypeString, objectStart) | attributeDeclaration(typeVersion, tokenAlterTypeString) ) )*
 
 		")" 
 	]        

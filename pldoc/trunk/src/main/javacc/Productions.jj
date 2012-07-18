@@ -116,7 +116,7 @@ void global() throws SAXException :
 	  Still wrap the trigger in a fake package but make the package name dependent on the actual schema 
 	  defaulting to the globalPackageName if it cannot be found 
 	*/
-	(LOOKAHEAD ([<DECLARE> declarativeSection(false)] <BEGIN>) globalBlock() | LOOKAHEAD (4) programUnit(true) 
+	(LOOKAHEAD ([<DECLARE> declarativeSection(false,token)] <BEGIN>) globalBlock(token) | LOOKAHEAD (4) programUnit(true,token) 
 	)
 
 	{
@@ -136,14 +136,14 @@ void global() throws SAXException :
  * 
  * 2006-05-17 - Matthias Hendler - added
  */
-void globalBlock() throws SAXException :
+void globalBlock(Token objectStart) throws SAXException :
 { 
 	Token name = null; 
 }
 {
 	[
 		<DECLARE>
-		declarativeSection(false)
+		declarativeSection(false, objectStart)
 	]
 	
 	<BEGIN> (statement())* (exceptionHandler())? <END> ";"
@@ -152,7 +152,7 @@ void globalBlock() throws SAXException :
 
 
 void packageSpec() throws SAXException :
-{ Token schema = null, name = null, tokenCreate = null, tokenPackage = null, tokenIsAs = null; }
+{ Token schema = null, name = null, tokenCreate = null, tokenPackage = null, tokenIsAs = null, lastToken = null ; }
 {
 	[tokenCreate=<CREATE> [<OR> <REPLACE>]]
 	tokenPackage=<PACKAGE> (LOOKAHEAD(2) schema=ID()".")? name=ID()
@@ -196,9 +196,9 @@ void packageSpec() throws SAXException :
 		    processPackageComment(tokenIsAs);
 	    }
 
-	    declarativeSection(true)
+	    declarativeSection(true,name)
 
-	    <END> [ID()] ";"
+	    <END> [ID()] ";" { printSummary("Package Specification", name.beginLine, name, token); }
 	  )
 	)
 	{ 
@@ -247,9 +247,11 @@ void packageBody() throws SAXException :
 		    processPackageComment(tokenIsAs);
 	    }
 
-		  declarativeSection(true) //SRT 20110524 Allow PLDOc in Type Bodies 
+		  declarativeSection(true,name) //SRT 20110524 Allow PLDOc in Type Bodies 
 
-	  [ <BEGIN> (statement())* (exceptionHandler())? ] <END> [ID()] ";"
+						    
+	  [ <BEGIN> (statement())* (exceptionHandler())? ] <END> [ID()] ";" 
+	  { printSummary(tokenModuleType.image.toUpperCase().equals("PACKAGE") ?  "Package Body" :  "Object Type Body", name.beginLine, name, token); }
 	  )
 	)
 	{
@@ -261,7 +263,7 @@ void packageBody() throws SAXException :
 	}
 }
 
-void declarativeUnit(boolean isPackageLevel) throws SAXException :
+void declarativeUnit(boolean isPackageLevel, Token objectStart) throws SAXException :
 {}
 {
 		pragma(isPackageLevel) |
@@ -270,27 +272,27 @@ void declarativeUnit(boolean isPackageLevel) throws SAXException :
 		LOOKAHEAD((<TYPE>|<SUBTYPE>) qualifiedID() (<IS> | <AS> )  ) //SRT 20110616 - make sue soen't break object type
 		subtype_definition(isPackageLevel) |
 		LOOKAHEAD((<FUNCTION>|<PROCEDURE>) qualifiedID() ) //SRT 20111117 - Special case of parameterless methods:choose method in preference to variable 
-		programUnit(isPackageLevel)  |
+		programUnit(isPackageLevel,objectStart)  |
 		LOOKAHEAD(4)
 		variableOrConstantDeclaration(isPackageLevel) |
 		LOOKAHEAD(2)
 		cursorSpec(isPackageLevel) |
 		cursorBody(isPackageLevel) |
 		collectionDeclaration(isPackageLevel) |
-		programUnit(isPackageLevel) 
-		|typeMethod(isPackageLevel,1, null) //SRT 20110523
-		|CompilationDeclarationFragment(isPackageLevel) 
+		programUnit(isPackageLevel,objectStart) 
+		|typeMethod(isPackageLevel,1, null,objectStart) //SRT 20110523
+		|CompilationDeclarationFragment(isPackageLevel,objectStart) 
 }
 
-void declarativeSection(boolean isPackageLevel) throws SAXException :
+void declarativeSection(boolean isPackageLevel, Token objectStart) throws SAXException :
 {}
 {
 	(
-		declarativeUnit(isPackageLevel) 
+		declarativeUnit(isPackageLevel, objectStart) 
 	)*
 }
 
-void CompilationDeclarationFragment(boolean isPackageLevel) throws SAXException :
+void CompilationDeclarationFragment(boolean isPackageLevel, Token objectStart) throws SAXException :
 { 
 }
 {
@@ -298,7 +300,7 @@ void CompilationDeclarationFragment(boolean isPackageLevel) throws SAXException 
 	  <CC_IF>  
 	  ConditionalOrExpression()  
 	  <CC_THEN>  
-	    (declarativeUnit(isPackageLevel)
+	    (declarativeUnit(isPackageLevel,objectStart)
 	     | <CC_ERROR> Expression() <CC_END> 
 	    )* 
 
@@ -306,14 +308,14 @@ void CompilationDeclarationFragment(boolean isPackageLevel) throws SAXException 
 	    <CC_ELSIF> 
 	    ConditionalOrExpression() 
 	    <CC_THEN> 
-	    (declarativeUnit(isPackageLevel)
+	    (declarativeUnit(isPackageLevel,objectStart)
 	     | <CC_ERROR> Expression() <CC_END> 
 	    )* 
 	  )* 
 
 	  ( 
 	    <CC_ELSE> 
-	    (declarativeUnit(isPackageLevel)
+	    (declarativeUnit(isPackageLevel,objectStart)
 	     | <CC_ERROR> Expression() <CC_END> 
 	    )* 
 	  )*
@@ -332,7 +334,7 @@ void CompilationDeclarationFragment(boolean isPackageLevel) throws SAXException 
  *								   custom tags which he can evaluate in the XSLT.
  *                                 This methode also documents global functions/procedures.
  */
-void programUnit(boolean isPackageLevel) throws SAXException :
+void programUnit(boolean isPackageLevel, Token objectStart) throws SAXException :
 {
 	Token start, name;
 	Token globalStart = null;
@@ -546,12 +548,17 @@ void programUnit(boolean isPackageLevel) throws SAXException :
 			callSpecTail(isPackageLevel) //{ System.err.println("Found callSpecTail") ; }
 			|
 			(
-				declarativeSection(false)
+				declarativeSection(false,objectStart)
 				<BEGIN> (statement())* (exceptionHandler())? <END> [ID()]
 			)
 		)
 	]
 	";" //SRT 20110416 { System.err.println("Found terminating semi-colon") ; }
+        {
+	   //Do not generate Summaries for interanl programUnits that are not output 
+           if (isPackageLevel) printSummary("Program Unit", (isPackageLevel && (null != objectStart) ? objectStart.beginLine : name.beginLine), name, token);
+        }
+
 	) //UnwrappedCode
 	) 
 	{
@@ -1100,7 +1107,7 @@ void statement() throws SAXException :
 	  <INTO> Expression() ("," Expression())* [<LIMIT> Expression()] ";"
 	//
 	| "<<" <IDENTIFIER> ">>" statement()
-	| [<DECLARE> declarativeSection(false)] <BEGIN> (statement())* (exceptionHandler())? <END> [<IDENTIFIER>] ";"
+	| [<DECLARE> declarativeSection(false,token)] <BEGIN> (statement())* (exceptionHandler())? <END> [<IDENTIFIER>] ";"
 	//
   | <EXECUTE> <IMMEDIATE> StringLiteral() /* <STRING_LITERAL> */ ";"
 	//SRT 20110429 | <EXECUTE> <IMMEDIATE> StringExpression()  [<USING> Expression() ("," Expression())*] ";"

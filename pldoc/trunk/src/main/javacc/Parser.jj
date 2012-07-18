@@ -182,6 +182,35 @@ public class PLSQLParser {
 	  this.globalPackageName = globalPackageName;
 	}
 
+	/**
+	Output summary for the parsed object.
+
+	@param parsedObject - PL/SQL type - procedure, trigger, object type 
+	@param baseLine - start line number of containing PL/SQL or 0 if the parsed object is a top-level object: normalise the line numbers to match *_SOURCE tables and PL/SCOPE 
+	@param startToken - first Token (usually the object name) 
+	@param endToken - last token (usually the terminating ";" )
+	*/
+	void printSummary(String parsedObject, int baseLine, Token startToken, Token endToken)
+        throws SAXException 
+	{
+	    //Decrement baseLine to convert from an absolute line number into an adjustment 
+	    if (baseLine > 0) 
+	    {
+	       baseLine--;
+	    }
+
+	    if (null != m_out)
+	    {
+ 		    m_out.pushAttribute("START_LINE", Integer.toString(startToken.beginLine - baseLine)   );
+ 		    m_out.pushAttribute("START_COLUMN", Integer.toString(startToken.beginColumn) );
+ 		    m_out.pushAttribute("END_LINE", Integer.toString(endToken.beginLine - baseLine) );
+ 		    m_out.pushAttribute("END_COLUMN", Integer.toString(endToken.beginColumn) );
+ 		    m_out.pushAttribute("LINES", Integer.toString(endToken.beginLine - startToken.beginLine  + 1));
+		    m_out.startElement("SUMMARY");
+		    m_out.endElement("SUMMARY");
+	    }
+	}
+
 	/** Processes a package comment.
 	* Searches for possible package-level formal comment before the current token.
 	* If found, generates COMMENT element for the package.
