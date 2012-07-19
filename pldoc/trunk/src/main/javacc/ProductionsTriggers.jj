@@ -186,7 +186,8 @@ void triggerUnit() throws SAXException :
 	// end of simple_dml_trigger (incorporating  compound_dml_trigger )
 	
 	
-	[ <FOLLOWS> ( [LOOKAHEAD(2) ID() "."] ID() )  ( ","  ( [ LOOKAHEAD(2) ID() "."] ID() ) )* ] // 11G Syntax to specify trigger firing order 
+	[ [<FORWARD> | <REVERSE>] <CROSSEDITION>  ] // 11G Syntax to specify CrossEdition trigger  if not specified direction is FORWARD 
+	[ (<FOLLOWS> | <PRECEDES>) ( [LOOKAHEAD(2) ID() "."] ID() )  ( ","  ( [ LOOKAHEAD(2) ID() "."] ID() ) )* ] // 11G Syntax to specify trigger firing order 
 	[ <ENABLE> | <DISABLE> ] // 11G Syntax can create the trigger enabled or disabled explcitly 
 	[ <WHEN> "(" ConditionalOrExpression() ")" ]
 
