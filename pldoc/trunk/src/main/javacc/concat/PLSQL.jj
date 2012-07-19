@@ -182,6 +182,35 @@ public class PLSQLParser {
 	  this.globalPackageName = globalPackageName;
 	}
 
+	/**
+	Output summary for the parsed object.
+
+	@param parsedObject - PL/SQL type - procedure, trigger, object type 
+	@param baseLine - start line number of containing PL/SQL or 0 if the parsed object is a top-level object: normalise the line numbers to match *_SOURCE tables and PL/SCOPE 
+	@param startToken - first Token (usually the object name) 
+	@param endToken - last token (usually the terminating ";" )
+	*/
+	void printSummary(String parsedObject, int baseLine, Token startToken, Token endToken)
+        throws SAXException 
+	{
+	    //Decrement baseLine to convert from an absolute line number into an adjustment 
+	    if (baseLine > 0) 
+	    {
+	       baseLine--;
+	    }
+
+	    if (null != m_out)
+	    {
+ 		    m_out.pushAttribute("START_LINE", Integer.toString(startToken.beginLine - baseLine)   );
+ 		    m_out.pushAttribute("START_COLUMN", Integer.toString(startToken.beginColumn) );
+ 		    m_out.pushAttribute("END_LINE", Integer.toString(endToken.beginLine - baseLine) );
+ 		    m_out.pushAttribute("END_COLUMN", Integer.toString(endToken.beginColumn) );
+ 		    m_out.pushAttribute("LINES", Integer.toString(endToken.beginLine - startToken.beginLine  + 1));
+		    m_out.startElement("SUMMARY");
+		    m_out.endElement("SUMMARY");
+	    }
+	}
+
 	/** Processes a package comment.
 	* Searches for possible package-level formal comment before the current token.
 	* If found, generates COMMENT element for the package.
@@ -720,7 +749,7 @@ void global() throws SAXException :
 	  Still wrap the trigger in a fake package but make the package name dependent on the actual schema 
 	  defaulting to the globalPackageName if it cannot be found 
 	*/
-	(LOOKAHEAD ([<DECLARE> declarativeSection(false)] <BEGIN>) globalBlock() | LOOKAHEAD (4) programUnit(true) 
+	(LOOKAHEAD ([<DECLARE> declarativeSection(false,token)] <BEGIN>) globalBlock(token) | LOOKAHEAD (4) programUnit(true,token) 
 	)
 
 	{
@@ -740,14 +769,14 @@ void global() throws SAXException :
  * 
  * 2006-05-17 - Matthias Hendler - added
  */
-void globalBlock() throws SAXException :
+void globalBlock(Token objectStart) throws SAXException :
 { 
 	Token name = null; 
 }
 {
 	[
 		<DECLARE>
-		declarativeSection(false)
+		declarativeSection(false, objectStart)
 	]
 	
 	<BEGIN> (statement())* (exceptionHandler())? <END> ";"
@@ -756,7 +785,7 @@ void globalBlock() throws SAXException :
 
 
 void packageSpec() throws SAXException :
-{ Token schema = null, name = null, tokenCreate = null, tokenPackage = null, tokenIsAs = null; }
+{ Token schema = null, name = null, tokenCreate = null, tokenPackage = null, tokenIsAs = null, lastToken = null ; }
 {
 	[tokenCreate=<CREATE> [<OR> <REPLACE>]]
 	tokenPackage=<PACKAGE> (LOOKAHEAD(2) schema=ID()".")? name=ID()
@@ -800,9 +829,9 @@ void packageSpec() throws SAXException :
 		    processPackageComment(tokenIsAs);
 	    }
 
-	    declarativeSection(true)
+	    declarativeSection(true,name)
 
-	    <END> [ID()] ";"
+	    <END> [ID()] ";" { printSummary("Package Specification", name.beginLine, name, token); }
 	  )
 	)
 	{ 
@@ -851,9 +880,11 @@ void packageBody() throws SAXException :
 		    processPackageComment(tokenIsAs);
 	    }
 
-		  declarativeSection(true) //SRT 20110524 Allow PLDOc in Type Bodies 
+		  declarativeSection(true,name) //SRT 20110524 Allow PLDOc in Type Bodies 
 
-	  [ <BEGIN> (statement())* (exceptionHandler())? ] <END> [ID()] ";"
+						    
+	  [ <BEGIN> (statement())* (exceptionHandler())? ] <END> [ID()] ";" 
+	  { printSummary(tokenModuleType.image.toUpperCase().equals("PACKAGE") ?  "Package Body" :  "Object Type Body", name.beginLine, name, token); }
 	  )
 	)
 	{
@@ -865,7 +896,7 @@ void packageBody() throws SAXException :
 	}
 }
 
-void declarativeUnit(boolean isPackageLevel) throws SAXException :
+void declarativeUnit(boolean isPackageLevel, Token objectStart) throws SAXException :
 {}
 {
 		pragma(isPackageLevel) |
@@ -874,27 +905,27 @@ void declarativeUnit(boolean isPackageLevel) throws SAXException :
 		LOOKAHEAD((<TYPE>|<SUBTYPE>) qualifiedID() (<IS> | <AS> )  ) //SRT 20110616 - make sue soen't break object type
 		subtype_definition(isPackageLevel) |
 		LOOKAHEAD((<FUNCTION>|<PROCEDURE>) qualifiedID() ) //SRT 20111117 - Special case of parameterless methods:choose method in preference to variable 
-		programUnit(isPackageLevel)  |
+		programUnit(isPackageLevel,objectStart)  |
 		LOOKAHEAD(4)
 		variableOrConstantDeclaration(isPackageLevel) |
 		LOOKAHEAD(2)
 		cursorSpec(isPackageLevel) |
 		cursorBody(isPackageLevel) |
 		collectionDeclaration(isPackageLevel) |
-		programUnit(isPackageLevel) 
-		|typeMethod(isPackageLevel,1, null) //SRT 20110523
-		|CompilationDeclarationFragment(isPackageLevel) 
+		programUnit(isPackageLevel,objectStart) 
+		|typeMethod(isPackageLevel,1, null,objectStart) //SRT 20110523
+		|CompilationDeclarationFragment(isPackageLevel,objectStart) 
 }
 
-void declarativeSection(boolean isPackageLevel) throws SAXException :
+void declarativeSection(boolean isPackageLevel, Token objectStart) throws SAXException :
 {}
 {
 	(
-		declarativeUnit(isPackageLevel) 
+		declarativeUnit(isPackageLevel, objectStart) 
 	)*
 }
 
-void CompilationDeclarationFragment(boolean isPackageLevel) throws SAXException :
+void CompilationDeclarationFragment(boolean isPackageLevel, Token objectStart) throws SAXException :
 { 
 }
 {
@@ -902,7 +933,7 @@ void CompilationDeclarationFragment(boolean isPackageLevel) throws SAXException 
 	  <CC_IF>  
 	  ConditionalOrExpression()  
 	  <CC_THEN>  
-	    (declarativeUnit(isPackageLevel)
+	    (declarativeUnit(isPackageLevel,objectStart)
 	     | <CC_ERROR> Expression() <CC_END> 
 	    )* 
 
@@ -910,14 +941,14 @@ void CompilationDeclarationFragment(boolean isPackageLevel) throws SAXException 
 	    <CC_ELSIF> 
 	    ConditionalOrExpression() 
 	    <CC_THEN> 
-	    (declarativeUnit(isPackageLevel)
+	    (declarativeUnit(isPackageLevel,objectStart)
 	     | <CC_ERROR> Expression() <CC_END> 
 	    )* 
 	  )* 
 
 	  ( 
 	    <CC_ELSE> 
-	    (declarativeUnit(isPackageLevel)
+	    (declarativeUnit(isPackageLevel,objectStart)
 	     | <CC_ERROR> Expression() <CC_END> 
 	    )* 
 	  )*
@@ -936,7 +967,7 @@ void CompilationDeclarationFragment(boolean isPackageLevel) throws SAXException 
  *								   custom tags which he can evaluate in the XSLT.
  *                                 This methode also documents global functions/procedures.
  */
-void programUnit(boolean isPackageLevel) throws SAXException :
+void programUnit(boolean isPackageLevel, Token objectStart) throws SAXException :
 {
 	Token start, name;
 	Token globalStart = null;
@@ -1150,12 +1181,17 @@ void programUnit(boolean isPackageLevel) throws SAXException :
 			callSpecTail(isPackageLevel) //{ System.err.println("Found callSpecTail") ; }
 			|
 			(
-				declarativeSection(false)
+				declarativeSection(false,objectStart)
 				<BEGIN> (statement())* (exceptionHandler())? <END> [ID()]
 			)
 		)
 	]
 	";" //SRT 20110416 { System.err.println("Found terminating semi-colon") ; }
+        {
+	   //Do not generate Summaries for interanl programUnits that are not output 
+           if (isPackageLevel) printSummary("Program Unit", (isPackageLevel && (null != objectStart) ? objectStart.beginLine : name.beginLine), name, token);
+        }
+
 	) //UnwrappedCode
 	) 
 	{
@@ -1704,7 +1740,7 @@ void statement() throws SAXException :
 	  <INTO> Expression() ("," Expression())* [<LIMIT> Expression()] ";"
 	//
 	| "<<" <IDENTIFIER> ">>" statement()
-	| [<DECLARE> declarativeSection(false)] <BEGIN> (statement())* (exceptionHandler())? <END> [<IDENTIFIER>] ";"
+	| [<DECLARE> declarativeSection(false,token)] <BEGIN> (statement())* (exceptionHandler())? <END> [<IDENTIFIER>] ";"
 	//
   | <EXECUTE> <IMMEDIATE> StringLiteral() /* <STRING_LITERAL> */ ";"
 	//SRT 20110429 | <EXECUTE> <IMMEDIATE> StringExpression()  [<USING> Expression() ("," Expression())*] ";"
@@ -2947,7 +2983,7 @@ void comment() throws SAXException :
 
 
 
-void typeMethod(boolean isPackageLevel,int typeVersion, String alterTypeAction) throws SAXException :
+void typeMethod(boolean isPackageLevel,int typeVersion, String alterTypeAction, Token objectStart) throws SAXException :
 {
 	Token schemaName = null;
 	Token scope, start,  name;
@@ -3161,13 +3197,13 @@ void typeMethod(boolean isPackageLevel,int typeVersion, String alterTypeAction) 
  		  [ ";" ] // This only exists in the type body
 		  | // SRT 20110524 Not really a Declaration any more ...  
 		  (
-			declarativeSection(false)
+			declarativeSection(false,objectStart)
 			 <BEGIN> (statement())* (exceptionHandler())?  <END> [ID()] 
 			 ";" // This only exists in the type body
 		  )
 		)
 	]
-
+        { printSummary("Object Type Method", objectStart.beginLine, name, token); }
 
 	{
 		// element generated only on the package level
@@ -3337,10 +3373,10 @@ void typeSpec() throws SAXException :
 			processPackageComment(tokenIsAsUnder);
 		}
                 //Try matching against keywords first to allow FINCTION and procedure as a fallback
-		(LOOKAHEAD(2)  typeMethod(isPackageLevel,typeVersion,null) | attributeDeclaration(typeVersion,null) 
+		(LOOKAHEAD(2)  typeMethod(isPackageLevel,typeVersion,null,name) | attributeDeclaration(typeVersion,null) 
 		 | pragma_clause()
 		)* //SRT 20111125 This part may be completely empty if is a subtype which is effectively an alias for the supertype 
-		( "," (  typeMethod(isPackageLevel,typeVersion,null) | LOOKAHEAD(2) attributeDeclaration(typeVersion,null) 
+		( "," (  typeMethod(isPackageLevel,typeVersion,null,name) | LOOKAHEAD(2) attributeDeclaration(typeVersion,null) 
 		      | pragma_clause()
 		      ) 
 		)*
@@ -3357,7 +3393,7 @@ void typeSpec() throws SAXException :
 	)*
 
         //Original Type Specification may be followed by a series of modifications
-        ( alterTypeSpec(++typeVersion) ) *
+        ( alterTypeSpec(++typeVersion,name) ) *
 
 
         [
@@ -3367,15 +3403,16 @@ void typeSpec() throws SAXException :
 		// possibly, package comment is here
 		processPackageComment(tokenTypeTerminator);
 	}
-        ( alterTypeSpec(++typeVersion) ( "/" | ";" ) )* //SRT 20110529 There may be more after the first terminator 
+        ( alterTypeSpec(++typeVersion,name) ( "/" | ";" ) )* //SRT 20110529 There may be more after the first terminator 
         ]
+	 { printSummary("Object Type Specification", name.beginLine, name, token); }
 	{
 		if (m_out != null) m_out.endElement("OBJECT_TYPE"); //OBJECT_TYPE
 	}
 }
 
 
-void alterTypeSpec(int typeVersion) throws SAXException :
+void alterTypeSpec(int typeVersion, Token objectStart) throws SAXException :
 { Token schema = null, name = null, tokenCreate = null, tokenType = null
         , schemaSuperType = null, nameSuperType = null, tokenSuperType = null
         ,tokenIsAsUnder = null, tokenSpecificationForm = null
@@ -3415,7 +3452,7 @@ void alterTypeSpec(int typeVersion) throws SAXException :
         (
 	      // Move typeMethidMatching above attribure matvhing becausse FUNCTION is a valid attribute name 
              ( 
-		 (typeMethod(isPackageLevel,typeVersion, tokenAlterTypeString) ) 
+		 (typeMethod(isPackageLevel,typeVersion, tokenAlterTypeString, objectStart) ) 
 		  //( "," ( typeMethod(isPackageLevel,typeVersion, tokenAlterTypeString) ) )*
              )
             |
@@ -3446,7 +3483,7 @@ void alterTypeSpec(int typeVersion) throws SAXException :
             )
             |
              ( 
-		 (typeMethod(isPackageLevel,typeVersion, tokenAlterTypeString) ) 
+		 (typeMethod(isPackageLevel,typeVersion, tokenAlterTypeString, objectStart) ) 
 		  //( "," ( typeMethod(isPackageLevel,typeVersion, tokenAlterTypeString) ) )*
              )
         )+
@@ -3553,8 +3590,8 @@ void alterTypeSpec(int typeVersion) throws SAXException :
 			processPackageComment(tokenIsAsUnder);
 		}
 
-		(LOOKAHEAD(2) typeMethod(isPackageLevel,typeVersion, tokenAlterTypeString) | attributeDeclaration(typeVersion, tokenAlterTypeString) ) 
-		( "," ( LOOKAHEAD(2) typeMethod(isPackageLevel,typeVersion, tokenAlterTypeString) | attributeDeclaration(typeVersion, tokenAlterTypeString) ) )*
+		(LOOKAHEAD(2) typeMethod(isPackageLevel,typeVersion, tokenAlterTypeString, objectStart) | attributeDeclaration(typeVersion, tokenAlterTypeString) ) 
+		( "," ( LOOKAHEAD(2) typeMethod(isPackageLevel,typeVersion, tokenAlterTypeString, objectStart) | attributeDeclaration(typeVersion, tokenAlterTypeString) ) )*
 
 		")" 
 	]        
@@ -3898,7 +3935,8 @@ void triggerUnit() throws SAXException :
 	// end of simple_dml_trigger (incorporating  compound_dml_trigger )
 	
 	
-	[ <FOLLOWS> ( [LOOKAHEAD(2) ID() "."] ID() )  ( ","  ( [ LOOKAHEAD(2) ID() "."] ID() ) )* ] // 11G Syntax to specify trigger firing order 
+	[ [<FORWARD> | <REVERSE>] <CROSSEDITION>  ] // 11G Syntax to specify CrossEdition trigger  if not specified direction is FORWARD 
+	[ (<FOLLOWS> | <PRECEDES>) ( [LOOKAHEAD(2) ID() "."] ID() )  ( ","  ( [ LOOKAHEAD(2) ID() "."] ID() ) )* ] // 11G Syntax to specify trigger firing order 
 	[ <ENABLE> | <DISABLE> ] // 11G Syntax can create the trigger enabled or disabled explcitly 
 	[ <WHEN> "(" ConditionalOrExpression() ")" ]
 
@@ -3907,13 +3945,13 @@ void triggerUnit() throws SAXException :
 	(
 	 <CALL> PrimaryExpression() ";"
 	 //compound_trigger_block 
-	| compound_trigger_block()
+	| compound_trigger_block(name)
 
 	|//plsql_block  
 	  (
 	    [
 	    <DECLARE>
-		    declarativeSection(false)
+		    declarativeSection(false,name)
 	    ]
 	    
 	    <BEGIN> (statement())* (exceptionHandler())? <END> [ID()] ";"
@@ -3922,6 +3960,7 @@ void triggerUnit() throws SAXException :
 	)
 	
 	
+	{ printSummary("Trigger", name.beginLine, name, token); }
 	{
 		if (m_out != null)
 		{
@@ -3971,7 +4010,7 @@ void timing_point_section() throws SAXException :
 
 
 
-void compound_trigger_block() throws SAXException :
+void compound_trigger_block(Token objectStart) throws SAXException :
 {
 	Token start = null;
 	Token node = null;
@@ -4003,7 +4042,7 @@ void compound_trigger_block() throws SAXException :
 		cursorSpec(true) |
 		cursorBody(true) |
 		collectionDeclaration(true) |
-		programUnit(true) 
+		programUnit(true,objectStart) 
 	)*
 
 
@@ -4540,6 +4579,9 @@ TOKEN [IGNORE_CASE]:
 | <TRAILING : "TRAILING">
 | <CHAR_CS : "CHAR_CS">
 | <NCHAR_CS : "NCHAR_CS">
+| <PRECEDES : "PRECEDES">
+| <FORWARD : "FORWARD">
+| <CROSSEDITION : "CROSSEDITION">
 }
 
 /**
