@@ -15,23 +15,183 @@ What is PLDoc CPD?
  {{{./samples/sample3.sql}sample3.sql}}
 
 
- You then run cpd using command like this:
+ You then run cpd using command like this {{{./command/cpd_example.sh}cpd_example.sh}}:
 
 +-----+
-$ cpd -format plsql sample*.sql
+$ 
+./cpd_example.sh 
+PLDoc(CPD) version: ${project.version}
+Run() 
+Parsing files ...
+Parsing file samples/sample1.1.sql ...
+Processing : samples/sample1.1.sql as inputEncoding="ISO-8859-15"
+PLSQLTokenizer: ignoreComments==false
+PLSQLTokenizer: ignoreIdentifiers==false
+PLSQLTokenizer: ignoreLiterals==false
+Tokenized /Users/sturton/Development/pldoc.svn/cpd/trunk/samples/sample1.1.sql
+Parsing file samples/sample1.sql ...
+Processing : samples/sample1.sql as inputEncoding="ISO-8859-15"
+Tokenized /Users/sturton/Development/pldoc.svn/cpd/trunk/samples/sample1.sql
+Parsing file samples/sample2.sql ...
+Processing : samples/sample2.sql as inputEncoding="ISO-8859-15"
+Tokenized /Users/sturton/Development/pldoc.svn/cpd/trunk/samples/sample2.sql
+Parsing file samples/sample3.sql ...
+Processing : samples/sample3.sql as inputEncoding="ISO-8859-15"
+Tokenized /Users/sturton/Development/pldoc.svn/cpd/trunk/samples/sample3.sql
+Parsing file samples/sample5.sql ...
+Processing : samples/sample5.sql as inputEncoding="ISO-8859-15"
+Tokenized /Users/sturton/Development/pldoc.svn/cpd/trunk/samples/sample5.sql
+Parsing file samples/sample6.sql ...
+Processing : samples/sample6.sql as inputEncoding="ISO-8859-15"
+Tokenized /Users/sturton/Development/pldoc.svn/cpd/trunk/samples/sample6.sql
+Finished parsing files.
+Parsing database source ...
+Added  4146 Abstract Syntax Tree(s) from 6 Source(s).
+Checking  4146 Abstract Syntax Tree(s) from 6 Source(s).
+Outputting CPD to to /Users/sturton/Development/pldoc.svn/cpd/trunk/./cpd_pldoc_ignore_nothing.txt
 
-pldoc version: 0.6.8
-Parsing file sample1.sql ...
-Parsing file sample2.sql ...
-Parsing file sample3.sql ...
-Generating HTML files ...
-Generating summary.html ...
-Generating allpackages.html ...
-Generating index.html ...
-Generating <unit>.html ...
-Done (6.366 seconds).
+PLDoc(CPD) version: ${project.version}
+Run() 
+Parsing files ...
+Parsing file samples/sample1.1.sql ...
+Processing : samples/sample1.1.sql as inputEncoding="ISO-8859-15"
+PLSQLTokenizer: ignoreComments==false
+PLSQLTokenizer: ignoreIdentifiers==true
+PLSQLTokenizer: ignoreLiterals==false
+Tokenized /Users/sturton/Development/pldoc.svn/cpd/trunk/samples/sample1.1.sql
+Parsing file samples/sample1.sql ...
+Processing : samples/sample1.sql as inputEncoding="ISO-8859-15"
+Tokenized /Users/sturton/Development/pldoc.svn/cpd/trunk/samples/sample1.sql
+Parsing file samples/sample2.sql ...
+Processing : samples/sample2.sql as inputEncoding="ISO-8859-15"
+Tokenized /Users/sturton/Development/pldoc.svn/cpd/trunk/samples/sample2.sql
+Parsing file samples/sample3.sql ...
+Processing : samples/sample3.sql as inputEncoding="ISO-8859-15"
+Tokenized /Users/sturton/Development/pldoc.svn/cpd/trunk/samples/sample3.sql
+Parsing file samples/sample5.sql ...
+Processing : samples/sample5.sql as inputEncoding="ISO-8859-15"
+Tokenized /Users/sturton/Development/pldoc.svn/cpd/trunk/samples/sample5.sql
+Parsing file samples/sample6.sql ...
+Processing : samples/sample6.sql as inputEncoding="ISO-8859-15"
+Tokenized /Users/sturton/Development/pldoc.svn/cpd/trunk/samples/sample6.sql
+Finished parsing files.
+Parsing database source ...
+Added  4146 Abstract Syntax Tree(s) from 6 Source(s).
+Checking  4146 Abstract Syntax Tree(s) from 6 Source(s).
+Outputting CPD to to /Users/sturton/Development/pldoc.svn/cpd/trunk/./cpd_pldoc_ignore_identifiers.txt
+
+PLDoc(CPD) version: ${project.version}
+Run() 
+Parsing files ...
+Parsing file samples/sample1.1.sql ...
+Processing : samples/sample1.1.sql as inputEncoding="ISO-8859-15"
+PLSQLTokenizer: ignoreComments==false
+PLSQLTokenizer: ignoreIdentifiers==false
+PLSQLTokenizer: ignoreLiterals==true
+Tokenized /Users/sturton/Development/pldoc.svn/cpd/trunk/samples/sample1.1.sql
+Parsing file samples/sample1.sql ...
+Processing : samples/sample1.sql as inputEncoding="ISO-8859-15"
+Tokenized /Users/sturton/Development/pldoc.svn/cpd/trunk/samples/sample1.sql
+Parsing file samples/sample2.sql ...
+Processing : samples/sample2.sql as inputEncoding="ISO-8859-15"
+Tokenized /Users/sturton/Development/pldoc.svn/cpd/trunk/samples/sample2.sql
+Parsing file samples/sample3.sql ...
+Processing : samples/sample3.sql as inputEncoding="ISO-8859-15"
+Tokenized /Users/sturton/Development/pldoc.svn/cpd/trunk/samples/sample3.sql
+Parsing file samples/sample5.sql ...
+Processing : samples/sample5.sql as inputEncoding="ISO-8859-15"
+Tokenized /Users/sturton/Development/pldoc.svn/cpd/trunk/samples/sample5.sql
+Parsing file samples/sample6.sql ...
+Processing : samples/sample6.sql as inputEncoding="ISO-8859-15"
+Tokenized /Users/sturton/Development/pldoc.svn/cpd/trunk/samples/sample6.sql
+Finished parsing files.
+Parsing database source ...
+Added  4146 Abstract Syntax Tree(s) from 6 Source(s).
+Checking  4146 Abstract Syntax Tree(s) from 6 Source(s).
+Outputting CPD to to /Users/sturton/Development/pldoc.svn/cpd/trunk/./cpd_pldoc_ignore_literals.txt
+
+PLDoc(CPD) version: ${project.version}
+Run() 
+Parsing files ...
+Parsing file samples/sample1.1.sql ...
+Processing : samples/sample1.1.sql as inputEncoding="ISO-8859-15"
+PLSQLTokenizer: ignoreComments==true
+PLSQLTokenizer: ignoreIdentifiers==false
+PLSQLTokenizer: ignoreLiterals==false
+Tokenized /Users/sturton/Development/pldoc.svn/cpd/trunk/samples/sample1.1.sql
+Parsing file samples/sample1.sql ...
+Processing : samples/sample1.sql as inputEncoding="ISO-8859-15"
+Tokenized /Users/sturton/Development/pldoc.svn/cpd/trunk/samples/sample1.sql
+Parsing file samples/sample2.sql ...
+Processing : samples/sample2.sql as inputEncoding="ISO-8859-15"
+Tokenized /Users/sturton/Development/pldoc.svn/cpd/trunk/samples/sample2.sql
+Parsing file samples/sample3.sql ...
+Processing : samples/sample3.sql as inputEncoding="ISO-8859-15"
+Tokenized /Users/sturton/Development/pldoc.svn/cpd/trunk/samples/sample3.sql
+Parsing file samples/sample5.sql ...
+Processing : samples/sample5.sql as inputEncoding="ISO-8859-15"
+Tokenized /Users/sturton/Development/pldoc.svn/cpd/trunk/samples/sample5.sql
+Parsing file samples/sample6.sql ...
+Processing : samples/sample6.sql as inputEncoding="ISO-8859-15"
+Tokenized /Users/sturton/Development/pldoc.svn/cpd/trunk/samples/sample6.sql
+Finished parsing files.
+Parsing database source ...
+Added  4146 Abstract Syntax Tree(s) from 6 Source(s).
+Checking  4146 Abstract Syntax Tree(s) from 6 Source(s).
+Outputting CPD to to /Users/sturton/Development/pldoc.svn/cpd/trunk/./cpd_pldoc_ignore_comments.txt
+
+PLDoc(CPD) version: ${project.version}
+Run() 
+Parsing files ...
+Parsing file samples/sample1.1.sql ...
+Processing : samples/sample1.1.sql as inputEncoding="ISO-8859-15"
+PLSQLTokenizer: ignoreComments==true
+PLSQLTokenizer: ignoreIdentifiers==true
+PLSQLTokenizer: ignoreLiterals==true
+Tokenized /Users/sturton/Development/pldoc.svn/cpd/trunk/samples/sample1.1.sql
+Parsing file samples/sample1.sql ...
+Processing : samples/sample1.sql as inputEncoding="ISO-8859-15"
+Tokenized /Users/sturton/Development/pldoc.svn/cpd/trunk/samples/sample1.sql
+Parsing file samples/sample2.sql ...
+Processing : samples/sample2.sql as inputEncoding="ISO-8859-15"
+Tokenized /Users/sturton/Development/pldoc.svn/cpd/trunk/samples/sample2.sql
+Parsing file samples/sample3.sql ...
+Processing : samples/sample3.sql as inputEncoding="ISO-8859-15"
+Tokenized /Users/sturton/Development/pldoc.svn/cpd/trunk/samples/sample3.sql
+Parsing file samples/sample5.sql ...
+Processing : samples/sample5.sql as inputEncoding="ISO-8859-15"
+Tokenized /Users/sturton/Development/pldoc.svn/cpd/trunk/samples/sample5.sql
+Parsing file samples/sample6.sql ...
+Processing : samples/sample6.sql as inputEncoding="ISO-8859-15"
+Tokenized /Users/sturton/Development/pldoc.svn/cpd/trunk/samples/sample6.sql
+Finished parsing files.
+Parsing database source ...
+Added  4146 Abstract Syntax Tree(s) from 6 Source(s).
+Checking  4146 Abstract Syntax Tree(s) from 6 Source(s).
+Outputting CPD to to /Users/sturton/Development/pldoc.svn/cpd/trunk/./cpd_pldoc_ignore_all.txt
 +-----+
 
+ You then have 5 cpd output files for the same input files:- 
+
+*---------*---*---*
+|Command-line Flag|Meaning|Output File|
+*---------*---*---*
+| | Differences in literals, variable names and comments are significant|{{{./output/cpd_pldoc_ignore_nothing.txt}cpd_pldoc_ignore_nothing.txt}}|
+*---------*---*---*
+|--ignoreComments|Differences in literals and variable names are significant; difference in comments are ignored|{{{./output/cpd_pldoc_ignore_comments.txt} cpd_pldoc_ignore_comments.txt}}|
+*---------*---*---*
+|--ignoreLiterals|Differences in variable names and comments are significant; difference in string, date and numeric lityerald are ignored|{{{./output/cpd_pldoc_ignore_literals.txt} cpd_pldoc_ignore_literals.txt}}|
+*---------*---*---*
+|--ignoreIdentifiers|Differences in literals and comments are significant; differences in object, type, constant and variable names are ignored|{{{./output/cpd_pldoc_ignore_identifiers.txt} cpd_pldoc_ignore_identifiers.txt}}|
+*---------*---*---*
+|all 3 flags|Differences in literals, variable names and comments are ignored|{{{./output/cpd_pldoc_ignore_all.txt}cpd_pldoc_ignore_all.txt}}|
+*---------*---*---*
+
+ 
+ 
+ 
+ 
+ 
 
 Supported Databases
 
@@ -39,7 +199,7 @@ Supported Databases
 
 Notes
 
-    * Presently, cpd has only a command line interface, no GUI. Howver the PLSQL Language has been provisionally patched into PMD 5.1.0-SNAPSHOT and if incorporated into PMD, will be available via the PMD/CPD GUIS. 
+    * Presently, cpd has only a command line interface, no GUI. Howver the PLSQL Language has been provisionally patched into PMD 5.1.0-SNAPSHOT and if incorporated into PMD, will be available via the PMD/CPD GUIs. 
 
 
 
