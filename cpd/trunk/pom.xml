@@ -2,12 +2,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.sourceforge.pldoc</groupId>
-    <artifactId>pldoc-pmd-plugin</artifactId>
+    <artifactId>pldoc-cpd</artifactId>
     <packaging>jar</packaging>
     <version>0.0.1-SNAPSHOT</version>
-    <name>PLDoc PMD Plugin - ${project.version}</name>
-    <description>The PMD Plugin is a plugin that uses the PLDoc tool for
-            generating metrics for the specified project.
+    <name>PLDoc CPD Plugin - ${project.version}</name>
+    <description>The CPD Plugin is an extension that combines the PMD/CPD and PLDoc codebases
+            to check for duplicated code in PLSQL code.
     </description>
     <url>http://pldoc.sourceforge.net</url>
     <licenses>
@@ -33,9 +33,9 @@
     </mailingLists>
 
     <scm>
-        <connection>scm:svn:https://pldoc.svn.sourceforge.net/svnroot/pldoc/pldoc-pmd-plugin/trunk</connection>
-        <developerConnection>scm:svn:https://pldoc.svn.sourceforge.net/svnroot/pldoc/pldoc-pmd-plugin/trunk</developerConnection>
-        <url>http://pldoc.svn.sourceforge.net/viewvc/pldoc/maven-pldoc-plugin/</url>
+        <connection>scm:svn:https://pldoc.svn.sourceforge.net/svnroot/pldoc/cpd/trunk</connection>
+        <developerConnection>scm:svn:https://pldoc.svn.sourceforge.net/svnroot/pldoc/cpd/trunk</developerConnection>
+        <url>http://pldoc.svn.sourceforge.net/viewvc/pldoc/cpd/</url>
     </scm>
 
     <developers>
@@ -78,8 +78,8 @@
         </snapshotRepository>
         <site>
             <id>site.pldoc.sf.net</id>
-            <name>PLDoc Site</name>
-            <url>scp://shell.sourceforge.net/home/project-web/pldoc/htdocs/maven-site/pldoc-cpd-plugin</url>
+            <name>PLDoc CPD Site</name>
+            <url>scp://shell.sourceforge.net/home/project-web/pldoc/htdocs/maven-site/pldoc-cpd</url>
         </site>
     </distributionManagement>
 
