@@ -9,13 +9,13 @@ mvn install:install-file -Dfile=${DB2_HOME}/sqllib/java/db2jcc_license_cu.jar -D
 export MAVEN_OPTS="-server" #Ensure that the JVM is running as server, to prevent running out of heap space 
 
 #echo Local PL/SQL files as goal 
-#mvn -f pldoc-sqlfiles-pom.xml pldoc:pldoc  
+#mvn -f pldoc-sqlfiles-pom.xml pldoc:cpd  
 
 #echo Local PL/SQL files as site report plug-in 
 #mvn -f pldoc-sqlfiles-pom.xml site 
 
 echo Database PL/SQL code as goal 
-mvn -s maven_db2_settings.xml -f pldoc-db2-pom.xml pldoc:pldoc  
+mvn -s maven_db2_settings.xml -f cpd-db2-pom.xml pldoc:cpd  
 
 echo Database PL/SQL code as site report plug-in 
-mvn -s maven_db2_settings.xml -f pldoc-db2-pom.xml site 
+mvn -s maven_db2_settings.xml -f cpd-db2-pom.xml site 
