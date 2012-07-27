@@ -2,7 +2,7 @@
 export MAVEN_OPTS="-server" #Force server JVM 
 #Run against Example SQL files 
 #As goal 
-mvn -f cpd-sqlfiles-pom.xml pldoc:cpd  
+mvn -f cpd-sqlfiles-pom.xml pldoc:pldoc  
 
 # As site report plug-in 
 mvn -f cpd-sqlfiles-pom.xml site 
@@ -31,7 +31,7 @@ else
 	#Run against all Oracle Enterprise schemas
 
 	#As goal 
-	mvn -s maven_enterprise_settings.xml -f cpd-enterprise-pom.xml pldoc:cpd  
+	mvn -s maven_enterprise_settings.xml -f cpd-enterprise-pom.xml pldoc:pldoc  
 
 	# As site report plug-in 
 	mvn -s maven_enterprise_settings.xml -f cpd-enterprise-pom.xml site 

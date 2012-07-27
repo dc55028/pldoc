@@ -62,7 +62,7 @@
 		<reportPlugins>
 		  <plugin>
 		    <groupId>net.sourceforge.pldoc</groupId>
-		    <artifactId>maven-pldoc-plugin</artifactId>
+		    <artifactId>maven-cpd-plugin</artifactId>
 		    <version>LATEST</version>
 		    <configuration>
 		      <name>Maven Site PLDoc Enterprise Example</name>
