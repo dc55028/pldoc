@@ -14,7 +14,7 @@
      <outputDirectory>/target</outputDirectory> 
     </fileSet>
     <fileSet>
-      <directory>${project.basedir}/samples</directory>
+      <directory>${project.basedir}/src/test/resources/samples</directory>
       <includes>
 	<include>*</include>
       </includes>
@@ -22,26 +22,26 @@
     </fileSet>
     <fileSet>
       <directory>${project.basedir}</directory>
+      <filtered>true</filtered>
       <includes>
-	<include>pldoc.bat</include>
-	<include>pldoc.sh</include>
-	<include>pldoc_example.bat</include>
-	<include>pldoc_example.sh</include>
-	<include>pldoc_ant_example.bat</include>
-	<include>pldoc_ant_example.sh</include>
-	<include>ant_example.xml</include>
-	<include>ant_enterprise_example.xml</include>
-	<include>pldoc_drop.bat</include>
+	<include>ojdbc_mvn_install.bat</include>
+	<include>ojdbc_mvn_install.sh</include>
+	<include>cpd_maven_example.bat</include>
+	<include>cpd_maven_example.sh</include>
+	<include>cpd-sqlfiles-pom.xml</include>
+	<include>cpd-enterprise-pom.xml</include>
       </includes>
      <fileMode>0755</fileMode> 
      <outputDirectory>/</outputDirectory> 
     </fileSet>
     <fileSet>
-      <directory>${project.basedir}/src/main/command/ant</directory>
+      <directory>${project.basedir}/src/main/command/maven</directory>
       <filtered>true</filtered>
       <includes>
-	<include>ant_*_example.properties</include>
-	<include>ant_*_example.xml</include>
+	<include>maven_*_settings.xml</include>
+	<include>cpd-*-pom.xml</include>
+	<include>cpd-*-settings.xml</include>
+	<include>OtherDatabases.txt</include>
       </includes>
      <fileMode>0755</fileMode> 
      <outputDirectory>/</outputDirectory> 
@@ -50,8 +50,7 @@
       <directory>${project.basedir}/src/main/command</directory>
       <filtered>true</filtered>
       <includes>
-	<include>pldoc_ant_*.sh</include>
-	<include>OtherDatabases.txt</include>
+	<include>*jdbc-mvn-install.sh</include>
       </includes>
      <fileMode>0755</fileMode> 
      <outputDirectory>/</outputDirectory> 
