@@ -95,7 +95,7 @@ implements MavenReport{
     private String destDir;
 
     /**
-     * Specifies the destination directory where pldoc saves the generated HTML files.
+     * Specifies the destination directory where cpd saves the generated HTML files.
 
      *
      * @parameter expression="${destDir}" alias="destDir" default-value="${project.build.directory}/sql-apidocs"
@@ -104,7 +104,7 @@ implements MavenReport{
     protected File outputDirectory;
 
     /**
-     * Specifies the destination directory where pldoc saves the generated HTML files.
+     * Specifies the destination directory where cpd saves the generated HTML files.
      *
      * @parameter expression="${project.reporting.outputDirectory}/sql-apidocs"
      * @required
@@ -382,10 +382,10 @@ implements MavenReport{
         } 
 	catch (BuildException ex) {
 	  //Convert Ant Build Exception into expected Maven Exception 
-	  throw new MavenReportException("Failed generating pldoc report",ex);
+	  throw new MavenReportException("Failed generating cpd report",ex);
         }
 	catch (RuntimeException ex) {
-	  throw new MavenReportException("Failed generating pldoc report",ex);
+	  throw new MavenReportException("Failed generating cpd report",ex);
         }
     }
 
@@ -400,7 +400,7 @@ implements MavenReport{
     public String getName(Locale locale) {
         if ( StringUtils.isEmpty( name ) )
         {
-            return getBundle( locale ).getString( "report.pldoc.name" );
+            return getBundle( locale ).getString( "report.cpd.name" );
         }
 
         return name;
@@ -417,7 +417,7 @@ implements MavenReport{
     public String getDescription(Locale locale) {
         if ( StringUtils.isEmpty( description ) )
         {
-            return getBundle( locale ).getString( "report.pldoc.description" );
+            return getBundle( locale ).getString( "report.cpd.description" );
         }
 
         return description;
@@ -488,7 +488,7 @@ implements MavenReport{
      */
     private ResourceBundle getBundle( Locale locale )
     {
-        return ResourceBundle.getBundle( "pldoc-report", locale, getClass().getClassLoader() );
+        return ResourceBundle.getBundle( "cpd-report", locale, getClass().getClassLoader() );
     }
 
 
