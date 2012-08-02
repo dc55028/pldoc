@@ -7,6 +7,9 @@
         <author email="altumano at users.sourceforge.net">Albert Tumanov</author>
     </properties>
     <body>
+	 <release version="0.0.3" date="2012-08-02"  description="Correct build flaws." >
+	           <action type="fix" dev="sturton" >Amend cpd-report.properties contents to refer to report.cpd.* properties.</action>
+        </release>
 	 <release version="0.0.2" date="2012-07-31"  description="Correct build flaws." >
 	           <action type="fix" dev="sturton" >Base distribution.xml assembly file on maven-pldoc-plugin rather than pldoc version.</action>
 	           <action type="fix" dev="sturton" >Create cpd-report.properties resource bundle for site report and change reference in plugin from pldoc-report to cpd-report.</action>
