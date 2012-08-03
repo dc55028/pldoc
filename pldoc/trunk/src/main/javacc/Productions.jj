@@ -1856,7 +1856,7 @@ String PrimaryPrefix() :
 }
 
 String PrimarySuffix() :
-{ Token suffixToken = null ; String arguments = null; StringBuffer sb = new StringBuffer() ; }
+{ Token suffixToken = null ; String timeZoneExpression = null ; String arguments = null; StringBuffer sb = new StringBuffer() ; }
 {
   (
   (".") {sb.append(".");}  (suffixToken = qualifiedID() ) { sb.append(suffixToken.toString()) ; }
@@ -1865,6 +1865,16 @@ String PrimarySuffix() :
   //["@" dblink = qualifiedName() {sb.append("@"); sb.append(dblink); } ]
   | //Possible dblink 
   ("@") {sb.append("@");}  (suffixToken = qualifiedID() ) { sb.append(suffixToken.toString()) ; }
+  | //Possible Date Time Expression - Bug 3553725  
+  ( <AT> {sb.append(" "); sb.append(token.image.toUpperCase());}  
+          (  <LOCAL> {sb.append(" "); sb.append(token.image.toUpperCase());}
+            | ( <TIME> <ZONE> {sb.append(" TIME ZONE");} ( <DBTIMEZONE> {sb.append(" "); sb.append(token.image.toUpperCase());}
+	        | <SESSIONTIMEZONE> {sb.append(" "); sb.append(token.image.toUpperCase());}
+	        | timeZoneExpression = StringLiteral() {sb.append(" "); sb.append(timeZoneExpression);}
+		| timeZoneExpression = Expression() ) {sb.append(" "); sb.append(timeZoneExpression);}
+	      )
+         )   
+  ) 
   |
   ( arguments = Arguments() ) {sb.append(arguments) ; }
   )

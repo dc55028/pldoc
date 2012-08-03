@@ -449,6 +449,8 @@ TOKEN [IGNORE_CASE]:
 | <PRECEDES : "PRECEDES">
 | <FORWARD : "FORWARD">
 | <CROSSEDITION : "CROSSEDITION">
+| <DBTIMEZONE : "DBTIMEZONE">
+| <SESSIONTIMEZONE : "SESSIONTIMEZONE">
 }
 
 /**
@@ -806,7 +808,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <DBA>
 //| <DBA_RECYCLEBIN>
 //| <DBMS_STATS>
-//| <DBTIMEZONE>
+| <DBTIMEZONE>
 | <DDL>
 //| <DEALLOCATE>
 //| <DEBUG>
@@ -1482,7 +1484,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <SESSION>
 //| <SESSION_CACHED_CURSORS>
 //| <SESSIONS_PER_USER>
-//| <SESSIONTIMEZONE>
+| <SESSIONTIMEZONE>
 //| <SESSIONTZNAME>
 | <SET> //SET is defined as a reserved word but is used in "SYS"."DBMS_RESULT_CACHE_API" as a function name and as a pragma parameter
 //| <SET_TO_JOIN>
