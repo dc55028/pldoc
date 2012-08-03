@@ -11,7 +11,7 @@ AS
 */
 
 /** AT LOCAL clause */
-c_at_local_time_zone clause CONSTANT TIMESTAMP WITH TIME ZONE :=  FROM_TZ(CAST(TO_DATE('1999-12-01 11:00:00', 'YYYY-MM-DD HH:MI:SS') AS TIMESTAMP), 'America/New_York') AT LOCAL ;
+c_at_local_time_zone  CONSTANT TIMESTAMP WITH TIME ZONE :=  FROM_TZ(CAST(TO_DATE('1999-12-01 11:00:00', 'YYYY-MM-DD HH:MI:SS') AS TIMESTAMP), 'America/New_York') AT LOCAL ;
 
 /** AT TIME ZONE literal clause */
 c_at_time_zone_literal CONSTANT TIMESTAMP WITH TIME ZONE :=  FROM_TZ(CAST(TO_DATE('1999-12-01 11:00:00', 'YYYY-MM-DD HH:MI:SS') AS TIMESTAMP), 'America/New_York') AT TIME ZONE 'America/Los_Angeles' ;
@@ -23,7 +23,7 @@ c_at_time_zone_dbtimezone CONSTANT TIMESTAMP WITH TIME ZONE :=  FROM_TZ(CAST(TO_
 c_at_time_zone_sessiontimezone CONSTANT TIMESTAMP WITH TIME ZONE :=  FROM_TZ(CAST(TO_DATE('1999-12-01 11:00:00', 'YYYY-MM-DD HH:MI:SS') AS TIMESTAMP), 'America/New_York') AT TIME ZONE SESSIONTIMEZONE ;
 
 /** AT TIME ZONE expression clause */
-c_at_time_zone_expression CONSTANT TIMESTAMP WITH TIME ZONE :=  FROM_TZ(CAST(TO_DATE('1999-12-01 11:00:00', 'YYYY-MM-DD HH:MI:SS') AS TIMESTAMP), 'America/New_York') AT TIME ZONE TO_CHAR(c_at_time_zone_literal,'TZR'); ;
+c_at_time_zone_expression CONSTANT TIMESTAMP WITH TIME ZONE :=  FROM_TZ(CAST(TO_DATE('1999-12-01 11:00:00', 'YYYY-MM-DD HH:MI:SS') AS TIMESTAMP), 'America/New_York') AT TIME ZONE TO_CHAR(c_at_time_zone_literal,'TZR'); 
 
 END;
 /
