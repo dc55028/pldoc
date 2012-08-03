@@ -2489,7 +2489,7 @@ String PrimaryPrefix() :
 }
 
 String PrimarySuffix() :
-{ Token suffixToken = null ; String arguments = null; StringBuffer sb = new StringBuffer() ; }
+{ Token suffixToken = null ; String timeZoneExpression = null ; String arguments = null; StringBuffer sb = new StringBuffer() ; }
 {
   (
   (".") {sb.append(".");}  (suffixToken = qualifiedID() ) { sb.append(suffixToken.toString()) ; }
@@ -2498,6 +2498,16 @@ String PrimarySuffix() :
   //["@" dblink = qualifiedName() {sb.append("@"); sb.append(dblink); } ]
   | //Possible dblink 
   ("@") {sb.append("@");}  (suffixToken = qualifiedID() ) { sb.append(suffixToken.toString()) ; }
+  | //Possible Date Time Expression - Bug 3553725  
+  ( <AT> {sb.append(" "); sb.append(token.image.toUpperCase());}  
+          (  <LOCAL> {sb.append(" "); sb.append(token.image.toUpperCase());}
+            | ( <TIME> <ZONE> {sb.append(" TIME ZONE");} ( <DBTIMEZONE> {sb.append(" "); sb.append(token.image.toUpperCase());}
+	        | <SESSIONTIMEZONE> {sb.append(" "); sb.append(token.image.toUpperCase());}
+	        | timeZoneExpression = StringLiteral() {sb.append(" "); sb.append(timeZoneExpression);}
+		| timeZoneExpression = Expression() ) {sb.append(" "); sb.append(timeZoneExpression);}
+	      )
+         )   
+  ) 
   |
   ( arguments = Arguments() ) {sb.append(arguments) ; }
   )
@@ -4582,6 +4592,8 @@ TOKEN [IGNORE_CASE]:
 | <PRECEDES : "PRECEDES">
 | <FORWARD : "FORWARD">
 | <CROSSEDITION : "CROSSEDITION">
+| <DBTIMEZONE : "DBTIMEZONE">
+| <SESSIONTIMEZONE : "SESSIONTIMEZONE">
 }
 
 /**
@@ -4590,7 +4602,7 @@ TOKEN [IGNORE_CASE]:
  */
 TOKEN :
 {
-< #GERMAN_SPECIAL_CHARACTERS: "Ä" | "Ö" | "Ü" | "ä" | "ü" | "ö" | "ß" >
+< #GERMAN_SPECIAL_CHARACTERS: "ï¿½" | "ï¿½" | "ï¿½" | "ï¿½" | "ï¿½" | "ï¿½" | "ï¿½" >
 |
 < #LETTER: ["A"-"Z"] | ["a"-"z"] | <GERMAN_SPECIAL_CHARACTERS> >
 |
@@ -4603,7 +4615,7 @@ TOKEN :
  | "$" | "&" | "_" | "|" | "{" | "}" | "?" | "[" | "]"
  | " " | "\t" >
 |
-< #SPECIAL_CHARACTERS: "á" | "Ž" | "™" | "š" | "„" | "”" | "ý" | "²" | "€" | "³" | "µ">
+< #SPECIAL_CHARACTERS: "ï¿½" | "ï¿½" | "ï¿½" | "ï¿½" | "ï¿½" | "ï¿½" | "ï¿½" | "ï¿½" | "ï¿½" | "ï¿½" | "ï¿½">
 |
 < #DELIMITER: "+" | "%" | "'" | "\"" | "." | "/" | "(" | ")" | ":" | "," | "*" | "=" | "<" | ">" | "@" | ";" | "-">
 |
@@ -4939,7 +4951,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <DBA>
 //| <DBA_RECYCLEBIN>
 //| <DBMS_STATS>
-//| <DBTIMEZONE>
+| <DBTIMEZONE>
 | <DDL>
 //| <DEALLOCATE>
 //| <DEBUG>
@@ -5615,7 +5627,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <SESSION>
 //| <SESSION_CACHED_CURSORS>
 //| <SESSIONS_PER_USER>
-//| <SESSIONTIMEZONE>
+| <SESSIONTIMEZONE>
 //| <SESSIONTZNAME>
 | <SET> //SET is defined as a reserved word but is used in "SYS"."DBMS_RESULT_CACHE_API" as a function name and as a pragma parameter
 //| <SET_TO_JOIN>
