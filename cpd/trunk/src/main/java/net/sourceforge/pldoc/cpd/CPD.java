@@ -388,8 +388,8 @@ private MatchAlgorithm matchAlgorithm;
     } finally {
       }
             if (settings.isVerbose() ) System.err.println("Added  " 
-                + tokens.size() + " Abstract Syntax Tree(s) from "
-                + source.size() + " Source(s)."
+                + tokens.size() + " Token(s) from "
+                + source.size() + " Abstract Syntax Tree Source(s)."
             );
         if ( null == tokens || 0 == tokens.size() ) 
         {
@@ -427,8 +427,8 @@ private MatchAlgorithm matchAlgorithm;
 
     public void go() {
         if (settings.isVerbose() ) System.err.println("Checking  " 
-                + tokens.size() + " Abstract Syntax Tree(s) from "
-                + source.size() + " Source(s)."
+                + tokens.size() + " Token(s) from "
+                + source.size() + " Abstract Syntax Tree Source(s)."
             );
         if ( null == tokens || 0 == tokens.size() ) 
         {
