@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document xmlns="http://maven.apache.org/changes/1.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/changes/1.0.0 http://maven.apache.org/xsd/changes-1.0.0.xsd">
+    <properties>
+        <title>PLDoc CPD Maven Plug-in Project</title>
+        <author email="altumano at users.sourceforge.net">Albert Tumanov</author>
+    </properties>
+    <body>
+	 <release version="0.0.4" date="2012-08-05"  description="Minor fixes." >
+	           <action type="fix" dev="sturton" >Write output file under outputDirectory/reportOutputDirectory</action>
+        </release>
+	 <release version="0.0.3" date="2012-08-02"  description="Correct build flaws." >
+	           <action type="fix" dev="sturton" >Amend cpd-report.properties contents to refer to report.cpd.* properties.</action>
+        </release>
+	 <release version="0.0.2" date="2012-07-31"  description="Correct build flaws." >
+	           <action type="fix" dev="sturton" >Base distribution.xml assembly file on maven-pldoc-plugin rather than pldoc version.</action>
+	           <action type="fix" dev="sturton" >Create cpd-report.properties resource bundle for site report and change reference in plugin from pldoc-report to cpd-report.</action>
+        </release>
+	    <release version="0.0.1" date="2012-07-27"  description="Add Maven support for CPD against PL/SQL within files or database." >
+        </release>
+    </body>
+</document>
