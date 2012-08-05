@@ -15,7 +15,7 @@
       <plugin>
 	<groupId>net.sourceforge.pldoc</groupId>
 	<artifactId>maven-cpd-plugin</artifactId>
-	<version>maven-cpd-plugin-0.0.1-SNAPSHOT</version>
+	<version>maven-cpd-plugin-0.0.4-SNAPSHOT</version>
 	  <dependencies>
 	    <dependency>
 	     <groupId>com.oracle</groupId>
@@ -38,7 +38,7 @@
 	  <stylesheetFile>cpdhtml.xslt</stylesheetFile>
 	  <showSkippedPackages>true</showSkippedPackages>
 	  <dbUrl>jdbc:oracle:thin:@//192.168.100.22:1521/orcl</dbUrl>
-	  <dbUser>system</dbUser>
+	  <dbUser>SYSTEM</dbUser>
 	  <dbPassword>oracle</dbPassword>
 	  <driverName>${maven.pldoc.driverName}</driverName>
 	  <getMetadataStatement>${maven.pldoc.getMetadataStatement}</getMetadataStatement>

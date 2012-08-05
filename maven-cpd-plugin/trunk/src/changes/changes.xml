@@ -7,6 +7,9 @@
         <author email="altumano at users.sourceforge.net">Albert Tumanov</author>
     </properties>
     <body>
+	 <release version="0.0.4" date="2012-08-05"  description="Minor fixes." >
+	           <action type="fix" dev="sturton" >Write output file under outputDirectory/reportOutputDirectory</action>
+        </release>
 	 <release version="0.0.3" date="2012-08-02"  description="Correct build flaws." >
 	           <action type="fix" dev="sturton" >Amend cpd-report.properties contents to refer to report.cpd.* properties.</action>
         </release>
