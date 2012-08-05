@@ -339,8 +339,7 @@ public class PLDocCPDTask extends Task {
             //
             cpd.go();
             if (cpd.getMatches().hasNext()) {
-                    //System.out.println(settings.renderer().render(cpd.getMatches()));
-                File outputFile = settings.getOutputFile();
+                File outputFile = new File ( settings.getOutputDirectory().getPath() + File.separator + settings.getOutputFile().getName() ) ;
                 PrintStream outputStream = System.out;
 
                 if (null != outputFile )
