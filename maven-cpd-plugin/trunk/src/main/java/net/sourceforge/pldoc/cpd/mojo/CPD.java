@@ -356,7 +356,7 @@ implements MavenReport{
 	    task.setLanguage(language);
 	    task.setFormat(format);
 	    task.setMinimumTokens(minimumTokens);
-	    task.setOutputFile(outputFile);
+	    task.setOutputFile(new File (outputDirectory + File.separator + outputFile.getName() ) );
 	    task.setStylesheet(stylesheetFile);
 
 	    /* Set non-Oracle settings only if they are not null;
