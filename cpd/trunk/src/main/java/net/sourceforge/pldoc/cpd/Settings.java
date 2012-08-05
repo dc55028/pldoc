@@ -91,6 +91,7 @@ public class Settings
   private static final String usage =
     "Arguments: [options] inputfile(s)\n" +
     "-verbose                  Verbose - report each object processed \n" +
+    "-d <directory>            Destination directory for output files [default: current]\n" +
     "-language <language>      Language expected in the source code [default: "+ CPD_LANGUAGE_DEFAULT  +" ]\n" +
     "-format <format>          Output format [default: "+ CPD_RENDER_FORMAT_DEFAULT +" ]\n" +
     "-ignorecomments           Ignore comments in code\n" +
@@ -217,6 +218,16 @@ public class Settings
           processInvalidUsage("Option " + arg + " requires a value !");
         }
 	minimumTileSize = Integer.parseInt( (String) it.next() );
+      }
+      else if (arg.equalsIgnoreCase("-d")) {
+        // consume  "-d"
+        if(!it.hasNext()) {
+          processInvalidUsage("Option " + arg + " requires a value !");
+        }
+        outputDirectory = new File((String) it.next() + File.separator);
+        if (outputDirectory.isFile()) {
+          processInvalidUsage("File name given instead of the output directory !");
+        }
       }
       else if (arg.equalsIgnoreCase("-inputencoding")) {
         // consume  "-inputencoding"
