@@ -17,7 +17,6 @@ PACKAGE pldoc_bug.testcase_range IS
  g_plus_one_minus_minus_one pldoc_integer := +1- -1  ;
  g_plus_one_plus_minus_one pldoc_integer := +1+-1  ;
  g_plus_one_plus_plus_one pldoc_integer := +1++1  ;
- g_plus_one_plus_minus_one pldoc_integer := +1+-1  ;
  g_plus_one_minus_plus_one pldoc_integer := +1-+1  ;
 
 
@@ -28,7 +27,6 @@ PACKAGE pldoc_bug.testcase_range IS
  g_minus_one_minus_minus_one pldoc_integer := -1- -1  ;
  g_minus_one_plus_minus_one pldoc_integer := -1+-1  ;
  g_minus_one_plus_plus_one pldoc_integer := -1++1  ;
- g_minus_one_plus_minus_one pldoc_integer := -1+-1  ;
  g_minus_one_minus_plus_one pldoc_integer := -1-+1  ;
 
 
