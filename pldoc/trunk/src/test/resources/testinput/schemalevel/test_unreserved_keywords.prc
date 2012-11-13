@@ -1324,8 +1324,6 @@ AS
   OVERFLOW_NOMOVE VARCHAR2(240);
 /** Unreserved Keyword Word OVERLAPS **/
   OVERLAPS VARCHAR2(240);
-/** Unreserved Keyword Word OVERLAPS **/
-  OVERRIDING VARCHAR2(240);
 /** Unreserved Keyword Word OVERRIDING **/
   OVERRIDING VARCHAR2(240);
 /** Unreserved Keyword Word OWN **/
