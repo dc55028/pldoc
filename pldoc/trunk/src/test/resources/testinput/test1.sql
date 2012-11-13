@@ -84,7 +84,7 @@ RETURN NUMBER;
 PROCEDURE Without_Parameters;
 
 /** (no comments) */
-FUNCTION Get_Without_Parameters;
+FUNCTION Get_Without_Parameters RETURN BOOLEAN;
 
 /* this compiles, but pldoc cannot handle it !
 PROCEDURE function (
