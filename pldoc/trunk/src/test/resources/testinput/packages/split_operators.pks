@@ -32,7 +32,7 @@ c_less_than BOOLEAN := (1 < -- Comment
  2);
 
 /** > operator* */
-c_greater_than_equal BOOLEAN := (1 > -- Comment 
+c_greater_than BOOLEAN := (1 > -- Comment 
  2);
 
 END;
