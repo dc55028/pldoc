@@ -94,6 +94,13 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
      
      <!-- generate the file: package list of this schema -->
      <redirect:write file="{concat($targetFolder, translate($theschema, $namesFromCase, $namesToCase))}.html">
+	    <HTML>
+	    <HEAD>
+	    <TITLE><xsl:value-of select="concat(translate($theschema, $namesFromCase, $namesToCase),' Schema')" /></TITLE>
+	    <LINK REL ="stylesheet" TYPE="text/css" HREF="stylesheet.css" TITLE="Style"/>
+	    </HEAD>
+	    <BODY BGCOLOR="white">
+	
 	    <TABLE BORDER="0" WIDTH="100%">
 	    <TR>
 		    <TD><FONT size="+1" CLASS="FrameTitleFont">
@@ -252,12 +259,14 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 	    </TABLE>
 	    </xsl:if>
 	
+	    </BODY>
+	    </HTML>
     </redirect:write>
     
  	<!-- generate the file: package summary of this schema -->
     <redirect:write file="{concat($targetFolder, translate($theschema, $namesFromCase, $namesToCase))}-summary.html">
 	    
-		<HTML>
+      	    <HTML>
 	    <HEAD>
 	    <TITLE><xsl:value-of select="@NAME" />: Overview</TITLE>
 	    <LINK REL ="stylesheet" TYPE="text/css" HREF="stylesheet.css" TITLE="Style" />
