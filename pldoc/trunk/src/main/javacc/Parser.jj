@@ -25,7 +25,7 @@ options {
 	IGNORE_CASE = true;
 	STATIC = false;
 	LOOKAHEAD = 1;
-	CHOICE_AMBIGUITY_CHECK = 3;
+	CHOICE_AMBIGUITY_CHECK = 2; // 3;
 	OTHER_AMBIGUITY_CHECK = 1;
 	ERROR_REPORTING = true;
         JAVA_UNICODE_ESCAPE = false; //true 
