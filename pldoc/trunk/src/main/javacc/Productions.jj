@@ -1078,6 +1078,8 @@ void statement() throws SAXException :
 {}
 {
 	LOOKAHEAD(["("] <SELECT>|<UPDATE>|<INSERT>|<DELETE>|<COMMIT>|<ROLLBACK>|<SAVEPOINT>|<EXECUTE>|<SET><TRANSACTION>|<LOCK><TABLE>|<MERGE>|<WITH>) sqlStatement(null,";") [";"] 
+		| LOOKAHEAD(3) <CONTINUE> [ <IDENTIFIER> ] [ <WHEN> Expression() ] ";" // 11G CONTINUE statement  
+
 		| <CASE> ( Expression() )?
                 ( <WHEN> Expression() <THEN> (statement())+ )*
 		( <ELSE> (statement())+ )*
