@@ -460,6 +460,10 @@ public class Settings
     return inputFiles;
   }
 
+  public String getStylesheet() {
+      return stylesheetfile;
+  }
+
   public InputStream getStylesheetFile() throws IOException {
     // if some custom stylesheet was given, use it
     if (stylesheetfile != null && stylesheetfile.length() > 0) {
