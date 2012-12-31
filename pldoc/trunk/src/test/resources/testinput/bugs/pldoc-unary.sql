@@ -5,7 +5,8 @@ CREATE OR REPLACE
 PACKAGE pldoc_bug.testcase_range IS
 
 
- SUBTYPE pldoc_integer IS PLS_INTEGER RANGE -127..+127;
+ SUBTYPE pldoc_integer_nullable IS PLS_INTEGER RANGE -127..+127;
+ SUBTYPE pldoc_integer IS PLS_INTEGER RANGE -127..+127 NOT NULL;
 
  g_var  pldoc_integer := -0;
  g_var_minus_one pldoc_integer := g_var-1  ;
