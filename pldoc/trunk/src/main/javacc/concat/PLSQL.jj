@@ -1711,6 +1711,8 @@ void statement() throws SAXException :
 {}
 {
 	LOOKAHEAD(["("] <SELECT>|<UPDATE>|<INSERT>|<DELETE>|<COMMIT>|<ROLLBACK>|<SAVEPOINT>|<EXECUTE>|<SET><TRANSACTION>|<LOCK><TABLE>|<MERGE>|<WITH>) sqlStatement(null,";") [";"] 
+		| LOOKAHEAD(3) <CONTINUE> [ <IDENTIFIER> ] [ <WHEN> Expression() ] ";" // 11G CONTINUE statement  
+
 		| <CASE> ( Expression() )?
                 ( <WHEN> Expression() <THEN> (statement())+ )*
 		( <ELSE> (statement())+ )*
@@ -4294,6 +4296,7 @@ TOKEN [IGNORE_CASE]:
 <CONNECT: "CONNECT"> |
 <CONSTANT: "CONSTANT"> |
 <CONSTRUCTOR: "CONSTRUCTOR"> |
+<CONTINUE: "CONTINUE"> |
 <CONVERT: "CONVERT"> |
 <CREATE: "CREATE"> |
 <CURRENT: "CURRENT"> |
@@ -4949,7 +4952,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <CONTENT>
 //| <CONTENTS>
 | <CONTEXT>
-//| <CONTINUE>
+| <CONTINUE>
 //| <CONTROLFILE>
 | <CONVERT>
 | <COPY>
