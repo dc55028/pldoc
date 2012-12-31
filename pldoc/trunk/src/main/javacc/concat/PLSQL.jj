@@ -25,7 +25,7 @@ options {
 	IGNORE_CASE = true;
 	STATIC = false;
 	LOOKAHEAD = 1;
-	CHOICE_AMBIGUITY_CHECK = 3;
+	CHOICE_AMBIGUITY_CHECK = 2; // 3;
 	OTHER_AMBIGUITY_CHECK = 1;
 	ERROR_REPORTING = true;
         JAVA_UNICODE_ESCAPE = false; //true 
@@ -749,7 +749,7 @@ void global() throws SAXException :
 	  Still wrap the trigger in a fake package but make the package name dependent on the actual schema 
 	  defaulting to the globalPackageName if it cannot be found 
 	*/
-	(LOOKAHEAD ([<DECLARE> declarativeSection(false,token)] <BEGIN>) globalBlock(token) | LOOKAHEAD (4) programUnit(true,token) 
+	(LOOKAHEAD ([ label() ] [<DECLARE> declarativeSection(false,token)] <BEGIN>) globalBlock(token) | LOOKAHEAD (4) programUnit(true,token) 
 	)
 
 	{
@@ -775,11 +775,14 @@ void globalBlock(Token objectStart) throws SAXException :
 }
 {
 	[
+		label()
+	]
+	[
 		<DECLARE>
 		declarativeSection(false, objectStart)
 	]
 	
-	<BEGIN> (statement())* (exceptionHandler())? <END> ";"
+	<BEGIN> (statement())* (exceptionHandler())? <END> [<IDENTIFIER>] ";"
 }
 
 
@@ -1739,10 +1742,10 @@ void statement() throws SAXException :
 	  //MMUE 04/08/2005 <INTO> (LOOKAHEAD(functionCall()) functionCall() | qualifiedName()) ("," (LOOKAHEAD(functionCall()) functionCall() | qualifiedName()))* ";"
 	  <INTO> Expression() ("," Expression())* [<LIMIT> Expression()] ";"
 	//
-	| "<<" <IDENTIFIER> ">>" statement()
+	| label() statement()
 	| [<DECLARE> declarativeSection(false,token)] <BEGIN> (statement())* (exceptionHandler())? <END> [<IDENTIFIER>] ";"
 	//
-  | <EXECUTE> <IMMEDIATE> StringLiteral() /* <STRING_LITERAL> */ ";"
+        | <EXECUTE> <IMMEDIATE> StringLiteral() /* <STRING_LITERAL> */ ";"
 	//SRT 20110429 | <EXECUTE> <IMMEDIATE> StringExpression()  [<USING> Expression() ("," Expression())*] ";"
 	// PIPELINED FUNCTION OUTPUT
 	| <PIPE> <ROW> Expression()  ";"
@@ -1759,6 +1762,7 @@ void subtype_definition(boolean isPackageLevel) throws SAXException :
 {
 	Token start, subtype_name=null, constraint=null, base_type=null;
 	Token collection = null, collection2 = null;
+	Token notNullable = null;
 	String startElement = null, endElement = null;
 	String baseType = null, returnType = null, indexBy = null, string = null;
 	Hashtable tags = null;
@@ -1794,7 +1798,8 @@ void subtype_definition(boolean isPackageLevel) throws SAXException :
 				  }
 			  }
 			]
-			[<NOT> <NULL> ] //SRT 20110604
+
+			[<NOT> <NULL> { returnType += " NOT NULL"; } ] //SRT 20110604
 		)
 		 |
 		( start=<TYPE> subtype_name=qualifiedID() // SRT 20110605 to Parse SYS.standars ned to allow nprmally reserved words which are low-level types 
@@ -1830,7 +1835,7 @@ void subtype_definition(boolean isPackageLevel) throws SAXException :
 				}
 				|
 				((collection=<TABLE> | collection=<VARRAY> | collection=<VARYING> collection2=<ARRAY>)["(" constraint=numericLiteral() ")"]
-				<OF> baseType=datatype() (<NOT> <NULL>)? (<INDEX> <BY> indexBy=datatype())?)
+				<OF> baseType=datatype() (notNullable = <NOT> <NULL>)? (<INDEX> <BY> indexBy=datatype())?)
 				{
 					returnType = collection.toString();
 					if (collection2 != null) {
@@ -1839,7 +1844,15 @@ void subtype_definition(boolean isPackageLevel) throws SAXException :
 					if (constraint != null) {
 						returnType += "(" + constraint + ")";
 					}
-					returnType += " OF " + baseType + " INDEX BY " + indexBy;
+					returnType += " OF " + baseType;
+
+					if (notNullable != null) {
+						returnType += " NOT NULL";
+					}
+
+					if (indexBy != null) {
+						returnType += " INDEX BY " + indexBy;
+					}
 				}
 				|
 				<REF> <CURSOR> [<RETURN> baseType=datatype()]
@@ -2643,6 +2656,26 @@ Token numericLiteral() :
 	)
 	{ 
 	 return main; 
+	}
+}
+
+/** Recognizes a labe.
+* This may look like token, but it isn't. Not atomic enough.
+* E.g. "+1" would be valid literal, which make parsing of "i+1" impossible
+* (here, we have tokens "i", "+" and "1")
+*/
+String label() :
+{ 
+Token labelID = null; 
+StringBuffer sb = new StringBuffer(); 
+}
+{
+	(
+	  //This cannot be a token because these are valid labels '<< next_msg >>", '<<"OUTER LOOP">>'  
+	"<<" labelID = unqualifiedID() ">>" {sb.append("<<");  sb.append(labelID);  sb.append(">>");  }
+	)
+	{ 
+	 return(sb.toString()); 
 	}
 }
 
