@@ -91,8 +91,26 @@ implements MavenReport{
     private String destDir;
 
     /**
-     * Specifies the destination directory where pldoc saves the generated HTML files.
+     * Specifies the File summarising the documented application.
+     *
+     *
+     * @parameter expression="${overviewFile}"
+     * @since 2.17 
+     */
+    protected File overviewFile;
 
+    /**
+     * Specifies the CSS stylesheet file to reference in the generated HTML files.
+     *
+     * @parameter expression="${stylesheet}"
+     * @since 2.17
+     */
+    private String stylesheet;
+    
+
+    /**
+     * Specifies the destination directory where pldoc saves the generated HTML files.
+     *
      *
      * @parameter expression="${destDir}" alias="destDir" default-value="${project.build.directory}/sql-apidocs"
      * @required
@@ -278,6 +296,8 @@ implements MavenReport{
 	getLog().debug( "sourceDirectory=" + sourceDirectory  ) ;
 	getLog().debug( "includes=" + includes  ) ;
 	getLog().debug( "inputEncoding=" + inputEncoding  ) ;
+        getLog().debug( "overviewFile=" + overviewFile ) ;
+        getLog().debug( "stylesheet=" + stylesheet  ) ;
 	getLog().debug( "namesCase=" + namesCase  ) ;
 	getLog().debug( "dbUrl=" + dbUrl  ) ;
 	getLog().debug( "dbUser=" + dbUser  ) ;
@@ -315,6 +335,8 @@ implements MavenReport{
 	    /* Set non-Oracle settings only if they are not null;
 	     * otherwise, rely on the defaults  
 	     */
+            if (null != overviewFile) task.setOverview(overviewFile);
+            if (null != stylesheet) task.setStylesheet(stylesheet);
 	    if (null != driverName) task.setDriverName(driverName);
 	    if (null != getMetadataStatement) task.setGetMetadataStatement(getMetadataStatement);
 	    if (null != getMetadataStatementReturnType) task.setReturnType(getMetadataStatementReturnType);
