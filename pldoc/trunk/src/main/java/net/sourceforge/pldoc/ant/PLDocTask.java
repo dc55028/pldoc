@@ -26,9 +26,9 @@ import net.sourceforge.pldoc.*;
  *   &lt;pldoc
  *     verbose = "yes" | "no" (default: "no")
  *     doctitle = text
+ *     stylesheet = text
  *     destdir = dir-path
  *     overview = file-path
- *     stylesheet = file-path (default: stylesheet from library)
  *     namesCase = "upper" | "lower" | "mixed" | "default"  
  *     inputEncoding = encoding (default: OS dependant) &gt;
  *     ignoreInformalComments = (false | true) 
@@ -49,7 +49,7 @@ import net.sourceforge.pldoc.*;
  *  <dt>doctitle</dt><dd>Documentation title</dd>
  *  <dt>destdir</dt><dd>Directory to store documentation files (created if doesn't exist)</dd>
  *  <dt>overview</dt><dd>File with overview in HTML format</dd>
- *  <dt>stylesheet</dt><dd>File with CSS-stylesheet for the result documentation. If omitted, default CSS will be used.</dd>
+ *  <dt>stylesheet</dt><dd>Name of File containing CSS-stylesheet for the result documentation. If omitted, default CSS will be used.</dd>
  *  <dt>namesCase</dt><dd>Upper/Lower/Mixed/Default case to format PL/SQL names. If omitted, Oracle standard case conversion is done (unquoted to upper case, quoted left as mixed case).</dd>
  *  <dt>inputEncoding</dt><dd>Input files encoding</dd>
  *  <dt>ignoreInformalComments</dt><dd> true if documentation should be generated from formal comments only</dd>
@@ -70,9 +70,9 @@ public class PLDocTask extends Task {
   private boolean m_verbose;
   private File m_destdir;
   private String m_doctitle;
+  private String m_stylesheet;
   private File m_overviewFile;
   private ArrayList m_filesets;
-  private File m_stylesheet;
   private char m_namesCase;
   private String m_inEnc;
   private boolean m_exitOnError;
@@ -93,9 +93,9 @@ public class PLDocTask extends Task {
     m_verbose = false;
     m_destdir = null;
     m_doctitle = null;
+    m_stylesheet = null;
     m_overviewFile = null;
     m_filesets = new ArrayList();
-    m_stylesheet = null;
     m_namesCase = 'D'; //Default to Oracle standard 
     m_inEnc = null;
     m_exitOnError = false;
@@ -112,28 +112,28 @@ public class PLDocTask extends Task {
   }
 
   public void setVerbose(boolean verbose) {
-    m_verbose = verbose;
+    this.m_verbose = verbose;
   }
   public void setDestdir(File dir) {
-    m_destdir = dir;
+    this.m_destdir = dir;
   }
   public void setDoctitle(String doctitle) {
-    m_doctitle = doctitle;
+    this.m_doctitle = doctitle;
+  }
+  public void setStylesheet(String stylesheet) {
+    this.m_stylesheet = stylesheet;
   }
   public void setOverview(File file) {
-    m_overviewFile = file;
+    this.m_overviewFile = file;
   }
   public void addFileset(FileSet fset) {
-    m_filesets.add(fset);
-  }
-  public void setStylesheet(File file) {
-    m_stylesheet = file;
+    this.m_filesets.add(fset);
   }
   public void setInputEncoding(String enc) {
-    m_inEnc = enc;
+    this.m_inEnc = enc;
   }
   public void setExitOnError(boolean exitOnError) {
-    m_exitOnError = exitOnError;
+    this.m_exitOnError = exitOnError;
   }
 
   public void setDbUrl(String dbUrl) {
@@ -196,6 +196,8 @@ public class PLDocTask extends Task {
       settings = new Settings();
       settings.setOutputDirectory(m_destdir);
       settings.setApplicationName(m_doctitle);
+      if (null != m_stylesheet) settings.setStylesheetfile(m_stylesheet);
+      if (null != m_overviewFile) settings.setOverviewfile(m_overviewFile);
       switch (m_namesCase) {
         case 'U':
           settings.setDefaultNamescase("upper");
