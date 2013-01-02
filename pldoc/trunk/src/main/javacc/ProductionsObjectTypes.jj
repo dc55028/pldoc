@@ -262,6 +262,15 @@ void typeSpec() throws SAXException :
 		processPackageComment(tokenType);
 	}
 
+	//ID 3599012
+	[
+		tokenIsAsUnder=<FORCE> 
+		{
+			// possibly, package comment is here
+			processPackageComment(tokenIsAsUnder);
+		}
+	]
+
         // incomplete_type_spec (empty) 
         // object_type_spec
         // varray_type_spec
