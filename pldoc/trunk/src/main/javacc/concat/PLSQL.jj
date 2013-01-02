@@ -3322,6 +3322,15 @@ void typeSpec() throws SAXException :
 		processPackageComment(tokenType);
 	}
 
+	//ID 3599012
+	[
+		tokenIsAsUnder=<FORCE> 
+		{
+			// possibly, package comment is here
+			processPackageComment(tokenIsAsUnder);
+		}
+	]
+
         // incomplete_type_spec (empty) 
         // object_type_spec
         // varray_type_spec
@@ -4669,7 +4678,7 @@ TOKEN [IGNORE_CASE]:
  */
 TOKEN :
 {
-< #GERMAN_SPECIAL_CHARACTERS: "ï¿½" | "ï¿½" | "ï¿½" | "ï¿½" | "ï¿½" | "ï¿½" | "ï¿½" >
+< #GERMAN_SPECIAL_CHARACTERS: "Ä" | "Ö" | "Ü" | "ä" | "ü" | "ö" | "ß" >
 |
 < #LETTER: ["A"-"Z"] | ["a"-"z"] | <GERMAN_SPECIAL_CHARACTERS> >
 |
@@ -4682,7 +4691,7 @@ TOKEN :
  | "$" | "&" | "_" | "|" | "{" | "}" | "?" | "[" | "]"
  | " " | "\t" >
 |
-< #SPECIAL_CHARACTERS: "ï¿½" | "ï¿½" | "ï¿½" | "ï¿½" | "ï¿½" | "ï¿½" | "ï¿½" | "ï¿½" | "ï¿½" | "ï¿½" | "ï¿½">
+< #SPECIAL_CHARACTERS: "á" | "Ž" | "™" | "š" | "„" | "”" | "ý" | "²" | "€" | "³" | "µ">
 |
 < #DELIMITER: "+" | "%" | "'" | "\"" | "." | "/" | "(" | ")" | ":" | "," | "*" | "=" | "<" | ">" | "@" | ";" | "-">
 |
