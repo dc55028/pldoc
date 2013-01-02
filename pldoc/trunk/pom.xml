@@ -363,6 +363,8 @@
 		<include>pldoc_example.bat</include>
 		<include>pldoc_example.sh</include>
 		<include>pldoc_drop.bat</include>
+		<include>ant_*_example.xml</include>
+		<include>ant_*_example.properties</include>
 		<include>samples</include>
 		<include>testinput</include>
 	      </includes>
