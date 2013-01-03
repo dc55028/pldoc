@@ -654,15 +654,31 @@ void input() throws org.xml.sax.SAXException : {}
 	 | LOOKAHEAD(6) table()  
 	 | LOOKAHEAD(6) view()   
 	 | LOOKAHEAD(6) triggerUnit()  
-	 | alterTrigger()  
-	 | global()  
-	 | sqlPlusCommand() 
+	 | LOOKAHEAD(6) alterTrigger()  
+	 | LOOKAHEAD(6) Synonym()   
+	 | LOOKAHEAD(6) Directory()   
+	 | LOOKAHEAD(6) DatabaseLink()   
+	 | LOOKAHEAD(6) global()  
+	 | LOOKAHEAD(6) DDLCommand()   
+	 | LOOKAHEAD(6) sqlPlusCommand() 
 	 |(<SELECT>|<UPDATE>|<INSERT>|<DELETE>|<COMMIT>|<ROLLBACK>|<SAVEPOINT>|<LOCK><TABLE>|<MERGE>|<WITH>) skipPastNextTokenOccurrence(SQLPLUS_TERMINATOR) //Ignore SQL statements in scripts
 	 )	
 	 ("/")*
 	)*
 	<EOF>
 }
+
+
+void DDLCommand() : 
+{ 
+}
+{
+  (
+    DDLEvent()
+    skipPastNextTokenOccurrence(SQLPLUS_TERMINATOR) 
+  )
+}
+
 
 void sqlPlusCommand() : {}
 {
@@ -1778,7 +1794,11 @@ void statement() throws SAXException :
 	| label() statement()
 	| [<DECLARE> declarativeSection(false,token)] <BEGIN> (statement())* (exceptionHandler())? <END> [<IDENTIFIER>] ";"
 	//
-        | <EXECUTE> <IMMEDIATE> StringLiteral() /* <STRING_LITERAL> */ ";"
+        | <EXECUTE> <IMMEDIATE> Expression() /* <STRING_LITERAL> */ 
+	  [ <INTO> Name() ("," Name())* ] 
+	  [ <USING> [ <IN> [ <OUT> ] | <OUT> ]  Expression() ("," [ <IN> [ <OUT> ] | <OUT> ] Expression())* ] 
+	  [ ( <RETURN> | <RETURNING> )  <INTO> Expression() ("," Expression())*] ";"
+
 	//SRT 20110429 | <EXECUTE> <IMMEDIATE> StringExpression()  [<USING> Expression() ("," Expression())*] ";"
 	// PIPELINED FUNCTION OUTPUT
 	| <PIPE> <ROW> Expression()  ";"
@@ -2979,6 +2999,92 @@ void view() throws SAXException :
   //### WITH ...
   (";" | "/")
   { m_out.endElement("VIEW"); }
+}
+
+
+void Synonym()  :
+{ 
+}
+{
+  <CREATE> [<OR> <REPLACE>]
+  [<PUBLIC>] <SYNONYM>
+  ObjectNameDeclaration()
+  <FOR>
+  ObjectNameDeclaration()
+  (";" | "/")
+}
+
+void Directory()  :
+{ 
+}
+{
+  <CREATE> [<OR> <REPLACE>]
+   <DIRECTORY>
+  ObjectNameDeclaration()
+  <AS>
+  StringLiteral()
+  (";" | "/")
+  
+}
+
+void DatabaseLink()  :
+{ 
+}
+{
+  <CREATE> 
+   [ <SHARED> ] [ <PUBLIC> ]
+   <DATABASE> <LINK>
+  ObjectNameDeclaration()
+  (
+   <CONNECT> <TO> 
+    (
+    	(<CURRENT_USER> )
+	|
+	(
+	unqualifiedID() <IDENTIFIED> <BY> unqualifiedID()
+	<AUTHENTICATED> <BY> 
+	unqualifiedID() <IDENTIFIED> <BY> unqualifiedID()
+	)
+
+    )
+    |
+    unqualifiedID() <IDENTIFIED> <BY> unqualifiedID()
+  )
+  [ <USING> StringLiteral() ]
+  (";" | "/")
+  
+}
+
+
+void DDLEvent(): {}
+{
+  ( <ALTER> 
+  | <ANALYZE> 
+  | <ASSOCIATE> <STATISTICS> 
+  | <AUDIT>
+  | <COMMENT>
+  | <CREATE>
+  | <DISASSOCIATE> <STATISTICS>
+  | <DROP>
+  | <GRANT>
+  | <NOAUDIT>
+  | <RENAME>
+  | <REVOKE>
+  | <TRUNCATE>
+  | <DDL>
+  )
+}
+
+
+String ObjectNameDeclaration() :
+{
+Token schemaName = null, objectName = null ; 
+}
+{
+  [ LOOKAHEAD(2) schemaName = ID() "." ] objectName = ID() 
+  {
+  return  (null == schemaName) ?  objectName.toString() : (schemaName.toString() + "." + objectName.toString() )  ; 
+  }
 }
 
 void viewColumn() throws SAXException :
@@ -4493,6 +4599,7 @@ TOKEN [IGNORE_CASE]:
 <RESULT: "RESULT"> |
 <RESULT_CACHE: "RESULT_CACHE"> |
 <RETURN: "RETURN"> |
+<RETURNING: "RETURNING"> |
 <REVERSE: "REVERSE"> |
 <REVOKE: "REVOKE"> | //SRT 2011-04-17
 <ROLLBACK: "ROLLBACK"> |
@@ -4670,6 +4777,11 @@ TOKEN [IGNORE_CASE]:
 | <CROSSEDITION : "CROSSEDITION">
 | <DBTIMEZONE : "DBTIMEZONE">
 | <SESSIONTIMEZONE : "SESSIONTIMEZONE">
+| <AUTHENTICATED : "AUTHENTICATED">
+| <LINK : "LINK">
+| <SHARED : "SHARED">
+| <DIRECTORY : "DIRECTORY">
+| <USER : "USER">
 }
 
 /**
@@ -4881,7 +4993,7 @@ Token KEYWORD_UNRESERVED (): {}
 | <ATTRIBUTE> //PLDoc Bug 3512149  test_unreserved_keyword.pks
 //| <ATTRIBUTES>
 | <AUDIT>
-//| <AUTHENTICATED>
+| <AUTHENTICATED>
 //| <AUTHENTICATION>
 | <AUTHID>
 //| <AUTHORIZATION>
@@ -5050,7 +5162,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <DETERMINES>
 //| <DICTIONARY>
 //| <DIMENSION>
-//| <DIRECTORY>
+| <DIRECTORY>
 | <DISABLE>
 //| <DISABLE_RPKE>
 | <DISASSOCIATE>
@@ -5268,7 +5380,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <LIKE4>
 //| <LIKEC>
 | <LIMIT>
-//| <LINK>
+| <LINK>
 //| <LIST>
 //| <LOB>
 | <LOCAL>
@@ -5648,7 +5760,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <RESUME>
 //| <RETENTION>
 | <RETURN>
-//| <RETURNING>
+| <RETURNING>
 //| <REUSE>
 | <REVERSE>
 //| <REWRITE>
@@ -5710,7 +5822,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <SETS>
 //| <SETTINGS>
 //| <SEVERE>
-//| <SHARED>
+| <SHARED>
 //| <SHARED_POOL>
 //| <SHRINK>
 | <SHUTDOWN>
@@ -5872,7 +5984,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <USE_STORED_OUTLINES>
 //| <USE_TTT_FOR_GSETS>
 //| <USE_WEAK_NAME_RESL>
-//| <USER>
+| <USER>
 //| <USER_DEFINED>
 //| <USER_RECYCLEBIN>
 //| <USERS>

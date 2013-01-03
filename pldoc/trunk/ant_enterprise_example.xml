@@ -17,7 +17,7 @@
 
     where PLDOC_HOME is the directory where pldoc is installed.
 
-    pldoc-1.3.5-SNAPSHOT-jar-with-dependencies.jar contains all runtime Xalan and Xerces classes
+    pldoc-1.3.6-SNAPSHOT-jar-with-dependencies.jar contains all runtime Xalan and Xerces classes
     to run PLDoc successfully.
 
     <!-- fileset dir="test" includes="**//*.sql"/> <!- - here should be included any other masks for PL/SQL files -->
@@ -25,7 +25,7 @@
 
   <taskdef name="pldoc" classname="net.sourceforge.pldoc.ant.PLDocTask">
     <classpath>
-      <pathelement location="${pldoc.home}/target/pldoc-1.3.5-SNAPSHOT-jar-with-dependencies.jar"/>
+      <pathelement location="${pldoc.home}/target/pldoc-1.3.6-SNAPSHOT-jar-with-dependencies.jar"/>
       <pathelement location="${JDBC_HOME}/ojdbc6.jar"/>
       <pathelement location="${JDBC_HOME}/ojdbc5.jar"/>
       <pathelement location="${JDBC_HOME}/ojdbc14.jar"/>
