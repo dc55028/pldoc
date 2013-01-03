@@ -75,6 +75,92 @@ void view() throws SAXException :
   { m_out.endElement("VIEW"); }
 }
 
+
+void Synonym()  :
+{ 
+}
+{
+  <CREATE> [<OR> <REPLACE>]
+  [<PUBLIC>] <SYNONYM>
+  ObjectNameDeclaration()
+  <FOR>
+  ObjectNameDeclaration()
+  (";" | "/")
+}
+
+void Directory()  :
+{ 
+}
+{
+  <CREATE> [<OR> <REPLACE>]
+   <DIRECTORY>
+  ObjectNameDeclaration()
+  <AS>
+  StringLiteral()
+  (";" | "/")
+  
+}
+
+void DatabaseLink()  :
+{ 
+}
+{
+  <CREATE> 
+   [ <SHARED> ] [ <PUBLIC> ]
+   <DATABASE> <LINK>
+  ObjectNameDeclaration()
+  (
+   <CONNECT> <TO> 
+    (
+    	(<CURRENT_USER> )
+	|
+	(
+	unqualifiedID() <IDENTIFIED> <BY> unqualifiedID()
+	<AUTHENTICATED> <BY> 
+	unqualifiedID() <IDENTIFIED> <BY> unqualifiedID()
+	)
+
+    )
+    |
+    unqualifiedID() <IDENTIFIED> <BY> unqualifiedID()
+  )
+  [ <USING> StringLiteral() ]
+  (";" | "/")
+  
+}
+
+
+void DDLEvent(): {}
+{
+  ( <ALTER> 
+  | <ANALYZE> 
+  | <ASSOCIATE> <STATISTICS> 
+  | <AUDIT>
+  | <COMMENT>
+  | <CREATE>
+  | <DISASSOCIATE> <STATISTICS>
+  | <DROP>
+  | <GRANT>
+  | <NOAUDIT>
+  | <RENAME>
+  | <REVOKE>
+  | <TRUNCATE>
+  | <DDL>
+  )
+}
+
+
+String ObjectNameDeclaration() :
+{
+Token schemaName = null, objectName = null ; 
+}
+{
+  [ LOOKAHEAD(2) schemaName = ID() "." ] objectName = ID() 
+  {
+  return  (null == schemaName) ?  objectName.toString() : (schemaName.toString() + "." + objectName.toString() )  ; 
+  }
+}
+
 void viewColumn() throws SAXException :
 { Token column = null; }
 {

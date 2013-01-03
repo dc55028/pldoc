@@ -37,7 +37,7 @@ oldpwd=`pwd` ; cd "${pldir}"; pldir=`pwd`; cd "${oldpwd}"; unset oldpwd
 #
 # Set classpath
 # NB: classpath must contain the pldoc directory to be able to locate .xsl files
-cp="${pldir}:${pldir}/target/pldoc-1.3.5-SNAPSHOT-jar-with-dependencies.jar"
+cp="${pldir}:${pldir}/target/pldoc-1.3.6-SNAPSHOT-jar-with-dependencies.jar"
 
 # Save arguments
 args=$*
@@ -64,5 +64,5 @@ done
 
 #
 # Call PLDoc
-#java -jar ${pldir}/target/pldoc-1.3.5-SNAPSHOT-jar-with-dependencies.jar "$@"
+#java -jar ${pldir}/target/pldoc-1.3.6-SNAPSHOT-jar-with-dependencies.jar "$@"
 java -server -cp "$cp" net.sourceforge.pldoc.PLDoc $args

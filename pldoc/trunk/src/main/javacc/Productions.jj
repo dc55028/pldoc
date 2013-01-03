@@ -21,15 +21,31 @@ void input() throws org.xml.sax.SAXException : {}
 	 | LOOKAHEAD(6) table()  
 	 | LOOKAHEAD(6) view()   
 	 | LOOKAHEAD(6) triggerUnit()  
-	 | alterTrigger()  
-	 | global()  
-	 | sqlPlusCommand() 
+	 | LOOKAHEAD(6) alterTrigger()  
+	 | LOOKAHEAD(6) Synonym()   
+	 | LOOKAHEAD(6) Directory()   
+	 | LOOKAHEAD(6) DatabaseLink()   
+	 | LOOKAHEAD(6) global()  
+	 | LOOKAHEAD(6) DDLCommand()   
+	 | LOOKAHEAD(6) sqlPlusCommand() 
 	 |(<SELECT>|<UPDATE>|<INSERT>|<DELETE>|<COMMIT>|<ROLLBACK>|<SAVEPOINT>|<LOCK><TABLE>|<MERGE>|<WITH>) skipPastNextTokenOccurrence(SQLPLUS_TERMINATOR) //Ignore SQL statements in scripts
 	 )	
 	 ("/")*
 	)*
 	<EOF>
 }
+
+
+void DDLCommand() : 
+{ 
+}
+{
+  (
+    DDLEvent()
+    skipPastNextTokenOccurrence(SQLPLUS_TERMINATOR) 
+  )
+}
+
 
 void sqlPlusCommand() : {}
 {
@@ -1145,7 +1161,11 @@ void statement() throws SAXException :
 	| label() statement()
 	| [<DECLARE> declarativeSection(false,token)] <BEGIN> (statement())* (exceptionHandler())? <END> [<IDENTIFIER>] ";"
 	//
-        | <EXECUTE> <IMMEDIATE> StringLiteral() /* <STRING_LITERAL> */ ";"
+        | <EXECUTE> <IMMEDIATE> Expression() /* <STRING_LITERAL> */ 
+	  [ <INTO> Name() ("," Name())* ] 
+	  [ <USING> [ <IN> [ <OUT> ] | <OUT> ]  Expression() ("," [ <IN> [ <OUT> ] | <OUT> ] Expression())* ] 
+	  [ ( <RETURN> | <RETURNING> )  <INTO> Expression() ("," Expression())*] ";"
+
 	//SRT 20110429 | <EXECUTE> <IMMEDIATE> StringExpression()  [<USING> Expression() ("," Expression())*] ";"
 	// PIPELINED FUNCTION OUTPUT
 	| <PIPE> <ROW> Expression()  ";"
