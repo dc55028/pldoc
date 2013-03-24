@@ -3,11 +3,11 @@ SET DEFINE OFF
 CREATE OR REPLACE
 TYPE BODY ty_logger AS 
 /*
-m_loggername       CONSTANT VARCHAR2(100)   := 'com.bt.btd.eldb.logging.ty_logger'
+m_loggername       CONSTANT VARCHAR2(100)   := 'logging.ty_logger'
 --STATIC m_threadname       CONSTANT VARCHAR2(100)   := SYS_CONTEXT('USERENV','SESSION_USER')
 m_body_filename    CONSTANT VARCHAR2 (100)  := 'TY_LOGGER.PKB'
 m_package_name     CONSTANT VARCHAR2(30)    := 'ty_logger.'
-m_caller_class     CONSTANT VARCHAR2 (100)  := 'com.bt.btd.eldb.logging.ty_logger'
+m_caller_class     CONSTANT VARCHAR2 (100)  := 'logging.ty_logger'
 */
 
 -- Poor man's SDO_POINT/SDO_GEOMETRY 
@@ -19,17 +19,17 @@ CONSTRUCTOR FUNCTION ty_logger (
 								,pa_threadname       VARCHAR2 := SYS_CONTEXT('USERENV','SESSION_USER')
 								,pa_caller_filename  VARCHAR2 := 'TY_LOGGER.PKB'
 								,pa_caller_package   VARCHAR2 := 'ty_logger.'
-								,pa_caller_class     VARCHAR2 := 'com.bt.btd.eldb.logging'
+								,pa_caller_class     VARCHAR2 := 'logging'
 								,pa_log_level        VARCHAR2 := 'INFO'  -- Default Reporting LEVEL
 								) RETURN SELF AS RESULT 
 IS
    l_method_name   CONSTANT VARCHAR2 (30)           := 'ty_logger';
 BEGIN
-	loggername       := NVL(pa_loggername,'com.bt.btd.eldb');
+	loggername       := NVL(pa_loggername,'org.orgname');
 	threadname       := NVL(pa_threadname,SYS_CONTEXT('USERENV','SESSION_USER'));
 	caller_filename  := NVL(pa_caller_filename,'TY_LOGGER.PKB');
 	caller_package   := NVL(pa_caller_package,'ty_logger.');
-	caller_class     := NVL(pa_caller_class,'com.bt.btd.eldb.logging');
+	caller_class     := NVL(pa_caller_class,'logging');
 	
 	log_level        := NVL(pa_log_level,'INFO');  -- Default Reporting LEVEL
 END ty_logger;								
@@ -38,7 +38,7 @@ CONSTRUCTOR FUNCTION ty_logger (
 								 pa_caller_package     VARCHAR2       --:= 'ty_logger.'
 								,pa_loggername         VARCHAR2 := NULL--:= 'TY_LOGGER.PKB'
 								,pa_caller_filename    VARCHAR2 := NULL--:= 'TY_LOGGER.PKB'
-								,pa_caller_class       VARCHAR2 := NULL--:= 'com.bt.btd.eldb.logging'
+								,pa_caller_class       VARCHAR2 := NULL--:= 'logging'
 								,pa_log_level          VARCHAR2 := 'INFO'  -- Default Reporting LEVEL
 								) RETURN SELF AS RESULT
 IS
@@ -48,21 +48,21 @@ BEGIN
     l_package_name := LOWER(REPLACE(caller_package,'.'));
 	
 	caller_package   := NVL(pa_caller_package,'ty_logger.');
-	loggername       := NVL(pa_loggername,'com.bt.btd.eldb.'||l_package_name);
+	loggername       := NVL(pa_loggername,'org.orgname.'||l_package_name);
 	threadname       := SYS_CONTEXT('USERENV','SESSION_USER');
 	caller_filename  := NVL(pa_caller_filename,UPPER(l_package_name||'.PKB'));
-	caller_class     := NVL(pa_caller_class,'com.bt.btd.eldb.'||l_package_name);
+	caller_class     := NVL(pa_caller_class,'org.orgname.'||l_package_name);
 	
 	log_level        := NVL(pa_log_level,'INFO');  -- Default Reporting LEVEL
 	
 	RETURN;
 EXCEPTION
 WHEN OTHERS THEN NULL;
-		 pkg_btdo_logging.log_error (
-						 pa_loggername => 'com.bt.btd.eldb.logging.ty_logger' 
+		 pkg_logging.log_error (
+						 pa_loggername => 'logging.ty_logger' 
 						,pa_threadname => SYS_CONTEXT('USERENV','SESSION_USER')
 						,pa_caller_filename => 'TY_LOGGER.PKB' 
-						,pa_caller_class => 'com.bt.btd.eldb.logging.ty_logger' 
+						,pa_caller_class => 'logging.ty_logger' 
 						,pa_caller_method => l_method_name 
 	                     );
 END ty_logger;								
@@ -79,11 +79,11 @@ BEGIN
 	RAISE_APPLICATION_ERROR(-20002,'ty_logger.set_log_level : Invalid log level: "' || pa_level || '"');
    END IF;
 EXCEPTION WHEN OTHERS THEN
-		 pkg_btdo_logging.log_error (
-						 pa_loggername => 'com.bt.btd.eldb.logging.ty_logger' 
+		 pkg_logging.log_error (
+						 pa_loggername => 'logging.ty_logger' 
 						,pa_threadname => SYS_CONTEXT('USERENV','SESSION_USER')
 						,pa_caller_filename => 'TY_LOGGER.PKB' 
-						,pa_caller_class => 'com.bt.btd.eldb.logging.ty_logger' 
+						,pa_caller_class => 'logging.ty_logger' 
 						,pa_caller_method => l_method_name 
 	                     );
 	RAISE_APPLICATION_ERROR(-20001,'ty_logger.set_log_level : ' || SQLERRM, keeperrorstack=>TRUE );
@@ -95,11 +95,11 @@ IS
 BEGIN
 	RETURN(log_level);
 EXCEPTION WHEN OTHERS THEN
-		 pkg_btdo_logging.log_error (
-						 pa_loggername => 'com.bt.btd.eldb.logging.ty_logger' 
+		 pkg_logging.log_error (
+						 pa_loggername => 'logging.ty_logger' 
 						,pa_threadname => SYS_CONTEXT('USERENV','SESSION_USER')
 						,pa_caller_filename => 'TY_LOGGER.PKB' 
-						,pa_caller_class => 'com.bt.btd.eldb.logging.ty_logger' 
+						,pa_caller_class => 'logging.ty_logger' 
 						,pa_caller_method => l_method_name 
 	                     );
 	RAISE_APPLICATION_ERROR(-20001,'ty_logger.get_log_level : ' || SQLERRM, keeperrorstack=>TRUE );
@@ -117,7 +117,7 @@ IS
 BEGIN
       IF  INSTR(l_level_strings,pa_level_string) <= INSTR(l_level_strings,log_level) 	    
       THEN
-		 pkg_btdo_logging.log_message(  pa_message 
+		 pkg_logging.log_message(  pa_message 
 		 						   	,pa_level_string 
 									,pa_loggername => loggername 
 									,pa_threadname =>  threadname
@@ -129,11 +129,11 @@ BEGIN
       END IF;
 EXCEPTION
 WHEN OTHERS THEN NULL;
-		 pkg_btdo_logging.log_error (
-						 pa_loggername => 'com.bt.btd.eldb.logging.ty_logger' 
+		 pkg_logging.log_error (
+						 pa_loggername => 'logging.ty_logger' 
 						,pa_threadname => SYS_CONTEXT('USERENV','SESSION_USER')
 						,pa_caller_filename => 'TY_LOGGER.PKB' 
-						,pa_caller_class => 'com.bt.btd.eldb.logging.ty_logger' 
+						,pa_caller_class => 'logging.ty_logger' 
 						,pa_caller_method => l_method_name 
 	                     );
 END log_message;
@@ -155,10 +155,10 @@ CREATE OR REPLACE PROCEDURE create_error ( pa_level NATURAL) AS
      l_method VARCHAR2(30) := 'create_method';
 BEGIN
      
-     pkg_btdo_logging.log_message('Test BTDO_LOGGING exception logging within function at level "'|| pa_level ||'"');
+     pkg_logging.log_message('Test LOGGING exception logging within function at level "'|| pa_level ||'"');
      IF NVL(pa_level,1) = 1
 	 THEN	 
-     	  pkg_btdo_logging.log_message('Raising error at:'||
+     	  pkg_logging.log_message('Raising error at:'||
 		  							DBMS_UTILITY.format_call_stack || CHR (10)
 		  );
 	      RAISE NO_DATA_FOUND;
@@ -167,7 +167,7 @@ BEGIN
 	 END IF;
 EXCEPTION
 WHEN OTHERS THEN
-	 pkg_btdo_logging.log_error ;
+	 pkg_logging.log_error ;
      --RAISE_APPLICATION_ERROR(-20001,'Passed on exception from level: "' || pa_level ||'"', keeperrorstack=>TRUE); 
      RAISE_APPLICATION_ERROR(-20001,'Passed on exception from here', keeperrorstack=>TRUE); 
 END create_error;
@@ -177,7 +177,7 @@ This is the result of calling this procedure
 Level
 INFO
 Logger
-com.bt.btd.eldb.logging.plsql
+logging.plsql
 Time
 2006-11-24 08:22:37,385
 Thread
@@ -200,7 +200,7 @@ the call stack is
 Level
 DEBUG
 Logger
-com.bt.btd.eldb.logging.plsql
+logging.plsql
 Time
 2006-11-24 08:22:37,387
 Thread
@@ -209,8 +209,8 @@ Message
 CALL_STACK=<----- PL/SQL Call Stack -----
   object      line  object
   handle    number  name
-3b2f8cab8       399  package body TURTONS.BTDO_LOGGING
-3b2f8cab8       469  package body TURTONS.BTDO_LOGGING
+3b2f8cab8       399  package body TURTONS.LOGGING
+3b2f8cab8       469  package body TURTONS.LOGGING
 3be6a4c10        17  procedure TURTONS.CREATE_ERROR
 3be6a4c10        13  procedure TURTONS.CREATE_ERROR
 3b2bb68b0        50  procedure TURTONS.PR_TEST_LOG_ERROR
@@ -320,7 +320,7 @@ BEGIN
 				   ;
 	END;
 
-		   pkg_btdo_logging.log_message
+		   pkg_logging.log_message
                (pa_message => l_msg
 			    ,pa_level_string => 'ERROR'
 				--,pa_timestamp => SYSTIMESTAMP
@@ -335,11 +335,11 @@ BEGIN
 			   ;
 EXCEPTION
 WHEN OTHERS THEN NULL;
-		 pkg_btdo_logging.log_error (
-						 pa_loggername => 'com.bt.btd.eldb.logging.ty_logger' 
+		 pkg_logging.log_error (
+						 pa_loggername => 'logging.ty_logger' 
 						,pa_threadname => SYS_CONTEXT('USERENV','SESSION_USER')
 						,pa_caller_filename => 'TY_LOGGER.PKB' 
-						,pa_caller_class => 'com.bt.btd.eldb.logging.ty_logger' 
+						,pa_caller_class => 'logging.ty_logger' 
 						,pa_caller_method => l_method_name 
 	                     );
 END log_error;

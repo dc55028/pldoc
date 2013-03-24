@@ -5,7 +5,7 @@ TYPE ty_logger AS
 OBJECT (
 /**
 <P>
-  Create logging context to minimize code requires to use {@link PKG_BTDO_LOGGING}.
+  Create logging context to minimize code requires to use {@link PKG_LOGGING}.
 </P>
 <P>Essentially stores the invariant part of the current environment : loggername, threadname, caller's filename, package and class etc.
 </P>
@@ -21,13 +21,13 @@ OBJECT (
   ...
   BEGIN -- Package Initialisation
     package_logger := TY_LOGGER(
-				 pa_loggername       => 'com.bt.btd.eldb.example_package'
+				 pa_loggername       => 'org.orgname.example_package'
 				,pa_caller_filename  => 'EXAMPLE_PACKAGE.PKB'
 				,pa_caller_package   => 'example_package.'
-				,pa_caller_class     => 'com.bt.btd.eldb.example_package'
+				,pa_caller_class     => 'org.orgname.example_package'
 				,pa_log_level        => 'INFO'  -- Default Reporting LEVEL
 				);
-  -- Handle Initialisation Errors using direct calls to PKG_BTDO_LOGGING
+  -- Handle Initialisation Errors using direct calls to PKG_LOGGING
   ...
   END example_package;
 </CODE>
@@ -37,15 +37,15 @@ OBJECT (
 --@headcom
 */
  -- Arbitrary Name of the logger: 
- loggername       VARCHAR2(100)   --:= 'com.bt.btd.eldb'
+ loggername       VARCHAR2(100)   --:= 'org.orgname'
  -- Name to identify this instance of the process: use $PPID (Parent Process ID)  under Unix 
 ,threadname       VARCHAR2(100)   --:= SYS_CONTEXT('USERENV','SESSION_USER')
  -- Source code containing the code which creates this logger
 ,caller_filename  VARCHAR2 (100)  --:= 'TY_LOGGER.PKB'
  -- Package name in PL/SQL: use the High level process name (e.g. LM_EXPORT) when logging a Unix Process
 ,caller_package   VARCHAR2(30)    --:= 'ty_logger.'
- -- Class name in Java, Package name (prepended with com.bt.btd.eldb) in PL/SQL
-,caller_class     VARCHAR2 (100)  --:= 'com.bt.btd.eldb.logging'
+ -- Class name in Java, Package name (prepended with org.orgname) in PL/SQL
+,caller_class     VARCHAR2 (100)  --:= 'logging'
 
 --These should be private
 ,log_level        VARCHAR2(30)    --:= 'INFO'  -- Default Reporting LEVEL
@@ -57,7 +57,7 @@ OBJECT (
 								,pa_threadname       VARCHAR2 := SYS_CONTEXT('USERENV','SESSION_USER')
 								,pa_caller_filename  VARCHAR2 := 'TY_LOGGER.PKB'
 								,pa_caller_package   VARCHAR2 := 'ty_logger.'
-								,pa_caller_class     VARCHAR2 := 'com.bt.btd.eldb.logging'
+								,pa_caller_class     VARCHAR2 := 'logging'
 								,pa_log_level        VARCHAR2 := 'INFO'  -- Default Reporting LEVEL
 								) RETURN SELF AS RESULT
 */
@@ -68,8 +68,8 @@ Create the logger object, storing the context of the logger.
 --@param pa_caller_package     package name  - defaults to 'ty_logger.'
 --@param pa_loggername         Arbitrary name to stamp log messages with: by convention it is the "classname" 
 --@param pa_caller_filename    The name of the script containing the call to the constructor, e.g. import_xml.sql
---@param pa_caller_class       The name of the "class" containing the call to the constructor, e.g. com.bt.btd.eldb.logging'
---@param pa_log_level          The level  (see {@link PKG_BTDO_LOGGING.SET_LOG_LEVEL} at which logged messages should be initially written to the logging tables.
+--@param pa_caller_class       The name of the "class" containing the call to the constructor, e.g. logging'
+--@param pa_log_level          The level  (see {@link PKG_LOGGING.SET_LOG_LEVEL} at which logged messages should be initially written to the logging tables.
                                The level may then be modified using {@link SET_LOG_LEVEL}
 <P>
 **/
@@ -77,14 +77,14 @@ CONSTRUCTOR FUNCTION ty_logger (
 								 pa_caller_package     VARCHAR2       --:= 'ty_logger.'
 								,pa_loggername         VARCHAR2 := NULL--:= 'TY_LOGGER.PKB'
 								,pa_caller_filename    VARCHAR2 := NULL--:= 'TY_LOGGER.PKB'
-								,pa_caller_class       VARCHAR2 := NULL--:= 'com.bt.btd.eldb.logging'
+								,pa_caller_class       VARCHAR2 := NULL--:= 'logging'
 								,pa_log_level          VARCHAR2 := 'INFO'  -- Default Reporting LEVEL
 								) RETURN SELF AS RESULT
 ,
 /**
 Alter the level at which logged messages will be written to the database 
 <P>
---@param pa_log_level          The level  (see {@link PKG_BTDO_LOGGING.LOG_LEVEL} at which logged messages should be subsequently written to the logging tables.
+--@param pa_log_level          The level  (see {@link PKG_LOGGING.LOG_LEVEL} at which logged messages should be subsequently written to the logging tables.
 <P>
 **/
 MEMBER PROCEDURE set_log_level (pa_level VARCHAR2)
@@ -92,7 +92,7 @@ MEMBER PROCEDURE set_log_level (pa_level VARCHAR2)
 /**
 Get the level at which logged messages are currently written to the database 
 <P>
---@return The level  (see {@link PKG_BTDO_LOGGING.LOG_LEVEL} at which logged messages are currently written to the logging tables.
+--@return The level  (see {@link PKG_LOGGING.LOG_LEVEL} at which logged messages are currently written to the logging tables.
 <P>
 **/
 MEMBER FUNCTION get_log_level RETURN  VARCHAR2 
