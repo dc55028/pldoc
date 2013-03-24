@@ -132,7 +132,7 @@ void global() throws SAXException :
 	  Still wrap the trigger in a fake package but make the package name dependent on the actual schema 
 	  defaulting to the globalPackageName if it cannot be found 
 	*/
-	(LOOKAHEAD ([ label() ] [<DECLARE> declarativeSection(false,token)] <BEGIN>) globalBlock(token) | LOOKAHEAD (4) programUnit(true,token) 
+	(LOOKAHEAD ( ( label() )* [<DECLARE> declarativeSection(false,token)] <BEGIN>) globalBlock(token) | LOOKAHEAD (4) programUnit(true,token) 
 	)
 
 	{
@@ -157,9 +157,9 @@ void globalBlock(Token objectStart) throws SAXException :
 	Token name = null; 
 }
 {
-	[
+	(
 		label()
-	]
+	)*
 	[
 		<DECLARE>
 		declarativeSection(false, objectStart)
