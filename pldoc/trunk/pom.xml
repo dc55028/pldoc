@@ -378,11 +378,9 @@
     <!--
      Override on the command-line 
      mvn -Dchanges.smtpHost=localhost -Dchanges.toAddresses=sturton@sf.net -Dchanges.fromDeveloperId=sturton changes:announcement-mail
-    -->
     <plugin>
       <groupId>org.apache.maven.plugins</groupId>
       <artifactId>maven-changes-plugin</artifactId>
-      <!-- <inherited>false</inherited> -->
       <version>2.6</version>
 	  <configuration>
 	    <smtpHost>localhost</smtpHost>
@@ -413,6 +411,7 @@
 	</execution>
 	</executions>
     </plugin>
+    -->
       
       
      </plugins>
