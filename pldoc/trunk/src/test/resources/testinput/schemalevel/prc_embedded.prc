@@ -1,7 +1,7 @@
 CREATE OR REPLACE 
 PROCEDURE 
 /**
-<P>Update BTDO_EXPORT[publ_id=pa_publ_id AND epsfile=pa_epsfile].GRAPHIC_LAST_MODIFIED with modification date from file system.</P>
+<P>Update EXPORT[publ_id=pa_publ_id AND epsfile=pa_epsfile].GRAPHIC_LAST_MODIFIED with modification date from file system.</P>
 <P>This works around PL/SQL's inability to access filesystem information directly.</P>
  
  <BR/>
@@ -20,26 +20,26 @@ prc_embedded
 ) 
 AS
 
-   m_loggername         CONSTANT VARCHAR2 (100) := 'com.bt.btd.eldb.lm_export';
+   m_loggername         CONSTANT VARCHAR2 (100) := 'lm_export';
    m_threadname         CONSTANT VARCHAR2 (100)
                                    := SYS_CONTEXT ('USERENV', 'SESSION_USER');
    m_body_filename      CONSTANT VARCHAR2 (100) := 'GRAPHIC_UPDATE.prc';
    m_package_name       CONSTANT VARCHAR2 (30)  := 'graphic_update';
-   m_caller_class       CONSTANT VARCHAR2 (100) := 'com.bt.btd.eldb.lm_export';
+   m_caller_class       CONSTANT VARCHAR2 (100) := 'lm_export';
    m_log_level                   VARCHAR2 (30)  := 'INFO';
 BEGIN
   DBMS_APPLICATION_INFO.SET_MODULE(m_package_name,m_package_name);
   DBMS_APPLICATION_INFO.SET_CLIENT_INFO('(PUBL_ID,EPSFILE)=('||pa_publ_id ||','||pa_epsfile||')');
 
-  UPDATE BTDO_EXPORT 
+  UPDATE EXPORT 
     SET graphic_last_modified = pa_last_date 
   WHERE epsfile= pa_epsfile 
   AND  publ_id = pa_publ_id
   ;
   IF SQL%ROWCOUNT = 0
   THEN
-  pkg_btdo_logging.log_message
-                   (pa_message  => 'No BTDO_EXPORT found trying to set GRAPHIC_LAST_MODIFIED for (PUBL_ID,EPSFILE,GRAPHIC_LAST_MODIFIED)=('
+  pkg_logging.log_message
+                   (pa_message  => 'No EXPORT found trying to set GRAPHIC_LAST_MODIFIED for (PUBL_ID,EPSFILE,GRAPHIC_LAST_MODIFIED)=('
                   ||pa_publ_id ||','||pa_epsfile||','||TO_CHAR(pa_last_date,'YYYYMMDDHH24MISS')||')'
           ,pa_level_string         => 'WARN',
                     pa_loggername           => m_loggername,
@@ -49,7 +49,7 @@ BEGIN
                     pa_caller_method        => 'graphic_update'
                    );
   ELSE
-  pkg_btdo_logging.log_message
+  pkg_logging.log_message
                    (pa_message  => 'Set GRAPHIC_LAST_MODIFIED for (PUBL_ID,EPSFILE,GRAPHIC_LAST_MODIFIED)=('
                   ||pa_publ_id ||','||pa_epsfile||','||TO_CHAR(pa_last_date,'YYYYMMDDHH24MISS')||')'
           ,pa_level_string         => 'DEBUG',
@@ -63,13 +63,13 @@ BEGIN
   DBMS_APPLICATION_INFO.SET_MODULE(NULL,NULL);
 EXCEPTION
   WHEN OTHERS THEN
-      pkg_btdo_logging.log_error (pa_loggername           => m_loggername,
+      pkg_logging.log_error (pa_loggername           => m_loggername,
                                   pa_threadname           => m_threadname,
                                   pa_caller_filename      => m_body_filename,
                                   pa_caller_class         => m_caller_class,
                                   pa_caller_method        => 'graphic_update'
                                  );
-      pkg_btdo_logging.log_message
+      pkg_logging.log_message
                        (pa_message  => 'Problem setting GRAPHIC_LAST_MODIFIED for (PUBL_ID,EPSFILE,GRAPHIC_LAST_MODIFIED)=('
               ||pa_publ_id ||','||pa_epsfile||','||TO_CHAR(pa_last_date,'YYYYMMDDHH24MISS')||')'
             ,pa_level_string         => 'ERROR',
