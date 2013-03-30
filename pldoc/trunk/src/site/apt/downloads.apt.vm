@@ -7,8 +7,8 @@ JAR files
  These files may be used to refresh an existing PLDoc installation: pre-0.9.1 installations should use the first JAR file.
 
 *---------------------------------------------------------------------------------+
-|{{{http://pldoc.sourceforge.net/m2/net/sourceforge/pldoc/pldoc/${velocityProjectVersion}/${velocityBuildFinalName}.jar}Latest PLDoc JAR}} |
-|{{{http://pldoc.sourceforge.net/m2/net/sourceforge/pldoc/pldoc/${velocityProjectVersion}/${velocityBuildFinalName}-jar-with-dependencies.jar}Latest PLDoc JAR (including referenced classes)}} |
+|{{{${velocityDownloadRoot}/${velocityProjectVersion}/${velocityBuildFinalName}.jar}Latest PLDoc JAR}} |
+|{{{${velocityDownloadRoot}/${velocityProjectVersion}/${velocityBuildFinalName}-jar-with-dependencies.jar}Latest PLDoc JAR (including referenced classes)}} |
 *---------------------------------------------------------------------------------+
 JAR files 
 
@@ -18,9 +18,9 @@ Bundles
  The bundles are the easiest way of installing and running PLDoc. All bundles contain scripts for Windows and Unix/Linux: with Oracle JDBC drivers you have immediate access to PLDoc.
 
 *---------------------------------------------------------------------------------+
-| {{{http://pldoc.sourceforge.net/m2/net/sourceforge/pldoc/pldoc/${velocityProjectVersion}/${velocityBuildFinalName}-distribution.zip}ZIP bundle}}|
-| {{{http://pldoc.sourceforge.net/m2/net/sourceforge/pldoc/pldoc/${velocityProjectVersion}/${velocityBuildFinalName}-distribution.tar.gz}TGZ bundle}}|
-| {{{http://pldoc.sourceforge.net/m2/net/sourceforge/pldoc/pldoc/${velocityProjectVersion}/${velocityBuildFinalName}-distribution.tar.bz2}TBZ bundle}}|
+| {{{${velocityDownloadRoot}/${velocityProjectVersion}/${velocityBuildFinalName}-distribution.zip}ZIP bundle}}|
+| {{{${velocityDownloadRoot}/${velocityProjectVersion}/${velocityBuildFinalName}-distribution.tar.gz}TGZ bundle}}|
+| {{{${velocityDownloadRoot}/${velocityProjectVersion}/${velocityBuildFinalName}-distribution.tar.bz2}TBZ bundle}}|
 *---------------------------------------------------------------------------------+
 Bundles
 

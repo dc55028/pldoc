@@ -21,6 +21,14 @@
         <url>https://sourceforge.net/tracker/?group_id=38875</url>
     </issueManagement>
 
+    
+    <parent>
+      <groupId>org.sonatype.oss</groupId>
+      <artifactId>oss-parent</artifactId>
+      <version>7</version>
+    </parent>
+
+
     <mailingLists>
       <mailingList>
 	<name>PLDoc Development Mailing list</name>
@@ -121,6 +129,7 @@
     </dependencies>
 
     <distributionManagement>
+	<!--
         <repository>
             <id>release.pldoc.sf.net</id>
             <name>PLDoc Release Repository</name>
@@ -131,6 +140,7 @@
             <name>PLDoc Snapshot Repository</name>
             <url>sftp://web.sourceforge.net/home/project-web/pldoc/htdocs/m2-snapshot/</url>
         </snapshotRepository>
+        -->
         <site>
             <id>site.pldoc.sf.net</id>
             <name>PLDoc Site</name>
@@ -147,6 +157,8 @@
        -->
       <velocityProjectVersion>${project.version}</velocityProjectVersion>
       <velocityBuildFinalName>${project.build.finalName}</velocityBuildFinalName>
+      <velocityDownloadRoot>https://oss.sonatype.org/content/repositories/releases/net/sourceforge/pldoc/pldoc</velocityDownloadRoot>
+
       <!--
 	   Correct Change Log Report File Activity Report Links for subproject
       -->
