@@ -8,7 +8,7 @@
     </properties>
     <body>
         <release version="1.3.9" date="2013-03-31"  description="Migrate to new Sourceforge project format" >
-		<action type="update" dev="sturton" >pom.xml - source code locations updated for new locations</action>
+		<action type="update" dev="sturton" >pom.xml - updated for new source code locations</action>
         </release>
         <release version="1.3.8" date="2013-03-30"  description="Move deployments to Sonatype OSS Maven Repository" >
 		<action type="update" dev="sturton" >pldoc.sourceforge.net rsync synchronisation to Maven Central repository has ceased - redirect release deployments to intermediate Sonatype OSSRH.
