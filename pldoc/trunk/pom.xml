@@ -41,7 +41,7 @@
 
     <scm>
         <connection>scm:svn://svn.code.sf.net/p/pldoc/code/trunk</connection>
-        <developerConnection>scm:svn:ssh://svn.code.sf.net/p/pldoc/code/trunk</developerConnection>
+        <developerConnection>scm:svn:https://svn.code.sf.net/p/pldoc/code/trunk</developerConnection>
         <url>https://sourceforge.net/p/pldoc/code/HEAD/tree/pldoc/</url>
     </scm>
 
