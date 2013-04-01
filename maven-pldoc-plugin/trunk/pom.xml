@@ -17,10 +17,17 @@
             <url>http://www.gnu.org/licenses/lgpl-2.1.txt</url>
         </license>
     </licenses>
+
     <issueManagement>
         <system>PLDoc Tracker</system>
         <url>https://sourceforge.net/tracker/?group_id=38875</url>
     </issueManagement>
+    
+    <parent>
+      <groupId>org.sonatype.oss</groupId>
+      <artifactId>oss-parent</artifactId>
+      <version>7</version>
+    </parent>
 
     <mailingLists>
       <mailingList>
@@ -33,9 +40,9 @@
     </mailingLists>
 
     <scm>
-        <connection>scm:svn:https://pldoc.svn.sourceforge.net/svnroot/pldoc/maven-pldoc-plugin/trunk</connection>
-        <developerConnection>scm:svn:https://pldoc.svn.sourceforge.net/svnroot/pldoc/maven-pldoc-plugin/trunk</developerConnection>
-        <url>http://pldoc.svn.sourceforge.net/viewvc/pldoc/maven-pldoc-plugin/</url>
+	    <connection>scm:https://svn.code.sf.net/p/pldoc/code/maven-pldoc-plugin/trunk</connection>
+	    <developerConnection>scm:https://svn.code.sf.net/p/pldoc/code/maven-pldoc-plugin/trunk</developerConnection>
+	    <url>https://sourceforge.net/p/pldoc/code/HEAD/tree/maven-pldoc-plugin/</url>
     </scm>
 
     <developers>
@@ -66,6 +73,7 @@
     </developers>
 
     <distributionManagement>
+	 <!-- Repositories now defined in parent POM 
         <repository>
             <id>release.pldoc.sf.net</id>
             <name>PLDoc Release Repository</name>
@@ -76,6 +84,7 @@
             <name>PLDoc Snapshot Repository</name>
             <url>sftp://web.sourceforge.net/home/project-web/pldoc/htdocs/m2-snapshot/</url>
         </snapshotRepository>
+        -->
         <site>
             <id>site.pldoc.sf.net</id>
             <name>PLDoc Site</name>
@@ -121,10 +130,11 @@
        -->
       <velocityProjectVersion>${project.version}</velocityProjectVersion>
       <velocityBuildFinalName>${project.build.finalName}</velocityBuildFinalName>
+      <velocityDownloadRoot>https://oss.sonatype.org/content/repositories/releases/net/sourceforge/pldoc/maven-pldoc-plugin</velocityDownloadRoot>
       <!--
 	   Correct Change Log Report File Activity Report Links for subproject
       -->
-      <maven.changelog.svn.baseurl>http://pldoc.svn.sourceforge.net/viewvc/pldoc/maven-pldoc-plugin/</maven.changelog.svn.baseurl>
+      <maven.changelog.svn.baseurl>https://sourceforge.net/p/pldoc/code/HEAD/tree/maven-pldoc-plugin/</maven.changelog.svn.baseurl>
     </properties>
 
     <build>
