@@ -139,7 +139,7 @@
        -->
       <velocityProjectVersion>${project.version}</velocityProjectVersion>
       <velocityBuildFinalName>${project.build.finalName}</velocityBuildFinalName>
-      <velocityDownloadRoot>https://oss.sonatype.org/content/repositories/releases/net/sourceforge/pldoc/cpd</velocityDownloadRoot>
+      <velocityDownloadRoot>https://oss.sonatype.org/content/repositories/releases/net/sourceforge/pldoc/pldoc-cpd</velocityDownloadRoot>
       <!--
 	   Correct Change Log Report File Activity Report Links for subproject
       -->
