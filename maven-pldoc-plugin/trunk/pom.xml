@@ -40,8 +40,8 @@
     </mailingLists>
 
     <scm>
-	    <connection>scm:https://svn.code.sf.net/p/pldoc/code/maven-pldoc-plugin/trunk</connection>
-	    <developerConnection>scm:https://svn.code.sf.net/p/pldoc/code/maven-pldoc-plugin/trunk</developerConnection>
+	    <connection>scm:svn:https://svn.code.sf.net/p/pldoc/code/maven-pldoc-plugin/trunk</connection>
+	    <developerConnection>scm:svn:https://svn.code.sf.net/p/pldoc/code/maven-pldoc-plugin/trunk</developerConnection>
 	    <url>https://sourceforge.net/p/pldoc/code/HEAD/tree/maven-pldoc-plugin/</url>
     </scm>
 
