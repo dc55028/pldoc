@@ -299,8 +299,8 @@
 	  <!-- <inherited>false</inherited> -->
 	  <version>2.6</version>
 	      <configuration>
-		<smtpHost>localhost</smtpHost>
-		<smtpPort implementation="java.lang.Integer">25</smtpPort>
+		<!--smtpHost>localhost</smtpHost>
+		<smtpPort implementation="java.lang.Integer">25</smtpPort-->
 		<mailSender>
 		    <name>PLDoc Release Management</name>
 		    <email>noreply@pldoc.sourceforge.net</email>
