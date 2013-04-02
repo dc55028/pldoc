@@ -7,7 +7,7 @@ REM Force server JVM
 set MAVEN_OPTS=-server -Dpldoc.home=%PLDOC_HOME%
 REM Run against Example SQL files 
 REM As goal 
-call mvn -f cpd-sqlfiles-pom.xml pldoc:cpd  
+call mvn -f cpd-sqlfiles-pom.xml pldoccpd:cpd  
 
 REM  As site report plug-in 
 call mvn -f cpd-sqlfiles-pom.xml site 
@@ -27,7 +27,7 @@ if "%ORACLE_HOME%" == "" ( echo INFO: Environment variable ORACLE_HOME not set. 
 	if "%JDBC_HOME%" == "" ( echo "WARN: Cannot locate JDBC directory. Ensure that JDBC files hav been installed into local Maven Repository" 1>&2 )
 
 	REM As goal 
-	CALL mvn -s maven_enterprise_settings.xml -f cpd-enterprise-pom.xml pldoc:cpd  
+	CALL mvn -s maven_enterprise_settings.xml -f cpd-enterprise-pom.xml pldoccpd:cpd  
 
 	REM  As site report plug-in 
 	CALL mvn -s maven_enterprise_settings.xml -f cpd-enterprise-pom.xml site 

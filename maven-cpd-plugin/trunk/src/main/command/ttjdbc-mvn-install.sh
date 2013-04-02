@@ -16,13 +16,13 @@ mvn install:install-file -Dfile=${TT_HOME}/lib/ttjdbc6.jar -Dpackaging=jar -Dgro
 export MAVEN_OPTS="-server" #Ensure that the JVM is running as server, to prevent running out of heap space 
 
 #echo Local PL/SQL files as goal 
-#mvn -f pldoc-sqlfiles-pom.xml pldoc:cpd  
+#mvn -f pldoc-sqlfiles-pom.xml pldoccpd:cpd  
 
 #echo Local PL/SQL files as site report plug-in 
 #mvn -f pldoc-sqlfiles-pom.xml site 
 
 echo Database PL/SQL code as goal 
-mvn -s maven_timesten_settings.xml -f cpd-timesten-pom.xml pldoc:cpd  
+mvn -s maven_timesten_settings.xml -f cpd-timesten-pom.xml pldoccpd:cpd  
 
 echo Database PL/SQL code as site report plug-in 
 mvn -s maven_timesten_settings.xml -f cpd-timesten-pom.xml site 

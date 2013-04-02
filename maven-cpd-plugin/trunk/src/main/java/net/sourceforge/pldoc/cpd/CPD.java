@@ -100,8 +100,6 @@ private MatchAlgorithm matchAlgorithm;
 
 
   // Helper objects for retrieving resources relative to the installation.
-  //SRT public static final ResourceResolver resResolver = new ResourceResolver();
-  //SRT public static final ResourceLoader resLoader = new ResourceLoader();
 
   // Runtime settings
   public Settings settings;
@@ -167,9 +165,6 @@ private MatchAlgorithm matchAlgorithm;
   /**
   * Runs CPD using the specified settings.
   *
-  * 2006-05-16 - Matthias Hendler - Collect some status information during the processing
-  *                                 and add them to the application.xml.
-  *                                 More verbose output to console added.
   */
   public void run() throws Exception
   {
@@ -229,7 +224,6 @@ private MatchAlgorithm matchAlgorithm;
       // for all the specified packages from the dictionary
       if ( settings.getDbUrl() != null && settings.getDbUser() != null && settings.getDbPassword() != null ) {
         // Load the Required JDBC driver class.
-        // DriverManager.registerDriver(new OracleDriver());
 	Class.forName(settings.getDriverName());
 
         Connection conn = null;
