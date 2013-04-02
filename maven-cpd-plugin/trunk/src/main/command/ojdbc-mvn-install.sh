@@ -13,13 +13,13 @@ mvn install:install-file -Dfile=${ORACLE_HOME}/ojdbc14.jar -Dpackaging=jar -Dgro
 export MAVEN_OPTS="-server" #Ensure that the JVM is running as server, to prevent running out of heap space 
 
 echo Local PL/SQL files as goal 
-mvn -f cpd-sqlfiles-pom.xml pldoc:cpd  
+mvn -f cpd-sqlfiles-pom.xml pldoccpd:cpd  
 
 echo Local PL/SQL files as site report plug-in 
 mvn -f cpd-sqlfiles-pom.xml site 
 
 echo Database PL/SQL code as goal 
-mvn -f cpd-enterprise-pom.xml pldoc:cpd  
+mvn -f cpd-enterprise-pom.xml pldoccpd:cpd  
 
 echo Database PL/SQL code as site report plug-in 
 mvn -f cpd-enterprise-pom.xml site 
