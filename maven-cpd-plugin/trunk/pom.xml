@@ -4,7 +4,7 @@
     <groupId>net.sourceforge.pldoc</groupId>
     <artifactId>maven-cpd-plugin</artifactId>
     <packaging>maven-plugin</packaging>
-    <version>0.0.6</version>
+    <version>0.0.7-SNAPSHOT</version>
     <name>Maven PLDoc CPD Plugin - ${project.version}</name>
     <description>The Maven PLDoc Plugin is a plugin that uses the PMD CPD tool for
             generating docs for the specified project.
@@ -40,9 +40,9 @@
     </mailingLists>
 
     <scm>
-	<connection>scm:svn:https://svn.code.sf.net/p/pldoc/code/maven-cpd-plugin/tags/maven-cpd-plugin-0.0.6</connection>
-	<developerConnection>scm:svn:https://svn.code.sf.net/p/pldoc/code/maven-cpd-plugin/tags/maven-cpd-plugin-0.0.6</developerConnection>
-        <url>https://sourceforge.net/p/pldoc/code/HEAD/tree/maven-cpd-plugin/tags/maven-cpd-plugin-0.0.6</url>
+	<connection>scm:svn:https://svn.code.sf.net/p/pldoc/code/maven-cpd-plugin/trunk</connection>
+	<developerConnection>scm:svn:https://svn.code.sf.net/p/pldoc/code/maven-cpd-plugin/trunk</developerConnection>
+        <url>https://sourceforge.net/p/pldoc/code/HEAD/tree/maven-cpd-plugin/</url>
     </scm>
 
     <developers>
