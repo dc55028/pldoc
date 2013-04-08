@@ -458,6 +458,13 @@ TOKEN [IGNORE_CASE]:
 | <SHARED : "SHARED">
 | <DIRECTORY : "DIRECTORY">
 | <USER : "USER">
+//Support JAVA SOURCE
+|<COMPILE: "COMPILE"> 
+|<RESOLVE: "RESOLVE"> 
+|<RESOLVER: "RESOLVER"> 
+|<NAMED: "NAMED"> 
+|<SOURCE: "SOURCE"> 
+|<CLASS: "CLASS"> 
 }
 
 /**
@@ -466,7 +473,7 @@ TOKEN [IGNORE_CASE]:
  */
 TOKEN :
 {
-< #GERMAN_SPECIAL_CHARACTERS: "Ä" | "Ö" | "Ü" | "ä" | "ü" | "ö" | "ß" >
+< #GERMAN_SPECIAL_CHARACTERS: "ï¿½" | "ï¿½" | "ï¿½" | "ï¿½" | "ï¿½" | "ï¿½" | "ï¿½" >
 |
 < #LETTER: ["A"-"Z"] | ["a"-"z"] | <GERMAN_SPECIAL_CHARACTERS> >
 |
@@ -479,7 +486,7 @@ TOKEN :
  | "$" | "&" | "_" | "|" | "{" | "}" | "?" | "[" | "]"
  | " " | "\t" >
 |
-< #SPECIAL_CHARACTERS: "á" | "Ž" | "™" | "š" | "„" | "”" | "ý" | "²" | "€" | "³" | "µ">
+< #SPECIAL_CHARACTERS: "ï¿½" | "ï¿½" | "ï¿½" | "ï¿½" | "ï¿½" | "ï¿½" | "ï¿½" | "ï¿½" | "ï¿½" | "ï¿½" | "ï¿½">
 |
 < #DELIMITER: "+" | "%" | "'" | "\"" | "." | "/" | "(" | ")" | ":" | "," | "*" | "=" | "<" | ">" | "@" | ";" | "-">
 |
@@ -740,7 +747,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <CHOOSE>
 //| <CHUNK>
 //| <CIV_GB>
-//| <CLASS>
+| <CLASS>
 //| <CLEAR>
 | <CLOB>
 //| <CLONE>
@@ -759,7 +766,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <COMMITTED>
 //| <COMPACT>
 //| <COMPATIBILITY>
-//| <COMPILE>
+| <COMPILE>
 //| <COMPLETE>
 //| <COMPOSITE_LIMIT>
 | <COMPOUND>
@@ -1134,7 +1141,7 @@ Token KEYWORD_UNRESERVED (): {}
 | <MULTISET>
 //| <MV_MERGE>
 | <NAME>
-//| <NAMED>
+| <NAMED>
 //| <NAN>
 //| <NATIONAL>
 //| <NATIVE>
@@ -1424,8 +1431,8 @@ Token KEYWORD_UNRESERVED (): {}
 //| <RESET>
 //| <RESETLOGS>
 //| <RESIZE>
-//| <RESOLVE>
-//| <RESOLVER>
+| <RESOLVE>
+| <RESOLVER>
 //| <RESTORE>
 //| <RESTORE_AS_INTERVALS>
 //| <RESTRICT>
@@ -1515,7 +1522,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <SNAPSHOT>
 //| <SOME>
 //| <SORT>
-//| <SOURCE>
+| <SOURCE>
 | <SPACE>
 //| <SPECIFICATION>
 //| <SPFILE>

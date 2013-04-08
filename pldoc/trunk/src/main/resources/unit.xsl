@@ -527,6 +527,24 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     
     </DL>
 
+        <xsl:if test="PLSCOPE/CALLERS/CALLER[not(contains(@SCHEMA,'SYS'))] ">
+
+        <DT>Called By:
+        <xsl:for-each select="PLSCOPE/CALLERS/CALLER[not(contains(@SCHEMA,'SYS'))]">
+          <DD><CODE><xsl:value-of select="concat( translate(@SCHEMA, $namesFromCase, $namesToCase), '.',  translate(@OBJECT_NAME, $namesFromCase, $namesToCase), '.',  translate(@NAME, $namesFromCase, $namesToCase) ) "/></CODE> 
+           </DD>
+        </xsl:for-each>
+        </DT>
+        </xsl:if>
+        <xsl:if test="PLSCOPE/CALLEES/CALLEE[not(contains(@SCHEMA,'SYS'))]">
+
+        <DT>Calls:
+        <xsl:for-each select="PLSCOPE/CALLEES/CALLEE[not(contains(@SCHEMA,'SYS'))]">
+          <DD><CODE><xsl:value-of select="concat( translate(@SCHEMA, $namesFromCase, $namesToCase), '.',  translate(@OBJECT_NAME, $namesFromCase, $namesToCase), '.',  translate(@NAME, $namesFromCase, $namesToCase) ) "/></CODE>
+           </DD>
+        </xsl:for-each>
+        </DT>
+        </xsl:if>
     <HR/>
     </xsl:for-each>
 
@@ -537,7 +555,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   <xsl:template match="/APPLICATION">
   <!-- ********************* START OF top-level object PAGE ************************* -->
   <!--<xsl:for-each select="PACKAGE | PACKAGE_BODY">-->
-  <xsl:for-each select="PACKAGE | OBJECT_TYPE | TRIGGER">
+  <xsl:for-each select="PACKAGE | OBJECT_TYPE | TRIGGER | JAVA[@TYPE='SOURCE'] ">
 
     <redirect:write file="{concat($targetFolder, translate(@NAME, $namesFromCase, $namesToCase))}.html">
 
@@ -571,6 +589,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 		     <xsl:otherwise>Object Type</xsl:otherwise>
 	      </xsl:choose>
 	     </xsl:when>
+	      <xsl:when test="local-name() = 'JAVA'">Java</xsl:when>
 	      <xsl:otherwise>Package</xsl:otherwise>
      </xsl:choose><xsl:text>&nbsp;</xsl:text><xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/>
     </H2>
@@ -837,6 +856,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 	      </xsl:choose>
 	     </xsl:when>
 	     <xsl:when test="local-name() = 'TRIGGER'">Trigger</xsl:when>
+	     <xsl:when test="local-name() = 'JAVA'">Java</xsl:when>
 	     <xsl:otherwise>Package</xsl:otherwise>
      </xsl:choose><xsl:text>&nbsp;</xsl:text><xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/>
     </H2>

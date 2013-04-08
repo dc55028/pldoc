@@ -71,6 +71,13 @@ public class Settings
   private Collection inputTypes = new ArrayList();
   private Collection inputObjects = new ArrayList();
   private boolean showSkippedPackages = false;
+  /** Extract PL/Scope procedure call information from the database when runing against the database
+      <p>
+      This is used to generate "Calls:" and "Called From:" sections for each method with relevant 
+      PL/Scope information
+      </p>
+   */
+  private boolean plscope = false;
 
   private static final String usage =
     "Arguments: [options] inputfile(s)\n" +
@@ -119,7 +126,9 @@ public class Settings
     "                          When the object belongs to a different schema than the logon user (as specified by\n" +
     "                          the -user parameter), the logon user must have been granted the SELECT_CATALOG_ROLE role or the SELECT ANY DICTIONARY system privilege.\n" +
     "-ignoreinformalcomments   Ignore informal comments when generating documentation.\n" +
-    "-showSkippedPackages      Show the skipped packages in the summary of the documentation (generator.html)."
+    "-showSkippedPackages      Show the skipped packages in the summary of the documentation (generator.html)\n"+
+    "-plscope                  When extracting code from a database also extract PL/Scope call information and generate calling/called sections\n"+
+    ""
     ;
 //    "                          &myvar2=abcdef\n" +
 
@@ -342,6 +351,10 @@ public class Settings
         // consume  "-showskippedpackages"
         this.showSkippedPackages = true;
       }
+      else if (arg.equalsIgnoreCase("-plscope")) {
+        // consume  "-plscope"
+        this.plscope = true;
+      }
       else if (arg.startsWith("-")) {
         System.err.println("WARN - unknown parameter \""+arg+"\"");
         processInvalidUsage("Unknown option " + arg);
@@ -446,6 +459,10 @@ public class Settings
 
   public void setShowSkippedPackages(boolean showSkippedPackages) {
     this.showSkippedPackages = showSkippedPackages;
+  }
+
+  public void setPlscope(boolean plscope) {
+    this.plscope =plscope;
   }
 
   public String getApplicationName() {
@@ -568,6 +585,10 @@ public class Settings
 
   public boolean isShowSkippedPackages() {
     return showSkippedPackages;
+  }
+
+  public boolean isPlscope() {
+    return plscope;
   }
 
   /** Processes invalid usage: prints the error message and the usage instruction

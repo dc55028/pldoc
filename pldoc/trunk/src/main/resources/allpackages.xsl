@@ -133,6 +133,26 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     </TABLE>
     </xsl:if>
 
+    <xsl:if test="JAVA[@TYPE='SOURCE']">
+    <TABLE BORDER="0" WIDTH="100%">
+    <TR>
+    <TD><FONT size="+1" CLASS="FrameHeadingFont">
+    All Java Source</FONT>
+    <BR />
+    <BR />
+
+    <xsl:for-each select="JAVA[@TYPE='SOURCE' ]">
+      <xsl:sort select="translate(@NAME,$namesFromCase,$namesToCase)"/>
+      <FONT CLASS="FrameItemFont"><A HREF="{translate(@NAME, $namesFromCase, $namesToCase)}.html" TARGET="packageFrame">
+        <xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/>
+      </A></FONT><BR></BR>
+    </xsl:for-each>
+
+    </TD>
+    </TR>
+    </TABLE>
+    </xsl:if>
+
   <!-- Document Bodies Start -->
 
     <xsl:if test="PACKAGE_BODY|OBJECT_BODY">

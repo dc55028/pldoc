@@ -41,6 +41,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 
 
 /**
@@ -91,6 +92,7 @@ public class PLDoc
     hashMap.put( "TYPE", "TYPE_SPEC" );
     hashMap.put( "PACKAGE BODY", "PACKAGE_BODY" );
     hashMap.put( "TYPE BODY", "TYPE_BODY" );
+    hashMap.put( "JAVA SOURCE", "JAVA_SOURCE" ); // Attempt to document Java
 
   }
 
@@ -145,6 +147,8 @@ public class PLDoc
     final SortedMap skippedPackages = new TreeMap();
     // Counts all the packages (like files or database objects) which were processed successfully
     long processedPackages = 0;
+    Connection conn = null;
+    PreparedStatement pstmt = null;
 
     // if the output directory do not exist, create it
     if (!settings.getOutputDirectory().exists()) {
@@ -235,8 +239,8 @@ public class PLDoc
         // DriverManager.registerDriver(new OracleDriver());
 	Class.forName(settings.getDriverName());
 
-        Connection conn = null;
-        PreparedStatement pstmt = null;
+        // Connection conn = null;
+        // PreparedStatement pstmt = null;
 
         try {
 		  /* Move query generation before connecting in order to allow validation of the query with needing a valid datbae to connect to */
@@ -369,10 +373,11 @@ public class PLDoc
 		if( rset != null ) rset.close();
 	    }
 	  }
-	} finally {
+	} /* Keep Conect for PLSCOPE extract */
+	    finally {
 	    if( pstmt != null ) pstmt.close();
-	    if ( conn != null ) conn.close();
-	}
+	    //if ( conn != null ) conn.close();
+	} 
       } // for all the specified packages from the dictionary
 
       // generator summary
@@ -450,6 +455,50 @@ public class PLDoc
     // copy required static files into the output directory
     copyStaticFiles(settings.getOutputDirectory());
 
+    
+    //If we are connected to the database and want PLScope , extract PLSCOPE 
+    if ( conn != null  && settings.isPlscope() ) {
+        
+        try {
+	  
+	     String plscopeQuery = getStringFromInputStream( getResourceStream("plscope/plscope_call.sql") ) ;
+	    //Reuse pstmt = conn.prepareStatement(sqlStatement);
+	    pstmt = conn.prepareStatement( plscopeQuery );
+
+	    ResultSet resultSet = pstmt.executeQuery();
+
+	    OutputStream outputStream = new FileOutputStream( new File (settings.getOutputDirectory(), "plscope.xml")); 
+
+	    resultSetToXml(resultSet, outputStream, "PLSCOPE", "CALL", null) ;
+	    File mergedFile = new File (settings.getOutputDirectory(), "application-plscope.xml") ;
+
+	    //Merge PL/Scope calling information into Application XML 
+	    {
+	       System.out.println("Merging PLDoc and PL/Scope XML files ...");
+		    TransformerFactory tFactory = TransformerFactory.newInstance();
+		    //tFactory.setURIResolver(resResolver);
+		    Transformer transformer;
+		    transformer = tFactory.newTransformer(new StreamSource(
+		    resLoader.getResourceStream("xslt/pldoc_merge_plscope_xml.xslt")));
+		    //Have to pass in Absolute location of output directory in order to avoid problems with redirect File locations when called from PLDocTask
+		    transformer.setParameter("targetFolder", settings.getOutputDirectory().getAbsolutePath() + File.separator );
+		    transformer.setParameter("plscopeDocument", new File( settings.getOutputDirectory() ,  "plscope.xml")  );
+		    transformer.setParameter("pldocDocument", new File( settings.getOutputDirectory() , "application.xml" ) );
+		    transformer.transform(new StreamSource(applicationFile), new StreamResult(new FileOutputStream( mergedFile) ) );
+
+	    }
+
+
+	   //Use the merged file rather than the originally generated application.xml
+	   applicationFile = mergedFile ;
+	}
+	finally { //Close Any remaining output 
+	    if( pstmt != null ) pstmt.close();
+	    if ( conn != null ) conn.close();
+	} 
+    }
+
+
     // generate HTML files from the applicationFile
     generateHtml(applicationFile);
 
@@ -472,6 +521,56 @@ public class PLDoc
   }
 
   
+  /**
+  * Write ResultSet to Output As XML using the specified settings.
+  *
+  *@param resultSet the database information to write 
+  *@param OutputStream outputStream
+  *@param documentRootName the root Element of the XML document 
+  *@param rowElementNameof the element containing each row document 
+  *@param dtd Optional DTD that the XML should validate against  
+  *
+  */
+  public void resultSetToXml(ResultSet resultSet, OutputStream outputStream, String documentRootName, String rowElementName, String dtd ) throws Exception
+  {
+    try {
+
+      ResultSetMetaData resultSetMetaData = resultSet.getMetaData(); 
+      XMLWriter xmlOut = new XMLWriter(outputStream);
+      xmlOut.setMethod("xml");
+      if (settings.getOutputEncoding() != null)
+        xmlOut.setEncoding(settings.getOutputEncoding());
+      xmlOut.setIndent(true);
+      if (null!=dtd && !dtd.equals("")) { xmlOut.setDocType(null, dtd); }
+      xmlOut.startDocument();
+      //xmlOut.pushAttribute("NAME", );
+      xmlOut.startElement(documentRootName);
+
+      int numberOfColumns = resultSetMetaData.getColumnCount();
+
+      // for all rows 
+      while (resultSet.next()) {
+	      //Attributes are pushed before the containing Element is created  
+	      for (int i = 1 ; i <= numberOfColumns; i++ )
+	      {
+		 xmlOut.pushAttribute(resultSetMetaData.getColumnName(i), resultSet.getString(i) );
+	      }
+	      xmlOut.startElement(rowElementName);
+	      xmlOut.endElement(rowElementName);
+      }
+
+
+      xmlOut.endElement(documentRootName);
+
+      xmlOut.endDocument();
+    } finally {
+      if(outputStream != null) {
+        outputStream.close();
+      }
+    }
+
+  }
+
   
   /**
   * Processes a package.
@@ -615,6 +714,23 @@ public class PLDoc
     return overview.toString();
   }
 
+
+  private String getStringFromInputStream(InputStream inputStream) throws IOException  
+   {
+	byte[] inputBuffer = new byte[1024];
+	StringBuffer stringBuffer = new StringBuffer(1024);
+
+	    int bytesRead;
+	    while (inputStream.available() > 0) {
+		bytesRead = inputStream.read(inputBuffer);
+		stringBuffer.append(new String(inputBuffer, 0, bytesRead));
+	    }
+	    if (settings.isVerbose())
+		System.out.println("String derived from inputStream: \"" + 
+		 stringBuffer + "\"");
+
+        return stringBuffer.toString(); 
+  }
 
   /**
   * Generates HTML files from the provided XML file.

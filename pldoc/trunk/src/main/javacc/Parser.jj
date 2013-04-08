@@ -67,6 +67,9 @@ import org.w3c.dom.*;
 import net.sourceforge.pldoc.*;
 import uk.co.anyware.html.HTMLEscaper;
 import org.xml.sax.SAXException;
+import net.sourceforge.pmd.lang.java.ast.ASTCompilationUnit;
+import net.sourceforge.pmd.lang.java.ast.JavaParser;
+import net.sourceforge.pmd.lang.java.ast.JavaParserTokenManager;
 
 public class PLSQLParser {
 
@@ -627,6 +630,67 @@ public class PLSQLParser {
     s = "\"qwerty\".\"uiop\"";
 //    System.err.println(s + " -> " + parser.purifyIdentifier(s));
   }
+
+
+  /** Java compilation unit from PMD Java parser delegated to parse Java code.
+   */
+  private ASTCompilationUnit  fromDelegatedJavaParser()
+  throws ParseException
+  {
+         // create a Java parser that we will delegate to
+          JavaCharStreamAdapter a = new JavaCharStreamAdapter( jj_input_stream );
+          JavaParserTokenManager tm = new JavaParserTokenManager( a );
+          JavaParser jp = new JavaParser( tm );
+
+	  //Oracle 11G Java 5 
+          jp.setJdkVersion(5);
+
+          // the parser fills in an empty query template
+          ASTCompilationUnit cu = null; // new ASTCompilationUnit();
+          //jp.setASTCompilationUnit( cu );
+          //setPrefixes( cu );
+
+          try {
+              // parse to the end of the query
+              cu = jp.CompilationUnit();
+              //cu.setSyntax(Syntax.syntaxJava);
+
+              // push back the final char, which the Java parser will have
+              // consumed to know that the query was finished
+              jj_input_stream.backup(1);
+          }
+          catch (net.sourceforge.pmd.lang.java.ast.ParseException javaParseException) {
+                String message = javaParseException.getMessage();
+                 
+	      //System.err.println("JavaParserException:"+message);
+              /* Normal PLSQL-wrapped Java will have the terminating "/" 
+                 Which causes the Java Parser to fail.
+                 If this is the reason, then ignore it
+
+                 This is a nasty work-around to avoid hacking the PMD Java parser
+                 to play nicer with bad terminating text. 
+               */
+              if (
+                     message.startsWith("Encountered \" \"/\" \"/ \"\" at line ")
+                     ||message.contains("Was expecting one of:")
+                     ||message.contains("<EOF>")
+                 )
+              {
+                // Push back the final char, which the Java parser will have
+                // consumed to know that the query was finished
+                jj_input_stream.backup(1);
+              }
+              else
+              {
+                ParseException plsqlParseException =
+                new ParseException( "Error reported by Java parser: " + message);
+                throw (ParseException) plsqlParseException.initCause( javaParseException );
+               }
+          }
+
+          return cu;
+  }
+
 
 }
 
