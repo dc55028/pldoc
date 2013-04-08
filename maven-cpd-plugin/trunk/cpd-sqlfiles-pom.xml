@@ -12,11 +12,11 @@
 
   <build>
     <plugins>
-     <!-- mvn -f pldoc-sqlfiles-pom.xml pldoc:cpd -->
+     <!-- mvn -f pldoc-sqlfiles-pom.xml pldoccpd:cpd -->
       <plugin>
 	<groupId>net.sourceforge.pldoc</groupId>
 	<artifactId>maven-cpd-plugin</artifactId>
-	<version>0.0.6-SNAPSHOT</version>
+	<version>0.0.6</version>
 	  <dependencies>
 	    <dependency>
 	     <groupId>com.oracle</groupId>
