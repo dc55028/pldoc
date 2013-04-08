@@ -39,6 +39,8 @@
 *--------*--------*-----------*------*
 | maven.pldoc.ignoreInformalComments |Yes| Ignore informal PL/SQL comments "--" when searching for PLDoc comments. | |
 *--------*--------*-----------*------*
+| maven.pldoc.plscope |Yes| Extract amd merge PLScope information when generating documentation from the database | |
+*--------*--------*-----------*------*
 | maven.pldoc.driverName |Yes| Fully qualified class name of the JDBC driver used to access a database.  | com.timesten.jdbc.TimesTenDriver |
 *--------*--------*-----------*------*
 | maven.pldoc.getMetadataStatement |Yes| A callable statement taking the same parameters as Oracle's DBMS_METADATA.GET_DDL function.|  "? = call PLS.GET_SOURCE_LOB( ? , ? , ? , ? , ? , ? )" |
