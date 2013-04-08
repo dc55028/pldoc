@@ -199,6 +199,26 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 	    </TABLE>
 	    </xsl:if>
 	
+	    <xsl:if test="//JAVA[ @SCHEMA=$theschema and @TYPE='SOURCE'] ">
+	    <TABLE BORDER="0" WIDTH="100%">
+	    <TR>
+	    <TD><FONT size="+1" CLASS="FrameHeadingFont">
+	    Java</FONT>
+	    <BR />
+	    <BR />
+	
+	    <xsl:for-each select="//JAVA[ @SCHEMA=$theschema and @TYPE='SOURCE' ]">
+              <xsl:sort select="translate(@NAME,$namesFromCase,$namesToCase)"/>
+	      <FONT CLASS="FrameItemFont"><A HREF="{translate(@NAME, $namesFromCase, $namesToCase)}.html" TARGET="packageFrame">
+	        <xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/>
+	      </A></FONT><BR></BR>
+	    </xsl:for-each>
+	
+	    </TD>
+	    </TR>
+	    </TABLE>
+	    </xsl:if>
+	
 	    <xsl:if test="//*[ @SCHEMA=$theschema and ( local-name() = 'PACKAGE_BODY' or local-name()='OBJECT_BODY' ) ]">
 	    <BR />
 	    <BR />
@@ -343,6 +363,27 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 			<P/><P/>
 	    </xsl:if>
 	
+	
+	    <!-- ****************************  Java ******************************* -->
+		<xsl:if test="//JAVA[ @SCHEMA=$theschema and @TYPE='SOURCE' ]">
+			<TABLE BORDER="1" WIDTH="100%">
+			<TR><TD COLSPAN="2"><FONT size="+1" CLASS="FrameHeadingFont">Object Collections</FONT></TD></TR>
+		
+		    <xsl:for-each select="//JAVA[ @SCHEMA=$theschema and @TYPE='SOURCE' ]">
+                      <xsl:sort select="translate(@NAME,$namesFromCase,$namesToCase)"/>
+			  <TR>
+		   	  <TD>
+		        <FONT CLASS="FrameItemFont"><A HREF="{translate(@NAME, $namesFromCase, $namesToCase)}.html" TARGET="packageFrame">
+		           <xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/>
+		        </A></FONT>
+			    </TD>
+			    <TD>&nbsp;</TD>
+			  </TR>
+		    </xsl:for-each>
+		
+			</TABLE>
+			<P/><P/>
+	    </xsl:if>
 	
 	    <!-- **************************** Package and Object Bodies ******************************* -->
 		<xsl:if test="//*[ @SCHEMA=$theschema and ( local-name() = 'PACKAGE_BODY' or local-name()='OBJECT_BODY' ) ]">

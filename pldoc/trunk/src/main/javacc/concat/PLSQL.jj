@@ -67,6 +67,9 @@ import org.w3c.dom.*;
 import net.sourceforge.pldoc.*;
 import uk.co.anyware.html.HTMLEscaper;
 import org.xml.sax.SAXException;
+import net.sourceforge.pmd.lang.java.ast.ASTCompilationUnit;
+import net.sourceforge.pmd.lang.java.ast.JavaParser;
+import net.sourceforge.pmd.lang.java.ast.JavaParserTokenManager;
 
 public class PLSQLParser {
 
@@ -628,6 +631,67 @@ public class PLSQLParser {
 //    System.err.println(s + " -> " + parser.purifyIdentifier(s));
   }
 
+
+  /** Java compilation unit from PMD Java parser delegated to parse Java code.
+   */
+  private ASTCompilationUnit  fromDelegatedJavaParser()
+  throws ParseException
+  {
+         // create a Java parser that we will delegate to
+          JavaCharStreamAdapter a = new JavaCharStreamAdapter( jj_input_stream );
+          JavaParserTokenManager tm = new JavaParserTokenManager( a );
+          JavaParser jp = new JavaParser( tm );
+
+	  //Oracle 11G Java 5 
+          jp.setJdkVersion(5);
+
+          // the parser fills in an empty query template
+          ASTCompilationUnit cu = null; // new ASTCompilationUnit();
+          //jp.setASTCompilationUnit( cu );
+          //setPrefixes( cu );
+
+          try {
+              // parse to the end of the query
+              cu = jp.CompilationUnit();
+              //cu.setSyntax(Syntax.syntaxJava);
+
+              // push back the final char, which the Java parser will have
+              // consumed to know that the query was finished
+              jj_input_stream.backup(1);
+          }
+          catch (net.sourceforge.pmd.lang.java.ast.ParseException javaParseException) {
+                String message = javaParseException.getMessage();
+                 
+	      //System.err.println("JavaParserException:"+message);
+              /* Normal PLSQL-wrapped Java will have the terminating "/" 
+                 Which causes the Java Parser to fail.
+                 If this is the reason, then ignore it
+
+                 This is a nasty work-around to avoid hacking the PMD Java parser
+                 to play nicer with bad terminating text. 
+               */
+              if (
+                     message.startsWith("Encountered \" \"/\" \"/ \"\" at line ")
+                     ||message.contains("Was expecting one of:")
+                     ||message.contains("<EOF>")
+                 )
+              {
+                // Push back the final char, which the Java parser will have
+                // consumed to know that the query was finished
+                jj_input_stream.backup(1);
+              }
+              else
+              {
+                ParseException plsqlParseException =
+                new ParseException( "Error reported by Java parser: " + message);
+                throw (ParseException) plsqlParseException.initCause( javaParseException );
+               }
+          }
+
+          return cu;
+  }
+
+
 }
 
 PARSER_END(PLSQLParser)
@@ -647,7 +711,8 @@ void input() throws org.xml.sax.SAXException : {}
 	(
         //    (LOOKAHEAD(6) packageSpec() | LOOKAHEAD(6) packageBody() | LOOKAHEAD(6) typeSpec() | LOOKAHEAD(6) typeBody() | LOOKAHEAD(6) programUnit(true) | sqlPlusCommand())
 	 // SRT 20110514 before (LOOKAHEAD(6) packageSpec() | LOOKAHEAD(6) packageBody() | LOOKAHEAD(6) typeSpec() | LOOKAHEAD(6) typeBody() | LOOKAHEAD(6) table() | LOOKAHEAD(6) view()  | global() | sqlPlusCommand())	("/")*
-	 (LOOKAHEAD(6) packageSpec()  
+	 (LOOKAHEAD(8) javaSpec()  
+	 |LOOKAHEAD(6) packageSpec()  
 	 | LOOKAHEAD(6) packageBody()  
 	 | LOOKAHEAD(6) typeSpec()  
 	 //| LOOKAHEAD(6) typeBody()  {system.err.println("typeSpec"); }
@@ -801,6 +866,89 @@ void globalBlock(Token objectStart) throws SAXException :
 	<BEGIN> (statement())* (exceptionHandler())? <END> [<IDENTIFIER>] ";"
 }
 
+
+
+void javaSpec() throws SAXException :
+{ ASTCompilationUnit javaCompilationUnit = null ;
+  Token schema = null, name = null, tokenCreate = null, tokenPackage = null, tokenJavaType = null, tokenIsAs = null, lastToken = null ; 
+}
+{
+    
+	[tokenCreate=<CREATE> [<OR> <REPLACE>] [ <AND> ( <COMPILE> | <RESOLVE> )  ] ]
+	tokenPackage=<JAVA> 
+    (
+      ( ( tokenJavaType = <SOURCE> | tokenJavaType = <RESOURCE> )  <NAMED> (LOOKAHEAD(2) schema=ID()".")? name=ID() )
+      |
+      ( tokenJavaType = <CLASS> [ <SCHEMA> schema=ID() ] )
+    )
+	{
+		if (m_out != null)
+		{
+			String schemaString = schemaName; //SRT 20110318 "";
+			if (schema != null) {
+				schemaString = schema.toString();
+			}
+			// now start printing the package
+			m_out.pushAttribute("NAME", purifyIdentifier( (null==name) ? "Unnamed" : name.toString()));
+			m_out.pushAttribute("SCHEMA", purifyIdentifier(schemaString.toString()));
+			m_out.pushAttribute("TYPE", purifyIdentifier(tokenJavaType.toString()));
+			m_out.startElement("JAVA");
+		}
+		// possibly, package comment is here
+		if(null!= tokenCreate)
+		{
+			processPackageComment(tokenCreate);
+		}
+// 		System.err.println("processPackageComment @ packageSpec() " );
+		processPackageComment(tokenPackage);
+	}
+
+	(tokenIsAs=<AUTHID> (<CURRENT_USER> | <DEFINER>))?
+	{
+		// possibly, package comment is here
+		processPackageComment(tokenIsAs);
+	}
+
+	(tokenIsAs=<RESOLVER> "("  ( "("  ( "*" | <QUOTED_LITERAL> )  [","] ( "-" | unqualifiedID()  )  ")"  )+    ")"    )?
+	{
+		// possibly, package comment is here
+		processPackageComment(tokenIsAs);
+	}
+
+   (
+	  (
+	    (tokenIsAs=<USING>)
+	    {
+		    // possibly, package comment is here
+		    processPackageComment(tokenIsAs);
+	    }
+
+
+        (
+           LOOKAHEAD(<BFILE> "(")  ( <BFILE>  "(" unqualifiedID() "," StringLiteral()  ")" )
+          | LOOKAHEAD( ( <CLOB> | <BLOB> | <BFILE> ) <SELECT> ) ( ( <CLOB> | <BLOB> | <BFILE> ) sqlStatement(null,";") [";"] )
+          | StringLiteral()
+        )
+	  )
+      |
+      (
+	    (tokenIsAs=<IS> | tokenIsAs=<AS>)
+	    {
+		    // possibly, package comment is here
+		    processPackageComment(tokenIsAs);
+	    }
+
+
+	    //Populate javaCompilationUnit with productions returned from the wrapped PMD Java parser (also JavaCC generated)
+	    { 
+           javaCompilationUnit = fromDelegatedJavaParser(); 
+        }
+	  )
+	)
+	{ 
+		if (m_out != null) m_out.endElement("JAVA"); 
+	}
+}
 
 
 void packageSpec() throws SAXException :
@@ -4782,6 +4930,13 @@ TOKEN [IGNORE_CASE]:
 | <SHARED : "SHARED">
 | <DIRECTORY : "DIRECTORY">
 | <USER : "USER">
+//Support JAVA SOURCE
+|<COMPILE: "COMPILE"> 
+|<RESOLVE: "RESOLVE"> 
+|<RESOLVER: "RESOLVER"> 
+|<NAMED: "NAMED"> 
+|<SOURCE: "SOURCE"> 
+|<CLASS: "CLASS"> 
 }
 
 /**
@@ -4790,7 +4945,7 @@ TOKEN [IGNORE_CASE]:
  */
 TOKEN :
 {
-< #GERMAN_SPECIAL_CHARACTERS: "Ä" | "Ö" | "Ü" | "ä" | "ü" | "ö" | "ß" >
+< #GERMAN_SPECIAL_CHARACTERS: "ï¿½" | "ï¿½" | "ï¿½" | "ï¿½" | "ï¿½" | "ï¿½" | "ï¿½" >
 |
 < #LETTER: ["A"-"Z"] | ["a"-"z"] | <GERMAN_SPECIAL_CHARACTERS> >
 |
@@ -4803,7 +4958,7 @@ TOKEN :
  | "$" | "&" | "_" | "|" | "{" | "}" | "?" | "[" | "]"
  | " " | "\t" >
 |
-< #SPECIAL_CHARACTERS: "á" | "Ž" | "™" | "š" | "„" | "”" | "ý" | "²" | "€" | "³" | "µ">
+< #SPECIAL_CHARACTERS: "ï¿½" | "ï¿½" | "ï¿½" | "ï¿½" | "ï¿½" | "ï¿½" | "ï¿½" | "ï¿½" | "ï¿½" | "ï¿½" | "ï¿½">
 |
 < #DELIMITER: "+" | "%" | "'" | "\"" | "." | "/" | "(" | ")" | ":" | "," | "*" | "=" | "<" | ">" | "@" | ";" | "-">
 |
@@ -5064,7 +5219,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <CHOOSE>
 //| <CHUNK>
 //| <CIV_GB>
-//| <CLASS>
+| <CLASS>
 //| <CLEAR>
 | <CLOB>
 //| <CLONE>
@@ -5083,7 +5238,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <COMMITTED>
 //| <COMPACT>
 //| <COMPATIBILITY>
-//| <COMPILE>
+| <COMPILE>
 //| <COMPLETE>
 //| <COMPOSITE_LIMIT>
 | <COMPOUND>
@@ -5458,7 +5613,7 @@ Token KEYWORD_UNRESERVED (): {}
 | <MULTISET>
 //| <MV_MERGE>
 | <NAME>
-//| <NAMED>
+| <NAMED>
 //| <NAN>
 //| <NATIONAL>
 //| <NATIVE>
@@ -5748,8 +5903,8 @@ Token KEYWORD_UNRESERVED (): {}
 //| <RESET>
 //| <RESETLOGS>
 //| <RESIZE>
-//| <RESOLVE>
-//| <RESOLVER>
+| <RESOLVE>
+| <RESOLVER>
 //| <RESTORE>
 //| <RESTORE_AS_INTERVALS>
 //| <RESTRICT>
@@ -5839,7 +5994,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <SNAPSHOT>
 //| <SOME>
 //| <SORT>
-//| <SOURCE>
+| <SOURCE>
 | <SPACE>
 //| <SPECIFICATION>
 //| <SPFILE>

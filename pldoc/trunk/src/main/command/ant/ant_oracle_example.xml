@@ -39,6 +39,7 @@
           destdir="EnterpriseDoc-Ant"
           doctitle="Oracle Enterprise Ant Application"
 	  showskippedpackages="true"
+	  plscope="true"
           dburl="${pldoc.db.url}"
           dbuser="${pldoc.db.user}"
           dbpassword="${pldoc.db.password}"

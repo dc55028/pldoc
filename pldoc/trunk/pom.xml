@@ -126,6 +126,11 @@
             <artifactId>ant</artifactId>
             <version>1.7.1</version>
         </dependency>
+	<dependency>
+	    <groupId>net.sourceforge.pmd</groupId>
+	    <artifactId>pmd</artifactId>
+	    <version>5.0.3</version>
+	</dependency>
     </dependencies>
 
     <distributionManagement>

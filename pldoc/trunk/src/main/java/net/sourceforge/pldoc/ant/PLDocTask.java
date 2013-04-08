@@ -33,6 +33,7 @@ import net.sourceforge.pldoc.*;
  *     inputEncoding = encoding (default: OS dependant) &gt;
  *     ignoreInformalComments = (false | true) 
  *     showSkippedPackages = (false | true) 
+ *     plscope = (false | true) 
  *     url = text
  *     user = text
  *     password = text
@@ -54,6 +55,7 @@ import net.sourceforge.pldoc.*;
  *  <dt>inputEncoding</dt><dd>Input files encoding</dd>
  *  <dt>ignoreInformalComments</dt><dd> true if documentation should be generated from formal comments only</dd>
  *  <dt>showSkippedPackages</dt><dd>Display list of packages which failed to parse</dd>
+ *  <dt>plscope</dt><dd>Extract PLScope information and incoporate into PLDoc</dd>
  *  <dt>driverName</dt><dd>JDBC driver class to use to connect to the database</dd>
  *  <dt>url</dt><dd>Database connection URL</dd>
  *  <dt>user</dt><dd>Database username </dd>
@@ -83,6 +85,7 @@ public class PLDocTask extends Task {
   private String m_inputObjects ;
   private boolean m_ignoreInformalComments ;
   private boolean m_showSkippedPackages ;
+  private boolean m_plscope ;
   private String  m_driverName ;
   private String  m_getMetadataStatement ;
   private Integer m_getMetadataStatementReturnType ;
@@ -105,6 +108,7 @@ public class PLDocTask extends Task {
     m_inputTypes =  null;
     m_inputObjects =  null;
     m_showSkippedPackages = false;
+    m_plscope = false;
     m_ignoreInformalComments = false;
     m_driverName = null;
     m_getMetadataStatement = null;
@@ -153,6 +157,9 @@ public class PLDocTask extends Task {
   }
   public void setShowSkippedPackages(boolean showSkippedPackages) {
     this.m_showSkippedPackages = showSkippedPackages;
+  }
+  public void setPlscope(boolean plscope) {
+    this.m_plscope = plscope;
   }
   public void setIgnoreInformalComments(boolean ignoreInformalComments) {
     this.m_ignoreInformalComments = ignoreInformalComments;
@@ -238,6 +245,7 @@ public class PLDocTask extends Task {
 			       :  Arrays.asList(m_inputObjects.split(","))
 			     );
       settings.setShowSkippedPackages(m_showSkippedPackages);
+      settings.setPlscope(m_plscope);
       settings.setIgnoreInformalComments(m_ignoreInformalComments);
 
       /* Set the non-Oracle settings only if defined, otherwise 
@@ -311,6 +319,7 @@ public class PLDocTask extends Task {
     m_inputTypes = null;
     m_inputObjects = null;
     m_showSkippedPackages = false;
+    m_plscope = false;
     m_ignoreInformalComments = false;
   }
   

@@ -14,7 +14,8 @@ void input() throws org.xml.sax.SAXException : {}
 	(
         //    (LOOKAHEAD(6) packageSpec() | LOOKAHEAD(6) packageBody() | LOOKAHEAD(6) typeSpec() | LOOKAHEAD(6) typeBody() | LOOKAHEAD(6) programUnit(true) | sqlPlusCommand())
 	 // SRT 20110514 before (LOOKAHEAD(6) packageSpec() | LOOKAHEAD(6) packageBody() | LOOKAHEAD(6) typeSpec() | LOOKAHEAD(6) typeBody() | LOOKAHEAD(6) table() | LOOKAHEAD(6) view()  | global() | sqlPlusCommand())	("/")*
-	 (LOOKAHEAD(6) packageSpec()  
+	 (LOOKAHEAD(8) javaSpec()  
+	 |LOOKAHEAD(6) packageSpec()  
 	 | LOOKAHEAD(6) packageBody()  
 	 | LOOKAHEAD(6) typeSpec()  
 	 //| LOOKAHEAD(6) typeBody()  {system.err.println("typeSpec"); }
@@ -168,6 +169,89 @@ void globalBlock(Token objectStart) throws SAXException :
 	<BEGIN> (statement())* (exceptionHandler())? <END> [<IDENTIFIER>] ";"
 }
 
+
+
+void javaSpec() throws SAXException :
+{ ASTCompilationUnit javaCompilationUnit = null ;
+  Token schema = null, name = null, tokenCreate = null, tokenPackage = null, tokenJavaType = null, tokenIsAs = null, lastToken = null ; 
+}
+{
+    
+	[tokenCreate=<CREATE> [<OR> <REPLACE>] [ <AND> ( <COMPILE> | <RESOLVE> )  ] ]
+	tokenPackage=<JAVA> 
+    (
+      ( ( tokenJavaType = <SOURCE> | tokenJavaType = <RESOURCE> )  <NAMED> (LOOKAHEAD(2) schema=ID()".")? name=ID() )
+      |
+      ( tokenJavaType = <CLASS> [ <SCHEMA> schema=ID() ] )
+    )
+	{
+		if (m_out != null)
+		{
+			String schemaString = schemaName; //SRT 20110318 "";
+			if (schema != null) {
+				schemaString = schema.toString();
+			}
+			// now start printing the package
+			m_out.pushAttribute("NAME", purifyIdentifier( (null==name) ? "Unnamed" : name.toString()));
+			m_out.pushAttribute("SCHEMA", purifyIdentifier(schemaString.toString()));
+			m_out.pushAttribute("TYPE", purifyIdentifier(tokenJavaType.toString()));
+			m_out.startElement("JAVA");
+		}
+		// possibly, package comment is here
+		if(null!= tokenCreate)
+		{
+			processPackageComment(tokenCreate);
+		}
+// 		System.err.println("processPackageComment @ packageSpec() " );
+		processPackageComment(tokenPackage);
+	}
+
+	(tokenIsAs=<AUTHID> (<CURRENT_USER> | <DEFINER>))?
+	{
+		// possibly, package comment is here
+		processPackageComment(tokenIsAs);
+	}
+
+	(tokenIsAs=<RESOLVER> "("  ( "("  ( "*" | <QUOTED_LITERAL> )  [","] ( "-" | unqualifiedID()  )  ")"  )+    ")"    )?
+	{
+		// possibly, package comment is here
+		processPackageComment(tokenIsAs);
+	}
+
+   (
+	  (
+	    (tokenIsAs=<USING>)
+	    {
+		    // possibly, package comment is here
+		    processPackageComment(tokenIsAs);
+	    }
+
+
+        (
+           LOOKAHEAD(<BFILE> "(")  ( <BFILE>  "(" unqualifiedID() "," StringLiteral()  ")" )
+          | LOOKAHEAD( ( <CLOB> | <BLOB> | <BFILE> ) <SELECT> ) ( ( <CLOB> | <BLOB> | <BFILE> ) sqlStatement(null,";") [";"] )
+          | StringLiteral()
+        )
+	  )
+      |
+      (
+	    (tokenIsAs=<IS> | tokenIsAs=<AS>)
+	    {
+		    // possibly, package comment is here
+		    processPackageComment(tokenIsAs);
+	    }
+
+
+	    //Populate javaCompilationUnit with productions returned from the wrapped PMD Java parser (also JavaCC generated)
+	    { 
+           javaCompilationUnit = fromDelegatedJavaParser(); 
+        }
+	  )
+	)
+	{ 
+		if (m_out != null) m_out.endElement("JAVA"); 
+	}
+}
 
 
 void packageSpec() throws SAXException :
