@@ -33,7 +33,7 @@
   </taskdef>
 
   <target name="plsql-doc" description="PL/SQL documentation generator">
-    <echo message="java.library.path            = ::/Users/sturton/Library/Java/Extensions:/Library/Java/Extensions:/Network/Library/Java/Extensions:/System/Library/Java/Extensions:/usr/lib/java:." /> 
+    <echo message="java.library.path            = /opt/subversion/lib:/usr/lib:/Applications/Oracle/InstantClient/Instantclient_10_2-x32:/Users/sturton/Library/Java/Extensions:/Library/Java/Extensions:/Network/Library/Java/Extensions:/System/Library/Java/Extensions:/usr/lib/java:." /> 
     <pldoc
           verbose="yes"
           destdir="EnterpriseDoc-Ant-TimesTen"
