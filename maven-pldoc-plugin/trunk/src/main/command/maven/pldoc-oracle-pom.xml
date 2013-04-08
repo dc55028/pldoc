@@ -31,6 +31,7 @@
 	  <outputDirectory>target/docs/apidocs/outputDirectory</outputDirectory>
 	  <reportOutputDirectory>target/docs/apidocs</reportOutputDirectory>
 	  <showSkippedPackages>true</showSkippedPackages>
+	  <plscope>true</plscope>
 	  <!--
 	  <dbUrl>jdbc:oracle:thin:@//192.168.100.22:1521/orcl</dbUrl>
 	  <dbUser>system</dbUser>
@@ -68,6 +69,7 @@
 		      <reportOutputDirectory>target/site/apidocs</reportOutputDirectory>
 		      -->
 		      <showSkippedPackages>true</showSkippedPackages>
+		      <plscope>true</plscope>
 		      <!-- Use Settings instaed 
 		      <dbUrl>jdbc:oracle:thin:@//192.168.100.22:1521/orcl</dbUrl>
 		      <dbUser>system</dbUser>

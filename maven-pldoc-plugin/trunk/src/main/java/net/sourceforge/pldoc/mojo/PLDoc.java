@@ -38,7 +38,7 @@ import org.codehaus.plexus.util.StringUtils;
  * Goal which touches a timestamp file.
  *
  * Here is a sample configuration for the plugin with the defaults:
- *             <plugin>
+ *<plugin>
 <groupId>net.sourceforge.pldoc</groupId>
 <artifactId>maven-pldoc-plugin</artifactId>
 <version>2.1-SNAPSHOT</version>
@@ -51,6 +51,7 @@ import org.codehaus.plexus.util.StringUtils;
 <reportOutputDirectory>target/site/apidocs</reportOutputDirectory>
 <destDir>sql-apidocs<destDir>
 <showSkippedPackages>true</showSkippedPackages>
+<plscope>true</plscope>
 <ignoreInformalComments>true</ignoreInformalComments>
 <driverName>oracle.jdbc.OracleDriver</driverName>
 <getMetadataStatement>CallableStatement text</getMetadataStatement>
@@ -232,6 +233,14 @@ implements MavenReport{
     private boolean ignoreInformalComments ;
 
     /**
+     * Pull in PLScope infornmation from the database and include in generated documentation.
+     *
+     * @since 2.19
+     * @parameter expression="${plscope}" default-value="false"
+     */
+    private boolean plscope ;
+
+    /**
      * The Maven Project Object
      *
      * @parameter expression="${project}"
@@ -306,6 +315,7 @@ implements MavenReport{
 	getLog().debug( "inputTypes=" + inputTypes  ) ;
 	getLog().debug( "showSkippedPackages=" + showSkippedPackages ) ;
 	getLog().debug( "ignoreInformalComments=" + ignoreInformalComments ) ;
+	getLog().debug( "plscope=" + plscope ) ;
 	getLog().debug( "driverName=" + driverName ) ;
 	getLog().debug( "getMetadataStatement=" + getMetadataStatement ) ;
 	getLog().debug( "getMetadataStatementReturnType=" + getMetadataStatementReturnType ) ;
@@ -328,6 +338,7 @@ implements MavenReport{
 	    task.setInputEncoding(inputEncoding);
 	    task.setShowSkippedPackages(showSkippedPackages);
 	    task.setIgnoreInformalComments(ignoreInformalComments);
+	    task.setPlscope(plscope);
 	    PLDocTask.NamesCase antNamesCase = new PLDocTask.NamesCase();
 	    antNamesCase.setValue(namesCase);
 	    task.setNamesCase(antNamesCase);
