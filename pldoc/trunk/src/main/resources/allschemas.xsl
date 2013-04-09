@@ -69,7 +69,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 		</xsl:if>
 		
 	    <!-- List all distinct schemas using Muenchian method -->
-		<xsl:for-each select="//*[count(. | key('schemaInit', @SCHEMA)[1]) = 1 and @SCHEMA != '']">
+		<xsl:for-each select="./*[count(. | key('schemaInit', @SCHEMA)[1]) = 1 and @SCHEMA != '']">
 		  <!-- generate the linked pages with only-schema-packages -->
 		  <xsl:call-template name="schemaonly">
 		    <xsl:with-param name="theschema" select="@SCHEMA"/>
