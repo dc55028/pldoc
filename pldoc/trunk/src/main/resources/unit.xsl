@@ -528,8 +528,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     </DL>
 
         <xsl:if test="PLSCOPE/CALLERS/CALLER[not(contains(@SCHEMA,'SYS'))] ">
-
-        <DT>Called By:
+        <BR/><DT>Called By:
         <xsl:for-each select="PLSCOPE/CALLERS/CALLER[not(contains(@SCHEMA,'SYS'))]">
           <DD><CODE><xsl:value-of select="concat( translate(@SCHEMA, $namesFromCase, $namesToCase), '.',  translate(@OBJECT_NAME, $namesFromCase, $namesToCase), '.',  translate(@NAME, $namesFromCase, $namesToCase) ) "/></CODE> 
            </DD>
@@ -537,10 +536,12 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
         </DT>
         </xsl:if>
         <xsl:if test="PLSCOPE/CALLEES/CALLEE[not(contains(@SCHEMA,'SYS'))]">
-
-        <DT>Calls:
+        <BR/><DT>Calls:
         <xsl:for-each select="PLSCOPE/CALLEES/CALLEE[not(contains(@SCHEMA,'SYS'))]">
-          <DD><CODE><xsl:value-of select="concat( translate(@SCHEMA, $namesFromCase, $namesToCase), '.',  translate(@OBJECT_NAME, $namesFromCase, $namesToCase), '.',  translate(@NAME, $namesFromCase, $namesToCase) ) "/></CODE>
+          <DD><CODE><xsl:value-of select="translate(@SCHEMA, $namesFromCase, $namesToCase)"/>.<xsl:choose>
+	     <xsl:when test="@OBJECT_TYPE = 'FUNCTION' or @OBJECT_TYPE = 'PROCEDURE' "><xsl:value-of select="concat('_', translate(@SCHEMA, $namesFromCase,$namesToCase))" /></xsl:when>
+	     <xsl:otherwise><xsl:value-of select="translate(@OBJECT_NAME, $namesFromCase, $namesToCase)" /></xsl:otherwise>
+     </xsl:choose>.<xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/></CODE>
            </DD>
         </xsl:for-each>
         </DT>
