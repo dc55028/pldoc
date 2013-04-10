@@ -373,7 +373,7 @@ public class PLDoc
 		if( rset != null ) rset.close();
 	    }
 	  }
-	} /* Keep Conect for PLSCOPE extract */
+	} /* Keep Connect for PLSCOPE extract */
 	    finally {
 	    if( pstmt != null ) pstmt.close();
 	    //if ( conn != null ) conn.close();
@@ -461,15 +461,30 @@ public class PLDoc
         
         try {
 	  
-	     String plscopeQuery = getStringFromInputStream( getResourceStream("plscope/plscope_call.sql") ) ;
 	    //Reuse pstmt = conn.prepareStatement(sqlStatement);
+
+	    //Generate identifiers 
+	    String plscopeQuery = getStringFromInputStream( getResourceStream("plscope/plscope_signatures.sql") ) ;
 	    pstmt = conn.prepareStatement( plscopeQuery );
 
 	    ResultSet resultSet = pstmt.executeQuery();
 
-	    OutputStream outputStream = new FileOutputStream( new File (settings.getOutputDirectory(), "plscope.xml")); 
+	    OutputStream outputStream = new FileOutputStream( new File (settings.getOutputDirectory(), "plscope_identifiers.xml")); 
+
+	    resultSetToXml(resultSet, outputStream, "PLSCOPE", "IDENTIFIER", null) ;
+
+	    //Extract the calls 
+	    plscopeQuery = getStringFromInputStream( getResourceStream("plscope/plscope_call.sql") ) ;
+	    pstmt = conn.prepareStatement( plscopeQuery );
+
+	    resultSet = pstmt.executeQuery();
+
+	    outputStream = new FileOutputStream( new File (settings.getOutputDirectory(), "plscope.xml")); 
 
 	    resultSetToXml(resultSet, outputStream, "PLSCOPE", "CALL", null) ;
+
+
+	    File signatureFile = new File (settings.getOutputDirectory(), "application-signatures.xml") ;
 	    File mergedFile = new File (settings.getOutputDirectory(), "application-plscope.xml") ;
 
 	    //Merge PL/Scope calling information into Application XML 
@@ -478,13 +493,21 @@ public class PLDoc
 		    TransformerFactory tFactory = TransformerFactory.newInstance();
 		    //tFactory.setURIResolver(resResolver);
 		    Transformer transformer;
-		    transformer = tFactory.newTransformer(new StreamSource(
-		    resLoader.getResourceStream("xslt/pldoc_merge_plscope_xml.xslt")));
+		    transformer = tFactory.newTransformer(new StreamSource( resLoader.getResourceStream("xslt/pldoc_merge_plscope_signatures.xslt")));
+		    //Have to pass in Absolute location of output directory in order to avoid problems with redirect File locations when called from PLDocTask
+		    transformer.setParameter("targetFolder", settings.getOutputDirectory().getAbsolutePath() + File.separator );
+		    transformer.setParameter("plscopeDocument", new File( settings.getOutputDirectory() ,  "plscope_identifiers.xml")  );
+		    transformer.setParameter("pldocDocument", new File( settings.getOutputDirectory() , "application.xml" ) );
+		    transformer.transform(new StreamSource(applicationFile), new StreamResult(new FileOutputStream( signatureFile) ) );
+
+		    transformer = tFactory.newTransformer(new StreamSource( resLoader.getResourceStream("xslt/pldoc_merge_plscope_calls.xslt")));
 		    //Have to pass in Absolute location of output directory in order to avoid problems with redirect File locations when called from PLDocTask
 		    transformer.setParameter("targetFolder", settings.getOutputDirectory().getAbsolutePath() + File.separator );
 		    transformer.setParameter("plscopeDocument", new File( settings.getOutputDirectory() ,  "plscope.xml")  );
-		    transformer.setParameter("pldocDocument", new File( settings.getOutputDirectory() , "application.xml" ) );
-		    transformer.transform(new StreamSource(applicationFile), new StreamResult(new FileOutputStream( mergedFile) ) );
+		    //transformer.setParameter("pldocDocument", new File( settings.getOutputDirectory() , "application.xml" ) );
+		    //transformer.transform(new StreamSource(applicationFile), new StreamResult(new FileOutputStream( mergedFile) ) );
+		    transformer.setParameter("pldocDocument", signatureFile );
+		    transformer.transform(new StreamSource(signatureFile), new StreamResult(new FileOutputStream( mergedFile) ) );
 
 	    }
 

@@ -12,8 +12,8 @@
     <!-- Copy any existing attributes before appending input files attributes -->
     <xsl:copy-of select="@*"/>
 
-    <xsl:attribute name="pldocDocument"><xsl:value-of select="$pldocDocument" /></xsl:attribute>
-    <xsl:attribute name="plscopeDocument"><xsl:value-of select="$plscopeDocument" /></xsl:attribute>
+    <xsl:attribute name="pldocIntermediateDocument"><xsl:value-of select="$pldocDocument" /></xsl:attribute>
+    <xsl:attribute name="plscopeCallDocument"><xsl:value-of select="$plscopeDocument" /></xsl:attribute>
     <xsl:apply-templates />
     </xsl:element>
 </xsl:template>
@@ -47,17 +47,25 @@
 
   <xsl:copy>
     <xsl:apply-templates select="@*|node()" />
+  </xsl:copy>
+</xsl:template>
+
+<xsl:template match="PLSCOPE">
+    <xsl:element name="PLSCOPE">
+    <!-- Copy any existing attributes before appending input files attributes -->
+    <xsl:copy-of select="@*"/>
+
       <!-- Retrieve CALLER method name and method type from $plscopeDocument for packages or objects -->
-      <xsl:element name="PLSCOPE">
-        <xsl:attribute name="pldocID" ><xsl:value-of  select="$executableID" /></xsl:attribute> 
-        <xsl:attribute name="pldocOwner" ><xsl:value-of  select="$pldocOwner" /></xsl:attribute> 
-        <xsl:attribute name="pldocObjectName" ><xsl:value-of  select="$pldocObjectName" /></xsl:attribute>
-        <xsl:attribute name="pldocObjectType" ><xsl:value-of  select="$pldocObjectType" /></xsl:attribute>
-        <xsl:attribute name="pldocMethodName" ><xsl:value-of  select="$pldocMethodName" /></xsl:attribute>
-        <xsl:attribute name="pldocMethodType" ><xsl:value-of  select="$pldocMethodType" /></xsl:attribute>
-        <xsl:attribute name="pldocMethodStartLine" ><xsl:value-of  select="$pldocMethodStartLine" /></xsl:attribute>
-        <xsl:attribute name="pldocMethodEndLine" ><xsl:value-of  select="$pldocMethodEndLine" /></xsl:attribute>
-        <xsl:attribute name="plscopeCallerObjectType" ><xsl:value-of select="$plscopeCallerObjectType" /></xsl:attribute>
+        <xsl:variable name="pldocID" select="@pldocID" />
+        <xsl:variable name="pldocOwner" select="@pldocOwner" />
+        <xsl:variable name="pldocObjectName" select="@pldocObjectName" />
+        <xsl:variable name="pldocObjectType" select="@pldocObjectType" />
+        <xsl:variable name="pldocMethodName" select="@pldocMethodName" />
+        <xsl:variable name="pldocMethodType" select="@pldocMethodType" />
+        <xsl:variable name="pldocMethodStartLine" select="@pldocMethodStartLine" />
+        <xsl:variable name="pldocMethodEndLine" select="@pldocMethodEndLine" />
+        <xsl:variable name="plscopeCallerObjectType" select="@plscopeCallerObjectType" />
+        <xsl:variable name="plscopeSignature" select="@plscopeSignature" />
 
         <xsl:element name="CALLERS">
           <!-- xsl:apply-templates select="document($plscopeDocument)/PLSCOPE/CALL[ @CALLED_OWNER = $pldocOwner and @CALLED_OBJECT_TYPE = $plscopeCallerObjectType  and @CALLED_OBJECT_NAME = $pldocObjectName and @CALLED_TYPE = $pldocMethodType  and @CALLED_NAME = $pldocMethodName and not (  preceding-sibling::CALL[ @CALLER_OWNER = ./@CALLER_OWNER  and @CALLER_OBJECT_TYPE = ./@CALLER_OBJECT_TYPE  and @CALLER_OBJECT_NAME = ./@CALLER_OBJECT_NAME and @CALLER_TYPE = ./@CALLER_TYPE and @CALLER_NAME = ./@CALLER_NAME ] )  ] " /-->
@@ -92,9 +100,11 @@
             </xsl:element>
           </xsl:for-each>
         </xsl:element>
+
+    <xsl:apply-templates />
     </xsl:element>
-  </xsl:copy>
 </xsl:template>
+
 
 <!--Identity template copies content forward -->
 <xsl:template match="@*|node()">
@@ -160,6 +170,14 @@
     </xsl:choose>
     </xsl:variable>
 
+
+    <xsl:variable name="pldocCallerMethodSignature">
+    <xsl:choose>
+    <xsl:when test="$callerObjectType = 'FUNCTION' or $callerObjectType = 'PROCEDURE'  or $callerObjectType = 'TRIGGER'  " ><xsl:value-of select="document($pldocDocument)//*[ local-name(..) = 'PACKAGE_BODY' and ../@SCHEMA = $callerOwner and @NAME = $callerObjectName  ]/PLSCOPE/@plscopeSignature  " /></xsl:when>
+    <xsl:otherwise><xsl:value-of select="document($pldocDocument)//*[ local-name(..) = $pldocCallerObjectType and ../@SCHEMA = $callerOwner and ../@NAME = $callerObjectName and $callerObjectLine >=SUMMARY/@START_LINE and SUMMARY/@END_LINE >= $callerObjectLine  ]/PLSCOPE/@plscopeSignature  " /></xsl:otherwise>
+    </xsl:choose>
+    </xsl:variable>
+
     <!-- Retrieve called method name from application.xml for packages or objects -->
     <xsl:variable name="pldocCalledMethodName">
     <xsl:choose>
@@ -183,6 +201,7 @@
     <xsl:attribute name="OBJECT_HASH"><xsl:value-of select="$callerObjectHash"/></xsl:attribute>
     <xsl:attribute name="NAME"><xsl:value-of select="$pldocCallerMethodName"/></xsl:attribute>
     <xsl:attribute name="TYPE"><xsl:value-of select="$pldocCallerMethodType"/></xsl:attribute>
+    <xsl:attribute name="CALLING_METHOD_SIGNATURE"><xsl:value-of select="$pldocCallerMethodSignature"/></xsl:attribute>
     <xsl:attribute name="CALLING_LINE"><xsl:value-of select = "@CALLER_LINE" /></xsl:attribute>
     <xsl:attribute name="CALLING_COLUMN"><xsl:value-of select = "@CALLER_COL" /></xsl:attribute>
     <xsl:attribute name="CALLED_LINE"><xsl:value-of select = "@CALLED_LINE" /></xsl:attribute>
