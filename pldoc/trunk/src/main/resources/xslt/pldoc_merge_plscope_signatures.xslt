@@ -41,6 +41,14 @@
     </xsl:choose>
     </xsl:variable>
 
+    <xsl:variable name="plscopeCallerObjectName">
+    <xsl:choose>
+    <!-- Schema-level FUNCTIONs, PROCEDUREs and TRIGGERS are documented in pseudo-package '_${SCHEMA-NAME}' -->
+    <xsl:when test="$pldocObjectType = 'PACKAGE' and $pldocObjectName = concat('_',$pldocOwner)" ><xsl:value-of select="$pldocMethodName" /></xsl:when>
+    <xsl:otherwise><xsl:value-of select="$pldocObjectName" /></xsl:otherwise>
+    </xsl:choose>
+    </xsl:variable>
+
 
   <xsl:copy>
     <xsl:apply-templates select="@*|node()" />
@@ -55,9 +63,13 @@
         <xsl:attribute name="pldocMethodStartLine" ><xsl:value-of  select="$pldocMethodStartLine" /></xsl:attribute>
         <xsl:attribute name="pldocMethodEndLine" ><xsl:value-of  select="$pldocMethodEndLine" /></xsl:attribute>
         <xsl:attribute name="plscopeCallerObjectType" ><xsl:value-of select="$plscopeCallerObjectType" /></xsl:attribute>
+        <xsl:attribute name="plscopeCallerObjectName" ><xsl:value-of select="$plscopeCallerObjectName" /></xsl:attribute>
 
-        <xsl:attribute name="plscopeSignature" ><xsl:value-of select="document($plscopeDocument)/PLSCOPE/IDENTIFIER[ @OWNER = $pldocOwner and @OBJECT_TYPE = $plscopeCallerObjectType  and @OBJECT_NAME = $pldocObjectName and @LINE >= $pldocMethodStartLine  and $pldocMethodEndLine  >= @LINE  and @PRIORITY = 1 ]/@SIGNATURE " />
-        </xsl:attribute>
+        <xsl:attribute name="plscopeSignature" ><xsl:choose>
+	<!-- When looking for a standalone function or procedure, ignore the line number check - it is unreliable, being dependent on how the CREATE OR REPLACE is fornatted when parsed by PLDoc-->
+	<xsl:when test="$plscopeCallerObjectType = 'FUNCTION' or $plscopeCallerObjectType = 'PROCEDURE' or $plscopeCallerObjectType = 'TRIGGER' " ><xsl:value-of select="document($plscopeDocument)/PLSCOPE/IDENTIFIER[ @OWNER = $pldocOwner and @OBJECT_TYPE = $plscopeCallerObjectType  and @OBJECT_NAME = $plscopeCallerObjectName  and @PRIORITY = 1 ]/@SIGNATURE " /></xsl:when> 
+	<xsl:otherwise><xsl:value-of select="document($plscopeDocument)/PLSCOPE/IDENTIFIER[ @OWNER = $pldocOwner and @OBJECT_TYPE = $plscopeCallerObjectType  and @OBJECT_NAME = $plscopeCallerObjectName and @LINE >= $pldocMethodStartLine  and $pldocMethodEndLine  >= @LINE  and @PRIORITY = 1 ]/@SIGNATURE " /></xsl:otherwise>
+        </xsl:choose></xsl:attribute>
       </xsl:element>
   </xsl:copy>
 </xsl:template>
