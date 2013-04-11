@@ -27,7 +27,7 @@
 	<configuration>
 	  <applicationTitle>PLDoc Maven Example</applicationTitle>
 	  <sourceDirectory>samples</sourceDirectory>
-	  <overviewFile>samples/overview.html</overviewFile>
+	  <overviewFile>samples/overview1.html</overviewFile>
 	  <includes>*.sql</includes>
 	  <inputEncoding>ISO-8859-15</inputEncoding>
 	  <reportOutputDirectory>target/docs/apidocs</reportOutputDirectory>
@@ -50,7 +50,7 @@
 		      <name>PLDoc Maven Site Report Example</name>
 		      <applicationTitle>PLDoc Maven Site Report Example</applicationTitle>
 		      <sourceDirectory>samples</sourceDirectory>
-		      <overviewFile>samples/overview.html</overviewFile>
+		      <overviewFile>samples/overview1.html</overviewFile>
 		      <includes>**/*.sql</includes>
 	              <inputEncoding>ISO-8859-15</inputEncoding>
 		      <!-- Ignored within Site Report - use destDir 
