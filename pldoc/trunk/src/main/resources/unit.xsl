@@ -392,6 +392,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     <xsl:variable name="containerName" select="local-name()"/>
     <xsl:for-each select="$mainTags">
       <xsl:sort select="translate(@NAME, $namesFromCase, $namesToCase)"/>
+      <!-- Add Landing place for any PLSCOPE derived Call link-->
+      <xsl:if test="PLSCOPE/@plscopeSignature" >
+      <xsl:comment>plscopeSignatureLandingLink</xsl:comment>
+      <xsl:element name="A"><xsl:attribute name="NAME"><xsl:value-of select="PLSCOPE/@plscopeSignature" /></xsl:attribute></xsl:element> 
+      </xsl:if>
       <xsl:element name="A"><xsl:attribute name="NAME"><xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)" />
         <xsl:if test="*[name()=$childTags]">
         <xsl:text>(</xsl:text>
@@ -530,19 +535,29 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
         <xsl:if test="PLSCOPE/CALLERS/CALLER[not(contains(@SCHEMA,'SYS'))] ">
         <BR/><DT>Called By:
         <xsl:for-each select="PLSCOPE/CALLERS/CALLER[not(contains(@SCHEMA,'SYS'))]">
-          <DD><CODE><xsl:value-of select="concat( translate(@SCHEMA, $namesFromCase, $namesToCase), '.',  translate(@OBJECT_NAME, $namesFromCase, $namesToCase), '.',  translate(@NAME, $namesFromCase, $namesToCase) ) "/></CODE> 
-           </DD>
+	  <xsl:variable name="targetPage"><xsl:choose>
+	     <xsl:when test="@OBJECT_TYPE = 'FUNCTION' or @OBJECT_TYPE = 'PROCEDURE' or @OBJECT_TYPE = 'TRIGGER' "><xsl:value-of select="concat('_', translate(@SCHEMA, $namesFromCase,$namesToCase))" /></xsl:when>
+	     <xsl:otherwise><xsl:value-of select="concat('_',translate(@OBJECT_NAME, $namesFromCase, $namesToCase) ,'_body')" /></xsl:otherwise>
+            </xsl:choose></xsl:variable>
+	  <BR/>
+          <xsl:element name="A"><xsl:attribute name="HREF"><xsl:value-of select="concat($targetPage,'.html#', @CALLING_METHOD_SIGNATURE)" /></xsl:attribute>
+          <CODE><xsl:value-of select="concat( translate(@SCHEMA, $namesFromCase, $namesToCase), '.',  translate(@OBJECT_NAME, $namesFromCase, $namesToCase), '.',  translate(@NAME, $namesFromCase, $namesToCase) ) "/></CODE></xsl:element>
         </xsl:for-each>
         </DT>
         </xsl:if>
         <xsl:if test="PLSCOPE/CALLEES/CALLEE[not(contains(@SCHEMA,'SYS'))]">
         <BR/><DT>Calls:
         <xsl:for-each select="PLSCOPE/CALLEES/CALLEE[not(contains(@SCHEMA,'SYS'))]">
-          <DD><CODE><xsl:value-of select="translate(@SCHEMA, $namesFromCase, $namesToCase)"/>.<xsl:choose>
+	  <xsl:variable name="targetPage"><xsl:choose>
+	     <xsl:when test="@OBJECT_TYPE = 'FUNCTION' or @OBJECT_TYPE = 'PROCEDURE' or @OBJECT_TYPE = 'TRIGGER' "><xsl:value-of select="concat('_', translate(@SCHEMA, $namesFromCase,$namesToCase))" /></xsl:when>
+	     <xsl:otherwise><xsl:value-of select="concat('_',translate(@OBJECT_NAME, $namesFromCase, $namesToCase) ,'_body')" /></xsl:otherwise>
+            </xsl:choose></xsl:variable>
+	  <BR/>
+          <xsl:element name="A"><xsl:attribute name="HREF"><xsl:value-of select="concat($targetPage,'.html#', @METHOD_SIGNATURE)" /></xsl:attribute>
+          <CODE><xsl:value-of select="translate(@SCHEMA, $namesFromCase, $namesToCase)"/>.<xsl:choose>
 	     <xsl:when test="@OBJECT_TYPE = 'FUNCTION' or @OBJECT_TYPE = 'PROCEDURE' "><xsl:value-of select="concat('_', translate(@SCHEMA, $namesFromCase,$namesToCase))" /></xsl:when>
 	     <xsl:otherwise><xsl:value-of select="translate(@OBJECT_NAME, $namesFromCase, $namesToCase)" /></xsl:otherwise>
-     </xsl:choose>.<xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/></CODE>
-           </DD>
+             </xsl:choose>.<xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/></CODE></xsl:element>
         </xsl:for-each>
         </DT>
         </xsl:if>

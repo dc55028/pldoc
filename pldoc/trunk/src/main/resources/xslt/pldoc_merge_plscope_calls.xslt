@@ -173,7 +173,8 @@
 
     <xsl:variable name="pldocCallerMethodSignature">
     <xsl:choose>
-    <xsl:when test="$callerObjectType = 'FUNCTION' or $callerObjectType = 'PROCEDURE'  or $callerObjectType = 'TRIGGER'  " ><xsl:value-of select="document($pldocDocument)//*[ local-name(..) = 'PACKAGE_BODY' and ../@SCHEMA = $callerOwner and @NAME = $callerObjectName  ]/PLSCOPE/@plscopeSignature  " /></xsl:when>
+      <!-- Standalone FUNCTIONs, PROCEDUREs and TRIGGERs are collected in the faux-PACKAGE (_NOT_ PACKAGE_BODY!!!) based on the SCHEMA-->
+    <xsl:when test="$callerObjectType = 'FUNCTION' or $callerObjectType = 'PROCEDURE'  or $callerObjectType = 'TRIGGER'  " ><xsl:value-of select="document($pldocDocument)//*[ local-name(..) = 'PACKAGE' and ../@SCHEMA = $callerOwner and @NAME = $callerObjectName  ]/PLSCOPE/@plscopeSignature  " /></xsl:when>
     <xsl:otherwise><xsl:value-of select="document($pldocDocument)//*[ local-name(..) = $pldocCallerObjectType and ../@SCHEMA = $callerOwner and ../@NAME = $callerObjectName and $callerObjectLine >=SUMMARY/@START_LINE and SUMMARY/@END_LINE >= $callerObjectLine  ]/PLSCOPE/@plscopeSignature  " /></xsl:otherwise>
     </xsl:choose>
     </xsl:variable>
