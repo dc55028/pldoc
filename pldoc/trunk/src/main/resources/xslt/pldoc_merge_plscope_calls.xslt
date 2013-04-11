@@ -65,7 +65,9 @@
         <xsl:variable name="pldocMethodStartLine" select="@pldocMethodStartLine" />
         <xsl:variable name="pldocMethodEndLine" select="@pldocMethodEndLine" />
         <xsl:variable name="plscopeCallerObjectType" select="@plscopeCallerObjectType" />
+        <xsl:variable name="plscopeCallerObjectName" select="@plscopeCallerObjectName" />
         <xsl:variable name="plscopeSignature" select="@plscopeSignature" />
+
 
         <xsl:element name="CALLERS">
           <!-- xsl:apply-templates select="document($plscopeDocument)/PLSCOPE/CALL[ @CALLED_OWNER = $pldocOwner and @CALLED_OBJECT_TYPE = $plscopeCallerObjectType  and @CALLED_OBJECT_NAME = $pldocObjectName and @CALLED_TYPE = $pldocMethodType  and @CALLED_NAME = $pldocMethodName and not (  preceding-sibling::CALL[ @CALLER_OWNER = ./@CALLER_OWNER  and @CALLER_OBJECT_TYPE = ./@CALLER_OBJECT_TYPE  and @CALLER_OBJECT_NAME = ./@CALLER_OBJECT_NAME and @CALLER_TYPE = ./@CALLER_TYPE and @CALLER_NAME = ./@CALLER_NAME ] )  ] " /-->
@@ -74,7 +76,7 @@
 
         <xsl:element name="CALLEES" >
           <!-- Unique callees -->
-          <xsl:for-each select="document($plscopeDocument)/PLSCOPE/CALL[ @CALLER_OWNER = $pldocOwner and @CALLER_OBJECT_TYPE = $plscopeCallerObjectType  and @CALLER_OBJECT_NAME = $pldocObjectName and @CALLER_LINE >= $pldocMethodStartLine  and $pldocMethodEndLine  >= @CALLER_LINE  and not( (preceding-sibling::CALL[ @CALLED_OWNER = ./@CALLED_OWNER ])  and (preceding-sibling::CALL[ @CALLED_OBJECT_TYPE = ./CALLED_OBJECT_TYPE]) and (preceding-sibling::CALL[ @CALLED_OBJECT_NAME = ./@CALLED_OBJECT_NAME]) and (preceding-sibling::CALL[ @CALLED_TYPE = ./@CALLED_TYPE]) and (preceding-sibling::CALL[ @CALLED_NAME = ./@CALLED_NAME]) ) ] " >
+          <xsl:for-each select="document($plscopeDocument)/PLSCOPE/CALL[ @CALLER_OWNER = $pldocOwner and @CALLER_OBJECT_TYPE = $plscopeCallerObjectType  and @CALLER_OBJECT_NAME = $plscopeCallerObjectName and @CALLER_LINE >= $pldocMethodStartLine  and $pldocMethodEndLine  >= @CALLER_LINE  and not( (preceding-sibling::CALL[ @CALLED_OWNER = ./@CALLED_OWNER ])  and (preceding-sibling::CALL[ @CALLED_OBJECT_TYPE = ./CALLED_OBJECT_TYPE]) and (preceding-sibling::CALL[ @CALLED_OBJECT_NAME = ./@CALLED_OBJECT_NAME]) and (preceding-sibling::CALL[ @CALLED_TYPE = ./@CALLED_TYPE]) and (preceding-sibling::CALL[ @CALLED_NAME = ./@CALLED_NAME]) ) ] " >
             <xsl:element name="CALLEE">
               <xsl:attribute name="SCHEMA"><xsl:value-of select = "@CALLED_OWNER" /></xsl:attribute>
               <xsl:attribute name="OBJECT_TYPE"><xsl:value-of select = "@CALLED_OBJECT_TYPE" /></xsl:attribute>
