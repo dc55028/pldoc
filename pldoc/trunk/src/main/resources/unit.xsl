@@ -532,9 +532,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     
     </DL>
 
-        <xsl:if test="PLSCOPE/CALLERS/CALLER[not(contains(@SCHEMA,'SYS'))] ">
+        <xsl:if test="PLSCOPE/CALLERS/CALLER[ @SCHEMA != 'SYS' ] ">
         <BR/><DT>Called By:
-        <xsl:for-each select="PLSCOPE/CALLERS/CALLER[not(contains(@SCHEMA,'SYS'))]">
+        <xsl:for-each select="PLSCOPE/CALLERS/CALLER[@SCHEMA != 'SYS' ]">
 	  <xsl:variable name="targetPage"><xsl:choose>
 	     <xsl:when test="@OBJECT_TYPE = 'FUNCTION' or @OBJECT_TYPE = 'PROCEDURE' or @OBJECT_TYPE = 'TRIGGER' "><xsl:value-of select="concat('_', translate(@SCHEMA, $namesFromCase,$namesToCase))" /></xsl:when>
 	     <xsl:otherwise><xsl:value-of select="concat('_',translate(@OBJECT_NAME, $namesFromCase, $namesToCase) ,'_body')" /></xsl:otherwise>
@@ -545,9 +545,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
         </xsl:for-each>
         </DT>
         </xsl:if>
-        <xsl:if test="PLSCOPE/CALLEES/CALLEE[not(contains(@SCHEMA,'SYS'))]">
+        <xsl:if test="PLSCOPE/CALLEES/CALLEE[@SCHEMA != 'SYS' ]">
         <BR/><DT>Calls:
-        <xsl:for-each select="PLSCOPE/CALLEES/CALLEE[not(contains(@SCHEMA,'SYS'))]">
+        <xsl:for-each select="PLSCOPE/CALLEES/CALLEE[@SCHEMA != 'SYS' ]">
 	  <xsl:variable name="targetPage"><xsl:choose>
 	     <xsl:when test="@OBJECT_TYPE = 'FUNCTION' or @OBJECT_TYPE = 'PROCEDURE' or @OBJECT_TYPE = 'TRIGGER' "><xsl:value-of select="concat('_', translate(@SCHEMA, $namesFromCase,$namesToCase))" /></xsl:when>
 	     <xsl:otherwise><xsl:value-of select="concat('_',translate(@OBJECT_NAME, $namesFromCase, $namesToCase) ,'_body')" /></xsl:otherwise>
