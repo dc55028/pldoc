@@ -8,6 +8,10 @@
     </properties>
     <body>
 
+        <release version="0.0.4" date="2013-04-12"  description="Require latest versions of PLDoc and PMD" >
+            <action type="update" dev="sturton" >Project POM file - require PLDoc version 1.3.11</action>
+            <action type="update" dev="sturton" >Project POM file - require PMD version 5.0.3</action>
+        </release>
         <release version="0.0.3" date="2013-04-01"  description=" Migrate to new Sourceforge format and Sonatype OSSRH releases" >
             <action type="update" dev="sturton" >Project POM file - require PLdoc version 1.3.9</action>
             <action type="update" dev="sturton" >Project POM file - update to Sonatype OSS parent </action>
