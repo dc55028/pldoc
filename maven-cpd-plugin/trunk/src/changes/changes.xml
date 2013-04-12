@@ -8,8 +8,8 @@
     </properties>
     <body>
 
-	 <release version="0.0.6" date="2013-04-02"  description="Avoid clash with pldoc:pldoc" >
-	           <action type="fix" dev="sturton" >Avoid prefix clashes between maven-pldoc-prefix and maven-cpd-prefix</action>
+	 <release version="0.0.7" date="2013-04-12"  description="Align CPD and PLDOC dependencies" >
+	           <action type="fix" dev="sturton" >Require latest versions of PLDOc and PMD</action>
         </release>
 
         <release version="0.0.5" date="2013-04-01"  description=" Migrate to new Sourceforge format and Sonatype OSSRH releases" >
