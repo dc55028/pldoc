@@ -362,7 +362,6 @@ public class PLDocCPDTask extends Task {
                     settings.generateHtml(outputFile);
                 }
                 
-                    System.exit(4);
             }
       } catch (Exception e) {
 	throw new BuildException(e);
