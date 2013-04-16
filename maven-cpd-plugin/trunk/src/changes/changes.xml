@@ -8,6 +8,10 @@
     </properties>
     <body>
 
+	 <release version="0.0.7" date="2013-04-16"  description="Minor Bug Fixes" >
+	           <action type="fix" dev="sturton" >Plugin always exited with code 4, curtailing any mvn invocation</action>
+        </release>
+
 	 <release version="0.0.7" date="2013-04-12"  description="Align CPD and PLDOC dependencies" >
 	           <action type="fix" dev="sturton" >Require latest versions of PLDOc and PMD</action>
         </release>
