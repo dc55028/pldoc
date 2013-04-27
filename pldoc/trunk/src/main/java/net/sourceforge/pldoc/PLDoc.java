@@ -158,6 +158,7 @@ public class PLDoc
   */
   public void run() throws Exception
   {
+    long startTime = System.currentTimeMillis();
     // Map with all the packages (like files or database objects) which were skipped
     final SortedMap skippedPackages = new TreeMap();
     // Counts all the packages (like files or database objects) which were processed successfully
@@ -352,10 +353,24 @@ public class PLDoc
 			   savedSchemaDirectory.mkdir();
 			}
 			File savedObjectTypeDirectory = new File (savedSchemaDirectory,  objectType );  
-			if (settings.isSaveSourceCode() &&  !savedObjectTypeDirectory.exists())
+			if (settings.isSaveSourceCode() )
 			{
-			   savedObjectTypeDirectory.mkdir();
+			  //Create the directory if it does not already exist 
+			  if (!savedObjectTypeDirectory.exists())
+			  {
+			     savedObjectTypeDirectory.mkdir();
+			     // copy required static files into the source code directory
+			     copyStaticSourceDirectoryFiles(savedObjectTypeDirectory, "../../" );
+			  }
+			  //Refresh sattic files if ther directory existed previously but has not yet been modified in this run 
+			  else if (startTime > savedObjectTypeDirectory.lastModified())
+			  {
+			     // copy required static files into the source code directory
+			     copyStaticSourceDirectoryFiles(savedObjectTypeDirectory, "../../" );
+			     if (settings.isVerbose() ) System.err.println("Refreshed static files in " + savedObjectTypeDirectory.getCanonicalPath() );
+			  }
 			}
+
 			File savedSourceFile = new File (savedObjectTypeDirectory,  rset.getString(1) + "." + fileSuffixMap.get(rset.getString(2)) + ".xml" );  
 
 			FileWriter  savedSourceFileWriter = null; //Set only if needed 
@@ -374,7 +389,6 @@ public class PLDoc
 				bufferedReader =  
 				new  BufferedReader(
 				  new  SourceCodeScraper(
-				    new LineNumberReader(
 				      dbmsMetadata.getDdl(objectType,
 							  rset.getString(1),
 							  inputSchemaName,
@@ -382,10 +396,9 @@ public class PLDoc
 							  "ORACLE",
 							  "DDL"
 						       ) 
-				    )
-				    ,new PrintWriter(savedSourceFileWriter)   
+				    ,savedSourceFileWriter
 				    ,false
-				    ,new File(settings.getOutputDirectory(), "sourcecode.xsl")
+				    ,"sourcecode.xsl"
 				  )
 				)
 				;
@@ -922,9 +935,33 @@ public class PLDoc
       Utils.CopyStreamToFile(
         settings.getSourceStylesheetFile(),
         new File(outputDirectory.getPath() + File.separator + "sourcestylesheet.css"));
-      // Copy sourcecode.xsl, replacing the stylesheet href with the absolute href
+
+      // Copy sourcecode.xsl to top-level directory
+      Utils.CopyStreamToFile(
+	resLoader.getResourceStream("sourcecode.xsl"),
+        new File(outputDirectory.getPath() + File.separator + "sourcecode.xsl"));
+
+    } catch(FileNotFoundException e) {
+      System.err.println("File not found. ");
+      e.printStackTrace();
+      throw e;
+    }
+  }
+
+  /**
+  * Copies required static files into the source code directory.
+  *
+  * This allows the XSL and CSS hrefs to cope with relocation of the root output directory 
+  * or access through a web browser.
+  *
+  * @param outputDirectory directory to copy files
+  * @param relativePath the relative path to the location of the root output directory 
+  */
+  private void copyStaticSourceDirectoryFiles(File outputDirectory, String relativePath) throws Exception {
+    try {
+      // Copy sourcecode.xsl, replacing the stylesheet href with the relative href
       Properties  replacementProperties = new Properties();
-      replacementProperties.put("sourcestylesheet.css",settings.getOutputDirectory().getAbsolutePath() + File.separator +"sourcestylesheet.css");
+      replacementProperties.put("sourcestylesheet.css", relativePath + "sourcestylesheet.css");
       Utils.CopyReaderToFile(
 	new BufferedReader(
 	  new SubstitutionReader( 
