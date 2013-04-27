@@ -79,6 +79,18 @@ public class Settings
    */
   private boolean plscope = false;
 
+  /** Save source code whilst parsing it.
+      <p>
+      This is used to generate visible source code, whilst reading source from the database
+      </p>
+   */
+  private boolean saveSourceCode = false;
+
+  /** Stylesheet file to display source code  
+   * 
+   */
+  private String sourcestylesheetfile = null;
+
   private static final String usage =
     "Arguments: [options] inputfile(s)\n" +
     "-verbose                  Verbose - report each object processed \n" +
@@ -128,6 +140,8 @@ public class Settings
     "-ignoreinformalcomments   Ignore informal comments when generating documentation.\n" +
     "-showSkippedPackages      Show the skipped packages in the summary of the documentation (generator.html)\n"+
     "-plscope                  When extracting code from a database also extract PL/Scope call information and generate calling/called sections\n"+
+    "-saveSourceCode           Save/extract database source code whilst parsing it\n"+
+    "-sourceStylesheetfile <path>    File to change display style of the extracted source code [default: defaultstylesheet.css]\n" +
     ""
     ;
 //    "                          &myvar2=abcdef\n" +
@@ -216,6 +230,17 @@ public class Settings
         // check the file
         if (!(new File(stylesheetfile).exists())) {
           processInvalidUsage("The specified stylesheet file " + stylesheetfile + " does not exist !");
+        }
+      }
+      else if (arg.equalsIgnoreCase("-sourcestylesheetfile")) {
+        // consume  "-sourcestylesheetfile"
+        if(!it.hasNext()) {
+          processInvalidUsage("Option " + arg + " requires a value !");
+        }
+        sourcestylesheetfile = (String) it.next();
+        // check the file
+        if (!(new File(sourcestylesheetfile).exists())) {
+          processInvalidUsage("The specified sourcestylesheet file " + sourcestylesheetfile + " does not exist !");
         }
       }
       else if (arg.equalsIgnoreCase("-definesfile")) {
@@ -355,6 +380,10 @@ public class Settings
         // consume  "-plscope"
         this.plscope = true;
       }
+      else if (arg.equalsIgnoreCase("-saveSourceCode")) {
+        // consume  "-saveSourceCode"
+        this.saveSourceCode = true;
+      }
       else if (arg.startsWith("-")) {
         System.err.println("WARN - unknown parameter \""+arg+"\"");
         processInvalidUsage("Unknown option " + arg);
@@ -389,6 +418,9 @@ public class Settings
   }
   public void setStylesheetfile(String stylesheetfile) {
           this.stylesheetfile = stylesheetfile;
+  }
+  public void setSourceStylesheetfile(String sourcestylesheetfile) {
+          this.sourcestylesheetfile = sourcestylesheetfile;
   }
   public void setOverviewfile(File overviewfile) {
           this.overviewfile = overviewfile;
@@ -465,6 +497,10 @@ public class Settings
     this.plscope =plscope;
   }
 
+  public void setSaveSourceCode(boolean saveSourceCode) {
+    this.saveSourceCode =saveSourceCode;
+  }
+
   public String getApplicationName() {
     return applicationName;
   }
@@ -485,6 +521,19 @@ public class Settings
     // if some custom stylesheet was given, use it
     if (stylesheetfile != null && stylesheetfile.length() > 0) {
       return new FileInputStream(stylesheetfile);
+    }
+    // return default
+    return ((new ResourceLoader()).getResourceStream("defaultstylesheet.css"));
+  }
+
+  public String getSourceStylesheet() {
+      return sourcestylesheetfile;
+  }
+
+  public InputStream getSourceStylesheetFile() throws IOException {
+    // if some custom sourcestylesheet was given, use it
+    if (sourcestylesheetfile != null && sourcestylesheetfile.length() > 0) {
+      return new FileInputStream(sourcestylesheetfile);
     }
     // return default
     return ((new ResourceLoader()).getResourceStream("defaultstylesheet.css"));
@@ -589,6 +638,10 @@ public class Settings
 
   public boolean isPlscope() {
     return plscope;
+  }
+
+  public boolean isSaveSourceCode() {
+    return saveSourceCode;
   }
 
   /** Processes invalid usage: prints the error message and the usage instruction

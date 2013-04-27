@@ -25,3 +25,13 @@ body { background-color: #FFFFFF }
 
 /* Tag Heading */
 DT {font-weight: bold;} 
+
+/* Source Code  - from http://thomasf.github.io/solarized-css/solarized-light.css */
+
+pre { background-color: #fdf6e3; color: #657b83; border: 1pt solid #93a1a1; padding: 1em; box-shadow: 5pt 5pt 8pt #eee8d5; }
+pre code { background-color: #fdf6e3; }
+
+.tag { background-color: #eee8d5; color: #d33682; padding: 0 0.2em; }
+.tag { -webkit-border-radius: 0.35em; -moz-border-radius: 0.35em; border-radius: 0.35em; }
+
+.callOut { -webkit-border-radius: 0.2em; -moz-border-radius: 0.2em; border-radius: 0.2em; background-color: #268bd2; }

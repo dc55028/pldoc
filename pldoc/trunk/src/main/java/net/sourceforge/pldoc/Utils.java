@@ -64,4 +64,21 @@ public class Utils
     out.close();
   }
 
+
+  /** Copies a Reader into a file.
+  */
+  public static void CopyReaderToFile(Reader reader, File outputFile)
+  throws FileNotFoundException, IOException
+  {
+    FileWriter out = new FileWriter(outputFile);
+    int c;
+
+    while ((c = reader.read()) != -1) {
+       out.write(c);
+    }
+
+    reader.close();
+    out.close();
+  }
+
 }
