@@ -33,33 +33,86 @@ public class SourceCodeScraper extends FilterReader
   */
   private boolean autoclose;  
 
-  public SourceCodeScraper (LineNumberReader reader, PrintWriter writer, boolean autoclose, File xsltFile)
+  /* Clone the content of the Reader into the Writer as XML, optionally adding an XSLT stylesheet reference.
+   * 
+   * @param reader the source code to be cloned
+   * @param writer the source code to be cloned
+   * @param autoclose Should the Writer be closed when the Reader closes?
+   * @param xsltHref Optional location of an XSLT stylesheet to view the source code.
+   */
+
+  public SourceCodeScraper (LineNumberReader reader, PrintWriter writer, boolean autoclose, String xsltHref)
   throws IOException 
   {
     super(reader);
     this.writer = writer;
     this.autoclose = autoclose; 
     this.writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    if ( null != xsltFile )
+    if ( null != xsltHref )
     {
-      this.writer.println(String.format("<?xml-stylesheet type=\"text/xsl\" href=\"%s\" ?>", xsltFile.getCanonicalPath()) );
+      this.writer.println(String.format("<?xml-stylesheet type=\"text/xsl\" href=\"%s\" ?>", xsltHref ) );
     }
     this.writer.println("<file>");
   }
 
+  /* Clone the content of the Reader into the Writer as XML, optionally adding an XSLT stylesheet reference.
+   * 
+   * @param reader the source code to be cloned
+   * @param writer the source code to be cloned
+   * @param autoclose Should the Writer be closed when the Reader closes?
+   * @param xsltHref Optional location of an XSLT stylesheet to view the source code.
+   */
+  public SourceCodeScraper (Reader reader, Writer writer, boolean autoclose, String xsltHref)
+  throws IOException 
+  {
+    this(new LineNumberReader(reader), new PrintWriter(writer), autoclose, xsltHref );
+  }
 
+  /* Clone the content of the Reader into the Writer as XML, optionally adding an XSLT stylesheet reference.
+   * 
+   * @param reader the source code to be cloned
+   * @param writer the source code to be cloned
+   * @param autoclose Should the Writer be closed when the Reader closes?
+   * @param xsltFile Optional location of an XSLT stylesheet to view the source code.
+   */
+  public SourceCodeScraper (LineNumberReader reader, PrintWriter writer, boolean autoclose, File xsltFile)
+  throws IOException 
+  {
+    this(reader, writer, autoclose, (null == xsltFile ) ? null : xsltFile.getCanonicalPath() );
+  }
+
+
+  /* Clone the content of the Reader into the Writer as XML, optionally adding an XSLT stylesheet reference.
+   * 
+   * @param reader the source code to be cloned
+   * @param writer the source code to be cloned
+   * @param autoclose Should the Writer be closed when the Reader closes?
+   * @param xsltFile Optional location of an XSLT stylesheet to view the source code.
+   */
   public SourceCodeScraper (Reader reader, Writer writer, boolean autoclose, File xsltFile)
   throws IOException 
   {
-    this (new LineNumberReader(reader), new PrintWriter(writer), autoclose, xsltFile);
+    this(new LineNumberReader(reader), new PrintWriter(writer), autoclose, xsltFile);
   }
 
+  /* Clone the content of the Reader into the Writer as XML, optionally adding an XSLT stylesheet reference.
+   * 
+   * @param reader the source code to be cloned
+   * @param writer the source code to be cloned
+   * @param xsltFile Optional location of an XSLT stylesheet to view the source code.
+   */
   public SourceCodeScraper (LineNumberReader reader, PrintWriter writer, File xsltFile)
   throws IOException 
   {
     this(reader, writer,false, xsltFile);
   }
 
+  /* Clone the content of the Reader into the Writer as XML, optionally adding an XSLT stylesheet reference.
+   * 
+   * @param reader the source code to be cloned
+   * @param writer the source code to be cloned
+   * @param xsltFile Optional location of an XSLT stylesheet to view the source code.
+   */
   public SourceCodeScraper (Reader reader, Writer writer, File xsltFile)
   throws IOException 
   {
