@@ -18,6 +18,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 package net.sourceforge.pldoc;
 
+import java.io.IOException;
 import java.io.Reader;
 import java.io.BufferedReader;
 import java.io.FilterReader;
@@ -48,6 +49,7 @@ public class SubstitutionReader extends FilterReader
     // read all the lines of the input, replacing defines with their values
     String s = inputReader.readLine();
     while(s != null) {
+      int startIndex = 0;
       int pos = -1;
 
       // substitute all defines in the line
@@ -55,8 +57,13 @@ public class SubstitutionReader extends FilterReader
         for(Enumeration e = defines.propertyNames(); e.hasMoreElements();) {
           String name = (String) e.nextElement();
           String value = defines.getProperty(name);
-          while((pos = s.indexOf(name)) != -1) {
+	  //ignore parts of the string already matched and replaced 
+	  startIndex = 0;
+          while((pos = s.indexOf(name,startIndex)) != -1) {
             s = s.substring(0, pos) + value + s.substring(pos + name.length());
+	    //index of last character replaced is pos + value.length  
+	    //New start position = pos + value.length + 1 )
+	    startIndex = pos + value.length() + 1;
           }
         }
       }
@@ -67,7 +74,42 @@ public class SubstitutionReader extends FilterReader
       s = inputReader.readLine();
     }
     
-    this.in = new StringReader(b.toString());
+    this.in = new BufferedReader (new StringReader(b.toString()) ) ;
   }
+
+  public void close()
+  throws IOException 
+  {
+    super.close();
+  }
+
+  public int read()
+  throws IOException 
+  {
+    return super.read();
+  }
+
+  public int read(char[] cbuf)
+  throws IOException 
+  {
+    return super.read(cbuf);
+  }
+
+  public int read(char[] cbuf, int off, int len)
+  throws IOException 
+  {
+    return super.read(cbuf, off, len);
+  }
+
+  public String readLine()
+  throws IOException 
+  {
+    /* FilterReader does not support readLine
+       Go direct to the wrapped Reader 
+    */
+    return ((BufferedReader) in).readLine();
+
+  }
+
 
 }
