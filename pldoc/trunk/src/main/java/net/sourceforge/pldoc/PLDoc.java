@@ -96,6 +96,21 @@ public class PLDoc
 
   }
 
+    /** Map OBJECT TYPES to source file suffixes
+    */
+  private static HashMap fileSuffixMap = new HashMap();
+  static {
+    fileSuffixMap.put( "PROCEDURE", "prc" );
+    fileSuffixMap.put( "FUNCTION", "fns" );
+    fileSuffixMap.put( "TRIGGER", "trg" );
+    fileSuffixMap.put( "PACKAGE", "pks" );
+    fileSuffixMap.put( "TYPE", "tps" );
+    fileSuffixMap.put( "PACKAGE BODY", "pkb" );
+    fileSuffixMap.put( "TYPE BODY", "tpb" );
+    fileSuffixMap.put( "JAVA SOURCE", "java" ); 
+
+  }
+
   // Helper objects for retrieving resources relative to the installation.
   public static final ResourceResolver resResolver = new ResourceResolver();
   public static final ResourceLoader resLoader = new ResourceLoader();
@@ -150,6 +165,7 @@ public class PLDoc
     Connection conn = null;
     PreparedStatement pstmt = null;
 
+    File outputDirectory = settings.getOutputDirectory();
     // if the output directory do not exist, create it
     if (!settings.getOutputDirectory().exists()) {
       System.out.println("Directory \"" + settings.getOutputDirectory() + "\" does not exist, creating ...");
@@ -328,21 +344,66 @@ public class PLDoc
 			}
 
 
-				if (settings.isVerbose() ) System.err.println("Extracting DBMS_METADATA DDL for (object_type,object_name,schema)=(" + objectType + "," +rset.getString(1) + "," +inputSchemaName  + ") ...");
+			if (settings.isVerbose() ) System.err.println("Extracting DBMS_METADATA DDL for (object_type,object_name,schema)=(" + objectType + "," +rset.getString(1) + "," +inputSchemaName  + ") ...");
 
-			// Open the reader first to prevent failure to retrieve the source code
+			File savedSchemaDirectory = new File (settings.getOutputDirectory(),  inputSchemaName);
+			if ( settings.isSaveSourceCode() &&  !savedSchemaDirectory.exists())
+			{
+			   savedSchemaDirectory.mkdir();
+			}
+			File savedObjectTypeDirectory = new File (savedSchemaDirectory,  objectType );  
+			if (settings.isSaveSourceCode() &&  !savedObjectTypeDirectory.exists())
+			{
+			   savedObjectTypeDirectory.mkdir();
+			}
+			File savedSourceFile = new File (savedObjectTypeDirectory,  rset.getString(1) + "." + fileSuffixMap.get(rset.getString(2)) + ".xml" );  
+
+			FileWriter  savedSourceFileWriter = null; //Set only if needed 
 			// crashing the application
-			 BufferedReader bufferedReader = null;  
+			BufferedReader bufferedReader = null;  
 			try {
-			      bufferedReader =  
-                              new BufferedReader(
-                                dbmsMetadata.getDdl(objectType,
-						    rset.getString(1),
-						    inputSchemaName,
-						    "COMPATIBLE",
-						    "ORACLE",
-						    "DDL") 
-				                 );
+			     if (settings.isSaveSourceCode() )
+			     {
+
+				if (settings.isVerbose() ) 
+				  System.err.println("Saving DDL for (object_type,object_name,schema)=(" + objectType + "," +rset.getString(1) + "," +inputSchemaName  + ") to "
+						      + savedSourceFile.getCanonicalPath()
+						      );
+				savedSourceFileWriter = new FileWriter(savedSourceFile);  
+
+				bufferedReader =  
+				new  BufferedReader(
+				  new  SourceCodeScraper(
+				    new LineNumberReader(
+				      dbmsMetadata.getDdl(objectType,
+							  rset.getString(1),
+							  inputSchemaName,
+							  "COMPATIBLE",
+							  "ORACLE",
+							  "DDL"
+						       ) 
+				    )
+				    ,new PrintWriter(savedSourceFileWriter)   
+				    ,false
+				    ,new File(settings.getOutputDirectory(), "sourcecode.xsl")
+				  )
+				)
+				;
+			     }
+			     else
+			     {
+				bufferedReader =  
+				new  BufferedReader(
+				      dbmsMetadata.getDdl(objectType,
+							  rset.getString(1),
+							  inputSchemaName,
+							  "COMPATIBLE",
+							  "ORACLE",
+							  "DDL"
+						       ) 
+				)
+				;
+			     }
 
 
 			    final Throwable throwable = processPackage(
@@ -361,11 +422,22 @@ public class PLDoc
 			} 
 			catch (SQLException sqlE)
 			{
+			    sqlE.printStackTrace(System.err);
 			    skippedPackages.put(packagename, sqlE);
 			}
 			finally
 			{
-			      bufferedReader = null;  
+			      if (null != bufferedReader)
+			      {
+				bufferedReader.close();
+				bufferedReader = null;  
+			      }
+			      if (null != savedSourceFileWriter)
+			      {
+				savedSourceFileWriter.flush();
+				savedSourceFileWriter.close();
+				savedSourceFileWriter = null ; 
+			      }
 			}
 	  } while (rset.next());
 		}
@@ -838,14 +910,34 @@ public class PLDoc
   */
   private void copyStaticFiles(File outputDirectory) throws Exception {
     try {
-      // copy the stylesheet
+      // Copy the stylesheet
       Utils.CopyStreamToFile(
         settings.getStylesheetFile(),
         new File(outputDirectory.getPath() + File.separator + "stylesheet.css"));
-      // copy the DTD
+      // Copy the DTD
       Utils.CopyStreamToFile(
         resLoader.getResourceStream("application.dtd"),
         new File(outputDirectory.getPath() + File.separator + "application.dtd"));
+      // Copy the sourcestylesheet
+      Utils.CopyStreamToFile(
+        settings.getSourceStylesheetFile(),
+        new File(outputDirectory.getPath() + File.separator + "sourcestylesheet.css"));
+      // Copy sourcecode.xsl, replacing the stylesheet href with the absolute href
+      Properties  replacementProperties = new Properties();
+      replacementProperties.put("sourcestylesheet.css",settings.getOutputDirectory().getAbsolutePath() + File.separator +"sourcestylesheet.css");
+      Utils.CopyReaderToFile(
+	new BufferedReader(
+	  new SubstitutionReader( 
+	    new BufferedReader(
+	      new InputStreamReader(
+				    (new ResourceLoader()).getResourceStream("sourcecode.xsl")
+				   )
+		)
+	       ,replacementProperties
+	      )
+	    )
+      , new File(outputDirectory.getPath() + File.separator + "sourcecode.xsl")
+      );
     } catch(FileNotFoundException e) {
       System.err.println("File not found. ");
       e.printStackTrace();
