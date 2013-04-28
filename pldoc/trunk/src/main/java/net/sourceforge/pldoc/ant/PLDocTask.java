@@ -27,6 +27,7 @@ import net.sourceforge.pldoc.*;
  *     verbose = "yes" | "no" (default: "no")
  *     doctitle = text
  *     stylesheet = text
+ *     sourcestylesheet = text
  *     destdir = dir-path
  *     overview = file-path
  *     namesCase = "upper" | "lower" | "mixed" | "default"  
@@ -34,6 +35,7 @@ import net.sourceforge.pldoc.*;
  *     ignoreInformalComments = (false | true) 
  *     showSkippedPackages = (false | true) 
  *     plscope = (false | true) 
+ *     savesourcecode = (false | true) 
  *     url = text
  *     user = text
  *     password = text
@@ -51,11 +53,13 @@ import net.sourceforge.pldoc.*;
  *  <dt>destdir</dt><dd>Directory to store documentation files (created if doesn't exist)</dd>
  *  <dt>overview</dt><dd>File with overview in HTML format</dd>
  *  <dt>stylesheet</dt><dd>Name of File containing CSS-stylesheet for the result documentation. If omitted, default CSS will be used.</dd>
+ *  <dt>sourcestylesheet</dt><dd>Name of File containing CSS-stylesheet for any saved source code. If omitted, default CSS will be used.</dd>
  *  <dt>namesCase</dt><dd>Upper/Lower/Mixed/Default case to format PL/SQL names. If omitted, Oracle standard case conversion is done (unquoted to upper case, quoted left as mixed case).</dd>
  *  <dt>inputEncoding</dt><dd>Input files encoding</dd>
  *  <dt>ignoreInformalComments</dt><dd> true if documentation should be generated from formal comments only</dd>
  *  <dt>showSkippedPackages</dt><dd>Display list of packages which failed to parse</dd>
- *  <dt>plscope</dt><dd>Extract PLScope information and incoporate into PLDoc</dd>
+ *  <dt>plscope</dt><dd>Extract PLScope information and incorporate into PLDoc</dd>
+ *  <dt>savesourcecode</dt><dd>SAve source code whilst reading it from the database and link to it within PLDocc</dd>
  *  <dt>driverName</dt><dd>JDBC driver class to use to connect to the database</dd>
  *  <dt>url</dt><dd>Database connection URL</dd>
  *  <dt>user</dt><dd>Database username </dd>
@@ -89,6 +93,12 @@ public class PLDocTask extends Task {
   private String  m_driverName ;
   private String  m_getMetadataStatement ;
   private Integer m_getMetadataStatementReturnType ;
+  /** Should database source be saved to the file system whilst being read?
+   */
+  private boolean m_savesourcecode ;
+  /** CSS Stylesheet to display the saved source code.
+   */
+  private String m_sourcestylesheet;
 
 
 
@@ -97,6 +107,7 @@ public class PLDocTask extends Task {
     m_destdir = null;
     m_doctitle = null;
     m_stylesheet = null;
+    m_sourcestylesheet = null;
     m_overviewFile = null;
     m_filesets = new ArrayList();
     m_namesCase = 'D'; //Default to Oracle standard 
@@ -109,6 +120,7 @@ public class PLDocTask extends Task {
     m_inputObjects =  null;
     m_showSkippedPackages = false;
     m_plscope = false;
+    m_savesourcecode = false;
     m_ignoreInformalComments = false;
     m_driverName = null;
     m_getMetadataStatement = null;
@@ -126,6 +138,9 @@ public class PLDocTask extends Task {
   }
   public void setStylesheet(String stylesheet) {
     this.m_stylesheet = stylesheet;
+  }
+  public void setSourceStylesheet(String sourcestylesheet) {
+    this.m_sourcestylesheet = sourcestylesheet;
   }
   public void setOverview(File file) {
     this.m_overviewFile = file;
@@ -160,6 +175,9 @@ public class PLDocTask extends Task {
   }
   public void setPlscope(boolean plscope) {
     this.m_plscope = plscope;
+  }
+  public void setSaveSourceCode(boolean savesourcecode) {
+    this.m_savesourcecode = savesourcecode;
   }
   public void setIgnoreInformalComments(boolean ignoreInformalComments) {
     this.m_ignoreInformalComments = ignoreInformalComments;
@@ -204,6 +222,7 @@ public class PLDocTask extends Task {
       settings.setOutputDirectory(m_destdir);
       settings.setApplicationName(m_doctitle);
       if (null != m_stylesheet) settings.setStylesheetfile(m_stylesheet);
+      if (null != m_sourcestylesheet) settings.setSourceStylesheetfile(m_sourcestylesheet);
       if (null != m_overviewFile) settings.setOverviewfile(m_overviewFile);
       switch (m_namesCase) {
         case 'U':
@@ -246,6 +265,7 @@ public class PLDocTask extends Task {
 			     );
       settings.setShowSkippedPackages(m_showSkippedPackages);
       settings.setPlscope(m_plscope);
+      settings.setSaveSourceCode(m_savesourcecode);
       settings.setIgnoreInformalComments(m_ignoreInformalComments);
 
       /* Set the non-Oracle settings only if defined, otherwise 
@@ -311,6 +331,7 @@ public class PLDocTask extends Task {
     m_doctitle = null;
     m_overviewFile = null;
     m_stylesheet = null;
+    m_sourcestylesheet = null;
     m_namesCase = '0';
     m_inEnc = null;
     m_dbUrl = null;
@@ -320,6 +341,7 @@ public class PLDocTask extends Task {
     m_inputObjects = null;
     m_showSkippedPackages = false;
     m_plscope = false;
+    m_savesourcecode = false;
     m_ignoreInformalComments = false;
   }
   

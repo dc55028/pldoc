@@ -366,7 +366,7 @@ public class PLDoc
 			  }
 			}
 
-			final File savedSourceFile = new File (savedObjectTypeDirectory,  rset.getString(1) + "." + fileSuffixMap.get(rset.getString(2)) + ".xml" );  
+			final File savedSourceFile = new File (savedObjectTypeDirectory,  rset.getString(1).replace(' ','_') + "." + fileSuffixMap.get(rset.getString(2)) + ".xml" );  
 
 			FileWriter  savedSourceFileWriter = null; //Set only if needed 
 			// crashing the application
