@@ -36,6 +36,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   <xsl:include href="common-exslt.xsl" />
   
   <xsl:param name="targetFolder"/>
+  <xsl:param name="sourceRootFolder"/>
 
 
 
@@ -542,6 +543,17 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 	  <BR/>
           <xsl:element name="A"><xsl:attribute name="HREF"><xsl:value-of select="concat($targetPage,'.html#', @CALLING_METHOD_SIGNATURE)" /></xsl:attribute>
           <CODE><xsl:value-of select="concat( translate(@SCHEMA, $namesFromCase, $namesToCase), '.',  translate(@OBJECT_NAME, $namesFromCase, $namesToCase), '.',  translate(@NAME, $namesFromCase, $namesToCase) ) "/></CODE></xsl:element>
+	  <xsl:if test="$sourceRootFolder != '' ">
+	    &nbsp; 
+	      <xsl:call-template name="generate-database-source-link">
+		<xsl:with-param name="sourceRootPath" select="$sourceRootFolder" />
+		<xsl:with-param name="schema" select="@SCHEMA" />
+		<xsl:with-param name="objectType" select="@OBJECT_TYPE" />
+		<xsl:with-param name="objectName" select="@OBJECT_NAME" />
+		<xsl:with-param name="lineNumber" select="@CALLING_LINE" />
+		<xsl:with-param name="linkContents"><i>Call</i></xsl:with-param>
+	      </xsl:call-template>
+	  </xsl:if>
         </xsl:for-each>
         </DT>
         </xsl:if>
@@ -558,6 +570,17 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 	     <xsl:when test="@OBJECT_TYPE = 'FUNCTION' or @OBJECT_TYPE = 'PROCEDURE' "><xsl:value-of select="concat('_', translate(@SCHEMA, $namesFromCase,$namesToCase))" /></xsl:when>
 	     <xsl:otherwise><xsl:value-of select="translate(@OBJECT_NAME, $namesFromCase, $namesToCase)" /></xsl:otherwise>
              </xsl:choose>.<xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/></CODE></xsl:element>
+	  <xsl:if test="$sourceRootFolder!= '' ">
+	    &nbsp;
+	      <xsl:call-template name="generate-database-source-link">
+		<xsl:with-param name="sourceRootPath" select="$sourceRootFolder" />
+		<xsl:with-param name="schema" select="@SCHEMA" />
+		<xsl:with-param name="objectType" select="@OBJECT_TYPE" />
+		<xsl:with-param name="objectName" select="@OBJECT_NAME" />
+		<xsl:with-param name="lineNumber" select="@CALLED_LINE" />
+		<xsl:with-param name="linkContents"><i>Call</i></xsl:with-param>
+	      </xsl:call-template>
+	  </xsl:if>
         </xsl:for-each>
         </DT>
         </xsl:if>

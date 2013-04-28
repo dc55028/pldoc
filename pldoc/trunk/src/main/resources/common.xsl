@@ -70,6 +70,35 @@
 		</xsl:choose>
 	</xsl:template>
 	
+	<!-- ***************** generate-source-link - generate link to source code assuming standard extract structure -->
+	<xsl:template name="generate-database-source-link">
+		<xsl:param name="sourceRootPath"/>
+		<xsl:param name="schema"/>
+		<xsl:param name="objectType"/>
+		<xsl:param name="objectName"/>
+		<xsl:param name="lineNumber"/>
+		<xsl:param name="linkContents"/>
+		<xsl:variable name="fileSuffix">
+		  <xsl:choose>
+		    <xsl:when test="$objectType='PROCEDURE'">prc</xsl:when>
+		    <xsl:when test="$objectType='FUNCTION'">fnc</xsl:when>
+		    <xsl:when test="$objectType='TRIGGER'">trg</xsl:when>
+		    <xsl:when test="$objectType='PACKAGE'">pks</xsl:when>
+		    <xsl:when test="$objectType='TYPE'">tps</xsl:when>
+		    <xsl:when test="$objectType='PACKAGE BODY'">pkb</xsl:when>
+		    <xsl:when test="$objectType='TYPE BODY'">tpb</xsl:when>
+		    <xsl:when test="$objectType='JAVA SOURCE'">java</xsl:when>
+		    <xsl:otherwise>txt</xsl:otherwise>
+		  </xsl:choose>
+		</xsl:variable>
+		<xsl:variable name="internalLink">
+		<xsl:if test="$lineNumber != ''">
+		  <xsl:value-of select="concat('#',$lineNumber)" />
+		</xsl:if>
+		</xsl:variable>
+	<xsl:element name="A"><xsl:attribute name="HREF"><xsl:value-of select="concat( $sourceRootPath,'/', $schema,'/', translate($objectType, ' ','_') ,'/', $objectName, '.', $fileSuffix, '.xml' ,$internalLink )" /></xsl:attribute><xsl:copy-of select="$linkContents" /></xsl:element>
+	</xsl:template>
+	
 	<!-- End of String Replace -->	
 </xsl:stylesheet>
 <!-- End of common.xsl -->

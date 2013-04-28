@@ -589,8 +589,6 @@ public class PLDoc
 		    //Have to pass in Absolute location of output directory in order to avoid problems with redirect File locations when called from PLDocTask
 		    transformer.setParameter("targetFolder", settings.getOutputDirectory().getAbsolutePath() + File.separator );
 		    transformer.setParameter("plscopeDocument", new File( settings.getOutputDirectory() ,  "plscope.xml")  );
-		    //transformer.setParameter("pldocDocument", new File( settings.getOutputDirectory() , "application.xml" ) );
-		    //transformer.transform(new StreamSource(applicationFile), new StreamResult(new FileOutputStream( mergedFile) ) );
 		    transformer.setParameter("pldocDocument", signatureFile );
 		    transformer.transform(new StreamSource(signatureFile), new StreamResult(new FileOutputStream( mergedFile) ) );
 
@@ -912,6 +910,10 @@ public class PLDoc
       resLoader.getResourceStream("unit.xsl")));
     //Have to pass in Absolute location of output directory in order to avoid problems with spaces in paths
     transformer.setParameter("targetFolder", settings.getOutputDirectory().getAbsolutePath() + File.separator );
+    if ( settings.isSaveSourceCode() ) // Generate links to source code 
+    {
+      transformer.setParameter("sourceRootFolder", '.' );
+    }
     transformer.transform(new StreamSource(applicationFile), new DOMResult());
   }
 
