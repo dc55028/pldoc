@@ -335,24 +335,19 @@ public class PLDoc
 		} else {
 		    do {
 			  final String packagename = inputSchemaName + "." + rset.getString(1);
-			  String objectType = rset.getString(2);
+			  final String objectType = rset.getString(2) ;
+                          //Remap DBA_OBJECTS.OBJECT_TYPE column contents to DBMS_METADATA.GET_DDL(OBJECT_TYPE) parameter if necessary
+			  final String dbmsMetadataObjectType = hashMap.containsKey(rset.getString(2)) ? (String) hashMap.get(objectType) : objectType;
 			  if (settings.isVerbose() ) System.out.println("Parsing " + objectType + " name " + packagename + " ...");
 
-                //Remap DBA_OBJECTS.OBJECT_TYPE column contents to DBMS_METADATA.GET_DDL(OBJECT_TYPE) parameter if necessary
-			if ( hashMap.containsKey(objectType) )
-			{
-			   objectType =  (String) hashMap.get(objectType) ;
-			}
+			if (settings.isVerbose() ) System.err.println("Extracting DBMS_METADATA DDL for (object_type,object_name,schema)=(" + dbmsMetadataObjectType + "," +rset.getString(1) + "," +inputSchemaName  + ") ...");
 
-
-			if (settings.isVerbose() ) System.err.println("Extracting DBMS_METADATA DDL for (object_type,object_name,schema)=(" + objectType + "," +rset.getString(1) + "," +inputSchemaName  + ") ...");
-
-			File savedSchemaDirectory = new File (settings.getOutputDirectory(),  inputSchemaName);
+			final File savedSchemaDirectory = new File (settings.getOutputDirectory(),  inputSchemaName);
 			if ( settings.isSaveSourceCode() &&  !savedSchemaDirectory.exists())
 			{
 			   savedSchemaDirectory.mkdir();
 			}
-			File savedObjectTypeDirectory = new File (savedSchemaDirectory,  objectType );  
+			final File savedObjectTypeDirectory = new File (savedSchemaDirectory,  objectType.replace(' ','_') );  
 			if (settings.isSaveSourceCode() )
 			{
 			  //Create the directory if it does not already exist 
@@ -371,7 +366,7 @@ public class PLDoc
 			  }
 			}
 
-			File savedSourceFile = new File (savedObjectTypeDirectory,  rset.getString(1) + "." + fileSuffixMap.get(rset.getString(2)) + ".xml" );  
+			final File savedSourceFile = new File (savedObjectTypeDirectory,  rset.getString(1) + "." + fileSuffixMap.get(rset.getString(2)) + ".xml" );  
 
 			FileWriter  savedSourceFileWriter = null; //Set only if needed 
 			// crashing the application
@@ -381,7 +376,7 @@ public class PLDoc
 			     {
 
 				if (settings.isVerbose() ) 
-				  System.err.println("Saving DDL for (object_type,object_name,schema)=(" + objectType + "," +rset.getString(1) + "," +inputSchemaName  + ") to "
+				  System.err.println("Saving DDL for (object_type,object_name,schema)=(" + dbmsMetadataObjectType + "," +rset.getString(1) + "," +inputSchemaName  + ") to "
 						      + savedSourceFile.getCanonicalPath()
 						      );
 				savedSourceFileWriter = new FileWriter(savedSourceFile);  
@@ -389,7 +384,7 @@ public class PLDoc
 				bufferedReader =  
 				new  BufferedReader(
 				  new  SourceCodeScraper(
-				      dbmsMetadata.getDdl(objectType,
+				      dbmsMetadata.getDdl(dbmsMetadataObjectType,
 							  rset.getString(1),
 							  inputSchemaName,
 							  "COMPATIBLE",
@@ -407,7 +402,7 @@ public class PLDoc
 			     {
 				bufferedReader =  
 				new  BufferedReader(
-				      dbmsMetadata.getDdl(objectType,
+				      dbmsMetadata.getDdl(dbmsMetadataObjectType,
 							  rset.getString(1),
 							  inputSchemaName,
 							  "COMPATIBLE",
