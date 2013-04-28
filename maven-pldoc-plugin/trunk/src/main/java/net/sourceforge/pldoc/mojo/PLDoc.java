@@ -52,6 +52,7 @@ import org.codehaus.plexus.util.StringUtils;
 <destDir>sql-apidocs<destDir>
 <showSkippedPackages>true</showSkippedPackages>
 <plscope>true</plscope>
+<savesourcecode>true</savesourcecode>
 <ignoreInformalComments>true</ignoreInformalComments>
 <driverName>oracle.jdbc.OracleDriver</driverName>
 <getMetadataStatement>CallableStatement text</getMetadataStatement>
@@ -108,7 +109,6 @@ implements MavenReport{
      */
     private String stylesheet;
     
-
     /**
      * Specifies the destination directory where pldoc saves the generated HTML files.
      *
@@ -241,6 +241,23 @@ implements MavenReport{
     private boolean plscope ;
 
     /**
+     * Save source code extracted from the database in the file system.
+     *
+     * @since 2.21
+     * @parameter expression="${savesourcecode}" default-value="false"
+     */
+    private boolean savesourcecode ;
+
+    /**
+     * Specifies the CSS stylesheet file to reference in the generated source code XML files.
+     *
+     * @parameter expression="${sourcestylesheet}"
+     * @since 2.21
+     */
+    private String sourcestylesheet;
+    
+
+    /**
      * The Maven Project Object
      *
      * @parameter expression="${project}"
@@ -307,6 +324,7 @@ implements MavenReport{
 	getLog().debug( "inputEncoding=" + inputEncoding  ) ;
         getLog().debug( "overviewFile=" + overviewFile ) ;
         getLog().debug( "stylesheet=" + stylesheet  ) ;
+        getLog().debug( "sourcestylesheet=" + sourcestylesheet  ) ;
 	getLog().debug( "namesCase=" + namesCase  ) ;
 	getLog().debug( "dbUrl=" + dbUrl  ) ;
 	getLog().debug( "dbUser=" + dbUser  ) ;
@@ -316,6 +334,7 @@ implements MavenReport{
 	getLog().debug( "showSkippedPackages=" + showSkippedPackages ) ;
 	getLog().debug( "ignoreInformalComments=" + ignoreInformalComments ) ;
 	getLog().debug( "plscope=" + plscope ) ;
+	getLog().debug( "savesourcecode=" + savesourcecode ) ;
 	getLog().debug( "driverName=" + driverName ) ;
 	getLog().debug( "getMetadataStatement=" + getMetadataStatement ) ;
 	getLog().debug( "getMetadataStatementReturnType=" + getMetadataStatementReturnType ) ;
@@ -339,6 +358,7 @@ implements MavenReport{
 	    task.setShowSkippedPackages(showSkippedPackages);
 	    task.setIgnoreInformalComments(ignoreInformalComments);
 	    task.setPlscope(plscope);
+	    task.setSaveSourceCode(savesourcecode);
 	    PLDocTask.NamesCase antNamesCase = new PLDocTask.NamesCase();
 	    antNamesCase.setValue(namesCase);
 	    task.setNamesCase(antNamesCase);
@@ -348,6 +368,7 @@ implements MavenReport{
 	     */
             if (null != overviewFile) task.setOverview(overviewFile);
             if (null != stylesheet) task.setStylesheet(stylesheet);
+            if (null != sourcestylesheet) task.setSourceStylesheet(sourcestylesheet);
 	    if (null != driverName) task.setDriverName(driverName);
 	    if (null != getMetadataStatement) task.setGetMetadataStatement(getMetadataStatement);
 	    if (null != getMetadataStatementReturnType) task.setReturnType(getMetadataStatementReturnType);
