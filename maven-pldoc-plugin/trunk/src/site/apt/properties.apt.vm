@@ -21,6 +21,8 @@
 *--------*--------*-----------*------*
 | maven.pldoc.stylesheet |Yes| File with CSS-stylesheet for the result documentation. If omitted, default CSS will be used.  | |
 *--------*--------*-----------*------*
+| maven.pldoc.sourcestylesheet |Yes| File with CSS-stylesheet for any saved source code (see savesourcecode). If omitted, default CSS will be used.  | |
+*--------*--------*-----------*------*
 | maven.pldoc.namescase |Yes| Upper/lower case to format PL/SQL names. If omitted, no case conversion is done.  | upper |
 *--------*--------*-----------*------*
 | maven.pldoc.exitonerror |Yes| "yes" forces program exit when some input file cannot be processed. If "no" (the default), the file is skipped and processing continues.  | |
@@ -40,6 +42,8 @@
 | maven.pldoc.ignoreInformalComments |Yes| Ignore informal PL/SQL comments "--" when searching for PLDoc comments. | |
 *--------*--------*-----------*------*
 | maven.pldoc.plscope |Yes| Extract amd merge PLScope information when generating documentation from the database | |
+*--------*--------*-----------*------*
+| maven.pldoc.savesourcecode |Yes| Save source code to the file system when reading from the database | |
 *--------*--------*-----------*------*
 | maven.pldoc.driverName |Yes| Fully qualified class name of the JDBC driver used to access a database.  | com.timesten.jdbc.TimesTenDriver |
 *--------*--------*-----------*------*
