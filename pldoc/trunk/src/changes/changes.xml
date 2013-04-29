@@ -7,6 +7,9 @@
         <author email="altumano at users.sourceforge.net">Albert Tumanov</author>
     </properties>
     <body>
+        <release version="1.4.1" date="2013-04-29"  description="Aspiration and Fallback" >
+		<action type="update" dev="sturton" >Initially attempt to locate objects for processing from DBA_OBJECTS, falling back to ALL+OBJECTS on error</action>
+        </release>
         <release version="1.4.0" date="2013-04-28"  description="Source Code Integration" >
 		<action type="fix" dev="sturton" >Correct infinite loop in SubstitutionReader for situation when the replacement text contains the search text</action>
 		<action type="add" dev="sturton" >Add option to save database source code to file system for subsequent display using new  "-savesourcecode" and "-sourcestylesheetfile" command-line flags</action>
