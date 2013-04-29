@@ -287,7 +287,7 @@ public class PLDoc
 
 		  String sqlStatement = "SELECT  object_name"+
                                         ", object_type"+
-                                        " FROM all_objects"+
+                                        " FROM dba_objects"+
                                         " WHERE owner = ?"+
                                         " AND   object_name LIKE ?"+
                                         " AND  object_type in (" + typeList + ")"+
@@ -301,7 +301,17 @@ public class PLDoc
 		   if (settings.isVerbose() ) System.out.println("Connected");
 
 
-          pstmt = conn.prepareStatement(sqlStatement);
+          //Attempt to use DBA_OBJECTS, reverting to ALL_OBJECTS on any error
+	  try
+	  {
+	    pstmt = conn.prepareStatement(sqlStatement);
+	  }
+	  catch (Exception e)
+	  { //Revert to ALL_OBJECTS  
+	    sqlStatement = sqlStatement.replaceFirst(" dba_", " all_");
+	    if (settings.isVerbose() ) System.out.println("Reverting to \"" + sqlStatement + "\"" );
+	    pstmt = conn.prepareStatement(sqlStatement);
+	  }
 
 
           DbmsMetadata dbmsMetadata = new DbmsMetadata(conn,settings.getGetMetadataStatement(), settings.getReturnType());
