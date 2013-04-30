@@ -202,7 +202,7 @@ void triggerUnit() throws SAXException :
 	
 	 
 	// referencing_clause 
-	[<REFERENCING> ((<OLD> | <NEW> | <PARENT>) <AS> ID())+]
+	[<REFERENCING> ((<OLD> | <NEW> | <PARENT>) <AS> ID())* /*Oddly, there is a minimum of ZERO subclauses, not ONE */  ]
 	
 	[<FOREACHROW>]
 	// end of simple_dml_trigger (incorporating  compound_dml_trigger )
