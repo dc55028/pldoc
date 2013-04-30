@@ -7,6 +7,10 @@
         <author email="altumano at users.sourceforge.net">Albert Tumanov</author>
     </properties>
     <body>
+        <release version="1.4.2" date="2013-04-30"  description="Parser Bug Fixes" >
+		<action type="fix" dev="sturton" >Allow trigger REFERENCING clause to have a minimum of ZERO sub-clauses</action>
+		<action type="fix" dev="sturton" >Support ANSI Date literals</action>
+        </release>
         <release version="1.4.1" date="2013-04-29"  description="Aspiration and Fallback" >
 		<action type="update" dev="sturton" >Initially attempt to locate objects for processing from DBA_OBJECTS, falling back to ALL+OBJECTS on error</action>
         </release>
