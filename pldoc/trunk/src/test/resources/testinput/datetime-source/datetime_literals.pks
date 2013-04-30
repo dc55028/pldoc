@@ -2,6 +2,7 @@
 
 CREATE OR REPLACE PACKAGE pkg_datetime_literals AS 
   -- DATE 
+  v_date DATE := DATE '2009-06-01'; -- ANSI Date Literal
   v_date DATE := TO_DATE('20090601235959','YYYYMMDDHH24MISS');
   --TIMESTAMP with default precision literal
   v_timestamp_default TIMESTAMP:= TIMESTAMP'20090601235959.123456';

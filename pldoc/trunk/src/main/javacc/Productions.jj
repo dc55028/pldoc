@@ -914,6 +914,7 @@ String DateTimeLiteral() :
   */
 	(
         <INTERVAL> 
+	|<DATE> //Support ANSI DATE Literals 
 	|<TIMESTAMP> 
         )
         { sb.append(token.toString()); }
