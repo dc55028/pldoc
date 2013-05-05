@@ -30,6 +30,7 @@ import org.apache.tools.ant.types.Reference;
  *     verbose = "yes" | "no" (default: "no")
  *     destdir = dir-path
  *     stylesheet = file-path (default: stylesheet from library)
+ *     sourcestylesheet = file-path (default: stylesheet from library)
  *     inputEncoding = encoding (default: OS dependant) &gt;
  *     language = expected language (default: plsql) &gt;
  *     format = results format (default: text) &gt;
@@ -39,6 +40,7 @@ import org.apache.tools.ant.types.Reference;
  *     ignoreLiterals = (false | true) 
  *     minimumtokens =  integer
  *     showSkippedPackages = (false | true) 
+ *     savesourcecode = (false | true) 
  *     url = text
  *     user = text
  *     password = text
@@ -54,6 +56,7 @@ import org.apache.tools.ant.types.Reference;
  * <dl>
  *  <dt>destdir</dt><dd>Directory to store documentation files (created if doesn't exist)</dd>
  *  <dt>stylesheet</dt><dd>File with CSS-stylesheet for the result documentation. If omitted, default CSS will be used.</dd>
+ *  <dt>sourcestylesheet</dt><dd>File with CSS-stylesheet for ant saved source code. If omitted, default CSS will be used.</dd>
  *  <dt>inputEncoding</dt><dd>Input files encoding</dd>
  *  <dt>language</dt><dd>expected language</dd>
  *  <dt>format</dt><dd>output format</dd>
@@ -62,6 +65,7 @@ import org.apache.tools.ant.types.Reference;
  *  <dt>ignoreLiterals</dt><dd> true if character, string and numeric literal values should be ignored when checking for matches.</dd>
  *  <dt>minimumtokens</dt><dd> minimum number of tokens that constitues a match.</dd>
  *  <dt>showSkippedPackages</dt><dd>Display list of packages which failed to parse</dd>
+ *  <dt>savesourcecode</dt><dd>Save read database source code to file system</dd>
  *  <dt>driverName</dt><dd>JDBC driver class to use to connect to the database</dd>
  *  <dt>url</dt><dd>Database connection URL</dd>
  *  <dt>user</dt><dd>Database username </dd>
@@ -86,6 +90,7 @@ public class PLDocCPDTask extends Task {
   private File m_outputFile;
   private ArrayList m_filesets;
   private File m_stylesheet;
+  private File m_sourcestylesheet;
   private char m_namesCase;
   private String m_inEnc;
   private boolean m_exitOnError;
@@ -101,6 +106,7 @@ public class PLDocCPDTask extends Task {
   private boolean m_ignoreLiterals ;
   private Integer m_minimumTokens ;
   private boolean m_showSkippedPackages ;
+  private boolean m_saveSourceCode ;
   private String  m_driverName ;
   private String  m_getMetadataStatement ;
   private Integer m_getMetadataStatementReturnType ;
@@ -114,6 +120,7 @@ public class PLDocCPDTask extends Task {
     m_outputFile = null;
     m_filesets = new ArrayList();
     m_stylesheet = null;
+    m_sourcestylesheet = null;
     m_namesCase = 'D'; //Default to Oracle standard 
     m_inEnc = null;
     m_exitOnError = false;
@@ -123,6 +130,7 @@ public class PLDocCPDTask extends Task {
     m_inputTypes =  null;
     m_inputObjects =  null;
     m_showSkippedPackages = false;
+    m_saveSourceCode = false;
     m_language = Settings.CPD_LANGUAGE_DEFAULT; 
     m_format = Settings.CPD_RENDER_FORMAT_DEFAULT; 
     m_minimumTokens = Settings.CPD_MINIMUM_TOKENS_DEFAULT;
@@ -191,6 +199,9 @@ public class PLDocCPDTask extends Task {
   public void setStylesheet(File file) {
     m_stylesheet = file;
   }
+  public void setSourceStylesheet(File file) {
+    m_sourcestylesheet = file;
+  }
   public void setInputEncoding(String enc) {
     m_inEnc = enc;
   }
@@ -215,6 +226,9 @@ public class PLDocCPDTask extends Task {
   }
   public void setShowSkippedPackages(boolean showSkippedPackages) {
     this.m_showSkippedPackages = showSkippedPackages;
+  }
+  public void setSaveSourceCode(boolean saveSourceCode) {
+    this.m_saveSourceCode = saveSourceCode;
   }
   public void setLanguage(String language) {
     m_language = language;
@@ -277,6 +291,7 @@ public class PLDocCPDTask extends Task {
 			       :  Arrays.asList(m_inputObjects.split(","))
 			     );
       settings.setShowSkippedPackages(m_showSkippedPackages);
+      settings.setSaveSourceCode(m_saveSourceCode);
       settings.setLanguage(m_language);
       settings.setFormat(m_format);
       settings.setIgnoreComments(m_ignoreComments);
@@ -287,6 +302,7 @@ public class PLDocCPDTask extends Task {
       settings.setFormat(m_format);
       settings.setOutputFile(m_outputFile);
       settings.setStylesheet(m_stylesheet);
+      settings.setSourceStylesheet(m_sourcestylesheet);
 
       /* Set the non-Oracle settings only if defined, otherwise 
        * let the defaults apply  
@@ -353,8 +369,8 @@ public class PLDocCPDTask extends Task {
 
                 File stylesheet = settings.getStylesheet() ;
                 if (null != outputFile
-                    && null != stylesheet
-                    && stylesheet.exists()
+                    // && null != stylesheet
+                    // && stylesheet.exists()
                     && "xml".equalsIgnoreCase(settings.getFormatString())
                     )
                 {
@@ -385,6 +401,7 @@ public class PLDocCPDTask extends Task {
     m_inputTypes = null;
     m_inputObjects = null;
     m_showSkippedPackages = false;
+    m_saveSourceCode = false;
     m_ignoreComments = false;
     m_ignoreIdentifiers = false;
     m_ignoreLiterals = false;
@@ -393,6 +410,7 @@ public class PLDocCPDTask extends Task {
     m_minimumTokens = Settings.CPD_MINIMUM_TOKENS_DEFAULT;
     m_outputFile = null;
     m_stylesheet = null;
+    m_sourcestylesheet = null;
   }
   
   private BufferedReader getInputReader(File file)

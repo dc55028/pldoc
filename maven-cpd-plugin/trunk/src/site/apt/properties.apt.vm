@@ -17,7 +17,11 @@
 *--------*--------*-----------*------*
 | maven.pldoc.overviewfile |Yes| The overview file in HTML format.  | |
 *--------*--------*-----------*------*
-| maven.pldoc.stylesheet |Yes| XSLT File for the result documentation; this XSLT is only used when format is XML | |
+| maven.pldoc.stylesheet |Yes| CSS File for the result documentation; this CSS is only used when format is XML | |
+*--------*--------*-----------*------*
+| maven.pldoc.sourcestylesheet |Yes| CSS File for any extracted source code | |
+*--------*--------*-----------*------*
+| maven.pldoc.saveSourceCode |Yes| Save source code to the file system whilst reading from the database | no |
 *--------*--------*-----------*------*
 | maven.pldoc.ignoreComments |Yes| Ignore content of comments when searching for matching code | no |
 *--------*--------*-----------*------*
