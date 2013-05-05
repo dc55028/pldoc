@@ -8,6 +8,14 @@
     </properties>
     <body>
 
+	 <release version="0.1.0" date="2013-05-06"  description="Automatic HTML page generation and optional source code extraction" >
+	           <action type="update" dev="sturton" >The stylesheet property now refers to a CSS stylesheet, rather than an XSLT stylesheet. If the output format is XML, a corresponding
+		   HTML file will be generated using internal XSLT file; the display format will be controlled by the specified CSS styleshet, or the default stylesheet if not provided
+		   </action>
+	           <action type="add" dev="sturton" >Extract source code if saveSourceCode property is set; the source code is saved in XML format linkable from the XML CPD report output</action>
+	           <action type="add" dev="sturton" >Format extracted source code using specified sourcestylesheet property, or the default stylesheet if not provided</action>
+        </release>
+
 	 <release version="0.0.8" date="2013-04-16"  description="Minor Bug Fixes" >
 	           <action type="fix" dev="sturton" >Plugin always exited with code 4, curtailing any mvn invocation</action>
         </release>

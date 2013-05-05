@@ -49,6 +49,7 @@ import org.codehaus.plexus.util.StringUtils;
 <reportOutputDirectory>target/site/apidocs</reportOutputDirectory>
 <destDir>sql-apidocs<destDir>
 <showSkippedPackages>true</showSkippedPackages>
+<saveSourceCode>true</saveSourceCode>
 <ignoreComments>true</ignoreComments>
 <ignoreIdentitied>true</ignoreIdentitied>
 <ignoreLiterals>true</ignoreLiterals>
@@ -57,6 +58,7 @@ import org.codehaus.plexus.util.StringUtils;
 <minimumTokens>text</minimumTokens>
 <outputFile>CPD.txt</outputFile>
 <stylesheetFile>text</stylesheetFile>
+<sourcestylesheetFile>text</sourcestylesheetFile>
 <driverName>oracle.jdbc.OracleDriver</driverName>
 <getMetadataStatement>CallableStatement text</getMetadataStatement>
 <getMetadataStatementReturnType>2005</getMetadataStatementReturnType>
@@ -247,11 +249,25 @@ implements MavenReport{
     private File outputFile ;
 
     /**
+     * Save read source code when processing database code 
+     *
+     * @parameter expression="${saveSourceCode}" default-value="false"
+     */
+    private boolean saveSourceCode ;
+
+    /**
      * Stylesheet file.
      *
      * @parameter expression="${stylesheetFile}" default-value=""
      */
     private File stylesheetFile ;
+
+    /**
+     * Source Code Stylesheet file.
+     *
+     * @parameter expression="${sourcestylesheetFile}" default-value=""
+     */
+    private File sourcestylesheetFile ;
 
     /**
      * The Maven Project Object
@@ -322,6 +338,7 @@ implements MavenReport{
 	getLog().debug( "inputObjects=" + inputObjects  ) ;
 	getLog().debug( "inputTypes=" + inputTypes  ) ;
 	getLog().debug( "showSkippedPackages=" + showSkippedPackages ) ;
+	getLog().debug( "saveSourceCode=" + saveSourceCode ) ;
 	getLog().debug( "ignoreComments=" + ignoreComments ) ;
 	getLog().debug( "ignoreIdentifiers=" + ignoreIdentifiers ) ;
 	getLog().debug( "ignoreLiterals=" + ignoreLiterals ) ;
@@ -330,6 +347,7 @@ implements MavenReport{
 	getLog().debug( "minimumTokens=" + minimumTokens ) ;
 	getLog().debug( "outputFile=" + outputFile ) ;
 	getLog().debug( "stylesheetFile=" + stylesheetFile ) ;
+	getLog().debug( "sourcestylesheetFile=" + sourcestylesheetFile ) ;
 	getLog().debug( "driverName=" + driverName ) ;
 	getLog().debug( "getMetadataStatement=" + getMetadataStatement ) ;
 	getLog().debug( "getMetadataStatementReturnType=" + getMetadataStatementReturnType ) ;
@@ -350,6 +368,7 @@ implements MavenReport{
 	    task.setInputTypes(inputTypes);
 	    task.setInputEncoding(inputEncoding);
 	    task.setShowSkippedPackages(showSkippedPackages);
+	    task.setSaveSourceCode(saveSourceCode);
 	    task.setIgnoreComments(ignoreComments);
 	    task.setIgnoreIdentifiers(ignoreIdentifiers);
 	    task.setIgnoreLiterals(ignoreLiterals);
@@ -358,6 +377,7 @@ implements MavenReport{
 	    task.setMinimumTokens(minimumTokens);
 	    task.setOutputFile(new File (outputDirectory + File.separator + outputFile.getName() ) );
 	    task.setStylesheet(stylesheetFile);
+	    task.setSourceStylesheet(sourcestylesheetFile);
 
 	    /* Set non-Oracle settings only if they are not null;
 	     * otherwise, rely on the defaults  
