@@ -35,7 +35,7 @@ import net.sourceforge.pldoc.*;
  *     ignoreInformalComments = (false | true) 
  *     showSkippedPackages = (false | true) 
  *     plscope = (false | true) 
- *     savesourcecode = (false | true) 
+ *     saveSourceCode = (false | true) 
  *     url = text
  *     user = text
  *     password = text
@@ -107,7 +107,6 @@ public class PLDocTask extends Task {
     m_destdir = null;
     m_doctitle = null;
     m_stylesheet = null;
-    m_sourcestylesheet = null;
     m_overviewFile = null;
     m_filesets = new ArrayList();
     m_namesCase = 'D'; //Default to Oracle standard 
@@ -120,11 +119,12 @@ public class PLDocTask extends Task {
     m_inputObjects =  null;
     m_showSkippedPackages = false;
     m_plscope = false;
-    m_savesourcecode = false;
     m_ignoreInformalComments = false;
     m_driverName = null;
     m_getMetadataStatement = null;
     m_getMetadataStatementReturnType = null;
+    m_savesourcecode = false;
+    m_sourcestylesheet = null;
   }
 
   public void setVerbose(boolean verbose) {
