@@ -7,12 +7,18 @@
         <author email="altumano at users.sourceforge.net">Albert Tumanov</author>
     </properties>
     <body>
+        <release version="1.4.3" date="2013-05-12"  description="" >
+		<action type="update" dev="sturton" >Add CPD CSS settings to facilitate consistent PLDoc and PLDoc-CPD output documentation</action>
+		<action type="update" dev="sturton" >Make PLScope dictionary views consistent with changes made in release 1.4.1 - attempt to use DBA_* dictionary view and revert to ALL_* views on error</action>
+		<action type="update" dev="sturton" >Expose methods to create static CSS and XSL for downstream Maven projects</action>
+		<action type="update" dev="sturton" >Make ANT task camelCase like showSkippedPackages </action>
+        </release>
         <release version="1.4.2" date="2013-04-30"  description="Parser Bug Fixes" >
 		<action type="fix" dev="sturton" >Allow trigger REFERENCING clause to have a minimum of ZERO sub-clauses</action>
 		<action type="fix" dev="sturton" >Support ANSI Date literals</action>
         </release>
         <release version="1.4.1" date="2013-04-29"  description="Aspiration and Fallback" >
-		<action type="update" dev="sturton" >Initially attempt to locate objects for processing from DBA_OBJECTS, falling back to ALL+OBJECTS on error</action>
+		<action type="update" dev="sturton" >Initially attempt to locate objects for processing from DBA_OBJECTS, falling back to ALL_OBJECTS on error</action>
         </release>
         <release version="1.4.0" date="2013-04-28"  description="Source Code Integration" >
 		<action type="fix" dev="sturton" >Correct infinite loop in SubstitutionReader for situation when the replacement text contains the search text</action>
