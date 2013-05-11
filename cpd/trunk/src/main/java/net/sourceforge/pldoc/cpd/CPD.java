@@ -36,6 +36,7 @@ import net.sourceforge.pmd.cpd.*;
 import net.sourceforge.pldoc.parser.PLSQLParser;
 import net.sourceforge.pldoc.parser.ParseException;
 import net.sourceforge.pldoc.DbmsMetadata;
+import net.sourceforge.pldoc.SourceCodeScraper;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
@@ -92,6 +93,21 @@ public class CPD
   }
   
   
+    /** Map OBJECT TYPES to source file suffixes
+    */
+  private static HashMap fileSuffixMap = new HashMap();
+  static {
+    fileSuffixMap.put( "PROCEDURE", "prc" );
+    fileSuffixMap.put( "FUNCTION", "fns" );
+    fileSuffixMap.put( "TRIGGER", "trg" );
+    fileSuffixMap.put( "PACKAGE", "pks" );
+    fileSuffixMap.put( "TYPE", "tps" );
+    fileSuffixMap.put( "PACKAGE BODY", "pkb" );
+    fileSuffixMap.put( "TYPE BODY", "tpb" );
+
+  }
+
+
   
 private Map<String, SourceCode> source = new TreeMap<String, SourceCode>();
 private CPDListener listener = new CPDNullListener();
@@ -147,14 +163,14 @@ private MatchAlgorithm matchAlgorithm;
           
           File stylesheet = settings.getStylesheet() ;
           if (null != outputFile
-              && null != stylesheet
+              // && null != stylesheet
               && "xml".equalsIgnoreCase(settings.getFormatString())
              )
           {
-              System.err.println("Fenerating CPD HTML  to " + outputFile.getAbsolutePath());
+              System.err.println("Generating CPD HTML to " + outputFile.getAbsolutePath());
              settings.generateHtml(outputFile);
           }
-          System.exit(4);
+          System.exit(0);
       }
     } catch (SystemExitException e) {
       System.exit(-1);
@@ -173,6 +189,7 @@ private MatchAlgorithm matchAlgorithm;
   */
   public void run() throws Exception
   {
+    long startTime = System.currentTimeMillis();
     // Map with all the packages (like files or database objects) which were skipped
     final SortedMap skippedPackages = new TreeMap();
     // Counts all the packages (like files or database objects) which were processed successfully
@@ -262,7 +279,7 @@ private MatchAlgorithm matchAlgorithm;
 
 		  String sqlStatement = "SELECT  object_name"+
                                         ", object_type"+
-                                        " FROM all_objects"+
+                                        " FROM dba_objects"+
                                         " WHERE owner = ?"+
                                         " AND   object_name LIKE ?"+
                                         " AND  object_type in (" + typeList + ")"+
@@ -276,8 +293,21 @@ private MatchAlgorithm matchAlgorithm;
 		   if (settings.isVerbose() ) System.err.println("Connected");
 
 
-          pstmt = conn.prepareStatement(sqlStatement);
+          //Attempt to use DBA_OBJECTS, reverting to ALL_OBJECTS on any error
+	  try
+	  {
+	    pstmt = conn.prepareStatement(sqlStatement);
+	  }
+	  catch (Exception e)
+	  { //Revert to ALL_OBJECTS  
+	    sqlStatement = sqlStatement.replaceFirst(" dba_", " all_");
+	    if (settings.isVerbose() ) System.out.println("Reverting to \"" + sqlStatement + "\"" );
+	    pstmt = conn.prepareStatement(sqlStatement);
+	  }
 
+
+  	  //Use this path to generate relative paths from any extracted source paths
+          String outputRootPath = settings.getOutputDirectory().getCanonicalPath();
 
           DbmsMetadata dbmsMetadata = new DbmsMetadata(conn,settings.getGetMetadataStatement(), settings.getReturnType());
 
@@ -309,29 +339,98 @@ private MatchAlgorithm matchAlgorithm;
 		    System.err.println("Object(s) like " + inputSchemaName + "." + inputObjectName + " do not exist or " + settings.getDbUser() + " does not have enough permissions (SELECT_CATALOG_ROLE role).");
 		} else {
 		    do {
-			  final String objectName =  rset.getString(1);
-			  String objectType = rset.getString(2);
+			  final String objectName = rset.getString(1);
+			  final String objectType = rset.getString(2);
+			  //Remap DBA_OBJECTS.OBJECT_TYPE column contents to DBMS_METADATA.GET_DDL(OBJECT_TYPE) parameter if necessary
+			  final String dbmsMetadataObjectType = hashMap.containsKey(rset.getString(2)) ? (String) hashMap.get(objectType) : objectType;
+
 			  final String fullyQualifiedObjectName = inputSchemaName + "." + objectName;
 			  if (settings.isVerbose() ) System.err.println("Parsing " + objectType + " name " + fullyQualifiedObjectName + " ...");
 
-                //Remap DBA_OBJECTS.OBJECT_TYPE column contents to DBMS_METADATA.GET_DDL(OBJECT_TYPE) parameter if necessary
-			if ( hashMap.containsKey(objectType) )
-			{
-			   objectType =  (String) hashMap.get(objectType) ;
-			}
-
-
-			if (settings.isVerbose() ) System.err.println("Extracting DBMS_METADATA DDL for (object_type,object_name,schema)=(" 
+			  if (settings.isVerbose() ) System.err.println("Extracting DBMS_METADATA DDL for (object_type,object_name,schema)=(" 
                                                                        + objectType 
                                                                        + "," +objectName 
                                                                        + "," +inputSchemaName 
                                                                        + ") ..."
                                                                      );
 
+			//Refresh static files if there directory  has not yet been modified in this run 
+			if (startTime >= settings.getOutputDirectory().lastModified())
+			{
+			   // copy required static files into the source code directory
+			   CPDUtils.copyStaticRootDirectoryFiles(settings.getOutputDirectory(),  settings.getStylesheet() , settings.getSourceStylesheet() );
+			   if (settings.isVerbose() ) System.err.println("Refreshed static files in " + settings.getOutputDirectory().getCanonicalPath() );
+			}
+
+			final File savedSchemaDirectory = new File (settings.getOutputDirectory(),  inputSchemaName);
+			if ( settings.isSaveSourceCode() )
+			{
+			  if ( !savedSchemaDirectory.exists() )
+			  {
+			    savedSchemaDirectory.mkdir();
+			  }
+			}
+			final File savedObjectTypeDirectory = new File (savedSchemaDirectory,  objectType.replace(' ','_') );  
+			if (settings.isSaveSourceCode() )
+			{
+			  //Create the directory if it does not already exist 
+			  if (!savedObjectTypeDirectory.exists())
+			  {
+			     savedObjectTypeDirectory.mkdir();
+			     // copy required static files into the source code directory
+			     CPDUtils.copyStaticSourceDirectoryFiles(savedObjectTypeDirectory, "../../" );
+			  }
+			  //Refresh sattic files if ther directory existed previously but has not yet been modified in this run 
+			  else if (startTime > savedObjectTypeDirectory.lastModified())
+			  {
+			     // copy required static files into the source code directory
+			     CPDUtils.copyStaticSourceDirectoryFiles(savedObjectTypeDirectory, "../../" );
+			     if (settings.isVerbose() ) System.err.println("Refreshed static files in " + savedObjectTypeDirectory.getCanonicalPath() );
+			  }
+			}
+
+			final File savedSourceFile = new File (savedObjectTypeDirectory,  rset.getString(1).replace(' ','_') + "." + fileSuffixMap.get(rset.getString(2)) + ".xml" );  
+
+			FileWriter  savedSourceFileWriter = null; //Set only if needed 
+
 			// Open the reader first to prevent failure to retrieve the source code
 			// crashing the application
 			 BufferedReader bufferedReader = null;  
+			 Throwable throwable = null; 
 			try {
+			       if (settings.isSaveSourceCode() ) 
+			       {
+				  System.err.println("Saving DDL for (object_type,object_name,schema)=(" + dbmsMetadataObjectType + "," +rset.getString(1) + "," +inputSchemaName  + ") to "
+						      + savedSourceFile.getCanonicalPath()
+						      );
+				savedSourceFileWriter = new FileWriter(savedSourceFile);  
+
+				bufferedReader =  
+				new  BufferedReader(
+				  new  SourceCodeScraper(
+				      dbmsMetadata.getDdl(dbmsMetadataObjectType,
+							  rset.getString(1),
+							  inputSchemaName,
+							  "COMPATIBLE",
+							  "ORACLE",
+							  "DDL"
+						       ) 
+				    ,savedSourceFileWriter
+				    ,false
+				    ,"sourcecode.xsl"
+				  )
+				)
+				;
+			        //pass signature as path relative to output directory 
+				throwable = add(
+				    0
+				    ,bufferedReader 
+				    ,savedSourceFile.getCanonicalPath().replaceFirst(outputRootPath,".") 
+				);
+
+			     }
+			     else
+			     {
 			      bufferedReader =  
                               new BufferedReader(
                                 dbmsMetadata.getDdl(objectType,
@@ -341,17 +440,18 @@ private MatchAlgorithm matchAlgorithm;
 						    "ORACLE",
 						    "DDL") 
 				                 );
+			      throwable = add(
+				  0
+				  ,bufferedReader 
+				  ,objectName
+				  ,inputSchemaName 
+				  ,objectType 
+			      );
+
+			     }
 
 
                             
-			    Throwable throwable = add(
-                                0
-				,bufferedReader 
-                                ,objectName
-                                ,inputSchemaName 
-                                ,objectType 
-			    );
-
 			  // Test the processing result
 			  if (throwable == null) {
 			    processedPackages++;
@@ -361,11 +461,22 @@ private MatchAlgorithm matchAlgorithm;
 			} 
 			catch (SQLException sqlE)
 			{
+			    sqlE.printStackTrace(System.err);
 			    skippedPackages.put(fullyQualifiedObjectName, sqlE);
 			}
 			finally
 			{
-			      bufferedReader = null;  
+			      if (null != bufferedReader)
+			      {
+				bufferedReader.close();
+				bufferedReader = null;  
+			      }
+			      if (null != savedSourceFileWriter)
+			      {
+				savedSourceFileWriter.flush();
+				savedSourceFileWriter.close();
+				savedSourceFileWriter = null ; 
+			      }
 			}
 	  } while (rset.next());
 		}
@@ -522,6 +633,16 @@ private MatchAlgorithm matchAlgorithm;
     }
 
 
+
+   /** Pass in Reader with database attributes to generate a signature pseudo-path for user friendly referencing.
+    *
+    * @param fileCount to match the equivalent file-based methods 
+    * @param codeReader Source code content from a stream
+    * @param objectName database object name 
+    * @param schemaName database user/schema name 
+    * @param objectType database object type 
+    * @return independent processing 
+   */
    private Throwable add(int fileCount
                     , Reader codeReader
                     , String objectName
@@ -530,6 +651,42 @@ private MatchAlgorithm matchAlgorithm;
            ) 
            throws IOException {
             String signature = schemaName + '/' + objectType + '/' + objectName ;
+        
+        if (settings.isVerbose() ) System.err.println("Tokenizing database source code with pseudo-signature " + signature);
+        return add (fileCount, codeReader, signature ); 
+   }
+
+
+   /** Pass in Reader with an associated File to generate a signature path for user friendly referencing.
+    *
+    *<b>N.B.The file does not have to exist nor contain the source code passed in the Reader: it may simply
+    *be an abstract file system reference for duplicate code reporting.</b>
+    *
+    * @param fileCount to match the equivalent file-based methods 
+    * @param file File system reference to  
+    * @return independent processing 
+   */
+   private Throwable add(int fileCount
+                    , Reader codeReader
+                    , File   file
+           ) 
+           throws IOException {
+        
+        return add (fileCount, codeReader, file.getCanonicalPath()  ); 
+   }
+
+
+   /** Pass in Reader with a signature pseudo-path for user friendly referencing.
+    *
+    * @param fileCount to match the equivalent file-based methods 
+    * @param signature user supplied signature to refence this source code 
+    * @return independent processing 
+   */
+   private Throwable add(int fileCount
+                    , Reader codeReader
+                    , String signature
+           ) 
+           throws IOException {
 
         if (settings.skipDuplicates()) {
             // TODO refactor this thing into a separate class
@@ -561,18 +718,17 @@ private MatchAlgorithm matchAlgorithm;
         }
         catch (Throwable t) 
         {
-            System.err.println("Throwable at object <"+ objectName +">: "+t);
+            System.err.println("Throwable for signature <"+ signature +">: "+t);
             t.printStackTrace(System.err);
             if (settings.isExitOnError()) {
                 throw new SystemExitException(t);
             }
-            System.err.println("Package " + objectName + " skipped.");
+            System.err.println("Source Code " + signature + " skipped.");
             result = t;
         } 
         
         return result;
    }
-
 
 
 }

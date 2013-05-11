@@ -59,6 +59,7 @@ public class Settings
   private File outputDirectory = new File("." + File.separator);
   private File outputFile = null ;
   private File stylesheetFile = null ;
+  private File sourcestylesheetFile = null ;
   private Collection inputFiles = new ArrayList();
   private Properties defines = null;
   // by default, assume system default encoding for all input files
@@ -75,6 +76,7 @@ public class Settings
   private Collection inputTypes = new ArrayList();
   private Collection inputObjects = new ArrayList();
   private boolean showSkippedPackages = false;
+  private boolean savesourcecode = false;
 
   // CPD Settings 
   private String formatString = CPD_RENDER_FORMAT_DEFAULT;
@@ -91,7 +93,6 @@ public class Settings
   private static final String usage =
     "Arguments: [options] inputfile(s)\n" +
     "-verbose                  Verbose - report each object processed \n" +
-    "-d <directory>            Destination directory for output files [default: current]\n" +
     "-language <language>      Language expected in the source code [default: "+ CPD_LANGUAGE_DEFAULT  +" ]\n" +
     "-format <format>          Output format [default: "+ CPD_RENDER_FORMAT_DEFAULT +" ]\n" +
     "-ignorecomments           Ignore comments in code\n" +
@@ -99,9 +100,11 @@ public class Settings
     "-ignoreliterals           Ignore literals (constant values, strings etc.) in code\n" +
     "-minimumTokens            Minimum number of sequential tokens before declaring a match [default: " + CPD_MINIMUM_TOKENS_DEFAULT +" ]\n" +
     "-skipduplicates           Ignore duplicated files\n" +
+    "-savesourcecode           Save read source code to file system\n" +
     "-inputencoding <enc>      Encoding used in the input files [default: operation system default encoding]\n" +
     "-outputfile <name>        output file name [default: standard output ] \n" +
     "-stylesheetfile <name>    stylesheet name (when <format> is xml) \n" +
+    "-sourcestylesheetfile <name>    stylesheet name (when <format> is xml) \n" +
     "-exitonerror              Force program to exit when some input file cannot be processed\n" +
     "                          [by default, the file is skipped and processing continues]\n" +
     "-driver <JDBC class>      Name of JDBC driver class, for example oracle.jdbc.OracleDriver, com.edb.Driver, or org.postgresql.Driver [default: " + DRIVER_NAME_DEFAULT + "].\n" +
@@ -219,16 +222,6 @@ public class Settings
         }
 	minimumTileSize = Integer.parseInt( (String) it.next() );
       }
-      else if (arg.equalsIgnoreCase("-d")) {
-        // consume  "-d"
-        if(!it.hasNext()) {
-          processInvalidUsage("Option " + arg + " requires a value !");
-        }
-        outputDirectory = new File((String) it.next() + File.separator);
-        if (outputDirectory.isFile()) {
-          processInvalidUsage("File name given instead of the output directory !");
-        }
-      }
       else if (arg.equalsIgnoreCase("-inputencoding")) {
         // consume  "-inputencoding"
         if(!it.hasNext()) {
@@ -302,6 +295,10 @@ public class Settings
         // consume  "-showskippedpackages"
         this.showSkippedPackages = true;
       }
+      else if (arg.equalsIgnoreCase("-savesourcecode")) {
+        // consume  "-showskippedpackages"
+        this.savesourcecode = true;
+      }
       else if (arg.equalsIgnoreCase("-stylesheetfile")) {
         // consume  "-stylesheetfile"
         if(!it.hasNext()) {
@@ -311,6 +308,17 @@ public class Settings
         // check the file
         if (!(stylesheetFile.exists())) {
           processInvalidUsage("The specified stylesheet file " + stylesheetFile + " does not exist !");
+        }
+      }
+      else if (arg.equalsIgnoreCase("-sourcestylesheetfile")) {
+        // consume  "-stylesheetfile"
+        if(!it.hasNext()) {
+          processInvalidUsage("Option " + arg + " requires a value !");
+        }
+        sourcestylesheetFile = new File((String) it.next()) ;
+        // check the file
+        if (!(sourcestylesheetFile.exists())) {
+          processInvalidUsage("The specified sourcestylesheet file " + sourcestylesheetFile + " does not exist !");
         }
       }
       else if (arg.equalsIgnoreCase("-outputfile")) {
@@ -324,7 +332,18 @@ public class Settings
                && !outputFileName.equals("-")
               )
            {
-            outputFile = new File(outputDirectory + File.separator + outputFileName );
+            File thisDirectory  = new File(".");
+            outputFile = new File( outputFileName );
+            File fileOutputDirectory = outputFile.getParentFile();
+	    // If output file name is in the curent working directory, set the file
+	    if (fileOutputDirectory.getCanonicalPath().equals(thisDirectory.getCanonicalPath()) )  
+	    {
+	      outputFile = new File(fileOutputDirectory , outputFileName );
+	    }
+	    else 
+	    {
+	      outputDirectory = fileOutputDirectory;
+	    }
            }
       }
       else if (arg.startsWith("-")) {
@@ -409,6 +428,10 @@ public class Settings
     this.showSkippedPackages = showSkippedPackages;
   }
 
+  public void setSaveSourceCode(boolean savesourcecode) {
+    this.savesourcecode = savesourcecode;
+  }
+
   public String getApplicationName() {
     return applicationName;
   }
@@ -472,6 +495,10 @@ public class Settings
 
   public boolean isShowSkippedPackages() {
     return showSkippedPackages;
+  }
+
+  public boolean isSaveSourceCode() {
+    return savesourcecode;
   }
 
     public SourceCode sourceCodeFor(File file) {
@@ -560,7 +587,7 @@ public class Settings
     public Renderer renderer() { return renderer; }
 
     /*
-     * Cur and Pasted :-) from CPDConfiguration
+     * Cut and Pasted :-) from CPDConfiguration
      */
     public static Renderer getRendererFromString(String name /*, String encoding*/) {
         if (name.equalsIgnoreCase("text") || name.equals("")) {
@@ -605,6 +632,18 @@ public class Settings
     return stylesheetFile ;
   }
 
+  public void setSourceStylesheet(String sourcestylesheetName) {
+    sourcestylesheetFile = new File ( sourcestylesheetName );
+  }
+  
+  public void setSourceStylesheet(File sourcestylesheetFile) {
+    this.sourcestylesheetFile =  sourcestylesheetFile;
+  }
+  
+  public File getSourceStylesheet() {
+    return sourcestylesheetFile ;
+  }
+
   public String getFormatString() {
     return formatString ;
   }
@@ -621,21 +660,29 @@ public class Settings
   */
   public void generateHtml(File outputFile) throws Exception {
     // apply xsl to generate the HTML frames
-    String outputFileName = outputFile.getAbsolutePath();
-    String outputFileStem = null; 
-    String fileExtension = ".XML";
+    final String outputFileName = outputFile.getAbsolutePath();
+    final String fileExtension = ".XML";
+    final String outputFileStem = (outputFileName.toUpperCase().endsWith(fileExtension))
+                                   ? outputFileName.substring(0,outputFileName.length() - fileExtension.length())
+				   : outputFileName;
     
-    if (outputFileName.toUpperCase().endsWith(".XML"))
-        outputFileStem = outputFileName.substring(0,outputFileName.length() - fileExtension.length());
-    else
-        outputFileStem = outputFileName;
-    
-    String htmlFileName = outputFileStem + ".html" ;
+    final String htmlFileName = outputFileStem + ".html" ;
+    final String xsltFilePath =  "xslt/cpdhtml.xsl" ;
     
     TransformerFactory tFactory = TransformerFactory.newInstance();
     Transformer transformer;
     System.err.println("Generating HTML ...");
-    transformer = tFactory.newTransformer(new StreamSource( new InputStreamReader ( new FileInputStream (stylesheetFile)
+    System.err.println("... using " + xsltFilePath );
+    InputStream inputStream = (new ResourceLoader()).getResourceStream( xsltFilePath ) ;
+    if ( null == inputStream )  
+    {
+      System.err.println("Could not locate "+ xsltFilePath);
+    }
+
+
+    transformer = tFactory.newTransformer(new StreamSource( new InputStreamReader ( 
+										     inputStream 
+                                                                                     //new FileInputStream (stylesheetFile)
                                                                                      , inputEncoding
                                                                                   )
                                                          )
