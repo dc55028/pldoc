@@ -14,7 +14,7 @@ WITH caller AS
             ,signature 
             ,dbms_utility.get_hash_value(owner||'~'||object_type||'~'||object_name, 1000000, 4194304  ) object_hash
             ,dbms_utility.get_hash_value(owner||'~'||object_type||'~'||object_name||'~'||line||'~'||col, 1000000, 4194304  ) line_column_hash
-    FROM ALL_IDENTIFIERS
+    FROM DBA_IDENTIFIERS
       WHERE USAGE = 'CALL' 
 )
 SELECT *
@@ -54,7 +54,7 @@ CALLER.USAGE_CONTEXT_ID CALLER_USAGE_CONTEXT_ID
                       CALLED.USAGE DESC /* Prefer DEFINITION (OBJECT BODY) to DECLARATION (OBJECT SPECIFICATION)*/
                       ) priority
 FROM CALLER
-JOIN ALL_IDENTIFIERS CALLED ON (CALLER.SIGNATURE = CALLED.SIGNATURE)
+JOIN DBA_IDENTIFIERS CALLED ON (CALLER.SIGNATURE = CALLED.SIGNATURE)
 WHERE  CALLED.USAGE IN ( 'DECLARATION', 'DEFINITION') 
 AND   CALLED.TYPE IN ( 'FUNCTION', 'PROCEDURE') 
 )
