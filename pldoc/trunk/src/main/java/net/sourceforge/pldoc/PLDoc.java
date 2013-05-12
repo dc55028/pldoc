@@ -318,19 +318,9 @@ public class PLDoc
 		   if (settings.isVerbose() ) System.out.println("Connected");
 
 
-          //Attempt to use DBA_OBJECTS, reverting to ALL_OBJECTS on any error
-	  try
-	  {
-	    pstmt = conn.prepareStatement(sqlStatement);
-	  }
-	  catch (Exception e)
-	  { //Revert to ALL_OBJECTS  
-	    sqlStatement = sqlStatement.replaceFirst(" dba_", " all_");
-	    //Adjust plscope settings to use ALL_* dictionary views 
-	    plscopeQueries = plscopeQueriesMap.get("ALL_");  
-	    if (settings.isVerbose() ) System.out.println("Reverting to \"" + sqlStatement + "\"" );
-	    pstmt = conn.prepareStatement(sqlStatement);
-	  }
+    boolean dictionaryViewsHaveReverted = false ; // 
+    //Initially attempt to use DBA_OBJECTS, reverting to ALL_OBJECTS on any error
+    pstmt = conn.prepareStatement(sqlStatement);
 
 
           DbmsMetadata dbmsMetadata = new DbmsMetadata(conn,settings.getGetMetadataStatement(), settings.getReturnType());
@@ -354,7 +344,30 @@ public class PLDoc
 		pstmt.setString(1, inputSchemaName);
 		pstmt.setString(2, inputObjectName);
 
-		rset = pstmt.executeQuery();
+     //Attempt to use DBA_OBJECTS, reverting to ALL_OBJECTS on any error
+    try
+    {
+      rset = pstmt.executeQuery();
+    }
+    catch (Exception e)
+    { 
+      if (dictionaryViewsHaveReverted )
+      {
+        throw e; //Pass problem up 
+      }
+      else//Revert to ALL_OBJECTS  
+      {
+        dictionaryViewsHaveReverted = true ; 
+        sqlStatement = sqlStatement.replaceFirst(" dba_", " all_");
+        //Adjust plscope settings to use ALL_* dictionary views 
+        plscopeQueries = plscopeQueriesMap.get("ALL_");  
+        if (settings.isVerbose() ) System.out.println("Reverting to \"" + sqlStatement + "\"" );
+        pstmt = conn.prepareStatement(sqlStatement);
+        pstmt.setString(1, inputSchemaName);
+        pstmt.setString(2, inputObjectName);
+        rset = pstmt.executeQuery();
+      }
+    }
 
 		// If the object is not present return false
 		if (!rset.next()) {
@@ -384,13 +397,13 @@ public class PLDoc
 			  {
 			     savedObjectTypeDirectory.mkdir();
 			     // copy required static files into the source code directory
-			     copyStaticSourceDirectoryFiles(savedObjectTypeDirectory, "../../" );
+			     Utils.copyStaticSourceDirectoryFiles(savedObjectTypeDirectory, "../../" );
 			  }
 			  //Refresh sattic files if ther directory existed previously but has not yet been modified in this run 
 			  else if (startTime > savedObjectTypeDirectory.lastModified())
 			  {
 			     // copy required static files into the source code directory
-			     copyStaticSourceDirectoryFiles(savedObjectTypeDirectory, "../../" );
+			     Utils.copyStaticSourceDirectoryFiles(savedObjectTypeDirectory, "../../" );
 			     if (settings.isVerbose() ) System.err.println("Refreshed static files in " + savedObjectTypeDirectory.getCanonicalPath() );
 			  }
 			}
