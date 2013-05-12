@@ -19,6 +19,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 package net.sourceforge.pldoc;
 
 import java.io.*;
+import java.util.*;
 
 /**
 * Utilities supporting the main functionality
@@ -27,6 +28,31 @@ import java.io.*;
 */
 public class Utils
 {
+
+  /** Copy a file with a fall back resource.
+  * @param inputFile source 
+  * @param outputFile target 
+  * @param resourceName - internal resource to use if inputFile does not exist
+  */
+  public static void CopyFile(File inputFile, File outputFile, String resourceName )
+  throws FileNotFoundException, IOException
+  {
+    try {
+      // Copy inputFile if it exists, falling back to the resource if it does not
+      Utils.CopyStreamToFile(
+        (null != inputFile && inputFile.exists()) 
+          ? new FileInputStream ( inputFile ) 
+          : (new ResourceLoader()).getResourceStream(resourceName)
+        , outputFile
+      );
+
+    } 
+    catch(IOException e) {
+      throw new IOException ( String.format("Problem copying File \"%s\" with fallback resource \"%s\" to \"%s\"", inputFile, resourceName, outputFile )
+                            , e
+                          );
+    }
+  }
 
   /** Copies a file.
   * I wish there was a standard Java way to do it.
@@ -145,26 +171,15 @@ public class Utils
   * @param sourceStylesheet the relative path to the location of the root output directory 
   */
   public static void copyStaticRootDirectoryFiles(File outputDirectory, File stylesheet, File sourceStylesheet) throws Exception {
-    try {
-      // Copy sourcecode.xsl, replacing the stylesheet href with the relative href
-      Utils.CopyStreamToFile(
-	  (null != stylesheet && stylesheet.exists()) 
-	  ? new FileInputStream ( stylesheet ) 
-	  : (new ResourceLoader()).getResourceStream("defaultstylesheet.css")
-	, new File(outputDirectory, "stylesheet.css")
+      CopyFile(stylesheet
+              ,new File(outputDirectory, "stylesheet.css")
+              ,"defaultstylesheet.css"
       );
 
-      Utils.CopyStreamToFile(
-	  (null != sourceStylesheet && sourceStylesheet.exists()) 
-	  ? new FileInputStream ( sourceStylesheet ) 
-	  : (new ResourceLoader()).getResourceStream("defaultstylesheet.css")
-	, new File(outputDirectory, "sourcestylesheet.css")
+      CopyFile(stylesheet
+            	,new File(outputDirectory, "sourcestylesheet.css")
+              ,"defaultstylesheet.css"
       );
-    } catch(FileNotFoundException e) {
-      System.err.println("File not found. ");
-      e.printStackTrace();
-      throw e;
-    }
   }
 
 }
