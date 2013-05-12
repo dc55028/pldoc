@@ -1000,41 +1000,7 @@ public class PLDoc
     }
   }
 
-  /**
-  * Copies required static files into the source code directory.
-  *
-  * This allows the XSL and CSS hrefs to cope with relocation of the root output directory 
-  * or access through a web browser.
-  *
-  * @param outputDirectory directory to copy files
-  * @param relativePath the relative path to the location of the root output directory 
-  */
-  private void copyStaticSourceDirectoryFiles(File outputDirectory, String relativePath) throws Exception {
-    try {
-      // Copy sourcecode.xsl, replacing the stylesheet href with the relative href
-      Properties  replacementProperties = new Properties();
-      replacementProperties.put("sourcestylesheet.css", relativePath + "sourcestylesheet.css");
-      Utils.CopyReaderToFile(
-	new BufferedReader(
-	  new SubstitutionReader( 
-	    new BufferedReader(
-	      new InputStreamReader(
-				    (new ResourceLoader()).getResourceStream("sourcecode.xsl")
-				   )
-		)
-	       ,replacementProperties
-	      )
-	    )
-      , new File(outputDirectory.getPath() + File.separator + "sourcecode.xsl")
-      );
-    } catch(FileNotFoundException e) {
-      System.err.println("File not found. ");
-      e.printStackTrace();
-      throw e;
-    }
-  }
-
-
+ 
   /**
    * Collapse all the nodes of specifed type with the same attribute NAME to one node.
    *
