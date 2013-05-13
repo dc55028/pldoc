@@ -336,7 +336,7 @@ public class Settings
             outputFile = new File( outputFileName );
             File fileOutputDirectory = outputFile.getParentFile();
 	    // If output file name is in the curent working directory, set the file
-	    if (fileOutputDirectory.getCanonicalPath().equals(thisDirectory.getCanonicalPath()) )  
+	    if (null == fileOutputDirectory || fileOutputDirectory.getCanonicalPath().equals(thisDirectory.getCanonicalPath()) )  
 	    {
 	      outputFile = new File(fileOutputDirectory , outputFileName );
 	    }
