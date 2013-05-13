@@ -96,7 +96,7 @@ public class CPD
   private static HashMap fileSuffixMap = new HashMap();
   static {
     fileSuffixMap.put( "PROCEDURE", "prc" );
-    fileSuffixMap.put( "FUNCTION", "fns" );
+    fileSuffixMap.put( "FUNCTION", "fnc" );
     fileSuffixMap.put( "TRIGGER", "trg" );
     fileSuffixMap.put( "PACKAGE", "pks" );
     fileSuffixMap.put( "TYPE", "tps" );
@@ -421,6 +421,7 @@ private MatchAlgorithm matchAlgorithm;
 				    ,"sourcecode.xsl"
 				  )
 			       );
+
 				throwable = add(
 				    0
 				    ,bufferedReader 
@@ -654,6 +655,7 @@ private MatchAlgorithm matchAlgorithm;
            throws IOException {
             String signature = schemaName + '/' + objectType + '/' + objectName ;
         
+        if (settings.isVerbose() ) System.err.println("Tokenizing database source code with pseudo-signature " + signature);
         return add (fileCount, codeReader, signature ); 
    }
 
