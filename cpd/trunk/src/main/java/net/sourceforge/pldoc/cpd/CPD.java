@@ -37,6 +37,7 @@ import net.sourceforge.pldoc.parser.PLSQLParser;
 import net.sourceforge.pldoc.parser.ParseException;
 import net.sourceforge.pldoc.DbmsMetadata;
 import net.sourceforge.pldoc.SourceCodeScraper;
+import net.sourceforge.pldoc.Utils;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
@@ -294,16 +295,7 @@ private MatchAlgorithm matchAlgorithm;
 
 
           //Attempt to use DBA_OBJECTS, reverting to ALL_OBJECTS on any error
-	  try
-	  {
-	    pstmt = conn.prepareStatement(sqlStatement);
-	  }
-	  catch (Exception e)
-	  { //Revert to ALL_OBJECTS  
-	    sqlStatement = sqlStatement.replaceFirst(" dba_", " all_");
-	    if (settings.isVerbose() ) System.out.println("Reverting to \"" + sqlStatement + "\"" );
-	    pstmt = conn.prepareStatement(sqlStatement);
-	  }
+          pstmt = conn.prepareStatement(sqlStatement);
 
 
   	  //Use this path to generate relative paths from any extracted source paths
@@ -330,7 +322,19 @@ private MatchAlgorithm matchAlgorithm;
 		pstmt.setString(1, inputSchemaName);
 		pstmt.setString(2, inputObjectName);
 
-		rset = pstmt.executeQuery();
+		try
+		{
+		  rset = pstmt.executeQuery();
+		}
+		catch (Exception e)
+		{ //Revert to ALL_OBJECTS  
+		  sqlStatement = sqlStatement.replaceFirst(" dba_", " all_");
+		  if (settings.isVerbose() ) System.out.println("Reverting to \"" + sqlStatement + "\"" );
+		  pstmt = conn.prepareStatement(sqlStatement);
+		  pstmt.setString(1, inputSchemaName);
+		  pstmt.setString(2, inputObjectName);
+		  rset = pstmt.executeQuery();
+		}
 
 		// If the object is not present return false
 		if (!rset.next()) {
@@ -358,7 +362,7 @@ private MatchAlgorithm matchAlgorithm;
 			if (startTime >= settings.getOutputDirectory().lastModified())
 			{
 			   // copy required static files into the source code directory
-			   CPDUtils.copyStaticRootDirectoryFiles(settings.getOutputDirectory(),  settings.getStylesheet() , settings.getSourceStylesheet() );
+			   Utils.copyStaticRootDirectoryFiles(settings.getOutputDirectory(),  settings.getStylesheet() , settings.getSourceStylesheet() );
 			   if (settings.isVerbose() ) System.err.println("Refreshed static files in " + settings.getOutputDirectory().getCanonicalPath() );
 			}
 
@@ -378,13 +382,13 @@ private MatchAlgorithm matchAlgorithm;
 			  {
 			     savedObjectTypeDirectory.mkdir();
 			     // copy required static files into the source code directory
-			     CPDUtils.copyStaticSourceDirectoryFiles(savedObjectTypeDirectory, "../../" );
+			     Utils.copyStaticSourceDirectoryFiles(savedObjectTypeDirectory, "../../" );
 			  }
 			  //Refresh sattic files if ther directory existed previously but has not yet been modified in this run 
 			  else if (startTime > savedObjectTypeDirectory.lastModified())
 			  {
 			     // copy required static files into the source code directory
-			     CPDUtils.copyStaticSourceDirectoryFiles(savedObjectTypeDirectory, "../../" );
+			     Utils.copyStaticSourceDirectoryFiles(savedObjectTypeDirectory, "../../" );
 			     if (settings.isVerbose() ) System.err.println("Refreshed static files in " + savedObjectTypeDirectory.getCanonicalPath() );
 			  }
 			}
