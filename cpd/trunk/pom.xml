@@ -4,7 +4,7 @@
     <groupId>net.sourceforge.pldoc</groupId>
     <artifactId>pldoc-cpd</artifactId>
     <packaging>jar</packaging>
-    <version>0.0.5-SNAPSHOT</version>
+    <version>0.1.0-SNAPSHOT</version>
     <name>PLDoc CPD Plugin - ${project.version}</name>
     <description>The CPD Plugin is an extension that combines the PMD/CPD and PLDoc codebases
             to check for duplicated code in PLSQL code.
