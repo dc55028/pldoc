@@ -213,7 +213,6 @@ public class Settings
           processInvalidUsage("Option " + arg + " requires a value !");
         }
         this.formatString = (String) it.next();
-        renderer = getRendererFromString(formatString);
       }
       else if (arg.equalsIgnoreCase("-minimumtokens")) {
         // consume  "-minimumtokens"
@@ -370,7 +369,7 @@ public class Settings
     
     //Set up the objects
     language = new LanguageFactory().createLanguage(this.languageString);
-    renderer = getRendererFromString(this.formatString);
+    renderer = getRendererFromString(this.formatString,this.inputEncoding);
 
     //Pass all settings via System propeties 
     System.setProperty("ignore_comments", (ignoreComments ? "true" : "false") );
@@ -545,8 +544,9 @@ public class Settings
     
     public Language getLanguage() { return language; }
     
-    public void setFormat(String formatString) { this.formatString = formatString; 
-    renderer = getRendererFromString(this.formatString);
+    public void setFormat(String formatString) { 
+      this.formatString = formatString; 
+      renderer = getRendererFromString(this.formatString,this.inputEncoding);
     }
     
     public void setFormat(Renderer renderer) { this.renderer = renderer; 
@@ -589,11 +589,18 @@ public class Settings
     /*
      * Cut and Pasted :-) from CPDConfiguration
      */
-    public static Renderer getRendererFromString(String name /*, String encoding*/) {
+    public static Renderer getRendererFromString(String name , String sourceEncoding) {
         if (name.equalsIgnoreCase("text") || name.equals("")) {
             return new SimpleRenderer();
         } else if ("xml".equals(name)) {
-            return new XMLRenderer();
+            if (null==sourceEncoding || "".equals(sourceEncoding))
+            {
+              return new XMLRenderer();
+            }
+            else
+            {
+              return new XMLRenderer(sourceEncoding);
+            }
         }  else if ("csv".equals(name)) {
             return new CSVRenderer();
         }  else if ("vs".equals(name)) {
