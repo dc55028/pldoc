@@ -4,7 +4,7 @@
     <groupId>net.sourceforge.pldoc</groupId>
     <artifactId>maven-cpd-plugin</artifactId>
     <packaging>maven-plugin</packaging>
-    <version>0.0.9-SNAPSHOT</version>
+    <version>0.1.0-SNAPSHOT</version>
     <name>Maven PLDoc CPD Plugin - ${project.version}</name>
     <description>The Maven PLDoc Plugin is a plugin that uses the PMD CPD tool for
             generating docs for the specified project.
@@ -118,7 +118,7 @@
         <dependency>
             <groupId>net.sourceforge.pldoc</groupId>
             <artifactId>pldoc-cpd</artifactId>
-            <version>[0.0.4,)</version>
+            <version>[0.1.0,)</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.reporting</groupId>
@@ -202,11 +202,10 @@
 		<includes>
 		  <include>**/*.tmp</include>
 		  <include>**/*.log</include>
-		  <include>pldoc.bat</include>
-		  <include>pldoc.sh</include>
-		  <include>pldoc_example.bat</include>
-		  <include>pldoc_example.sh</include>
-		  <include>pldoc_drop.bat</include>
+		  <include>cpd_maven_example.bat</include>
+		  <include>cpd_maven_example.sh</include>
+		  <include>maven_*settings.xml</include>
+		  <include>cpd-*-pom.xml</include>
 		  <include>samples</include>
 		  <include>testinput</include>
 		</includes>
