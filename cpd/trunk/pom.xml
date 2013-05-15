@@ -221,6 +221,10 @@
 		  <include>cpd_drop.bat</include>
 		  <include>samples</include>
 		  <include>testinput</include>
+		  <include>ant*_example.properties</include>
+		  <include>ant*_example.xml</include>
+		  <include>cpd*_example.bat</include>
+		  <include>cpd*_example.sh</include>
 		</includes>
 		<followSymlinks>false</followSymlinks>
 	      </fileset>
