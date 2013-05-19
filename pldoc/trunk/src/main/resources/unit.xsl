@@ -48,10 +48,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     <TD COLSPAN="2" CLASS="NavBarRow1">
     <TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3">
       <TR ALIGN="center" VALIGN="top">
-      <TD CLASS="NavBarRow1"><A HREF="summary.html"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A> &nbsp;</TD>
-      <TD CLASS="NavBarRow1"><A HREF="deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A> &nbsp;</TD>
-      <TD CLASS="NavBarRow1"><A HREF="index-list.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A> &nbsp;</TD>
-      <TD CLASS="NavBarRow1"><A HREF="generator.html"><FONT CLASS="NavBarFont1"><B>Generator</B></FONT></A> &nbsp;</TD>
+      <TD CLASS="NavBarRow1"><A HREF="../../summary.html"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A> &nbsp;</TD>
+      <TD CLASS="NavBarRow1"><A HREF="../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A> &nbsp;</TD>
+      <TD CLASS="NavBarRow1"><A HREF="../../index-list.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A> &nbsp;</TD>
+      <TD CLASS="NavBarRow1"><A HREF="../../generator.html"><FONT CLASS="NavBarFont1"><B>Generator</B></FONT></A> &nbsp;</TD>
       </TR>
     </TABLE>
     </TD>
@@ -537,8 +537,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
         <BR/><DT>Called By:
         <xsl:for-each select="PLSCOPE/CALLERS/CALLER[@SCHEMA != 'SYS' ]">
 	  <xsl:variable name="targetPage"><xsl:choose>
-	     <xsl:when test="@OBJECT_TYPE = 'FUNCTION' or @OBJECT_TYPE = 'PROCEDURE' or @OBJECT_TYPE = 'TRIGGER' "><xsl:value-of select="concat('_', translate(@SCHEMA, $namesFromCase,$namesToCase))" /></xsl:when>
-	     <xsl:otherwise><xsl:value-of select="concat('_',translate(@OBJECT_NAME, $namesFromCase, $namesToCase) ,'_body')" /></xsl:otherwise>
+	     <xsl:when test="@OBJECT_TYPE = 'FUNCTION' or @OBJECT_TYPE = 'PROCEDURE' or @OBJECT_TYPE = 'TRIGGER' "><xsl:value-of select="concat('../../', @SCHEMA, '/', 'PACKAGE', '/', '_', translate(@SCHEMA, $namesFromCase,$namesToCase))" /></xsl:when>
+	     <xsl:otherwise><xsl:value-of select="concat('../../', @SCHEMA, '/', translate(@OBJECT_TYPE,' ','_') , '/', '_',translate(@OBJECT_NAME, $namesFromCase, $namesToCase) ,'_body')" /></xsl:otherwise>
             </xsl:choose></xsl:variable>
 	  <BR/>
           <xsl:element name="A"><xsl:attribute name="HREF"><xsl:value-of select="concat($targetPage,'.html#', @CALLING_METHOD_SIGNATURE)" /></xsl:attribute>
@@ -561,8 +561,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
         <BR/><DT>Calls:
         <xsl:for-each select="PLSCOPE/CALLEES/CALLEE[@SCHEMA != 'SYS' ]">
 	  <xsl:variable name="targetPage"><xsl:choose>
-	     <xsl:when test="@OBJECT_TYPE = 'FUNCTION' or @OBJECT_TYPE = 'PROCEDURE' or @OBJECT_TYPE = 'TRIGGER' "><xsl:value-of select="concat('_', translate(@SCHEMA, $namesFromCase,$namesToCase))" /></xsl:when>
-	     <xsl:otherwise><xsl:value-of select="concat('_',translate(@OBJECT_NAME, $namesFromCase, $namesToCase) ,'_body')" /></xsl:otherwise>
+	     <xsl:when test="@OBJECT_TYPE = 'FUNCTION' or @OBJECT_TYPE = 'PROCEDURE' or @OBJECT_TYPE = 'TRIGGER' "><xsl:value-of select="concat('../../', @SCHEMA, '/', 'PACKAGE', '/', '_', translate(@SCHEMA, $namesFromCase,$namesToCase))" /></xsl:when>
+	     <xsl:otherwise><xsl:value-of select="concat('../../', @SCHEMA, '/', translate(@OBJECT_TYPE,' ','_') , '/', '_',translate(@OBJECT_NAME, $namesFromCase, $namesToCase) ,'_body')" /></xsl:otherwise>
             </xsl:choose></xsl:variable>
 	  <BR/>
           <xsl:element name="A"><xsl:attribute name="HREF"><xsl:value-of select="concat($targetPage,'.html#', @METHOD_SIGNATURE)" /></xsl:attribute>
@@ -596,7 +596,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   <!--<xsl:for-each select="PACKAGE | PACKAGE_BODY">-->
   <xsl:for-each select="PACKAGE | OBJECT_TYPE | TRIGGER | JAVA[@TYPE='SOURCE'] ">
 
-    <redirect:write file="{concat($targetFolder, translate(@NAME, $namesFromCase, $namesToCase))}.html">
+    <redirect:write file="{concat($targetFolder, @SCHEMA, '/', local-name(.), '/', translate(@NAME, $namesFromCase, $namesToCase))}.html">
+
 
     <HTML>
     <HEAD>
@@ -861,7 +862,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   -->
   <xsl:for-each select="PACKAGE_BODY | OBJECT_BODY | */TRIGGER[@TYPE='COMPOUND'] ">
 
-    <redirect:write file="{concat($targetFolder, '_', translate(@NAME, $namesFromCase, $namesToCase))}_body.html">
+    <redirect:write file="{concat($targetFolder, @SCHEMA, '/', local-name(.), '/',  '_', translate(@NAME, $namesFromCase, $namesToCase))}_body.html">
 
     <HTML>
     <HEAD>
@@ -1137,7 +1138,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   <!-- ********************** START OF TABLE PAGE ************************** -->
   <xsl:for-each select="TABLE | VIEW">
 
-    <redirect:write file="{concat($targetFolder, translate(@NAME, $namesFromCase, $namesToCase))}.html">
+    <redirect:write file="{concat($targetFolder, @SCHEMA, '/', local-name(.), '/', translate(@NAME, $namesFromCase, $namesToCase))}.html">
 
     <HTML>
     <HEAD>
