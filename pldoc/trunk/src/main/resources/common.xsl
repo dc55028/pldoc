@@ -96,7 +96,7 @@
 		  <xsl:value-of select="concat('#',$lineNumber)" />
 		</xsl:if>
 		</xsl:variable>
-	<xsl:element name="A"><xsl:attribute name="HREF"><xsl:value-of select="concat( $sourceRootPath,'/../../', $schema,'/', translate($objectType, ' ','_') ,'/', $objectName, '.', $fileSuffix, '.xml' ,$internalLink )" /></xsl:attribute><xsl:copy-of select="$linkContents" /></xsl:element>
+	<xsl:element name="A"><xsl:attribute name="HREF"><xsl:value-of select="concat( $sourceRootPath,'/../', $schema,'/', translate($objectType, ' ','_') ,'/', $objectName, '.', $fileSuffix, '.xml' ,$internalLink )" /></xsl:attribute><xsl:copy-of select="$linkContents" /></xsl:element>
 	</xsl:template>
 	
 	<!-- End of String Replace -->	
