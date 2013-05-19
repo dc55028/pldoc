@@ -79,7 +79,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 					<xsl:variable name="packagename" select="translate(../@NAME, $namesFromCase, $namesToCase)"/>
 					<!-- create link referrer -->
 					<xsl:variable name="referrer">
-			      <xsl:value-of select="concat(../@SCHEMA, '/', translate(local-name(..),' ','_'), '/', $packagename)"/>
+			      <xsl:value-of select="concat(../@SCHEMA, '/', $packagename)"/>
    					      <xsl:value-of select="'.html#'"/>
 						<xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)" />
                <xsl:if test="ARGUMENT">
@@ -124,7 +124,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 					<xsl:variable name="packagename" select="translate(../@NAME, $namesFromCase, $namesToCase)"/>
 					<!-- create link referrer -->
 					<xsl:variable name="referrer">
-			      <xsl:value-of select="concat(../@SCHEMA, '/', translate(local-name(..),' ','_'), '/', $packagename) "/>
+			      <xsl:value-of select="concat(../@SCHEMA, '/', $packagename) "/>
    					      <xsl:value-of select="'.html#'"/>
 						<xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)" />
                <xsl:if test="ARGUMENT">
@@ -170,7 +170,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 					<xsl:variable name="packagename" select="translate(../@NAME, $namesFromCase, $namesToCase)"/>
 					<!-- create link referrer -->
 					<xsl:variable name="referrer">
-			      <xsl:value-of select="concat(../@SCHEMA, '/', translate(local-name(..),' ','_'), '/', '_') "/>
+			      <xsl:value-of select="concat(../@SCHEMA, '/', '_') "/>
 			      <xsl:value-of select="$packagename"/>
    					      <xsl:value-of select="'_body.html#'"/>
 						<xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)" />
@@ -216,7 +216,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 					<xsl:variable name="packagename" select="translate(../@NAME, $namesFromCase, $namesToCase)"/>
 					<!-- create link referrer -->
 					<xsl:variable name="referrer">
-   			      <xsl:value-of select="concat(../@SCHEMA, '/', translate(local-name(..),' ','_'), '/','_') "/>
+   			      <xsl:value-of select="concat(../@SCHEMA, '/','_') "/>
 			      <xsl:value-of select="$packagename"/>
    					      <xsl:value-of select="'_body.html#'"/>
 						<xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)" />
