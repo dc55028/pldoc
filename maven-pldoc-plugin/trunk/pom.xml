@@ -108,7 +108,7 @@
             <groupId>net.sourceforge.pldoc</groupId>
             <artifactId>pldoc</artifactId>
 	    <!-- Require greater than or equal to PLDoc 1.4.3 -->
-            <version>[1.4.3,)</version>
+            <version>[1.5.0,)</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.reporting</groupId>
@@ -186,9 +186,12 @@
 		  <include>**/*.log</include>
 		  <include>pldoc.bat</include>
 		  <include>pldoc.sh</include>
-		  <include>pldoc_example.bat</include>
-		  <include>pldoc_example.sh</include>
+		  <include>pldoc_*example.bat</include>
+		  <include>pldoc_*example.sh</include>
 		  <include>pldoc_drop.bat</include>
+		  <include>pldoc-*.xml</include>
+		  <include>maven_*settings.xml</include>
+		  <include>OtherDatabases.txt</include>
 		  <include>samples</include>
 		  <include>testinput</include>
 		</includes>
