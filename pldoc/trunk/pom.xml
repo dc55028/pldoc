@@ -382,10 +382,14 @@
 		<include>**/*.log</include>
 		<include>pldoc.bat</include>
 		<include>pldoc.sh</include>
+		<include>pldoc_test.bat</include>
+		<include>pldoc_test.sh</include>
+		<include>pldoc_ant_example.bat</include>
+		<include>pldoc_ant_example.sh</include>
 		<include>pldoc_example.bat</include>
 		<include>pldoc_example.sh</include>
 		<include>pldoc_drop.bat</include>
-		<include>ant_*_example.xml</include>
+		<include>ant_*example.xml</include>
 		<include>ant_*_example.properties</include>
 		<include>samples</include>
 		<include>testinput</include>
