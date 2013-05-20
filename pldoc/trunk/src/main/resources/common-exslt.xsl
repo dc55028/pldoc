@@ -67,12 +67,27 @@
             methodName=START<xsl:value-of select="$methodName" disable-output-escaping="yes"/>END
           </xsl:comment>
           -->
+                    <xsl:comment>What is the current SCHEMA?</xsl:comment>
+                    <xsl:variable name="currentSchemaName" select="ancestor-or-self::*/@SCHEMA" />
 					<xsl:choose>
 						
-						<xsl:when test="string-length($objectName) &gt; 0 and string-length($methodName) &gt; 0 and /APPLICATION/*[ translate(@NAME , $uppercase, $lowercase)= translate($objectName, $uppercase, $lowercase) ]/*[translate(@NAME , $uppercase, $lowercase) = translate($methodName , $uppercase, $lowercase)] ">
+						<xsl:when test="string-length($schemaName) &gt; 0 and string-length($objectName) &gt; 0 and string-length($methodName) &gt; 0 and /APPLICATION/*[ translate(@SCHEMA , $uppercase, $lowercase)= translate($schemaName, $uppercase, $lowercase) and translate(@NAME , $uppercase, $lowercase)= translate($objectName, $uppercase, $lowercase) ]/*[translate(@NAME , $uppercase, $lowercase) = translate($methodName , $uppercase, $lowercase)] ">
 							<!--
                 <xsl:comment>
-                  matched objectName and methodName 
+                  matched Explicit schemaName, objectName and methodName 
+                  schemaName=START<xsl:value-of select="$schemaName" disable-output-escaping="yes"/>END
+                  objectName=START<xsl:value-of select="$objectName" disable-output-escaping="yes"/>END
+                  methodName=START<xsl:value-of select="$methodName" disable-output-escaping="yes"/>END
+                </xsl:comment>
+                -->
+							<xsl:attribute name="href"><xsl:value-of select="concat('../', translate($schemaName, $namesFromCase, $namesToCase), '/', translate(concat($objectName,'.html#',$methodName), $namesFromCase, $namesToCase) )" disable-output-escaping="yes"/></xsl:attribute>
+							<xsl:value-of select="$label" disable-output-escaping="yes"/>
+						</xsl:when>
+
+						<xsl:when test="string-length($objectName) &gt; 0 and string-length($methodName) &gt; 0 and /APPLICATION/*[ translate(@SCHEMA , $uppercase, $lowercase)= translate($currentSchemaName, $uppercase, $lowercase) and translate(@NAME , $uppercase, $lowercase)= translate($objectName, $uppercase, $lowercase) ]/*[translate(@NAME , $uppercase, $lowercase) = translate($methodName , $uppercase, $lowercase)] ">
+							<!--
+                <xsl:comment>
+                  matched objectName and methodName in CURRENT_SCHEMA
                   schemaName=START<xsl:value-of select="$schemaName" disable-output-escaping="yes"/>END
                   objectName=START<xsl:value-of select="$objectName" disable-output-escaping="yes"/>END
                   methodName=START<xsl:value-of select="$methodName" disable-output-escaping="yes"/>END
@@ -81,6 +96,52 @@
 							<xsl:attribute name="href"><xsl:value-of select="translate(concat($objectName,'.html#',$methodName), $namesFromCase, $namesToCase)" disable-output-escaping="yes"/></xsl:attribute>
 							<xsl:value-of select="$label" disable-output-escaping="yes"/>
 						</xsl:when>
+						
+
+						<!-- Attempt to match assuming that the link has been written as a normal PL/SQL entry (object_name.method_name) rather than object_name#method_name   
+            -->
+						<xsl:when test="string-length($schemaName) &gt; 0 and string-length($objectName) &gt; 0 and /APPLICATION/*[  translate(@SCHEMA , $uppercase, $lowercase)= translate($currentSchemaName, $uppercase, $lowercase) and translate(@NAME , $uppercase, $lowercase)= translate($schemaName, $uppercase, $lowercase) ]/*[translate(@NAME , $uppercase, $lowercase)= translate($objectName, $uppercase, $lowercase)] ">
+							<!--
+                <xsl:comment>
+                matched on schemaName and objectName in CURRENT SCHEMA assuming that the link has been written as a normal PL/SQL entry (object_name.method_name) rather than object_name#method_name 
+                schemaName=START<xsl:value-of select="$schemaName" disable-output-escaping="yes"/>END
+                objectName=START<xsl:value-of select="$objectName" disable-output-escaping="yes"/>END
+                methodName=START<xsl:value-of select="$methodName" disable-output-escaping="yes"/>END
+                </xsl:comment>
+              -->
+							<xsl:attribute name="href"><xsl:value-of select="translate(concat($schemaName,'.html#',$objectName), $namesFromCase, $namesToCase)" disable-output-escaping="yes"/></xsl:attribute>
+							<xsl:value-of select="$label" disable-output-escaping="yes"/>
+						</xsl:when>
+
+						<xsl:when test="string-length($objectName) &gt; 0 and /APPLICATION/*[  translate(@SCHEMA , $uppercase, $lowercase)= translate($currentSchemaName, $uppercase, $lowercase) and translate(@NAME , $uppercase, $lowercase)= translate($objectName, $uppercase, $lowercase) ] ">
+							<!--
+                <xsl:comment>
+                  matched objectName  in CURRENT SCHEMA
+                  schemaName=START<xsl:value-of select="$schemaName" disable-output-escaping="yes"/>END
+                  objectName=START<xsl:value-of select="$objectName" disable-output-escaping="yes"/>END
+                  methodName=START<xsl:value-of select="$methodName" disable-output-escaping="yes"/>END
+                </xsl:comment>
+                -->
+							<xsl:attribute name="href"><xsl:value-of select="translate($objectName, $namesFromCase, $namesToCase)" disable-output-escaping="yes"/>.html</xsl:attribute>
+							<xsl:value-of select="$label" disable-output-escaping="yes"/>
+						</xsl:when>
+
+						<!-- Not in CURRENT SCHEMA, so must locate one -->
+						<xsl:when test="string-length($objectName) &gt; 0 and string-length($methodName) &gt; 0 and /APPLICATION/*[ translate(@NAME , $uppercase, $lowercase)= translate($objectName, $uppercase, $lowercase) ]/*[translate(@NAME , $uppercase, $lowercase) = translate($methodName , $uppercase, $lowercase)] ">
+							<!--
+                <xsl:comment>
+                  matched objectName and methodName in OTHER SCHEMA 
+                  schemaName=START<xsl:value-of select="$schemaName" disable-output-escaping="yes"/>END
+                  objectName=START<xsl:value-of select="$objectName" disable-output-escaping="yes"/>END
+                  methodName=START<xsl:value-of select="$methodName" disable-output-escaping="yes"/>END
+                </xsl:comment>
+                -->
+                            <xsl:variable name="otherSchemaName" select="/APPLICATION/*[ translate(@NAME , $uppercase, $lowercase)= translate($objectName, $uppercase, $lowercase) ]/*[translate(@NAME , $uppercase, $lowercase) = translate($methodName , $uppercase, $lowercase)][1]/@SCHEMA " />
+							<xsl:attribute name="href"><xsl:value-of select="concat('../', $otherSchemaName, '/', translate(concat($objectName,'.html#',$methodName), $namesFromCase, $namesToCase))" disable-output-escaping="yes"/></xsl:attribute>
+							<xsl:value-of select="$label" disable-output-escaping="yes"/>
+						</xsl:when>
+						
+
 						<!-- Attempt to match assuming that the link has been written as a normal PL/SQL entry (object_name.method_name) rather than object_name#method_name   
             -->
 						<xsl:when test="string-length($schemaName) &gt; 0 and string-length($objectName) &gt; 0 and /APPLICATION/*[ translate(@NAME , $uppercase, $lowercase)= translate($schemaName, $uppercase, $lowercase) ]/*[translate(@NAME , $uppercase, $lowercase)= translate($objectName, $uppercase, $lowercase)] ">
@@ -92,9 +153,11 @@
                 methodName=START<xsl:value-of select="$methodName" disable-output-escaping="yes"/>END
                 </xsl:comment>
               -->
-							<xsl:attribute name="href"><xsl:value-of select="translate(concat($schemaName,'.html#',$objectName), $namesFromCase, $namesToCase)" disable-output-escaping="yes"/></xsl:attribute>
+                            <xsl:variable name="otherSchemaName" select="/APPLICATION/*[ translate(@NAME , $uppercase, $lowercase)= translate($schemaName, $uppercase, $lowercase) ]/*[translate(@NAME , $uppercase, $lowercase)= translate($objectName, $uppercase, $lowercase)][1]/@SCHEMA " />
+							<xsl:attribute name="href"><xsl:value-of select="concat('../', $otherSchemaName, '/', translate(concat($schemaName,'.html#',$objectName), $namesFromCase, $namesToCase))" disable-output-escaping="yes"/></xsl:attribute>
 							<xsl:value-of select="$label" disable-output-escaping="yes"/>
 						</xsl:when>
+
 						<xsl:when test="string-length($objectName) &gt; 0 and /APPLICATION/*[ translate(@NAME , $uppercase, $lowercase)= translate($objectName, $uppercase, $lowercase) ] ">
 							<!--
                 <xsl:comment>
@@ -104,9 +167,10 @@
                   methodName=START<xsl:value-of select="$methodName" disable-output-escaping="yes"/>END
                 </xsl:comment>
                 -->
-							<xsl:attribute name="href"><xsl:value-of select="translate($objectName, $namesFromCase, $namesToCase)" disable-output-escaping="yes"/>.html</xsl:attribute>
+                            <xsl:variable name="otherSchemaName" select=" /APPLICATION/*[ translate(@NAME , $uppercase, $lowercase)= translate($objectName, $uppercase, $lowercase) ] [1]/@SCHEMA " />
+							<xsl:attribute name="href"><xsl:value-of select="concat('../', $otherSchemaName, '/', translate($objectName, $namesFromCase, $namesToCase))" disable-output-escaping="yes"/>.html</xsl:attribute>
 							<xsl:value-of select="$label" disable-output-escaping="yes"/>
-						</xsl:when>
+						</xsl:when>						
 						<xsl:otherwise>
 							<!--
                 <xsl:comment>

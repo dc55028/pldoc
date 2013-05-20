@@ -73,13 +73,14 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 			
 			<xsl:for-each select="OBJECT_TYPE/child::*">
 		  	<xsl:sort select="translate(@NAME, $namesFromCase, $namesToCase)"/>
+	        <xsl:variable name="thisSchema"><xsl:choose> <xsl:when test="string-length(../@SCHEMA) &gt; 0 " ><xsl:value-of select="../@SCHEMA" /></xsl:when><xsl:otherwise><xsl:value-of select="$defaultSchema" /></xsl:otherwise></xsl:choose></xsl:variable>
 				
 				<xsl:if test="starts-with(translate(substring(@NAME, 1,1), $lowercase, $uppercase), $indexChar)">
 				<DD>	
 					<xsl:variable name="packagename" select="translate(../@NAME, $namesFromCase, $namesToCase)"/>
 					<!-- create link referrer -->
 					<xsl:variable name="referrer">
-			      <xsl:value-of select="concat(../@SCHEMA, '/', $packagename)"/>
+			      <xsl:value-of select="concat($thisSchema, '/', $packagename)"/>
    					      <xsl:value-of select="'.html#'"/>
 						<xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)" />
                <xsl:if test="ARGUMENT">
@@ -118,13 +119,14 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 			<xsl:for-each select="PACKAGE/child::*">
 				<xsl:sort select="translate(@NAME, $namesFromCase, $namesToCase)"/>
+		       <xsl:variable name="thisSchema"><xsl:choose> <xsl:when test="string-length(../@SCHEMA) &gt; 0 " ><xsl:value-of select="../@SCHEMA" /></xsl:when><xsl:otherwise><xsl:value-of select="$defaultSchema" /></xsl:otherwise></xsl:choose></xsl:variable>
 				
 				<xsl:if test="starts-with(translate(substring(@NAME, 1,1), $lowercase, $uppercase), $indexChar)">
 				<DD>	
 					<xsl:variable name="packagename" select="translate(../@NAME, $namesFromCase, $namesToCase)"/>
 					<!-- create link referrer -->
 					<xsl:variable name="referrer">
-			      <xsl:value-of select="concat(../@SCHEMA, '/', $packagename) "/>
+			      <xsl:value-of select="concat($thisSchema, '/', $packagename) "/>
    					      <xsl:value-of select="'.html#'"/>
 						<xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)" />
                <xsl:if test="ARGUMENT">
@@ -164,13 +166,14 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 <!-- Include Bodies in the index Start -->
 			<xsl:for-each select="OBJECT_BODY/child::*">
 				<xsl:sort select="translate(@NAME, $namesFromCase, $namesToCase)"/>
+		      <xsl:variable name="thisSchema"><xsl:choose> <xsl:when test="string-length(../@SCHEMA) &gt; 0 " ><xsl:value-of select="../@SCHEMA" /></xsl:when><xsl:otherwise><xsl:value-of select="$defaultSchema" /></xsl:otherwise></xsl:choose></xsl:variable>
 				
 				<xsl:if test="starts-with(translate(substring(@NAME, 1,1), $lowercase, $uppercase), $indexChar)">
 				<DD>	
 					<xsl:variable name="packagename" select="translate(../@NAME, $namesFromCase, $namesToCase)"/>
 					<!-- create link referrer -->
 					<xsl:variable name="referrer">
-			      <xsl:value-of select="concat(../@SCHEMA, '/', '_') "/>
+			      <xsl:value-of select="concat($thisSchema, '/', '_') "/>
 			      <xsl:value-of select="$packagename"/>
    					      <xsl:value-of select="'_body.html#'"/>
 						<xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)" />
@@ -210,13 +213,14 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 			<xsl:for-each select="PACKAGE_BODY/child::*">
 				<xsl:sort select="translate(@NAME, $namesFromCase, $namesToCase)"/>
+		      <xsl:variable name="thisSchema"><xsl:choose> <xsl:when test="string-length(../@SCHEMA) &gt; 0 " ><xsl:value-of select="../@SCHEMA" /></xsl:when><xsl:otherwise><xsl:value-of select="$defaultSchema" /></xsl:otherwise></xsl:choose></xsl:variable>
 				
 				<xsl:if test="starts-with(translate(substring(@NAME, 1,1), $lowercase, $uppercase), $indexChar)">
 				<DD>	
 					<xsl:variable name="packagename" select="translate(../@NAME, $namesFromCase, $namesToCase)"/>
 					<!-- create link referrer -->
 					<xsl:variable name="referrer">
-   			      <xsl:value-of select="concat(../@SCHEMA, '/','_') "/>
+   			      <xsl:value-of select="concat($thisSchema, '/','_') "/>
 			      <xsl:value-of select="$packagename"/>
    					      <xsl:value-of select="'_body.html#'"/>
 						<xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)" />
