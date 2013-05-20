@@ -536,9 +536,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
         <xsl:if test="PLSCOPE/CALLERS/CALLER[ @SCHEMA != 'SYS' ] ">
         <BR/><DT>Called By:
         <xsl:for-each select="PLSCOPE/CALLERS/CALLER[@SCHEMA != 'SYS' ]">
+      <xsl:variable name="thisSchema"><xsl:choose> <xsl:when test="string-length(@SCHEMA) &gt; 0 " ><xsl:value-of select="@SCHEMA" /></xsl:when><xsl:otherwise><xsl:value-of select="$defaultSchema" /></xsl:otherwise></xsl:choose></xsl:variable>
 	  <xsl:variable name="targetPage"><xsl:choose>
-	     <xsl:when test="@OBJECT_TYPE = 'FUNCTION' or @OBJECT_TYPE = 'PROCEDURE' or @OBJECT_TYPE = 'TRIGGER' "><xsl:value-of select="concat('../', @SCHEMA, '/', '_', translate(@SCHEMA, $namesFromCase,$namesToCase))" /></xsl:when>
-	     <xsl:otherwise><xsl:value-of select="concat('../', @SCHEMA, '/', '_',translate(@OBJECT_NAME, $namesFromCase, $namesToCase) ,'_body')" /></xsl:otherwise>
+	     <xsl:when test="@OBJECT_TYPE = 'FUNCTION' or @OBJECT_TYPE = 'PROCEDURE' or @OBJECT_TYPE = 'TRIGGER' "><xsl:value-of select="concat('../', $thisSchema, '/', '_', translate(@SCHEMA, $namesFromCase,$namesToCase))" /></xsl:when>
+	     <xsl:otherwise><xsl:value-of select="concat('../', $thisSchema, '/', '_',translate(@OBJECT_NAME, $namesFromCase, $namesToCase) ,'_body')" /></xsl:otherwise>
             </xsl:choose></xsl:variable>
 	  <BR/>
           <xsl:element name="A"><xsl:attribute name="HREF"><xsl:value-of select="concat($targetPage,'.html#', @CALLING_METHOD_SIGNATURE)" /></xsl:attribute>
@@ -560,9 +561,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
         <xsl:if test="PLSCOPE/CALLEES/CALLEE[@SCHEMA != 'SYS' ]">
         <BR/><DT>Calls:
         <xsl:for-each select="PLSCOPE/CALLEES/CALLEE[@SCHEMA != 'SYS' ]">
+      <xsl:variable name="thisSchema"><xsl:choose> <xsl:when test="string-length(@SCHEMA) &gt; 0 " ><xsl:value-of select="@SCHEMA" /></xsl:when><xsl:otherwise><xsl:value-of select="$defaultSchema" /></xsl:otherwise></xsl:choose></xsl:variable>
 	  <xsl:variable name="targetPage"><xsl:choose>
-	     <xsl:when test="@OBJECT_TYPE = 'FUNCTION' or @OBJECT_TYPE = 'PROCEDURE' or @OBJECT_TYPE = 'TRIGGER' "><xsl:value-of select="concat('../', @SCHEMA, '/', '_', translate(@SCHEMA, $namesFromCase,$namesToCase))" /></xsl:when>
-	     <xsl:otherwise><xsl:value-of select="concat('../', @SCHEMA, '/', '_',translate(@OBJECT_NAME, $namesFromCase, $namesToCase) ,'_body')" /></xsl:otherwise>
+	     <xsl:when test="@OBJECT_TYPE = 'FUNCTION' or @OBJECT_TYPE = 'PROCEDURE' or @OBJECT_TYPE = 'TRIGGER' "><xsl:value-of select="concat('../', $thisSchema, '/', '_', translate(@SCHEMA, $namesFromCase,$namesToCase))" /></xsl:when>
+	     <xsl:otherwise><xsl:value-of select="concat('../', $thisSchema, '/', '_',translate(@OBJECT_NAME, $namesFromCase, $namesToCase) ,'_body')" /></xsl:otherwise>
             </xsl:choose></xsl:variable>
 	  <BR/>
           <xsl:element name="A"><xsl:attribute name="HREF"><xsl:value-of select="concat($targetPage,'.html#', @METHOD_SIGNATURE)" /></xsl:attribute>
@@ -595,8 +597,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   <!-- ********************* START OF top-level object PAGE ************************* -->
   <!--<xsl:for-each select="PACKAGE | PACKAGE_BODY">-->
   <xsl:for-each select="PACKAGE | OBJECT_TYPE | TRIGGER | JAVA[@TYPE='SOURCE'] ">
+  <xsl:variable name="thisSchema"><xsl:choose> <xsl:when test="string-length(@SCHEMA) &gt; 0 " ><xsl:value-of select="@SCHEMA" /></xsl:when><xsl:otherwise><xsl:value-of select="$defaultSchema" /></xsl:otherwise></xsl:choose></xsl:variable>
 
-    <redirect:write file="{concat($targetFolder, @SCHEMA, '/', translate(@NAME, $namesFromCase, $namesToCase))}.html">
+    <redirect:write file="{concat($targetFolder, $thisSchema, '/', translate(@NAME, $namesFromCase, $namesToCase))}.html">
 
 
     <HTML>
@@ -861,8 +864,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     This is cut and paste of the callable Oracle Object XSLT with the exception of the output file name  
   -->
   <xsl:for-each select="PACKAGE_BODY | OBJECT_BODY | */TRIGGER[@TYPE='COMPOUND'] ">
+    <xsl:variable name="thisSchema"><xsl:choose> <xsl:when test="string-length(@SCHEMA) &gt; 0 " ><xsl:value-of select="@SCHEMA" /></xsl:when><xsl:otherwise><xsl:value-of select="$defaultSchema" /></xsl:otherwise></xsl:choose></xsl:variable>
 
-    <redirect:write file="{concat($targetFolder, @SCHEMA, '/',  '_', translate(@NAME, $namesFromCase, $namesToCase))}_body.html">
+    <redirect:write file="{concat($targetFolder, $thisSchema, '/',  '_', translate(@NAME, $namesFromCase, $namesToCase))}_body.html">
 
     <HTML>
     <HEAD>
@@ -1137,8 +1141,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
   <!-- ********************** START OF TABLE PAGE ************************** -->
   <xsl:for-each select="TABLE | VIEW">
+    <xsl:variable name="thisSchema"><xsl:choose> <xsl:when test="string-length(@SCHEMA) &gt; 0 " ><xsl:value-of select="@SCHEMA" /></xsl:when><xsl:otherwise><xsl:value-of select="$defaultSchema" /></xsl:otherwise></xsl:choose></xsl:variable>
 
-    <redirect:write file="{concat($targetFolder, @SCHEMA, '/', translate(@NAME, $namesFromCase, $namesToCase))}.html">
+    <redirect:write file="{concat($targetFolder, $thisSchema, '/', translate(@NAME, $namesFromCase, $namesToCase))}.html">
 
     <HTML>
     <HEAD>

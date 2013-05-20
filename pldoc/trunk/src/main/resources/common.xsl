@@ -3,6 +3,7 @@
 
   <xsl:variable name="uppercase">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
   <xsl:variable name="lowercase">abcdefghijklmnopqrstuvwxyz</xsl:variable>
+  <xsl:variable name="defaultSchema">Undefined</xsl:variable>
 
   <xsl:variable name="boldDeprecated"><b>Deprecated</b></xsl:variable>	
 	
