@@ -437,8 +437,8 @@ private MatchAlgorithm matchAlgorithm;
 			     {
 			      bufferedReader =  
                               new BufferedReader(
-                                dbmsMetadata.getDdl(objectType,
-						    objectName,
+                                dbmsMetadata.getDdl(dbmsMetadataObjectType,
+						    rset.getString(1),
 						    inputSchemaName,
 						    "COMPATIBLE",
 						    "ORACLE",
