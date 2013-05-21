@@ -27,6 +27,7 @@ void input() throws org.xml.sax.SAXException : {}
 	 | LOOKAHEAD(6) Directory()   
 	 | LOOKAHEAD(6) DatabaseLink()   
 	 | LOOKAHEAD(6) global()  
+	 | LOOKAHEAD(4) programUnit(true,null) 
 	 | LOOKAHEAD(6) DDLCommand()   
 	 | LOOKAHEAD(6) sqlPlusCommand() 
 	 |(<SELECT>|<UPDATE>|<INSERT>|<DELETE>|<COMMIT>|<ROLLBACK>|<SAVEPOINT>|<LOCK><TABLE>|<MERGE>|<WITH>) skipPastNextTokenOccurrence(SQLPLUS_TERMINATOR) //Ignore SQL statements in scripts
@@ -133,7 +134,9 @@ void global() throws SAXException :
 	  Still wrap the trigger in a fake package but make the package name dependent on the actual schema 
 	  defaulting to the globalPackageName if it cannot be found 
 	*/
-	(LOOKAHEAD ( ( label() )* [<DECLARE> declarativeSection(false,token)] <BEGIN>) globalBlock(token) | LOOKAHEAD (4) programUnit(true,token) 
+	(
+	globalBlock(token) 
+	//LOOKAHEAD ( ( label() )* [<DECLARE> declarativeSection(false,token)] <BEGIN>) globalBlock(token) // | LOOKAHEAD (4) programUnit(true,token) 
 	)
 
 	{
@@ -440,6 +443,7 @@ void CompilationDeclarationFragment(boolean isPackageLevel, Token objectStart) t
 void programUnit(boolean isPackageLevel, Token objectStart) throws SAXException :
 {
 	Token start, name;
+	Token schema = null;
 	Token globalStart = null;
 	Token startToken = null;
 	Token tokenODCIAggregateType = null; 
@@ -453,11 +457,32 @@ void programUnit(boolean isPackageLevel, Token objectStart) throws SAXException 
 
 	[globalStart=<CREATE> [<OR> <REPLACE>]]
 
-	(start=<FUNCTION>|start=<PROCEDURE>) (LOOKAHEAD(2) ID()".")? name=ID()
+	(start=<FUNCTION>|start=<PROCEDURE>) (LOOKAHEAD(2) schema = ID()".")? name=ID()
 	{
 // 		System.err.println("programUnit: isPackageLevel==" + isPackageLevel);
 		// element generated only on the package level
 		if (m_out != null && isPackageLevel) {
+
+			//This is actually a global object 
+			if (null== objectStart)
+			{
+			  String packageString = globalPackageName; // Default Global Package Name 
+			  String schemaString = schemaName; // Default Schema 
+
+
+			  // Attempt to base 
+			  if (null != schema )
+			  {
+			    schemaString = schema.toString();
+			    packageString = ("_" + schemaString ) ; //Base global package name on Schema
+			  }
+
+			  m_out.pushAttribute("NAME", purifyIdentifier(packageString));
+			  m_out.pushAttribute("SCHEMA", purifyIdentifier(schemaString));
+			  m_out.startElement("PACKAGE");
+			}
+
+
 			memberName = purifyKeyword(start.toString()); // SRT 20110420 --start.toString().toUpperCase();
 			/*
 			startToken = (globalStart == null) ? start : globalStart;
@@ -670,6 +695,11 @@ void programUnit(boolean isPackageLevel, Token objectStart) throws SAXException 
 		{
 // 			System.err.println("endElement@ " + start.toString());
 			m_out.endElement(purifyKeyword(start.toString())); // SRT20110420 m_out.endElement(purifyIdentifier(start.toString().toUpperCase()))
+			//This is actually a global object 
+			if (null== objectStart)
+			{
+			  m_out.endElement(purifyKeyword("PACKAGE")); //Wrap the trigger element in a fake package
+			}
 		}
 	}
 }
