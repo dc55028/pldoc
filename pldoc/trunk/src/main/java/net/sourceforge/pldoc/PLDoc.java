@@ -559,7 +559,7 @@ public class PLDoc
       // All Nodes of the type PACKAGE with the same name will be collapsed to one node
       // This is necessary to put all global defined functions/procedures/triggers into one
       // big dummy package _GLOBAL.
-      collapseSimilarNodes(xmlOut.getDocument(), "PACKAGE", "NAME" );
+      collapseSimilarNodes(xmlOut.getDocument(), "PACKAGE", new String[] {"SCHEMA", "NAME"} );
       //SRT Work In Progress collapseSimilarNodes(xmlOut.getDocument(), "TRIGGER", "SCHEMA" ); //111G Triggers have been moved up to Schema Level 
 
       xmlOut.endDocument();
@@ -1002,37 +1002,33 @@ public class PLDoc
 
  
   /**
-   * Collapse all the nodes of specifed type with the same attribute NAME to one node.
+   * Collapse all the nodes of specifed type with the same attribute values to one node.
    *
    * 2006-05-18 - Matthias Hendler - added
    * 2011-05-1r4- SRT - renamed and added 
    *
    * @param pDocument        The document to work on
    * @param pNodeName        The node name to collapse to one node
-   * @param pAttributeName   The attribute to identify duplicates 
+   * @param pAttributeNames  The attributes to identify duplicates 
    */
-  private void collapseSimilarNodes(Document pDocument, String pNodeName, String pAttributeName) {
-      final String[] equalValues = findEqualNodesOnAttribute(pDocument, pNodeName, pAttributeName);
-
-      for (int index = 0; index < equalValues.length; index++) {
-          final String value = equalValues[index];
-          System.out.println("Collapsing all nodes of type <"+pNodeName+"> on their attribute <"+pAttributeName+"> with value <"+value+">.");
-          collapseNodes(pDocument, pNodeName, pAttributeName, value);
+  private void collapseSimilarNodes(Document pDocument, String pNodeName, String[] pAttributeNames) {
+      for (HashMap<String,String> values : findEqualNodesOnAttributes(pDocument, pNodeName, pAttributeNames)  ) {
+          System.out.println("Collapsing all nodes of type <"+pNodeName+"> on attribute set "+values+".");
+          collapseNodes(pDocument, pNodeName, values);
       }
   }
 
 
   /**
-   * Collapse all the nodes in the document which have the given value in the specified attribute.
+   * Collapse all the nodes in the document which have the given attribute names and values.
    *
    * 2006-05-18 - Matthias Hendler - added
    *
    * @param pDocument   document to work on
    * @param pNodeName   node name
-   * @param pAttribute  attribute name
-   * @param pValue      value
+   * @param pAttributes  attribute name and value pairs 
    */
-  private void collapseNodes(Document pDocument, String pNodeName, String pAttribute, String pValue) {
+  private void collapseNodes(Document pDocument, String pNodeName, Map<String,String> pAttributes) {
       Node supernode = null;
       final List remove = new LinkedList();
       final NodeList nl = pDocument.getElementsByTagName(pNodeName);
@@ -1040,25 +1036,35 @@ public class PLDoc
           final Node node = nl.item(index);
           if (node.hasAttributes()) {
               final NamedNodeMap attributes = node.getAttributes();
-              final Node attribute = attributes.getNamedItem(pAttribute);
-              if (attribute != null) {
-                  final String value = attribute.getNodeValue();
-                  if (pValue.equalsIgnoreCase(value)) {
-                      if (supernode == null) {
-                          supernode = node;
-                      } else {
-                          if (node.hasChildNodes()) {
-                              final NodeList childs = node.getChildNodes();
-                              for (int index2 = 0; index2 < childs.getLength(); index2++) {
-                                  final Node child = childs.item(index2);
-                                  final Node clone = child.cloneNode(true);
-                                  supernode.appendChild(clone);
-                              }
-                          }
-                          remove.add(node);
-                      }
+	      final HashMap<String,String> nodeAttributes = new HashMap<String,String>() ;
+              for (Iterator<String> it = pAttributes.keySet().iterator(); it.hasNext();) {
+                  String attributeName = it.next();
+                  final Node attribute = attributes.getNamedItem(attributeName);
+                  if (attribute != null) {
+                      nodeAttributes.put(attributeName, attribute.getNodeValue()) ;
                   }
               }
+	      /*
+	       If the 2 Maps match:-
+	       	If this is the first node, base all subsequent matches on this node, 
+		otherwise collapse the current node 
+	      */
+	      if (pAttributes.equals(nodeAttributes)) {
+		  if (supernode == null) {
+		      supernode = node;
+		  } else {
+		      if (node.hasChildNodes()) {
+			  final NodeList childs = node.getChildNodes();
+			  for (int index2 = 0; index2 < childs.getLength(); index2++) {
+			      final Node child = childs.item(index2);
+			      final Node clone = child.cloneNode(true);
+			      supernode.appendChild(clone);
+			  }
+		      }
+		      remove.add(node);
+		  }
+	      }
+
           }
       }
 
@@ -1072,39 +1078,61 @@ public class PLDoc
 
 
   /**
-   * Find all the nodes with equal attributes an return the value of this attribute.
+   * Find all the nodes with equal attributes and return the duplicated attribute sets.
    *
    * 2006-05-18 - Matthias Hendler - added
    *
    * @param pDocument   document
    * @param pNodeName   name of the element
    * @param pAttribute  name of the attribute
-   * @return            List of values which were identical
+   * @return            List of attribute sets which were identical
    */
-  private String[] findEqualNodesOnAttribute(Document pDocument, String pNodeName, String pAttribute) {
-      final Map result = new HashMap();
-      final Map found = new HashMap();
+  private List<HashMap<String,String>> findEqualNodesOnAttributes(Document pDocument, String pNodeName, String[] pAttributes) {
+
+      // Maintain a Unique List of ALL  Attribute Sets
+      final Set<HashMap<String,String>> found = new HashSet<HashMap<String,String>>();
+
+      // Maintain a Unique List of DUPLICATED Attribute Sets
+      final Set<HashMap<String,String>> result = new HashSet<HashMap<String,String>>();
 
       final NodeList nl = pDocument.getElementsByTagName(pNodeName);
       for (int index = 0; index < nl.getLength(); index++) {
           final Node node = nl.item(index);
           if (node.hasAttributes()) {
               final NamedNodeMap attributes = node.getAttributes();
-              final Node attribute = attributes.getNamedItem(pAttribute);
-              if (attribute != null) {
-                  final String value = attribute.getNodeValue();
-                  if (value != null) {
-                      if (found.containsKey(value)) {
-                          result.put(value, null);
-                      } else {
-                          found.put(value, null);
-                      }
-                  }
+
+	      final HashMap<String,String> nodeAttributes = new HashMap<String,String>() ;
+	      //Generate a Map using the keys of pAttributes 
+              for (int a = 0 ; a < pAttributes.length ;  a++ )
+	      {
+		final Node attribute = attributes.getNamedItem(pAttributes[a]);
+		if (attribute != null) {
+		    nodeAttributes.put(pAttributes[a], attribute.getNodeValue() );
+		}
               }
+
+	      if (nodeAttributes != null) {
+
+	          /* 
+		  Only put duplicate nodeAttributes in the results
+
+		  Ths first time that a nodeAttributes set is encountered, found is populated.
+		  Subsequently, result(nodeAttributes) is (re)populated, overwriting any previous value.
+
+		  The net result is that results.keys contains a unique set of only the duplicated attribute sets
+
+		  */
+
+		  if (found.contains(nodeAttributes)) {
+		    result.add(nodeAttributes);
+		  } else {
+		    found.add(nodeAttributes);
+		  } 
+	      }
           }
       }
 
-      return (String[]) result.keySet().toArray(new String[] {});
+      return new ArrayList<HashMap<String,String>>(result);
   }
 
 
