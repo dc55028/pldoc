@@ -8,7 +8,7 @@
     </properties>
     <body>
         <release version="1.5.1" date="2013-05-22"  description="Minor Fixes" >
-		<action type="fix" dev="sturton" >Attempt to identify PROCEDURE and FUNCTION schema from source when parsing scripts,defaulting to the traditional default (GLOBAL) when no schema is given</action>
+		<action type="fix" dev="sturton" >Attempt to identify PROCEDURE and FUNCTION schema from source when parsing SQL scripts, defaulting to the traditional default (GLOBAL) when no schema is given</action>
 		<action type="fix" dev="sturton" >Whilst aggregating FUNCTIONs and PROCEDUREs in to _${SCHEMA} pseudo-packages, key is SCHEMA,NAME, rather than NAME</action>
         </release>
         <release version="1.5.0" date="2013-05-20"  description="Rearrange output" >
