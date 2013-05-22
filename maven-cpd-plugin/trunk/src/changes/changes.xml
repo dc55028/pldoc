@@ -8,6 +8,10 @@
     </properties>
     <body>
 
+	 <release version="0.1.1" date="2013-05-22"  description="Minor dependency upgrade" >
+	           <action type="update" dev="sturton" >Require latest versions of PLDoc and CPD</action>
+        </release>
+
 	 <release version="0.1.0" date="2013-05-15"  description="Automatic HTML page generation and optional source code extraction" >
 	           <action type="update" dev="sturton" >The stylesheet property now refers to a CSS stylesheet, rather than an XSLT stylesheet. If the output format is XML, a corresponding
 		   HTML file will be generated using internal XSLT file; the display format will be controlled by the specified CSS styleshet, or the default stylesheet if not provided
