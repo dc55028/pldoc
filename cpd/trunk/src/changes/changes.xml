@@ -7,6 +7,9 @@
         <author email="altumano at users.sourceforge.net">Albert Tumanov</author>
     </properties>
     <body>
+        <release version="0.1.2" date="2013-05-22"  description="Require latest versions of PLDoc and PMD" >
+            <action type="update" dev="sturton" >Project POM file - require PLDoc version 1.5.1</action>
+        </release>
         <release version="0.1.1" date="2013-05-20"  description="Correct database reading when not scraping source code" >
             <action type="update" dev="sturton" >Project POM file - require PLDoc version 1.5.0</action>
             <action type="fix" dev="sturton" >Correct regression whilst reading database when not scraping source code</action>
