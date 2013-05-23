@@ -15,7 +15,7 @@
       <plugin>
 	<groupId>net.sourceforge.pldoc</groupId>
 	<artifactId>maven-cpd-plugin</artifactId>
-	<version>${project.build.finalName}</version>
+	<version>${project.version}</version>
 	  <dependencies>
 	    <dependency>
 	     <groupId>com.oracle</groupId>
