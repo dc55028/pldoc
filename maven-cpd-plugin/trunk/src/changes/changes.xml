@@ -8,6 +8,10 @@
     </properties>
     <body>
 
+	 <release version="0.1.2" date="2013-05-25"  description="Minor dependency upgrade" >
+	           <action type="update" dev="sturton" >Require latest versions of PLDoc and CPD</action>
+        </release>
+
 	 <release version="0.1.1" date="2013-05-22"  description="Minor dependency upgrade" >
 	           <action type="update" dev="sturton" >Require latest versions of PLDoc and CPD</action>
         </release>
