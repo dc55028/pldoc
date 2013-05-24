@@ -7,7 +7,7 @@
 
 <xsl:template match="/file">
 <html>
-	<head>
+	<head xmlns="http://www.w3.org/1999/xhtml" >
 		<title>Source Code</title>
 		<link href="sourcestylesheet.css" rel="stylesheet" />
 		<!-- Add line numbers -->
