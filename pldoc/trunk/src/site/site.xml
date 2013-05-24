@@ -17,6 +17,7 @@
 
         <menu name="Main Menu">
             <item name="Introduction" href="index.html"/>
+            <item name="News" href="http://sourceforge.net/p/pldoc/news"/>
             <item name="Download" href="downloads.html"/>
             <item name="SourceForge Project" href="http://sourceforge.net/projects/pldoc/"/>
             <item name="User Documentation" href="docs/Users_Guide/index.html"/>
@@ -24,6 +25,8 @@
             <item name="Release Notes" href="readme.txt"/>
             <item name="Change Log" href="changes-report.html"/>
             <item name="Maven 2 Plugin" href="maven-pldoc-plugin/index.html"/>
+            <item name="PL/SQL Cut and Paste Detection" href="pldoc-cpd/index.html"/>
+            <item name="PL/SQL Cut and Paste Maven 2 Plugin" href="maven-cpd-plugin/index.html"/>
         </menu>
 
         <!-- Run mvn compile site:site to generate the reports for the project. -->
