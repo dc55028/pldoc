@@ -291,8 +291,9 @@ private MatchAlgorithm matchAlgorithm;
           pstmt = conn.prepareStatement(sqlStatement);
 
 
-	  //Use this path to generate relative paths from any extracted source paths
+	  //Use this path to generate relative paths from any extracted source paths, escaping any Windows directory separators
           String outputRootPath = settings.getOutputDirectory().getCanonicalPath();
+          String outputRootPathRegExp = outputRootPath.replaceAll("\\","\\\\");
 
           DbmsMetadata dbmsMetadata = new DbmsMetadata(conn,settings.getGetMetadataStatement(), settings.getReturnType());
 
@@ -427,7 +428,7 @@ private MatchAlgorithm matchAlgorithm;
 				throwable = add(
 				    0
 				    ,bufferedReader 
-				    ,savedSourceFile.getCanonicalPath().replaceFirst(outputRootPath,".") //pass signature as path relative to output directory 
+				    ,savedSourceFile.getCanonicalPath().replaceFirst(outputRootPathRegExp,".") //pass signature as path relative to output directory 
 				);
 			     }
 			     else
