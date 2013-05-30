@@ -428,7 +428,8 @@ private MatchAlgorithm matchAlgorithm;
 				throwable = add(
 				    0
 				    ,bufferedReader 
-				    ,savedSourceFile.getCanonicalPath().replaceFirst(outputRootPathRegExp,".") //pass signature as path relative to output directory 
+				    //pass signature as path relative to output directory, and convert any Windows directory separators to Unix/URL separators  
+				    ,savedSourceFile.getCanonicalPath().replaceFirst(outputRootPathRegExp,".").replaceAll("\\\\","/") 
 				);
 			     }
 			     else
