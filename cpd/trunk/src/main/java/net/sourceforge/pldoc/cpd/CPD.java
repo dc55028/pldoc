@@ -430,7 +430,8 @@ private MatchAlgorithm matchAlgorithm;
 				throwable = add(
 				    0
 				    ,bufferedReader 
-				    ,savedSourceFile.getCanonicalPath().replaceFirst(outputRootPathRegExp,".") 
+				    //Convert paths to relative paths, and remaining Windows directory separators to Unix separators 
+				    ,savedSourceFile.getCanonicalPath().replaceFirst(outputRootPathRegExp,".").replaceAll("\\\\","/")
 				);
 
 			     }
