@@ -8,6 +8,10 @@
     </properties>
     <body>
 
+	 <release version="0.1.4" date="2013-05-30"  description="Minor Bug Fix" >
+	           <action type="fix" dev="sturton" >_CORRECTLY_ escape Windows directory separators in outputRootPath when generating relative paths</action>
+        </release>
+
 	 <release version="0.1.3" date="2013-05-28"  description="Minor Bug Fix" >
 	           <action type="fix" dev="sturton" >Escape Windows directory separators in outputRootPath when generating relative paths</action>
         </release>
