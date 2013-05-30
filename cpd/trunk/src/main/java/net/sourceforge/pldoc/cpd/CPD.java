@@ -300,7 +300,7 @@ private MatchAlgorithm matchAlgorithm;
 
   	  //Use this path to generate relative paths from any extracted source paths, escaping any Windows directory separators
           String outputRootPath = settings.getOutputDirectory().getCanonicalPath();
-          String outputRootPathRegExp = outputRootPath.replaceAll("\\","\\\\");
+          String outputRootPathRegExp = outputRootPath.replaceAll("\\\\","\\\\\\\\");
 
           DbmsMetadata dbmsMetadata = new DbmsMetadata(conn,settings.getGetMetadataStatement(), settings.getReturnType());
 
