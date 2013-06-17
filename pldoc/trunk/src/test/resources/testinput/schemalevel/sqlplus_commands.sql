@@ -5,6 +5,7 @@
 
 SPOOL sqlplus.out 
 
+
 SET ECHO ON 
 SET SERVEROUTPUT ON
 VARIABLE b_clob CLOB
@@ -47,6 +48,20 @@ REVOKE SWIMMER FROM DIVER;
 
 
 -- NEWLINE WHITESPACE* SQLPLUS command read up to and including end of line 
+
+
+DEFINE v_variable="I am defined"  
+UNDEFINE v_variable  
+
+DECLARE
+DEFINE VARCHAR2(30) :="I am defined"  ;
+UNDEFINE VARCHAR2(30) :="I am undefined"  ;
+BEGIN
+NULL;
+END;
+/
+
+
 
 
 

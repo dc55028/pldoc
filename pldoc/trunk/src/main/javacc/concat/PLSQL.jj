@@ -5358,6 +5358,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <DEFERRABLE>
 //| <DEFERRED>
 //| <DEFINED>
+| <DEFINE>
 | <DEFINER>
 //| <DEGREE>
 //| <DELAY>
