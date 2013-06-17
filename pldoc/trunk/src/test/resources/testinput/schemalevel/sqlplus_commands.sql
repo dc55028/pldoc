@@ -67,3 +67,24 @@ END;
 
 
 
+DECLARE
+DEFINE VARCHAR2(30) :="I am defined"  ;
+UNDEFINE VARCHAR2(30) :="I am undefined"  ;
+BEGIN
+NULL;
+END;
+/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
