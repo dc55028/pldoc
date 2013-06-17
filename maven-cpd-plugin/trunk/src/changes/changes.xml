@@ -8,6 +8,10 @@
     </properties>
     <body>
 
+	 <release version="0.1.5" date="2013-06-17"  description="Dependency Upgrade" >
+	           <action type="update" dev="sturton" >Require latest versions of PLDoc, PMD, and PLDoc-CPD</action>
+        </release>
+
 	 <release version="0.1.4" date="2013-05-30"  description="Minor Bug Fix" >
 	           <action type="fix" dev="sturton" >_CORRECTLY_ escape Windows directory separators in outputRootPath when generating relative paths</action>
         </release>
