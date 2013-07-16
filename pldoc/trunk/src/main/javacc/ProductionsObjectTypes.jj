@@ -243,7 +243,7 @@ void typeSpec() throws SAXException :
         int typeVersion = 1; // The version of this type
 }
 {
-	[tokenCreate=<CREATE> [<OR> <REPLACE>]]
+	[tokenCreate=<CREATE> [<OR> <REPLACE>] [ <EDITIONABLE> | <NONEDITIONABLE> ] ]
 	tokenType=<TYPE> (LOOKAHEAD(2) schema=ID()".")? name=ID()
 	{
 		if (m_out != null)
@@ -291,6 +291,14 @@ void typeSpec() throws SAXException :
 			processPackageComment(tokenIsAsUnder);
 		}
 	]
+
+        [
+	        LOOKAHEAD(3) (tokenIsAsUnder= <ACCESSIBLE> <BY>  "(" [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] qualifiedName()  ("," qualifiedName() )*  ")" )
+		{
+			// possibly, package comment is here
+			processPackageComment(tokenIsAsUnder);
+		}
+        ]
 
 	//(tokenIsAsUnder=<IS> | tokenIsAs=<AS> )
 	//{
@@ -556,6 +564,15 @@ void alterTypeSpec(int typeVersion, Token objectStart) throws SAXException :
 			processPackageComment(tokenIsAsUnder);
 		}
                 ]
+
+                [
+		LOOKAHEAD(3) (tokenIsAsUnder= <ACCESSIBLE> <BY>  "(" [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] qualifiedName()  ("," qualifiedName() )*  ")" )
+		{
+			// possibly, package comment is here
+			processPackageComment(tokenIsAsUnder);
+		}
+                ]
+
                 
 		( 
 		  (tokenIsAsUnder=<IS> | tokenIsAsUnder=<AS> )   tokenSpecificationForm= <OBJECT>  // OBJECT TYPE

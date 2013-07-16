@@ -91,7 +91,7 @@ void triggerUnit() throws SAXException :
 
 }
 {
-	[start=<CREATE> [<OR> <REPLACE>]]
+	[start=<CREATE> [<OR> <REPLACE>] [ <EDITIONABLE> | <NONEDITIONABLE> ] ]
 	
 	(node=<TRIGGER>) (LOOKAHEAD(2) schema =ID()".")? name=ID()
 
