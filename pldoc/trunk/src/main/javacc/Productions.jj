@@ -215,6 +215,12 @@ void javaSpec() throws SAXException :
 		processPackageComment(tokenIsAs);
 	}
 
+	(tokenIsAs=<ACCESSIBLE> <BY>  "(" [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] qualifiedName()  ("," qualifiedName() )*  ")" )
+	{
+		// possibly, package comment is here
+		processPackageComment(tokenIsAs);
+	}
+
 	(tokenIsAs=<RESOLVER> "("  ( "("  ( "*" | <QUOTED_LITERAL> )  [","] ( "-" | unqualifiedID()  )  ")"  )+    ")"    )?
 	{
 		// possibly, package comment is here
@@ -260,7 +266,7 @@ void javaSpec() throws SAXException :
 void packageSpec() throws SAXException :
 { Token schema = null, name = null, tokenCreate = null, tokenPackage = null, tokenIsAs = null, lastToken = null ; }
 {
-	[tokenCreate=<CREATE> [<OR> <REPLACE>]]
+	[tokenCreate=<CREATE> [<OR> <REPLACE>] [ <EDITIONABLE> | <NONEDITIONABLE> ] ]
 	tokenPackage=<PACKAGE> (LOOKAHEAD(2) schema=ID()".")? name=ID()
 	{
 		if (m_out != null)
@@ -290,6 +296,14 @@ void packageSpec() throws SAXException :
 		processPackageComment(tokenIsAs);
 	}
 
+        [
+	(tokenIsAs=<ACCESSIBLE> <BY>  "(" [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] qualifiedName()  ("," qualifiedName() )*  ")" )
+	{
+		// possibly, package comment is here
+		processPackageComment(tokenIsAs);
+	}
+	]
+
         (
 	  (
 	    wrappedObject()
@@ -315,7 +329,7 @@ void packageSpec() throws SAXException :
 void packageBody() throws SAXException :
 { Token schema = null, name = null, tokenCreate = null, tokenModuleType = null, tokenIsAs = null; }
 {
-	[tokenCreate=<CREATE> [<OR> <REPLACE>]]
+	[tokenCreate=<CREATE> [<OR> <REPLACE>]  [ <EDITIONABLE> | <NONEDITIONABLE> ]  ]
 	( tokenModuleType = <PACKAGE> | tokenModuleType = <TYPE> ) <BODY> (LOOKAHEAD(2) schema=ID()".")? name=ID()
 	{
 		if (m_out != null)
@@ -455,7 +469,7 @@ void programUnit(boolean isPackageLevel, Token objectStart) throws SAXException 
 {
 	(
 
-	[globalStart=<CREATE> [<OR> <REPLACE>]]
+	[globalStart=<CREATE> [<OR> <REPLACE>] [ <EDITIONABLE> | <NONEDITIONABLE> ] ]
 
 	(start=<FUNCTION>|start=<PROCEDURE>) (LOOKAHEAD(2) schema = ID()".")? name=ID()
 	{
@@ -628,7 +642,10 @@ void programUnit(boolean isPackageLevel, Token objectStart) throws SAXException 
 	}
 	*/
 
-	( (<AUTHID> ( <CURRENT_USER> | <DEFINER> ) ) | <DETERMINISTIC> 
+	( (<AUTHID> ( <CURRENT_USER> | <DEFINER> ) ) 
+	    | (<ACCESSIBLE> <BY>  "(" [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] qualifiedName()  ("," qualifiedName() )*  ")" )
+
+            | <DETERMINISTIC> 
 	    | <PARALLEL_ENABLE>  [ parallel_clause() ] [ <USING> ID() ["." ID()] ] 
 	   | <PIPELINED> [ ( <USING> ID() ["." ID()] ) 
 	                   |  //20110531

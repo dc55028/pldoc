@@ -912,6 +912,12 @@ void javaSpec() throws SAXException :
 		processPackageComment(tokenIsAs);
 	}
 
+	(tokenIsAs=<ACCESSIBLE> <BY>  "(" [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] qualifiedName()  ("," qualifiedName() )*  ")" )
+	{
+		// possibly, package comment is here
+		processPackageComment(tokenIsAs);
+	}
+
 	(tokenIsAs=<RESOLVER> "("  ( "("  ( "*" | <QUOTED_LITERAL> )  [","] ( "-" | unqualifiedID()  )  ")"  )+    ")"    )?
 	{
 		// possibly, package comment is here
@@ -957,7 +963,7 @@ void javaSpec() throws SAXException :
 void packageSpec() throws SAXException :
 { Token schema = null, name = null, tokenCreate = null, tokenPackage = null, tokenIsAs = null, lastToken = null ; }
 {
-	[tokenCreate=<CREATE> [<OR> <REPLACE>]]
+	[tokenCreate=<CREATE> [<OR> <REPLACE>] [ <EDITIONABLE> | <NONEDITIONABLE> ] ]
 	tokenPackage=<PACKAGE> (LOOKAHEAD(2) schema=ID()".")? name=ID()
 	{
 		if (m_out != null)
@@ -987,6 +993,14 @@ void packageSpec() throws SAXException :
 		processPackageComment(tokenIsAs);
 	}
 
+        [
+	(tokenIsAs=<ACCESSIBLE> <BY>  "(" [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] qualifiedName()  ("," qualifiedName() )*  ")" )
+	{
+		// possibly, package comment is here
+		processPackageComment(tokenIsAs);
+	}
+	]
+
         (
 	  (
 	    wrappedObject()
@@ -1012,7 +1026,7 @@ void packageSpec() throws SAXException :
 void packageBody() throws SAXException :
 { Token schema = null, name = null, tokenCreate = null, tokenModuleType = null, tokenIsAs = null; }
 {
-	[tokenCreate=<CREATE> [<OR> <REPLACE>]]
+	[tokenCreate=<CREATE> [<OR> <REPLACE>]  [ <EDITIONABLE> | <NONEDITIONABLE> ]  ]
 	( tokenModuleType = <PACKAGE> | tokenModuleType = <TYPE> ) <BODY> (LOOKAHEAD(2) schema=ID()".")? name=ID()
 	{
 		if (m_out != null)
@@ -1152,7 +1166,7 @@ void programUnit(boolean isPackageLevel, Token objectStart) throws SAXException 
 {
 	(
 
-	[globalStart=<CREATE> [<OR> <REPLACE>]]
+	[globalStart=<CREATE> [<OR> <REPLACE>] [ <EDITIONABLE> | <NONEDITIONABLE> ] ]
 
 	(start=<FUNCTION>|start=<PROCEDURE>) (LOOKAHEAD(2) schema = ID()".")? name=ID()
 	{
@@ -1325,7 +1339,10 @@ void programUnit(boolean isPackageLevel, Token objectStart) throws SAXException 
 	}
 	*/
 
-	( (<AUTHID> ( <CURRENT_USER> | <DEFINER> ) ) | <DETERMINISTIC> 
+	( (<AUTHID> ( <CURRENT_USER> | <DEFINER> ) ) 
+	    | (<ACCESSIBLE> <BY>  "(" [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] qualifiedName()  ("," qualifiedName() )*  ")" )
+
+            | <DETERMINISTIC> 
 	    | <PARALLEL_ENABLE>  [ parallel_clause() ] [ <USING> ID() ["." ID()] ] 
 	   | <PIPELINED> [ ( <USING> ID() ["." ID()] ) 
 	                   |  //20110531
@@ -3588,7 +3605,7 @@ void typeSpec() throws SAXException :
         int typeVersion = 1; // The version of this type
 }
 {
-	[tokenCreate=<CREATE> [<OR> <REPLACE>]]
+	[tokenCreate=<CREATE> [<OR> <REPLACE>] [ <EDITIONABLE> | <NONEDITIONABLE> ] ]
 	tokenType=<TYPE> (LOOKAHEAD(2) schema=ID()".")? name=ID()
 	{
 		if (m_out != null)
@@ -3636,6 +3653,14 @@ void typeSpec() throws SAXException :
 			processPackageComment(tokenIsAsUnder);
 		}
 	]
+
+        [
+	        LOOKAHEAD(3) (tokenIsAsUnder= <ACCESSIBLE> <BY>  "(" [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] qualifiedName()  ("," qualifiedName() )*  ")" )
+		{
+			// possibly, package comment is here
+			processPackageComment(tokenIsAsUnder);
+		}
+        ]
 
 	//(tokenIsAsUnder=<IS> | tokenIsAs=<AS> )
 	//{
@@ -3901,6 +3926,15 @@ void alterTypeSpec(int typeVersion, Token objectStart) throws SAXException :
 			processPackageComment(tokenIsAsUnder);
 		}
                 ]
+
+                [
+		LOOKAHEAD(3) (tokenIsAsUnder= <ACCESSIBLE> <BY>  "(" [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] qualifiedName()  ("," qualifiedName() )*  ")" )
+		{
+			// possibly, package comment is here
+			processPackageComment(tokenIsAsUnder);
+		}
+                ]
+
                 
 		( 
 		  (tokenIsAsUnder=<IS> | tokenIsAsUnder=<AS> )   tokenSpecificationForm= <OBJECT>  // OBJECT TYPE
@@ -4210,7 +4244,7 @@ void triggerUnit() throws SAXException :
 
 }
 {
-	[start=<CREATE> [<OR> <REPLACE>]]
+	[start=<CREATE> [<OR> <REPLACE>] [ <EDITIONABLE> | <NONEDITIONABLE> ] ]
 	
 	(node=<TRIGGER>) (LOOKAHEAD(2) schema =ID()".")? name=ID()
 
@@ -4662,6 +4696,7 @@ TOKEN [IGNORE_CASE]:
 <DISTINCT: "DISTINCT"> |
 <DO: "DO"> |
 <DROP: "DROP"> |
+<EDITIONABLE: "EDITIONABLE"> |
 <ELEMENT: "ELEMENT"> |
 <ELSE: "ELSE"> |
 <ELSIF: "ELSIF"> |
@@ -4744,6 +4779,7 @@ TOKEN [IGNORE_CASE]:
 <NO: "NO"> |
 <NOCOMPRESS: "NOCOMPRESS"> | //SRT 2011-04-17
 <NOCOPY: "NOCOPY"> |
+<NONEDITIONABLE: "NONEDITIONABLE"> |
 <NOT: "NOT"> |
 <NOWAIT: "NOWAIT"> |
 <NULL: "NULL"> |
@@ -4949,6 +4985,7 @@ TOKEN [IGNORE_CASE]:
 | <CHARSETFORM: "CHARSETFORM"> //XE testing non-PLSQL functions 
 //SQLPlus Commands
 | <ACCEPT : "ACCEPT">
+| <ACCESSIBLE : "ACCESSIBLE">
 | <COPY : "COPY">
 | <DEFINE : "DEFINE">
 | <DISCONNECT : "DISCONNECT">
@@ -6241,6 +6278,9 @@ Token KEYWORD_UNRESERVED (): {}
 | <SHOW>  // APEX_0400000.WWW_CALCUATOR.SHOW  
 | <WRAPPED>  // APEX_0400000.WWW_CALCUATOR.SHOW  
 | <SYS_REFCURSOR> //Not a keyword - just a type defined in standard 
+| <EDITIONABLE> 
+| <NONEDITIONABLE> 
+| <ACCESSIBLE> 
 )
 
 { return token; }
@@ -6727,7 +6767,7 @@ Token typeKeyword(): {}
 	<LONG> | <RAW> | <ROWID> | <CHAR> | <CHARACTER> | <MLSLABEL> | <BLOB> | <CLOB> | <BFILE> |
 	<NCHAR> | <NVARCHAR2> | <NCLOB> | <PLS_INTEGER> | <TIME> | <TIMESTAMP> | <UROWID> |
 //
-	<ARRAY> | <AUTHID> |
+	<ARRAY> | <AUTHID> | <ACCESSIBLE>
 	<CHAR_BASE> |
 	<CURRVAL> |
 	<HOUR> |

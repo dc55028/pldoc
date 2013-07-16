@@ -2109,8 +2109,11 @@ AS
 /** Unreserved Keyword Word ZONE */
   ZONE VARCHAR2(240);
 
+  
   EDITIONABLE VARCHAR2(240);
   NONEDITIONABLE VARCHAR2(240);
+
+  ACCESSIBLE VARCHAR2(240;
 END pkg_test_unreserved_keyword;
 /
 

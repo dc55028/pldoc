@@ -1,4 +1,4 @@
-CREATE OR REPLACE PACKAGE pkg_test_unreserved_keyword
+CREATE OR REPLACE NONEDITIONABLE PACKAGE pkg_test_unreserved_keyword
 AS
 /**
  * <p>Lists the Oracle keywords that are not reserved and that may in some circumstances be allowed variable names.  
@@ -2109,8 +2109,6 @@ AS
 /** Unreserved Keyword Word ZONE */
   ZONE VARCHAR2(240);
 
-  EDITIONABLE VARCHAR2(240);
-  NONEDITIONABLE VARCHAR2(240);
 END pkg_test_unreserved_keyword;
 /
 
