@@ -8,6 +8,10 @@
     </properties>
     <body>
 
+	 <release version="0.1.6" date="2013-07-17"  description="Dependency Upgrade" >
+	           <action type="update" dev="sturton" >Require latest versions of PLDoc and PLDoc-CPD</action>
+        </release>
+
 	 <release version="0.1.5" date="2013-06-17"  description="Dependency Upgrade" >
 	           <action type="update" dev="sturton" >Require latest versions of PLDoc, PMD, and PLDoc-CPD</action>
         </release>
