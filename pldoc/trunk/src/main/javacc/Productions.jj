@@ -215,7 +215,10 @@ void javaSpec() throws SAXException :
 		processPackageComment(tokenIsAs);
 	}
 
-	(tokenIsAs=<ACCESSIBLE> <BY>  "(" [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] qualifiedName()  ("," qualifiedName() )*  ")" )
+	(tokenIsAs=<ACCESSIBLE> <BY>  "(" [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] qualifiedName()  
+                                          ("," [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] qualifiedName() )*  
+                                      ")" 
+        )
 	{
 		// possibly, package comment is here
 		processPackageComment(tokenIsAs);
@@ -297,7 +300,10 @@ void packageSpec() throws SAXException :
 	}
 
         [
-	(tokenIsAs=<ACCESSIBLE> <BY>  "(" [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] qualifiedName()  ("," qualifiedName() )*  ")" )
+	(tokenIsAs=<ACCESSIBLE> <BY>  "(" [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] qualifiedName()  
+                                         ("," [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] qualifiedName() )*  
+                                      ")" 
+        )
 	{
 		// possibly, package comment is here
 		processPackageComment(tokenIsAs);
@@ -469,7 +475,9 @@ void programUnit(boolean isPackageLevel, Token objectStart) throws SAXException 
 {
 	(
 
-	[globalStart=<CREATE> [<OR> <REPLACE>] [ <EDITIONABLE> | <NONEDITIONABLE> ] ]
+	[globalStart=<CREATE> [<OR> <REPLACE>] [ <EDITIONABLE> | <NONEDITIONABLE> ] 
+         
+        ]
 
 	(start=<FUNCTION>|start=<PROCEDURE>) (LOOKAHEAD(2) schema = ID()".")? name=ID()
 	{
@@ -643,7 +651,11 @@ void programUnit(boolean isPackageLevel, Token objectStart) throws SAXException 
 	*/
 
 	( (<AUTHID> ( <CURRENT_USER> | <DEFINER> ) ) 
-	    | (<ACCESSIBLE> <BY>  "(" [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] qualifiedName()  ("," qualifiedName() )*  ")" )
+	    | (<ACCESSIBLE> <BY>  "(" 
+                                    [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] qualifiedName()  
+                                   ("," [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] qualifiedName() )*  
+                                  ")" 
+              )
 
             | <DETERMINISTIC> 
 	    | <PARALLEL_ENABLE>  [ parallel_clause() ] [ <USING> ID() ["." ID()] ] 

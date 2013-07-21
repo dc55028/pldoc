@@ -3,7 +3,7 @@
 CREATE OR REPLACE 
 EDITIONABLE
 PROCEDURE prc_accessible (pa_parameter_1 NUMBER) 
-ACCESSIBLE BY ( FUNCTION other_schema.fn_function, PROCEDURE other_schema.prc_procedure, PACKAGE other_schema.pkg_package, TRIGGER other_schema.trg_trigger, TYPE other_schema.typ_type )
+ACCESSIBLE BY ( FUNCTION other_schema1.fn_function, PROCEDURE other_schema2.prc_procedure, PACKAGE other_schema3.pkg_package, TRIGGER other_schema3.trg_trigger, TYPE other_schema4.typ_type )
 IS
  l_v NUMBER ;
 BEGIN
