@@ -19,6 +19,7 @@ import java.util.Locale;
 import org.apache.maven.plugin.MojoExecutionException;
 
 import java.io.File;
+import java.util.List;
 import java.util.ResourceBundle;
 import net.sourceforge.pldoc.Settings;
 import net.sourceforge.pldoc.ant.PLDocTask;
@@ -29,8 +30,10 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.reporting.MavenReport;
 import org.apache.maven.reporting.MavenReportException;
+import org.apache.maven.shared.model.fileset.FileSet;
+import org.apache.maven.shared.model.fileset.util.FileSetManager;
 import org.apache.tools.ant.Project;
-import org.apache.tools.ant.types.FileSet;
+//import org.apache.tools.ant.types.FileSet;
 import org.codehaus.doxia.sink.Sink;
 import org.codehaus.plexus.util.StringUtils;
 
@@ -283,6 +286,14 @@ implements MavenReport{
      */
     private String description;
 
+    /**
+     * The files to be processed.
+     *
+     * @since 2.30
+     * @parameter expression="${fileSets}"
+     */
+    private List<FileSet> fileSets;
+
 
     /** {@inheritDoc} */
 
@@ -375,9 +386,32 @@ implements MavenReport{
 
 	    if (null != sourceDirectory && null != includes)
 	    {
-	      FileSet fset = new FileSet();
+	      org.apache.tools.ant.types.FileSet fset = new org.apache.tools.ant.types.FileSet();
 	      fset.setDir(sourceDirectory);
 	      fset.setIncludes(includes);
+	      task.addFileset(fset);
+	    }
+
+	    FileSetManager fileSetManager = new FileSetManager(getLog());
+
+	    for (FileSet fileSet : fileSets ) {
+	      System.out.println("Processing " + fileSet.getDirectory() + " ...");
+	      System.err.println("Processing " + fileSet.getDirectory() + " ...");
+	      org.apache.tools.ant.types.FileSet fset = new org.apache.tools.ant.types.FileSet();
+	      fset.setDir(new File (fileSet.getDirectory() )  );
+	      
+	      /* Maven FileSet includes are multiple include entries 
+	       * ANT   FileSet include is single (it can contain multiple space-separated or comma-separated entries)
+	       * 
+	       * Convert Maven to ANT FileSet 
+	       */ 
+	      StringBuilder includesString = new StringBuilder();
+	      for(String include : fileSet.getIncludesArray() )
+	      {
+		includesString.append(" ");
+		includesString.append(include);
+	      }
+	      fset.setIncludes(includesString.toString().trim());
 	      task.addFileset(fset);
 	    }
 
