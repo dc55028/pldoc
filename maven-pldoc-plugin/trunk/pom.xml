@@ -4,7 +4,7 @@
     <groupId>net.sourceforge.pldoc</groupId>
     <artifactId>maven-pldoc-plugin</artifactId>
     <packaging>maven-plugin</packaging>
-    <version>2.30-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
     <name>Maven PLDoc Plugin - ${project.version}</name>
     <description>The Maven PLDoc Plugin is a plugin that uses the pldoc tool for
             generating docs for the specified project.
