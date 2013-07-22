@@ -4,7 +4,7 @@
     <groupId>net.sourceforge.pldoc</groupId>
     <artifactId>pldoc-cpd</artifactId>
     <packaging>jar</packaging>
-    <version>0.1.8</version>
+    <version>0.1.9-SNAPSHOT</version>
     <name>PLDoc CPD Plugin - ${project.version}</name>
     <description>The CPD Plugin is an extension that combines the PMD/CPD and PLDoc codebases
             to check for duplicated code in PLSQL code.
@@ -40,9 +40,9 @@
     </mailingLists>
 
     <scm>
-	<connection>scm:svn:https://svn.code.sf.net/p/pldoc/code/cpd/tags/pldoc-cpd-0.1.8</connection>
-	<developerConnection>scm:svn:https://svn.code.sf.net/p/pldoc/code/cpd/tags/pldoc-cpd-0.1.8</developerConnection>
-        <url>https://sourceforge.net/p/pldoc/code/HEAD/tree/cpd/tags/pldoc-cpd-0.1.8</url>
+	<connection>scm:svn:https://svn.code.sf.net/p/pldoc/code/cpd/trunk</connection>
+	<developerConnection>scm:svn:https://svn.code.sf.net/p/pldoc/code/cpd/trunk</developerConnection>
+        <url>https://sourceforge.net/p/pldoc/code/HEAD/tree/cpd/</url>
     </scm>
 
     <developers>
