@@ -37,6 +37,45 @@ Summary
 +-----+
 
 
+ *Since version 3.0.0, you can to change the default configuration using standard Maven fileSets configuration*
+
++-----+
+<plugin>
+	<groupId>net.sourceforge.pldoc</groupId>
+	<artifactId>maven-pldoc-plugin</artifactId>
+	<version>${velocityProjectVersion}</version>
+	<configuration>
+		<applicationTitle>project-name</applicationTitle>
+		<-- <sourceDirectory>src/sql</sourceDirectory>
+		<includes>*.sql</includes> -->
+		<fileSets>
+		  <fileSet>
+		    <directory>samples</directory>
+		    <include>**/*.sql</include>
+		  </fileSet>
+		  <fileSet>
+		    <directory>/Development/pldoc/trunk/src/test/resources/testinput</directory>
+		    <includes>
+		      <include>**/*.fnc</include>
+		      <include>**/*.prc</include>
+		      <include>**/*.trg</include>
+		      <include>**/*.pks</include>
+		      <include>**/*.pkb</include>
+		      <include>**/*.tps</include>
+		      <include>**/*.tpb</include>
+		    </includes>
+		    <excludes>
+		      <exclude>**/*Java*</exclude>
+		      <exclude>**/*_fully_reserved*</exclude>
+		    </excludes>
+		  </fileSet>
+		</fileSets>
+		<reportOutputDirectory>target/site/apidocs</reportOutputDirectory>
+	</configuration>                    
+</plugin>
++-----+
+
+
  Here is a example if you want to change the default configuration (reading database code ... )
 
 +-----+
