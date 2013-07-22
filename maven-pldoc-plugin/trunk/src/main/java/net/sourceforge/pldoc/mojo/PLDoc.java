@@ -395,8 +395,6 @@ implements MavenReport{
 	    FileSetManager fileSetManager = new FileSetManager(getLog());
 
 	    for (FileSet fileSet : fileSets ) {
-	      System.out.println("Processing " + fileSet.getDirectory() + " ...");
-	      System.err.println("Processing " + fileSet.getDirectory() + " ...");
 	      org.apache.tools.ant.types.FileSet fset = new org.apache.tools.ant.types.FileSet();
 	      fset.setDir(new File (fileSet.getDirectory() )  );
 	      
@@ -412,6 +410,19 @@ implements MavenReport{
 		includesString.append(include);
 	      }
 	      fset.setIncludes(includesString.toString().trim());
+	      
+	      /* Maven FileSet excludes are multiple include entries 
+	       * ANT   FileSet exclude is single (it can contain multiple space-separated or comma-separated entries)
+	       * 
+	       * Convert Maven to ANT FileSet 
+	       */ 
+	      StringBuilder excludesString = new StringBuilder();
+	      for(String exclude : fileSet.getExcludesArray() )
+	      {
+		excludesString.append(" ");
+		excludesString.append(exclude);
+	      }
+	      fset.setExcludes(excludesString.toString().trim());
 	      task.addFileset(fset);
 	    }
 

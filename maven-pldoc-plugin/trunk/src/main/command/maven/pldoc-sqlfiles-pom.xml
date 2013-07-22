@@ -29,7 +29,8 @@
 	  <sourceDirectory>samples</sourceDirectory>
 	  <overviewFile>samples/overview1.html</overviewFile>
 	  <includes>*.sql</includes>
-	  <inputEncoding>ISO-8859-15</inputEncoding>
+	  <!--inputEncoding>ISO-8859-15</inputEncoding-->
+	  <inputEncoding>UTF8</inputEncoding>
 	  <reportOutputDirectory>target/docs/apidocs</reportOutputDirectory>
 	  <destDir>pldoc-goal-files</destDir>
 	  <showSkippedPackages>true</showSkippedPackages>
@@ -52,7 +53,8 @@
 		      <sourceDirectory>samples</sourceDirectory>
 		      <overviewFile>samples/overview1.html</overviewFile>
 		      <includes>**/*.sql</includes>
-	              <inputEncoding>ISO-8859-15</inputEncoding>
+	              <!--inputEncoding>ISO-8859-15</inputEncoding-->
+	              <inputEncoding>UTF8</inputEncoding>
 		      <!-- Ignored within Site Report - use destDir 
 		      <reportOutputDirectory>target/site/apidocs</reportOutputDirectory>
 		      -->
