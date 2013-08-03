@@ -6293,6 +6293,7 @@ Token KEYWORD_UNRESERVED (): {}
 | <EDITIONABLE> 
 | <NONEDITIONABLE> 
 | <ACCESSIBLE> 
+| <NULLIF> 
 )
 
 { return token; }
@@ -6403,7 +6404,7 @@ Token ID(): {}
 		| <NOT> //SYNTAX  //RESERVED WORD  
 		| <NOWAIT>  //RESERVED WORD  
 		| <NULL>  //RESERVED WORD  
-		| <NULLIF> 
+		//| <NULLIF> 
 		| <NUMBER>  //RESERVED WORD  
 		| <NUMBER_BASE> 
 		| <OCIROWID> 
@@ -6659,7 +6660,7 @@ Token qualifiedID(): {}
 		//<NOT>
 		//<NOWAIT>
 		//<NULL>
-		| <NULLIF>
+		//| <NULLIF>
 		| <NUMBER>
 		| <BFILE_BASE> 
 		| <BLOB_BASE> 
