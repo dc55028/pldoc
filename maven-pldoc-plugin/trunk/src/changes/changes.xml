@@ -7,6 +7,10 @@
         <author email="altumano at users.sourceforge.net">Albert Tumanov</author>
     </properties>
     <body>
+        <release version="3.0.2" date="2013-08-04"  description="Upissue to require PLDoc 1.5.6" >
+            <action type="fix" dev="sturton" >Project POM file - require version 1.5.6</action>
+            <action type="update" dev="sturton" >Project POM file - Move to Sourceforge2 tracking</action>
+        </release>
         <release version="3.0.1" date="2013-07-22"  description="Correct corrupt signatures" >
             <action type="fix" dev="sturton" >Fix corrupt signatures for 3.0.0 artefacts</action>
         </release>
