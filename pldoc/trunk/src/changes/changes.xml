@@ -7,6 +7,9 @@
         <author email="altumano at users.sourceforge.net">Albert Tumanov</author>
     </properties>
     <body>
+        <release version="1.5.7" date="2013-10-21"  description="Minor Fixes" >
+		<action type="fix" dev="sturton" >Make RELEASE an unreserved keyword</action>
+        </release>
         <release version="1.5.6" date="2013-08-04"  description="Minor Fixes" >
 		<action type="update" dev="sturton" >pldoc - update POM file to Sourceforge2 tracking</action>
 		<action type="fix" dev="sturton" issue="91">Make NULLIF and RENAME unreserved keywords</action>
