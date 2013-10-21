@@ -6295,6 +6295,7 @@ Token KEYWORD_UNRESERVED (): {}
 | <ACCESSIBLE> 
 | <NULLIF> 
 | <RENAME>
+| <RELEASE>  // RELEASE - 
 )
 
 { return token; }
@@ -6437,7 +6438,7 @@ Token ID(): {}
 		| <RAW>  //RESERVED WORD  
 		//20120501 | <REAL> 
 		//<RECORD> | <RETURN> |  <SET> |<REF> | 
-		| <RELEASE> 
+		//20131021| <RELEASE> 
 		//20120501 | <REVERSE> 
 		//20120501 | <ROLLBACK> //SYNTAX 
 		//20120501 | <ROWID> 
@@ -6699,7 +6700,7 @@ Token qualifiedID(): {}
 		//20120501 | <REAL>
 		//| <RECORD>
 		//| <REF>
-		| <RELEASE>
+		//20131021| <RELEASE>
 		//| <RETURN>
 		//20120501 | <REVERSE>
 		//20120501 | <ROLLBACK>
