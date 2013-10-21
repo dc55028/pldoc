@@ -96,8 +96,8 @@
         <dependency>
             <groupId>net.sourceforge.pldoc</groupId>
             <artifactId>pldoc</artifactId>
-	    <!-- Require greater than or equal to PLDoc 1.5.5 -->
-            <version>[1.5.5,)</version>
+	    <!-- Require greater than or equal to PLDoc 1.5.7 -->
+            <version>[1.5.7,)</version>
         </dependency>
         <dependency>
             <groupId>net.sourceforge.pmd</groupId>
