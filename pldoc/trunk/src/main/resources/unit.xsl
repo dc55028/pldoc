@@ -223,6 +223,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     <xsl:param name="typeName" />
     <xsl:param name="schemaName" />
     <xsl:param name="localTypeName" />
+    <xsl:variable name="schema" select="translate($schemaName, $namesFromCase, $namesToCase)" />
     <xsl:variable name="fieldType" select="translate($typeName, $namesFromCase, $namesToCase)" />
       <xsl:choose>
       <xsl:when test=" string-length($localTypeName) > 0  ">
@@ -232,37 +233,50 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 		<xsl:value-of select="$typeName" disable-output-escaping="yes"/>
             </A>
       </xsl:when>
-        <xsl:when test="/APPLICATION/OBJECT_TYPE[ translate(@NAME, $namesFromCase, $namesToCase) = $fieldType ] ">
+
+        <xsl:when test="/APPLICATION/OBJECT_TYPE[ translate(@NAME, $namesFromCase, $namesToCase) = $fieldType and translate(@SCHEMA, $namesFromCase, $namesToCase) = $schema ] ">
+           <xsl:comment>Object Type in same schema</xsl:comment>
 	    <A>
 		<xsl:attribute name="href"><xsl:value-of select="$fieldType" disable-output-escaping="yes"/>.html</xsl:attribute>
+		<xsl:value-of select="$typeName" disable-output-escaping="yes"/>
+            </A>
+      </xsl:when>
+        <xsl:when test="/APPLICATION/OBJECT_TYPE[ translate(@NAME, $namesFromCase, $namesToCase) = $fieldType ] ">
+           <xsl:comment>Object Type in any schema - choose first</xsl:comment>
+	    <A>
+		<xsl:attribute name="href"><xsl:value-of select="concat( '../' , /APPLICATION/OBJECT_TYPE[ translate(@NAME, $namesFromCase, $namesToCase) = $fieldType][1]/@SCHEMA, '/' , $fieldType )" disable-output-escaping="yes"/>.html</xsl:attribute>
 		<xsl:value-of select="$typeName" disable-output-escaping="yes"/>
             </A>
       </xsl:when>
                  <!-- Package Type owned by same schema -->
         <xsl:when test="contains ($typeName, '.') 
                         and /APPLICATION/PACKAGE[ translate(@NAME, $namesFromCase, $namesToCase)  = translate(substring-before($typeName,'.'), $namesFromCase, $namesToCase)  ]/TYPE[ translate(@NAME, $namesFromCase, $namesToCase)  = translate(substring-after($typeName,'.'), $namesFromCase, $namesToCase)  ] ">
+	    <xsl:comment>Packaged PL/SQL Type in same schema - choose first</xsl:comment>
 	    <A>
 	      <xsl:attribute name="href"><xsl:value-of select="concat(translate(substring-before($typeName,'.'),  $namesFromCase, $namesToCase) , '.html#', translate(substring-after($typeName,'.'), $namesFromCase, $namesToCase) )" disable-output-escaping="yes"/></xsl:attribute>
 		<xsl:value-of select="$typeName" disable-output-escaping="yes"/>
             </A>
       </xsl:when>
-                 <!-- Object Type owned by other schema -->
+                 <!-- Object Type owned by another schema and explicitly referenced by schema name rather than by synonym -->
 		 <xsl:when test="contains ($typeName, '.') and /APPLICATION/OBJECT_TYPE[ translate(@SCHEMA, $uppercase, $lowercase)  = translate(substring-before($typeName,'.'), $uppercase, $lowercase)  
 		   and translate(@NAME, $namesFromCase, $namesToCase) = translate(substring-after($typeName,'.'), $namesFromCase, $namesToCase)  ] ">
+	       <xsl:comment>Object Type in specified schema </xsl:comment>
 	    <A>
-	      <xsl:attribute name="href"><xsl:value-of select="translate(substring-after($typeName,'.'), $namesFromCase, $namesToCase)" disable-output-escaping="yes"/>.html</xsl:attribute>
+		<xsl:attribute name="href"><xsl:value-of select="concat ( '../',  translate(substring-before($typeName,'.'), $namesFromCase, $namesToCase) ,'/', translate(substring-after($typeName,'.'), $namesFromCase, $namesToCase) )" disable-output-escaping="yes"/>.html</xsl:attribute>
 		<xsl:value-of select="$typeName" disable-output-escaping="yes"/>
             </A>
      </xsl:when>
                  <!-- Package Type owned by other schema -->
      <xsl:when test="contains ($typeName, '.') and /APPLICATION/PACKAGE[ translate(@SCHEMA, $uppercase, $lowercase)  = translate(substring-before($typeName,'.'), $uppercase, $lowercase)  
        and translate(@NAME, $namesFromCase, $namesToCase)  = translate(substring-before(substring-after($typeName, '.'),'.'), $namesFromCase, $namesToCase)  ]/TYPE[ translate(@NAME, $namesFromCase, $namesToCase)  = translate(substring-after(substring-after($typeName,'.'),'.'), $namesFromCase, $namesToCase)  ] ">
+       <xsl:comment>Packaged PL/SQL Type in specified schema </xsl:comment>
 	    <A>
-	      <xsl:attribute name="href"><xsl:value-of select="concat(translate(substring-before(substring-after($typeName,'.'),'.'), $namesFromCase, $namesToCase), '.html#', translate(substring-after(substring-after($typeName,'.'),'.'), $namesFromCase, $namesToCase) )" disable-output-escaping="yes"/></xsl:attribute>
+		<xsl:attribute name="href"><xsl:value-of select="concat('../', translate(substring-before($typeName,'.'), $namesFromCase, $namesToCase) , '/',translate(substring-before(substring-after($typeName,'.'),'.'), $namesFromCase, $namesToCase), '.html#', translate(substring-after(substring-after($typeName,'.'),'.'), $namesFromCase, $namesToCase) )" disable-output-escaping="yes"/></xsl:attribute>
 	      <xsl:value-of select="translate($typeName, $namesFromCase, $namesToCase)" disable-output-escaping="yes"/>
             </A>
      </xsl:when>
      <xsl:otherwise>
+       <xsl:comment>GenerateTypeLink: default reached</xsl:comment>
        <xsl:value-of select="translate($typeName, $namesFromCase, $namesToCase)" />
      </xsl:otherwise>
     </xsl:choose>
