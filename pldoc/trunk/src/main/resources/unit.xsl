@@ -328,14 +328,12 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
       <CODE><xsl:text>&nbsp;</xsl:text>
       <!-- 20110428 <xsl:value-of select="RETURN/@TYPE"/> -->
       <!-- If possible, convert the plain-text TYPE to a link to a matching OBJECT TYPE in the Application-->
-      <xsl:comment>Method Summary Return Type Link Start</xsl:comment>
       <xsl:variable name="fieldType" select="translate(RETURN/@TYPE, $uppercase, $lowercase)" />
       <xsl:call-template name="GenerateTypeLink">
 	    <xsl:with-param name="typeName" select="RETURN/@TYPE" />
             <xsl:with-param name="schemaName" select="ancestor-or-self::*/@SCHEMA"/>
             <xsl:with-param name="localTypeName" select="../TYPE[ translate(@NAME, $uppercase, $lowercase) = $fieldType ]/@NAME" />
       </xsl:call-template>
-      <xsl:comment>Method Summary Return Type Link End</xsl:comment>
       </CODE></FONT></TD>
 	<xsl:variable name="nameLowerCase" select="translate(@NAME, $uppercase, $lowercase)" />
 	<xsl:comment> 
