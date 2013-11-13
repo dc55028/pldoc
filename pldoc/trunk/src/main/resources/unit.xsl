@@ -366,7 +366,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 	<xsl:variable name="arguments" select="count(ARGUMENT)" /> 
 	<xsl:variable name="predecessors" select="count(preceding-sibling::*[$nameLowerCase = translate(@NAME,$uppercase,$lowercase)])" /> 
 	<xsl:variable name="siblingsWithoutArguments" select="count(preceding-sibling::*[$nameLowerCase = translate(@NAME,$uppercase,$lowercase) and not(ARGUMENT) ]) + count(following-sibling::*[$nameLowerCase = translate(@NAME,$uppercase,$lowercase) and not(ARGUMENT) ])" /> 
-	<xsl:if test="$arguments > 0 and $predecessors = 0 and $siblingsWithoutArguments = 0" >
+	<xsl:if test="( $arguments > 0 and $predecessors = 0 and $siblingsWithoutArguments = 0 ) or translate(RETURN/@TYPE,$lowercase,$uppercase) = 'RECORD'" >
 	<xsl:element name="A"><xsl:attribute name="NAME"><xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)" /></xsl:attribute></xsl:element>
 	</xsl:if>
       <TD><CODE>
