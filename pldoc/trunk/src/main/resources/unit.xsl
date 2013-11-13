@@ -37,6 +37,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   
   <xsl:param name="targetFolder"/>
   <xsl:param name="sourceRootFolder"/>
+  <xsl:param name="synonymsFile"/>
 
 
 
@@ -231,6 +232,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
        localTypeName=<xsl:value-of select="$localTypeName" disable-output-escaping="yes"/>
        schema=<xsl:value-of select="$schema" disable-output-escaping="yes"/>
        fieldType=<xsl:value-of select="$fieldType" disable-output-escaping="yes"/>
+       synonymsFile=<xsl:value-of select="concat( ',', $synonymsFile, ',' ) " disable-output-escaping="yes"/>
    </xsl:comment>
       <xsl:choose>
       <xsl:when test=" string-length($localTypeName) > 0  ">
@@ -248,11 +250,20 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 		<xsl:value-of select="$typeName" disable-output-escaping="yes"/>
             </A>
       </xsl:when>
+	<xsl:when test=" $synonymsFile != '' and document($synonymsFile)/SYNONYMS/SYNONYM[@OWNER = $schema and @SYNONYM_NAME = $fieldType ] ">
+	    <xsl:comment>Object Type in other schema - use private synonym </xsl:comment>
+	    <xsl:variable name="referencedOwner" select="document($synonymsFile)/SYNONYMS/SYNONYM[@OWNER = $schema and @SYNONYM_NAME = $fieldType ]/@TABLE_OWNER " /> 
+	    <xsl:variable name="referencedObject" select="document($synonymsFile)/SYNONYMS/SYNONYM[@OWNER = $schema and @SYNONYM_NAME = $fieldType ]/@TABLE_NAME " /> 
+	    <A>
+	    <xsl:attribute name="href"><xsl:value-of select="concat( '../' , $referencedOwner, '/' , $referencedObject )" disable-output-escaping="yes"/>.html</xsl:attribute>
+	      <xsl:value-of select="$typeName" disable-output-escaping="yes"/>
+	  </A>
+	</xsl:when>
         <xsl:when test="/APPLICATION/OBJECT_TYPE[ translate(@NAME, $namesFromCase, $namesToCase) = $fieldType ] ">
            <xsl:comment>Object Type in any schema - choose first</xsl:comment>
 	    <A>
-		<xsl:attribute name="href"><xsl:value-of select="concat( '../' , /APPLICATION/OBJECT_TYPE[ translate(@NAME, $namesFromCase, $namesToCase) = $fieldType][1]/@SCHEMA, '/' , $fieldType )" disable-output-escaping="yes"/>.html</xsl:attribute>
-		<xsl:value-of select="$typeName" disable-output-escaping="yes"/>
+	      <xsl:attribute name="href"><xsl:value-of select="concat( '../' , /APPLICATION/OBJECT_TYPE[ translate(@NAME, $namesFromCase, $namesToCase) = $fieldType][1]/@SCHEMA, '/' , $fieldType )" disable-output-escaping="yes"/>.html</xsl:attribute>
+	      <xsl:value-of select="$typeName" disable-output-escaping="yes"/>
             </A>
       </xsl:when>
      <!-- Package Type owned by same schema -->
@@ -284,6 +295,16 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
             </A>
      </xsl:when>
      <!-- Implicitly referenced Package Type owned by other schema -->
+     <xsl:when test="contains ($typeName, '.') 
+                    and $synonymsFile != '' and document($synonymsFile)/SYNONYMS/SYNONYM[@OWNER = $schema and @SYNONYM_NAME = substring-after($fieldType,'.') ] ">
+	    <xsl:comment>PLSQL Type in other schema - use private synonym </xsl:comment>
+	    <xsl:variable name="referencedOwner" select="document($synonymsFile)/SYNONYMS/SYNONYM[@OWNER = $schema and @SYNONYM_NAME = substring-after($fieldType,'.') ]/@TABLE_OWNER " /> 
+	    <xsl:variable name="referencedObject" select="document($synonymsFile)/SYNONYMS/SYNONYM[@OWNER = $schema and @SYNONYM_NAME = substring-after($fieldType,'.') ]/@TABLE_NAME " /> 
+	    <A>
+	    <xsl:attribute name="href"><xsl:value-of select="concat( '../' , $referencedOwner, '/' , $referencedObject )" disable-output-escaping="yes"/>.html</xsl:attribute>
+	      <xsl:value-of select="$typeName" disable-output-escaping="yes"/>
+	  </A>
+	</xsl:when>
        <xsl:when test="contains ($typeName, '.') 
                         and /APPLICATION/PACKAGE[ translate(@NAME, $namesFromCase, $namesToCase)  = substring-before($fieldType,'.') ]/TYPE[ translate(@NAME, $namesFromCase, $namesToCase) = substring-after($fieldType,'.')  ] ">
        <xsl:comment>Implicitly referenced Packaged PL/SQL Type in any schema </xsl:comment>

@@ -22,7 +22,10 @@ import javax.xml.transform.URIResolver;
 import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamSource;
-import java.io.InputStream;
+import java.io.FileInputStream;
+import java.io.File;
+import java.net.URI;
+import java.net.URL;
 
 public class ResourceResolver implements URIResolver
 {
@@ -33,13 +36,35 @@ public class ResourceResolver implements URIResolver
       return null; // will make Oracle XSLT processor explode, 
                    // even though it's correct 
     try    {
+      //System.err.println("ResourceResolver.resolve: href=\""+href+"\", base=\""+base+"\"");
       String resource = href; 
-      ResourceLoader loader = new ResourceLoader();
-      return new StreamSource(loader.getResourceStream(resource), resource);
+      File file = new File (resource);
+      //System.err.println("ResourceResolver.resolve: file=\""+file+"\"" );
+      URI uri = new URI (resource);
+      //System.err.println("ResourceResolver.resolve: URI=\""+uri+"\"" );
+      //URL url = new URL (resource);
+      //System.err.println("ResourceResolver.resolve: URL=\""+url+"\"" );
+      if (file.exists())
+      {
+        return new StreamSource(new FileInputStream(file), resource);
+      }
+      else 
+      {
+        return new StreamSource(uri.toURL().openStream(), resource);
+      }
     } // try
     catch(Exception ex)
-    {
-      throw new TransformerException(ex);
+    { //Fallback to reading resource
+      try    {
+        //System.err.println("ResourceResolver.resolve: Fallback href=\""+href+"\", base=\""+base+"\"");
+        String resource = href; 
+        ResourceLoader loader = new ResourceLoader();
+        return new StreamSource(loader.getResourceStream(resource), resource);
+      } // try
+      catch(Exception rex)
+      {
+        throw new TransformerException(ex);
+      } // catch
     } // catch
   } // resolve
 } // ResourceResolver
