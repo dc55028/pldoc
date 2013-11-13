@@ -1056,7 +1056,7 @@ public class PLDoc
     {
       transformer.setParameter("sourceRootFolder", '.' );
     }
-    System.err.println("synonymsFile=\""+synonymsFile+"\"");
+    
     if (null != synonymsFile && synonymsFile.exists())
     {
       //transformer.setParameter("synonymsFile", synonymsFile.getAbsolutePath() );
