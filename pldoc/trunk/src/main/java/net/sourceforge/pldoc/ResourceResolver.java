@@ -36,14 +36,9 @@ public class ResourceResolver implements URIResolver
       return null; // will make Oracle XSLT processor explode, 
                    // even though it's correct 
     try    {
-      //System.err.println("ResourceResolver.resolve: href=\""+href+"\", base=\""+base+"\"");
       String resource = href; 
       File file = new File (resource);
-      //System.err.println("ResourceResolver.resolve: file=\""+file+"\"" );
       URI uri = new URI (resource);
-      //System.err.println("ResourceResolver.resolve: URI=\""+uri+"\"" );
-      //URL url = new URL (resource);
-      //System.err.println("ResourceResolver.resolve: URL=\""+url+"\"" );
       if (file.exists())
       {
         return new StreamSource(new FileInputStream(file), resource);
@@ -56,7 +51,6 @@ public class ResourceResolver implements URIResolver
     catch(Exception ex)
     { //Fallback to reading resource
       try    {
-        //System.err.println("ResourceResolver.resolve: Fallback href=\""+href+"\", base=\""+base+"\"");
         String resource = href; 
         ResourceLoader loader = new ResourceLoader();
         return new StreamSource(loader.getResourceStream(resource), resource);
