@@ -176,9 +176,26 @@ public class PLDoc
   public void run() throws Exception
   {
     long startTime = System.currentTimeMillis();
+    //Set of Schemas with Objects
+    final HashMap<String,Integer> objectSchemas = new HashMap<String,Integer>();
     // Map with all the packages (like files or database objects) which were skipped
     final SortedMap skippedPackages = new TreeMap();
     // Counts all the packages (like files or database objects) which were processed successfully
+
+    File synonymsFile = new File (settings.getOutputDirectory(), "synonyms.xml" ) ;
+
+    String synonymStatement = "SELECT "+
+                          "owner"+
+                          ", synonym_name"+
+                          ", table_owner"+
+                          ", table_name"+
+                          " FROM dba_synonyms"+
+                          " WHERE owner IN (?)"+
+                          " AND   table_owner NOT in ('SYS','SYSTEM')"+
+                          " ORDER BY "+
+                          " table_owner, table_name"
+                          ;
+    
     long processedPackages = 0;
     Connection conn = null;
     PreparedStatement pstmt = null;
@@ -311,6 +328,8 @@ public class PLDoc
                                         " ORDER BY "+
                                         " object_name"
                                         ;
+
+
 		   if (settings.isVerbose() ) System.out.println("Using \"" + sqlStatement + "\"" );
 
 		   if (settings.isVerbose() ) System.out.println("Connecting ..");
@@ -375,6 +394,15 @@ public class PLDoc
 
 		    System.err.println("Object(s) like " + inputSchemaName + "." + inputObjectName + " do not exist or " + settings.getDbUser() + " does not have enough permissions (SELECT_CATALOG_ROLE role).");
 		} else {
+		    if (!objectSchemas.containsKey(inputSchemaName))
+		    {
+		      objectSchemas.put(inputSchemaName,0);
+		    }
+		    else
+		    {
+                      int schemaReferences = objectSchemas.get(inputSchemaName)  ;
+		      objectSchemas.put(inputSchemaName,schemaReferences++)  ;
+		    }
 		    do {
 			  final String packagename = inputSchemaName + "." + rset.getString(1);
 			  final String objectType = rset.getString(2) ;
@@ -502,6 +530,7 @@ public class PLDoc
 	} 
       } // for all the specified packages from the dictionary
 
+      // @TODO output synonyms 
       // generator summary
       xmlOut.startElement("GENERATOR");
 
@@ -578,6 +607,11 @@ public class PLDoc
     copyStaticFiles(settings.getOutputDirectory());
 
     
+    //If we are connected to the database extract any synonyms 
+    if ( conn != null ) {
+      extractSynonyms(conn, synonymStatement, objectSchemas, synonymsFile); 
+    }
+
     //If we are connected to the database and want PLScope , extract PLSCOPE 
     if ( conn != null  && settings.isPlscope() ) {
         
@@ -595,8 +629,8 @@ public class PLDoc
     }
 
 
-    // generate HTML files from the applicationFile
-    generateHtml(applicationFile);
+    // generate HTML files from the applicationFile and any synonyms 
+    generateHtml(applicationFile, synonymsFile);
 
     // write skipped packagenames to console
     if (!skippedPackages.isEmpty()) {
@@ -887,6 +921,64 @@ public class PLDoc
 
   }
 
+  private void extractSynonyms(Connection conn , String synonymsQuery, Map<String,Integer> objectSchemas, File synonymsFile ) 
+  throws java.io.FileNotFoundException, java.io.IOException, java.sql.SQLException  
+         ,Exception
+  {
+      
+      final String documentRootName = "SYNONYMS" ;
+      final String rowElementName = "SYNONYM" ;
+      PreparedStatement pstmt = null;
+      OutputStream outputStream = null ;
+
+      try
+      {
+	pstmt = conn.prepareStatement( synonymsQuery );
+
+	outputStream = new FileOutputStream( synonymsFile ) ; 
+
+	XMLWriter xmlOut = new XMLWriter(outputStream);
+	xmlOut.setMethod("xml");
+	if (settings.getOutputEncoding() != null)
+        {
+	  xmlOut.setEncoding(settings.getOutputEncoding());
+        }
+	xmlOut.setIndent(true);
+	//SRT if (null!=dtd && !dtd.equals("")) { xmlOut.setDocType(null, dtd); }
+	xmlOut.startDocument();
+	//xmlOut.pushAttribute("NAME", );
+	xmlOut.startElement(documentRootName);
+
+	for (String objectSchema : objectSchemas.keySet() )
+	{
+	  pstmt.setString(1, objectSchema);
+	  ResultSet resultSet = pstmt.executeQuery();
+	  ResultSetMetaData resultSetMetaData = resultSet.getMetaData(); 
+
+	  int numberOfColumns = resultSetMetaData.getColumnCount();
+
+	  // for all rows 
+	  while (resultSet.next()) {
+		  //Attributes are pushed before the containing Element is created  
+		  for (int i = 1 ; i <= numberOfColumns; i++ )
+		  {
+		     xmlOut.pushAttribute(resultSetMetaData.getColumnName(i), resultSet.getString(i) );
+		  }
+		  xmlOut.startElement(rowElementName);
+		  xmlOut.endElement(rowElementName);
+	  }
+
+	} 
+        xmlOut.endElement(documentRootName);
+
+        xmlOut.endDocument();
+      } finally {
+	if(outputStream != null) {
+	  outputStream.close();
+	}
+      }
+  }
+
 
   /**
   * Generates HTML files from the provided XML file.
@@ -895,7 +987,7 @@ public class PLDoc
   *
   * @param applicationFile  XML application file
   */
-  private void generateHtml(File applicationFile) throws Exception {
+  private void generateHtml(File applicationFile, File synonymsFile) throws Exception {
     // apply xsl to generate the HTML frames
     System.out.println("Generating HTML files ...");
     TransformerFactory tFactory = TransformerFactory.newInstance();
@@ -964,6 +1056,18 @@ public class PLDoc
     {
       transformer.setParameter("sourceRootFolder", '.' );
     }
+    System.err.println("synonymsFile=\""+synonymsFile+"\"");
+    if (null != synonymsFile && synonymsFile.exists())
+    {
+      //transformer.setParameter("synonymsFile", synonymsFile.getAbsolutePath() );
+      //transformer.setParameter("synonymsFile", synonymsFile.toURI().toString() );
+      transformer.setParameter("synonymsFile", synonymsFile.getCanonicalPath() );
+    }
+    else
+    {
+      transformer.setParameter("synonymsFile", "");
+    }
+
     transformer.transform(new StreamSource(applicationFile), new DOMResult());
   }
 
