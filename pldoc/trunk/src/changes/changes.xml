@@ -7,6 +7,9 @@
         <author email="altumano at users.sourceforge.net">Albert Tumanov</author>
     </properties>
     <body>
+        <release version="1.5.11" date="2013-11-14"  description="Minor Fixes" >
+		<action type="fix" dev="sturton" >Avoid java.net.URISyntaxException in ResourceResolver on Windows platforms</action>
+        </release>
         <release version="1.5.10" date="2013-11-13"  description="Minor Fixes" >
 		<action type="update" dev="sturton" >Remove debug messages</action>
         </release>
