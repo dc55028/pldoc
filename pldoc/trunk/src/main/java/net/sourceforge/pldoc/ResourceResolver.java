@@ -35,16 +35,16 @@ public class ResourceResolver implements URIResolver
     if(null==href || href.length() == 0 )
       return null; // will make Oracle XSLT processor explode, 
                    // even though it's correct 
-    try    {
+    try {
       String resource = href; 
       File file = new File (resource);
-      URI uri = new URI (resource);
       if (file.exists())
       {
         return new StreamSource(new FileInputStream(file), resource);
       }
       else 
-      {
+      { //Attempt to treat resource as a URI
+	URI uri = new URI(resource);
         return new StreamSource(uri.toURL().openStream(), resource);
       }
     } // try
@@ -55,9 +55,9 @@ public class ResourceResolver implements URIResolver
         ResourceLoader loader = new ResourceLoader();
         return new StreamSource(loader.getResourceStream(resource), resource);
       } // try
-      catch(Exception rex)
+      catch(Exception rex) //Resource Exception 
       {
-        throw new TransformerException(ex);
+        throw new TransformerException(rex);
       } // catch
     } // catch
   } // resolve
