@@ -7,6 +7,9 @@
         <author email="altumano at users.sourceforge.net">Albert Tumanov</author>
     </properties>
     <body>
+        <release version="1.5.12" date="2014-01-30"  description="Minor Fixes" >
+		<action type="fix" dev="sturton" >Allow Package and Type bodies to be EDITIONABLE</action>
+        </release>
         <release version="1.5.11" date="2013-11-14"  description="Minor Fixes" >
 		<action type="fix" dev="sturton" >Avoid java.net.URISyntaxException in ResourceResolver on Windows platforms</action>
         </release>
