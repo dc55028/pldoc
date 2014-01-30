@@ -712,8 +712,8 @@ void input() throws org.xml.sax.SAXException : {}
         //    (LOOKAHEAD(6) packageSpec() | LOOKAHEAD(6) packageBody() | LOOKAHEAD(6) typeSpec() | LOOKAHEAD(6) typeBody() | LOOKAHEAD(6) programUnit(true) | sqlPlusCommand())
 	 // SRT 20110514 before (LOOKAHEAD(6) packageSpec() | LOOKAHEAD(6) packageBody() | LOOKAHEAD(6) typeSpec() | LOOKAHEAD(6) typeBody() | LOOKAHEAD(6) table() | LOOKAHEAD(6) view()  | global() | sqlPlusCommand())	("/")*
 	 (LOOKAHEAD(8) javaSpec()  
-	 |LOOKAHEAD(6) packageSpec()  
-	 | LOOKAHEAD(6) packageBody()  
+	 |LOOKAHEAD(7) packageSpec()  
+	 | LOOKAHEAD(7) packageBody()  
 	 | LOOKAHEAD(6) typeSpec()  
 	 //| LOOKAHEAD(6) typeBody()  {system.err.println("typeSpec"); }
 	 | LOOKAHEAD(6) table()  
