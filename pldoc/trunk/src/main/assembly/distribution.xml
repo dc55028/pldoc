@@ -29,6 +29,8 @@
 	<include>pldoc_example.sh</include>
 	<include>pldoc_ant_example.bat</include>
 	<include>pldoc_ant_example.sh</include>
+	<include>pldoc_drag_and_drop.bat</include>
+	<include>pldoc_drag_and_drop.sh</include>
 	<include>ant_example.xml</include>
 	<include>ant_enterprise_example.xml</include>
 	<include>pldoc_drop.bat</include>

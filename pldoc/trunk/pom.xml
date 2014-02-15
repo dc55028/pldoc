@@ -390,6 +390,8 @@
 		<include>pldoc_ant_example.sh</include>
 		<include>pldoc_example.bat</include>
 		<include>pldoc_example.sh</include>
+		<include>pldoc_drag_and_drop.bat</include>
+		<include>pldoc_drag_and_drop.sh</include>
 		<include>pldoc_drop.bat</include>
 		<include>ant_*example.xml</include>
 		<include>ant_*_example.properties</include>
@@ -464,6 +466,8 @@
 		<include>pldoc_example.sh</include>
 		<include>pldoc_ant_example.bat</include>
 		<include>pldoc_ant_example.sh</include>
+		<include>pldoc_drag_and_drop.bat</include>
+		<include>pldoc_drag_and_drop.sh</include>
 		<include>pldoc_drop.bat</include>
 	      </includes>
 	      <targetPath>${basedir}</targetPath>

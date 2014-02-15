@@ -8,6 +8,7 @@
     </properties>
     <body>
         <release version="1.5.13" date="2014-02-15"  description="Minor Fixes" >
+		<action type="update" dev="sturton" >Add Windows and Linux Drag and Drop scripts</action>
 		<action type="fix" issue="101" dev="sturton" >PRAGMA INLINE(...) breaks parser</action>
         </release>
         <release version="1.5.12" date="2014-01-30"  description="Minor Fixes" >
