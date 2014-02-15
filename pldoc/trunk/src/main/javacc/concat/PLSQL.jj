@@ -2016,6 +2016,7 @@ void statement() throws SAXException :
 		( <CC_ELSE> (statement())+ )*
 		<CC_END> 
 	| <CC_ERROR> Expression() <CC_END> 
+        | <PRAGMA> Expression() ";"
         | Expression() ";"
 }
 
