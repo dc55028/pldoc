@@ -107,8 +107,8 @@
         <dependency>
             <groupId>net.sourceforge.pldoc</groupId>
             <artifactId>pldoc</artifactId>
-	    <!-- Require greater than or equal to PLDoc 1.5.12 -->
-            <version>[1.5.12,)</version>
+	    <!-- Require greater than or equal to PLDoc 1.5.13 -->
+            <version>[1.5.13,)</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.reporting</groupId>
