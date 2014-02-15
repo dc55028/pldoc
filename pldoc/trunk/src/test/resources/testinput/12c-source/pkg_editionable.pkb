@@ -1,4 +1,4 @@
-CREATE OR REPLACE EDITIONABLE PACKAGE BODY pkg_test_unreserved_keyword
+CREATE OR REPLACE EDITIONABLE PACKAGE BODY pkg_editionable
 AS
 /**
  * <p>Lists the Oracle keywords that are not reserved and that may in some circumstances be allowed variable names.  
@@ -2109,7 +2109,7 @@ AS
 /** Unreserved Keyword Word ZONE */
   ZONE VARCHAR2(240);
 
-END pkg_test_unreserved_keyword;
+END pkg_editionable;
 /
 
 
