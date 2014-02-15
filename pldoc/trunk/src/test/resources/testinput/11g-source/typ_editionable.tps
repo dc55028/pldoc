@@ -1,7 +1,7 @@
 SET DEFINE OFF
 
 CREATE OR REPLACE
-EDITIONABLE TYPE ty_logger_editionable AS 
+EDITIONABLE TYPE typ_editionable AS 
 OBJECT (
 /**
 <P>
