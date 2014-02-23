@@ -7,6 +7,10 @@
         <author email="altumano at users.sourceforge.net">Albert Tumanov</author>
     </properties>
     <body>
+        <release version="0.1.11" date="2014-02-23"  description="Require latest versions of PLDoc" >
+            <action type="update" dev="sturton" >Project POM file - require PLDoc version 1.5.14 and PMD version 5.1.0</action>
+            <action type="fix" dev="sturton" issue="103" >Strip BOM from UTF* InputStreams</action>
+        </release>
         <release version="0.1.10" date="2013-10-21"  description="Require latest versions of PLDoc" >
             <action type="update" dev="sturton" >Project POM file - require PLDoc version 1.5.7</action>
         </release>

@@ -96,14 +96,13 @@
         <dependency>
             <groupId>net.sourceforge.pldoc</groupId>
             <artifactId>pldoc</artifactId>
-	    <!-- Require greater than or equal to PLDoc 1.5.7 -->
-            <version>[1.5.7,)</version>
+	    <!-- Require greater than or equal to PLDoc 1.5.14 -->
+            <version>[1.5.14,)</version>
         </dependency>
         <dependency>
             <groupId>net.sourceforge.pmd</groupId>
             <artifactId>pmd</artifactId>
-            <version>5.0.4</version>
-            <!-- version>5.1.0-SNAPSHOT</version -->
+            <version>5.1.0</version>
         </dependency>
 	<!-- Development Only -->
 	    <dependency>
