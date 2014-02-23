@@ -21,6 +21,9 @@ package net.sourceforge.pldoc;
 import java.io.*;
 import java.util.*;
 
+import org.apache.commons.io.input.BOMInputStream;
+import org.apache.commons.io.ByteOrderMark;
+
 /**
 * Utilities supporting the main functionality
 * @author Albert Tumanov
@@ -41,7 +44,7 @@ public class Utils
       // Copy inputFile if it exists, falling back to the resource if it does not
       Utils.CopyStreamToFile(
         (null != inputFile && inputFile.exists()) 
-          ? new FileInputStream ( inputFile ) 
+          ?  Utils.getBOMInputStream(new FileInputStream(inputFile),null) 
           : (new ResourceLoader()).getResourceStream(resourceName)
         , outputFile
       );
@@ -182,4 +185,33 @@ public class Utils
       );
   }
 
+  
+
+  /**
+  * Return an InputStream, stripping out any BOM if the specified or default chracter encoding is UTF*.
+  *
+  * @param inputStream Stream that may or may not contain a BOM
+  * @param inputEncoding 
+  * @throws IOEXception
+  */
+  public static InputStream getBOMInputStream(InputStream inputStream, String inputEncoding) throws IOException {
+      if( (null == inputEncoding && System.getProperty("file.encoding").startsWith("UTF"))
+          || inputEncoding.startsWith("UTF")
+         )    
+      {
+        return new BOMInputStream(inputStream
+                                  ,ByteOrderMark.UTF_8
+                                  ,ByteOrderMark.UTF_16LE
+                                  ,ByteOrderMark.UTF_16BE
+                                  ,ByteOrderMark.UTF_32LE
+                                  ,ByteOrderMark.UTF_32BE
+        );
+      }
+      else 
+      {
+        return inputStream;
+      }
+  }
+
+  
 }

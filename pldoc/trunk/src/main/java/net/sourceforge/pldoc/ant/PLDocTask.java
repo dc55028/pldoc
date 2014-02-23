@@ -348,6 +348,8 @@ public class PLDocTask extends Task {
   private BufferedReader getInputReader(File file)
       throws java.io.IOException {
     return new BufferedReader(
-        new InputStreamReader(new FileInputStream(file), m_inEnc));
+        new InputStreamReader(Utils.getBOMInputStream(new FileInputStream(file), m_inEnc)
+		              , m_inEnc)
+	                     );
   }
 }

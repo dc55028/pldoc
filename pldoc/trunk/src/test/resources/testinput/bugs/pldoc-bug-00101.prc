@@ -10,6 +10,21 @@ AS
  l_start  NUMBER;
  /** Final value  */
  l_return NUMBER;
+
+ /**
+  * Inline as an identifier. 
+  */
+ inline NUMBER;
+
+ /**
+  * Inline as an identifier. 
+  */
+PROCEDURE inline
+IS
+BEGIN
+  NULL;
+END inline;
+ 
 FUNCTION 
 /** Add 2 numbers.
  *
@@ -25,6 +40,7 @@ END add_numbers;
 BEGIN
   l_start := dbms_utility.get_time;
 
+  
   FOR i IN 1 .. l_loops LOOP
     PRAGMA INLINE (add_numbers, 'YES');
     l_return := add_numbers(1, i);
