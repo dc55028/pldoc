@@ -249,7 +249,9 @@ public class PLDoc
 	  BufferedReader bufferedReader = 
             new BufferedReader(
               inputStreamReader = new InputStreamReader(
-				                         new FileInputStream(inputFileName)
+				                         Utils.getBOMInputStream(new FileInputStream(inputFileName)
+								                , settings.getInputEncoding()
+								 		)
 		                                         ,settings.getInputEncoding()
 				                         )
 	      )
@@ -817,8 +819,10 @@ public class PLDoc
       BufferedReader overviewReader =
         new BufferedReader(
           new InputStreamReader(
-            new FileInputStream(settings.getOverviewFile()),
-            settings.getInputEncoding())
+		 Utils.getBOMInputStream(new FileInputStream(settings.getOverviewFile())
+				, settings.getInputEncoding()
+				)
+            ,settings.getInputEncoding())
         );
       String line = null;
       while ((line = overviewReader.readLine()) != null) {

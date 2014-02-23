@@ -520,7 +520,7 @@ public class Settings
   public InputStream getStylesheetFile() throws IOException {
     // if some custom stylesheet was given, use it
     if (stylesheetfile != null && stylesheetfile.length() > 0) {
-      return new FileInputStream(stylesheetfile);
+      return Utils.getBOMInputStream(new FileInputStream(stylesheetfile),inputEncoding) ;
     }
     // return default
     return ((new ResourceLoader()).getResourceStream("defaultstylesheet.css"));
@@ -533,7 +533,7 @@ public class Settings
   public InputStream getSourceStylesheetFile() throws IOException {
     // if some custom sourcestylesheet was given, use it
     if (sourcestylesheetfile != null && sourcestylesheetfile.length() > 0) {
-      return new FileInputStream(sourcestylesheetfile);
+      return Utils.getBOMInputStream(new FileInputStream(sourcestylesheetfile),inputEncoding);
     }
     // return default
     return ((new ResourceLoader()).getResourceStream("defaultstylesheet.css"));
