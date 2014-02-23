@@ -27,6 +27,7 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.dom.DOMResult;
 
+import net.sourceforge.pldoc.Utils;
 import net.sourceforge.pmd.cpd.*;
 
 /** Represents all settings for the program.
@@ -699,7 +700,7 @@ public class Settings
     System.err.println("Generating CPD HTML from " + outputFileName + " to " + htmlFileName);
     
     transformer.setParameter("targetFolder", getOutputDirectory().getAbsolutePath() + File.separator );
-    transformer.transform(new StreamSource(new InputStreamReader( new FileInputStream(outputFile), inputEncoding)),
+    transformer.transform(new StreamSource(new InputStreamReader( Utils.getBOMInputStream(new FileInputStream(outputFile), inputEncoding), inputEncoding) ),
       new StreamResult(new FileOutputStream(  htmlFileName  )
                       )
             );

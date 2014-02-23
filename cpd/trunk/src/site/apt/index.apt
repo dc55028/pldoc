@@ -1,9 +1,10 @@
 What is PLDoc CPD?
 
  PLDoc CPD is an open-source utility for checking PLSQL for duplicated code. 
- It extends {{{http://pmd.sourceforge.pmd}PMD}} {{{http://pmd.sourceforge.net/pmd-5.0.0/cpd.html}CPD}} application by adding a PLSQL language parser, and the functionality needed to read code from the database.
+ It extends {{{http://pmd.sourceforge.pmd}PMD}} {{{http://pmd.sourceforge.net/pmd-5.1.0/cpd.html}CPD}} application by adding a PLSQL language parser, and the functionality needed to read code from the database.
 
  The goal is to make the same code quality tools available for Java to PLSQL.
+
 
  To get quick idea what the tool does, look at the following example:
 
@@ -199,8 +200,20 @@ Supported Databases
 
 Notes
 
-    * Presently, cpd has only a command line interface, no GUI. Howver the PLSQL Language has been provisionally patched into PMD 5.1.0-SNAPSHOT and if incorporated into PMD, will be available via the PMD/CPD GUIs. 
+
+    * PLSQL is now natively supported in PMD 5.1.0, so cpd may be called *
+
++-----+
+ JDBC_URL=jdbc:oracle:thin:system/oracle@//192.168.0.162:1521/orcl.localdomain
+ HEAPSIZE=2048m  LIB_DIR=../../pmd-runtime-libs ./run.sh cpd --minimum-tokens 100  --language plsql  --uri "${JDBC_URL}?characterset=utf8&schemas=XDBMETADATA,DEMO,MDSYS,OE1,OUTLN,CTXSYS,OLAPSYS,HR,PLDOC,PLS,FLOWS_FILES,SYSTEM,ORACLE_OCM,EXFSYS,APEX_040000,CACHEADM,SCOTT,PM,DBSNMP,ORDSYS,ORDPLUGINS,SYSMAN,OBE,OE,TTHR,IX,XDB,HR1,WMSYS,PHPDEMO,XFILES&sourcecodetypes=PROCEDURE,PACKAGE_BODY,TYPE_BODY,TRIGGER,FUNCTION&sourcecodenames=%25" 
+
+
+ HEAPSIZE=2048m  LIB_DIR=../../pmd-runtime-libs ./run.sh pmd -d src/main/resources -f text -R ${RULE_SETS} -language plsql  -uri "${JDBC_URL}?characterset=utf8&schemas=XDBMETADATA,DEMO,MDSYS,OE1,OUTLN,CTXSYS,OLAPSYS,HR,PLDOC,PLS,FLOWS_FILES,SYSTEM,ORACLE_OCM,EXFSYS,APEX_040000,CACHEADM,SCOTT,PM,DBSNMP,ORDSYS,ORDPLUGINS,SYSMAN,OBE,OE,TTHR,IX,XDB,HR1,WMSYS,PHPDEMO,XFILES&sourcecodetypes=PROCEDURE,PACKAGE_BODY,TYPE_BODY,TRIGGER,FUNCTION&sourcecodenames=%2
+5" 
+
++-----+
 
 
 
+    * Presently, cpd has only a command line interface, no GUI. However, as the PLSQL Language has been added into PMD 5.1.0, are available via the PMD/CPD GUIs. 
 
