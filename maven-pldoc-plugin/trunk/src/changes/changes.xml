@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document xmlns="http://maven.apache.org/changes/1.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-<?xml version="1.0" encoding="UTF-8"?>
-<document xmlns="http://maven.apache.org/changes/1.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/changes/1.0.0 http://maven.apache.org/xsd/changes-1.0.0.xsd">
     <properties>
         <title>PLDoc Maven Plug-in Project</title>
         <author email="altumano at users.sourceforge.net">Albert Tumanov</author>
     </properties>
     <body>
+        <release version="3.0.10" date="2014-02-23"  description="Upissue to require PLDoc 1.5.14" >
+            <action type="fix" dev="sturton" >Project POM file - require version 1.5.14</action>
+        </release>
         <release version="3.0.9" date="2014-02-15"  description="Upissue to require PLDoc 1.5.13" >
             <action type="fix" dev="sturton" >Project POM file - require version 1.5.13</action>
         </release>
