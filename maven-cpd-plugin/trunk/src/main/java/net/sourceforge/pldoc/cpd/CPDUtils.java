@@ -59,14 +59,14 @@ public class CPDUtils
       // Copy sourcecode.xsl, replacing the stylesheet href with the relative href
       Utils.CopyStreamToFile(
 	  (null != stylesheet && stylesheet.exists()) 
-	  ? new FileInputStream ( stylesheet ) 
+	  ? Utils.getBOMInputStream(new FileInputStream ( stylesheet ) , null )
 	  : (new ResourceLoader()).getResourceStream("defaultstylesheet.css")
 	, new File(outputDirectory, "stylesheet.css")
       );
 
       Utils.CopyStreamToFile(
 	  (null != sourceStylesheet && sourceStylesheet.exists()) 
-	  ? new FileInputStream ( sourceStylesheet ) 
+	  ? Utils.getBOMInputStream(new FileInputStream ( sourceStylesheet ) , null )
 	  : (new ResourceLoader()).getResourceStream("defaultstylesheet.css")
 	, new File(outputDirectory, "sourcestylesheet.css")
       );
@@ -76,5 +76,20 @@ public class CPDUtils
       throw e;
     }
   }
+
+ 
+
+  /**
+  * Return an InputStream, stripping out any BOM if the specified or default chracter encoding is UTF*.
+  *
+  * @param inputStream Stream that may or may not contain a BOM
+  * @param inputEncoding 
+  * @throws IOEXception
+  */
+  public static InputStream getBOMInputStream(InputStream inputStream, String inputEncoding) throws IOException {
+
+      return Utils.getBOMInputStream(inputStream, inputEncoding) ;
+  }
+
 
 }
