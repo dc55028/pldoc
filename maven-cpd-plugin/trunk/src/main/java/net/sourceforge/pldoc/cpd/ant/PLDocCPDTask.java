@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Properties;
 import net.sourceforge.pldoc.cpd.CPD;
+import net.sourceforge.pldoc.cpd.CPDUtils;
 import net.sourceforge.pldoc.cpd.Settings;
 import net.sourceforge.pmd.cpd.Language;
 import net.sourceforge.pmd.cpd.*;
@@ -416,7 +417,7 @@ public class PLDocCPDTask extends Task {
   private BufferedReader getInputReader(File file)
       throws java.io.IOException {
     return new BufferedReader(
-        new InputStreamReader(new FileInputStream(file), m_inEnc));
+        new InputStreamReader(CPDUtils.getBOMInputStream(new FileInputStream(file), m_inEnc) , m_inEnc) );
   }
   
     

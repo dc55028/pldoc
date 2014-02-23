@@ -8,6 +8,11 @@
     </properties>
     <body>
 
+	 <release version="0.1.10" date="2014-02-23"  description="Dependency Upgrade" >
+	           <action type="update" dev="sturton" >Require latest versions of PLDoc and PLDoc-CPD</action>
+		   <action type="fix" dev="sturton" issue="103" >Strip BOM from UTF* InputStreams</action>
+        </release>
+
 	 <release version="0.1.9" date="2013-10-21"  description="Dependency Upgrade" >
 	           <action type="update" dev="sturton" >Require latest versions of PLDoc and PLDoc-CPD</action>
         </release>
