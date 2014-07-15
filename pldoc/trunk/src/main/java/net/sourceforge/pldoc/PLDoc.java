@@ -167,6 +167,46 @@ public class PLDoc
   }
 
   /**
+   * Derive PLDoc file name from the object type 
+   * 
+   * @param schemaName Schema Name DBA_OBJECTS.OWNER 
+   * @param objectType Oracle Object Type DBA_OBJECTS.OBJECT_TYPE
+   * @param objectName Object Name DBA_OBJECTS.OBJECT_NAME 
+   * @return PLDoc file name 
+   */
+  private String getPLDocFileName 
+  (String schemaName
+   ,String objectType 
+   ,String objectName
+  )
+  {
+    //@TODO hack for object to PLDoc path mapping 
+    final String fileSuffix = ".html" ;
+    StringBuilder pldocFileName = new StringBuilder();
+    if(objectType.equals("PROCEDURE")
+       ||
+       objectType.equals("FUNCTION")
+       ||
+       objectType.equals("TRIGGER")
+      )
+    {
+      //@TODO Incorrect for Database Triggers 
+      pldocFileName.append(schemaName).append(fileSuffix).append("/#").append(objectName);
+    }
+    else if(objectType.endsWith(" BODY"))
+    {
+      pldocFileName.append("_").append(objectName).append(fileSuffix) ;
+    }
+    else 
+    {
+      pldocFileName.append(objectName).append(fileSuffix) ;
+    }
+    
+    return pldocFileName.toString() ;
+
+  }
+
+  /**
   * Runs pldoc using the specified settings.
   *
   * 2006-05-16 - Matthias Hendler - Collect some status information during the processing
@@ -429,7 +469,7 @@ public class PLDoc
 			     // copy required static files into the source code directory
 			     Utils.copyStaticSourceDirectoryFiles(savedObjectTypeDirectory, "../../" );
 			  }
-			  //Refresh sattic files if ther directory existed previously but has not yet been modified in this run 
+			  //Refresh static files if ther directory existed previously but has not yet been modified in this run 
 			  else if (startTime > savedObjectTypeDirectory.lastModified())
 			  {
 			     // copy required static files into the source code directory
@@ -451,7 +491,24 @@ public class PLDoc
 				  System.err.println("Saving DDL for (object_type,object_name,schema)=(" + dbmsMetadataObjectType + "," +rset.getString(1) + "," +inputSchemaName  + ") to "
 						      + savedSourceFile.getCanonicalPath()
 						      );
-				savedSourceFileWriter = new FileWriter(savedSourceFile);  
+				savedSourceFileWriter = new FileWriter(savedSourceFile);
+                                //
+                                Properties context = new Properties();
+                                
+                                context.put("schemaName", inputSchemaName);
+                                context.put("objectType", dbmsMetadataObjectType);
+                                context.put("objectName", rset.getString(1));
+                                /* Source code is scraped into subdirectories SCHEMA/OBJECTTYPE
+                                   All PLDoc is generated into the Schema directory,i.e. the PLDoc
+                                   is one directory above.
+                                */
+                                context.put("pldocPath"
+                                           , "../".concat(getPLDocFileName(inputSchemaName
+					                              ,dbmsMetadataObjectType
+                                                                      ,rset.getString(1)
+                                                                      )
+                                                        )
+                                        );
 
 				bufferedReader =  
 				new  BufferedReader(
@@ -466,6 +523,7 @@ public class PLDoc
 				    ,savedSourceFileWriter
 				    ,false
 				    ,"sourcecode.xsl"
+                                    ,context
 				  )
 				)
 				;

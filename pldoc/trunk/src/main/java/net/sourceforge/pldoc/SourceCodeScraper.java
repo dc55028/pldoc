@@ -1,6 +1,8 @@
 package net.sourceforge.pldoc;
 
 import java.io.*;
+import java.util.Enumeration;
+import java.util.Properties;
 
 
 /**
@@ -8,19 +10,18 @@ import java.io.*;
  *
  *<p>This makes database source code available for subsequent display or processing.
  *<pre>
- *<code>
+ *{@code
  *<xml ...>
  *<file>
  *<line number="1">line 1 text</line>
  *<line number="2">line 2 text</line>
  *<line number="line-number">line text</line>
  *</file>
- %</xml>
- *</code>
+ *</xml>
+ *}
  *</pre>
- *</p>
  *
- * Cribbed fron {@link apache.commons.io.input.TeeInputSteam} 
+ *<p>Cribbed from {@link apache.commons.io.input.TeeInputStream}</p> 
  */
 public class SourceCodeScraper extends FilterReader
 {
@@ -39,9 +40,10 @@ public class SourceCodeScraper extends FilterReader
    * @param writer the source code to be cloned
    * @param autoclose Should the Writer be closed when the Reader closes?
    * @param xsltHref Optional location of an XSLT stylesheet to view the source code.
+   * @param context Optional properties 
    */
 
-  public SourceCodeScraper (LineNumberReader reader, PrintWriter writer, boolean autoclose, String xsltHref)
+  public SourceCodeScraper (LineNumberReader reader, PrintWriter writer, boolean autoclose, String xsltHref ,Properties context )
   throws IOException 
   {
     super(reader);
@@ -52,7 +54,18 @@ public class SourceCodeScraper extends FilterReader
     {
       this.writer.println(String.format("<?xml-stylesheet type=\"text/xsl\" href=\"%s\" ?>", xsltHref ) );
     }
-    this.writer.println("<file>");
+    this.writer.print("<file");
+    //Save any context properties as root element attributes 
+    if (null != context)
+    {
+      for ( Enumeration e = context.keys() ; e.hasMoreElements() ; ) 
+      {
+        String key = (String) e.nextElement() ;
+        String value = context.getProperty(key) ;
+        this.writer.print(String.format(" %s=\"%s\"", key, value));
+      }
+    }
+    this.writer.println(">");
   }
 
   /* Clone the content of the Reader into the Writer as XML, optionally adding an XSLT stylesheet reference.
@@ -61,11 +74,12 @@ public class SourceCodeScraper extends FilterReader
    * @param writer the source code to be cloned
    * @param autoclose Should the Writer be closed when the Reader closes?
    * @param xsltHref Optional location of an XSLT stylesheet to view the source code.
+   * @param context Optional properties 
    */
-  public SourceCodeScraper (Reader reader, Writer writer, boolean autoclose, String xsltHref)
+  public SourceCodeScraper (Reader reader, Writer writer, boolean autoclose, String xsltHref ,Properties context )
   throws IOException 
   {
-    this(new LineNumberReader(reader), new PrintWriter(writer), autoclose, xsltHref );
+    this(new LineNumberReader(reader), new PrintWriter(writer), autoclose, xsltHref ,context);
   }
 
   /* Clone the content of the Reader into the Writer as XML, optionally adding an XSLT stylesheet reference.
@@ -74,11 +88,12 @@ public class SourceCodeScraper extends FilterReader
    * @param writer the source code to be cloned
    * @param autoclose Should the Writer be closed when the Reader closes?
    * @param xsltFile Optional location of an XSLT stylesheet to view the source code.
+   * @param context Optional properties 
    */
-  public SourceCodeScraper (LineNumberReader reader, PrintWriter writer, boolean autoclose, File xsltFile)
+  public SourceCodeScraper (LineNumberReader reader, PrintWriter writer, boolean autoclose, File xsltFile ,Properties context )
   throws IOException 
   {
-    this(reader, writer, autoclose, (null == xsltFile ) ? null : xsltFile.getCanonicalPath() );
+    this(reader, writer, autoclose, (null == xsltFile ) ? null : xsltFile.getCanonicalPath() ,context);
   }
 
 
@@ -88,11 +103,12 @@ public class SourceCodeScraper extends FilterReader
    * @param writer the source code to be cloned
    * @param autoclose Should the Writer be closed when the Reader closes?
    * @param xsltFile Optional location of an XSLT stylesheet to view the source code.
+   * @param context Optional properties 
    */
-  public SourceCodeScraper (Reader reader, Writer writer, boolean autoclose, File xsltFile)
+  public SourceCodeScraper (Reader reader, Writer writer, boolean autoclose, File xsltFile ,Properties context )
   throws IOException 
   {
-    this(new LineNumberReader(reader), new PrintWriter(writer), autoclose, xsltFile);
+    this(new LineNumberReader(reader), new PrintWriter(writer), autoclose, xsltFile ,context);
   }
 
   /* Clone the content of the Reader into the Writer as XML, optionally adding an XSLT stylesheet reference.
@@ -100,11 +116,12 @@ public class SourceCodeScraper extends FilterReader
    * @param reader the source code to be cloned
    * @param writer the source code to be cloned
    * @param xsltFile Optional location of an XSLT stylesheet to view the source code.
+   * @param context Optional properties 
    */
-  public SourceCodeScraper (LineNumberReader reader, PrintWriter writer, File xsltFile)
+  public SourceCodeScraper (LineNumberReader reader, PrintWriter writer, File xsltFile ,Properties context )
   throws IOException 
   {
-    this(reader, writer,false, xsltFile);
+    this(reader, writer,false, xsltFile ,context);
   }
 
   /* Clone the content of the Reader into the Writer as XML, optionally adding an XSLT stylesheet reference.
@@ -112,11 +129,12 @@ public class SourceCodeScraper extends FilterReader
    * @param reader the source code to be cloned
    * @param writer the source code to be cloned
    * @param xsltFile Optional location of an XSLT stylesheet to view the source code.
+   * @param context Optional properties 
    */
-  public SourceCodeScraper (Reader reader, Writer writer, File xsltFile)
+  public SourceCodeScraper (Reader reader, Writer writer, File xsltFile ,Properties context )
   throws IOException 
   {
-    this(new LineNumberReader(reader), new PrintWriter(writer),false, xsltFile);
+    this(new LineNumberReader(reader), new PrintWriter(writer),false, xsltFile, context);
   }
 
 
