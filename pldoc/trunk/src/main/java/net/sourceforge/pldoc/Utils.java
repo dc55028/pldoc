@@ -188,11 +188,11 @@ public class Utils
   
 
   /**
-  * Return an InputStream, stripping out any BOM if the specified or default chracter encoding is UTF*.
+  * Return an InputStream, stripping out any BOM if the specified or default character encoding is UTF*.
   *
   * @param inputStream Stream that may or may not contain a BOM
   * @param inputEncoding 
-  * @throws IOEXception
+  * @throws IOException
   */
   public static InputStream getBOMInputStream(InputStream inputStream, String inputEncoding) throws IOException {
       if( (null == inputEncoding && System.getProperty("file.encoding").startsWith("UTF"))
