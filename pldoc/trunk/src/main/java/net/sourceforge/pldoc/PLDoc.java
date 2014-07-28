@@ -191,7 +191,7 @@ public class PLDoc
       )
     {
       //@TODO Incorrect for Database Triggers 
-      pldocFileName.append(schemaName).append(fileSuffix).append("/#").append(objectName);
+      pldocFileName.append("_").append(schemaName).append(fileSuffix).append("#").append(objectName);
     }
     else if(objectType.endsWith(" BODY"))
     {
