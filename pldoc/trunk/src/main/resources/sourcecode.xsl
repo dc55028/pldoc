@@ -34,7 +34,6 @@
     <xsl:for-each select="line"><xsl:element name="a">
 	<xsl:variable name="sourceLine" select="@number" />
     	<xsl:attribute name="name"><xsl:value-of select="concat('L',@number)"/></xsl:attribute>
-    	<xsl:attribute name="href"><xsl:value-of select="concat('#L',@number)"/></xsl:attribute>
 	<xsl:element name="span">&#160;<xsl:value-of select="text()" /></xsl:element></xsl:element>&#160;<br/></xsl:for-each>
 </pre>
 </body>
