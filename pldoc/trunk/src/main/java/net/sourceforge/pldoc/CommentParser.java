@@ -247,8 +247,11 @@ public class CommentParser
   }
 
 
-  /** Extracts package comment.
-  * Package comment is recognizes by @headcom tag or something like that. */
+  /** 
+  * Identify and assign package comment when recognized by @headcom tag. 
+  *
+  * @return package level comment 
+  */
   private String extractPackageComment()
   {
     String packageComment = null;
@@ -260,34 +263,51 @@ public class CommentParser
     return packageComment;
   }
 
-  /** Gets package comment.
-  * Package comment is recognizes by @headcom tag or something like that. */
+  /** Get package comment.
+  *
+  * @return package level comment 
+  */
   public String getPackageComment()
   {
     return packageComment;
   }
 
-  /** Gets "first line" of the string.
-  * The first line is ended with dot and may contain linebreaks. */
+  /** Get "first sentence" of the string - is ended with dot and may contain linebreaks. 
+  *
+  * @return first sentence 
+  */ 
   public String getMainSentence()
   {
     return mainSentence;
   }
 
-  /** Returns the entire parsed comment, but without the tag section(s). */
+  /** Return the entire parsed comment, but without the tag section(s). 
+   *
+   *
+   * @return comment text
+   */
   public String getText()
   {
     return text;
   }
 
-  /** Returns hashtable of tags and their values.
-  * Hashtable is indexed by tag names (including preceding PARAM_CHAR).
+  /** Return hashtable of tags and their values.
+  *
+  *
+  *<p>The hashtable is indexed by tag names (including preceding PARAM_CHAR).
+  *</p>
+  *
+  * @return all tags 
   */
   public Hashtable getTags()
   {
     return tags;
   }
 
+  /** 
+  *
+  * @return all input lines 
+  */
   public String toString()
   {
     return inputLines.toString();
@@ -295,7 +315,8 @@ public class CommentParser
 
   /**
    * The main method, for testing only.
-   * @param args
+   *
+   * @param args array of command-line parameters 
    */
   public static void main(String[] args)
   {

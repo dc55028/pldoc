@@ -136,14 +136,21 @@ public class PLDoc
   public Settings settings;
 
   /**
-  * Constructor.
+  * Create using collected or defaulted settings.
+  *
+  * @param settings the collected settings from command-line, ANt task or Maven mojo. 
   */
   public PLDoc(Settings settings)
   {
     this.settings = settings;
   }
 
-  /** All processing is via the main method */
+  /** 
+   * Generate PLDoc from the command-line - all settings are passed as command-line parameters
+   *
+   * @param args all command-line settings 
+   * @throws Exception on error 
+   */
   public static void main(String[] args) throws Exception
   {
     long startTime = System.currentTimeMillis();
@@ -207,7 +214,9 @@ public class PLDoc
   }
 
   /**
-  * Runs pldoc using the specified settings.
+  * Run PLDoc using the specified settings.
+  *
+  * @throws Exception on error 
   *
   * 2006-05-16 - Matthias Hendler - Collect some status information during the processing
   *                                 and add them to the application.xml.
@@ -715,11 +724,12 @@ public class PLDoc
   * Write ResultSet to Output As XML using the specified settings.
   *
   *@param resultSet the database information to write 
-  *@param OutputStream outputStream
+  *@param outputStream outputStream
   *@param documentRootName the root Element of the XML document 
-  *@param rowElementNameof the element containing each row document 
+  *@param rowElementName the element containing each row document 
   *@param dtd Optional DTD that the XML should validate against  
   *
+  *@throws Exception on error 
   */
   public void resultSetToXml(ResultSet resultSet, OutputStream outputStream, String documentRootName, String rowElementName, String dtd ) throws Exception
   {
@@ -770,6 +780,8 @@ public class PLDoc
   * @param packageSpec  Package specification to parse
   * @param xmlOut       XML writer
   * @param pPackageName The name of the package which is processed
+  * @param pSchemaName  The name of the package owner 
+  * @param pGlobalPackageName The name of the default package name to contain function, procedure and trigger PLDoc if pSchemaName is not provided
   * @return             Null, if successfully processed or otherwise throwable which was encountered during processing.
   * @throws SystemExitException   Thrown if an error occurred and the user specified the halt on errors option.
   *                               All other throwables will be caught.

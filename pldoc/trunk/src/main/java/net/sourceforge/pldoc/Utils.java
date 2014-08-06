@@ -36,6 +36,8 @@ public class Utils
   * @param inputFile source 
   * @param outputFile target 
   * @param resourceName - internal resource to use if inputFile does not exist
+  * @throws FileNotFoundException if the file does not exist  
+  * @throws IOException on input error
   */
   public static void CopyFile(File inputFile, File outputFile, String resourceName )
   throws FileNotFoundException, IOException
@@ -61,6 +63,8 @@ public class Utils
   * I wish there was a standard Java way to do it.
   * @param inputFile source 
   * @param outputFile target 
+  * @throws FileNotFoundException if the file does not exist  
+  * @throws IOException on input error
   */
   public static void CopyFile(File inputFile, File outputFile)
   throws FileNotFoundException, IOException
@@ -81,6 +85,8 @@ public class Utils
   * I wish there was a standard Java way to do it.
   * @param inputStream source 
   * @param outputFile target 
+  * @throws FileNotFoundException if the file does not exist  
+  * @throws IOException on input error
   */
   public static void CopyStreamToFile(InputStream inputStream, File outputFile)
   throws FileNotFoundException, IOException
@@ -101,6 +107,8 @@ public class Utils
   /** Copies a Reader into a file.
   * @param reader source 
   * @param outputFile target 
+  * @throws FileNotFoundException if the file does not exist  
+  * @throws IOException on input error
   */
   public static void CopyReaderToFile(Reader reader, File outputFile)
   throws FileNotFoundException, IOException
@@ -119,6 +127,7 @@ public class Utils
   /** Aggregate contents of an InputStream into a String 
   * @param inputStream source 
   * @return aggregated contents
+  * @throws IOException on input error
   */
   public static String getStringFromInputStream(InputStream inputStream) throws IOException  
    {
@@ -141,6 +150,7 @@ public class Utils
   *
   * @param outputDirectory directory to copy files
   * @param relativePath the relative path to the location of the root output directory 
+  * @throws Exception on read or write error
   */
   public static void copyStaticSourceDirectoryFiles(File outputDirectory, String relativePath) throws Exception {
     try {
@@ -171,7 +181,9 @@ public class Utils
   * Copy required static files into the root output directory.
   *
   * @param outputDirectory directory to copy files
-  * @param sourceStylesheet the relative path to the location of the root output directory 
+  * @param stylesheet explicit PLDoc CSS stylesheet 
+  * @param sourceStylesheet explicit scraped source code CSS stylesheet 
+  * @throws Exception on read or write error
   */
   public static void copyStaticRootDirectoryFiles(File outputDirectory, File stylesheet, File sourceStylesheet) throws Exception {
       CopyFile(stylesheet
@@ -179,7 +191,7 @@ public class Utils
               ,"defaultstylesheet.css"
       );
 
-      CopyFile(stylesheet
+      CopyFile(sourceStylesheet
             	,new File(outputDirectory, "sourcestylesheet.css")
               ,"defaultstylesheet.css"
       );
@@ -191,8 +203,10 @@ public class Utils
   * Return an InputStream, stripping out any BOM if the specified or default character encoding is UTF*.
   *
   * @param inputStream Stream that may or may not contain a BOM
-  * @param inputEncoding 
-  * @throws IOException
+  * @param inputEncoding file encoding 
+  * @throws IOException on input error
+  *
+  * @return InputStream with any BOM stripped.
   */
   public static InputStream getBOMInputStream(InputStream inputStream, String inputEncoding) throws IOException {
       if( (null == inputEncoding && System.getProperty("file.encoding").startsWith("UTF"))

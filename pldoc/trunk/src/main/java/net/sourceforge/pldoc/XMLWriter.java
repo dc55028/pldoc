@@ -13,8 +13,7 @@ import org.w3c.dom.*;
 /**
  *  Description of the Class
  *
- *@created    April 18, 2004
- *@version $Header: /cvsroot/pldoc/sources/src/java/net/sourceforge/pldoc/XMLWriter.java,v 1.11 2009/04/15 00:48:07 zolyfarkas Exp $
+ *<p>created    April 18, 2004</p>
  */
 public class XMLWriter {
 
@@ -66,7 +65,7 @@ public class XMLWriter {
 
 
   /**
-   *  Sets the method attribute of the XMLWriter object
+   * Set the method attribute of the XMLWriter object
    *
    *@param  method  The new method value
    */
@@ -77,7 +76,7 @@ public class XMLWriter {
 
 
   /**
-   *  Sets the version attribute of the XMLWriter object
+   *  Set the version attribute of the XMLWriter object
    *
    *@param  version  The new version value
    */
@@ -87,7 +86,7 @@ public class XMLWriter {
 
 
   /**
-   *  Sets the encoding attribute of the XMLWriter object
+   *  Set the encoding attribute of the XMLWriter object
    *
    *@param  encoding  The new encoding value
    */
@@ -97,7 +96,7 @@ public class XMLWriter {
 
 
   /**
-   *  Sets the indent attribute of the XMLWriter object
+   *  Set the indent attribute of the XMLWriter object
    *
    *@param  indent  The new indent value
    */
@@ -157,7 +156,7 @@ public class XMLWriter {
   //
 
   /**
-   *  Description of the Method
+   *  Start new Document.
    *
    *@exception  SAXException  Description of the Exception
    */
@@ -174,7 +173,7 @@ public class XMLWriter {
 
 
   /**
-   *  Description of the Method
+   *  Finalize current Document, writing it out.
    *
    *@exception  SAXException  Description of the Exception
    */
@@ -199,8 +198,9 @@ public class XMLWriter {
   //
 
   /**
-   *  Adds an attributes to the queue.
-   *  Should be called before calling the respective startElement().
+   *  Add an attribute to the queue.
+   *  
+   *  <p><b>Should be called before calling the respective startElement()</b></p>.
    *
    *@param  name              Description of the Parameter
    *@param  value             Description of the Parameter
@@ -218,7 +218,7 @@ public class XMLWriter {
 
 
   /**
-   *  Description of the Method
+   *  Generate start tag. 
    *
    *@param  name              Description of the Parameter
    *@exception  SAXException  Description of the Exception
@@ -231,7 +231,7 @@ public class XMLWriter {
 
 
   /**
-   *  Description of the Method
+   *  Generate end tag.
    *
    *@param  name              Description of the Parameter
    *@exception  SAXException  Description of the Exception
@@ -260,7 +260,7 @@ public class XMLWriter {
 
 
   /**
-   *  Description of the Method
+   *  Generate end tags for any open tags.
    *
    *@param  name              Description of the Parameter
    *@exception  SAXException  Description of the Exception
@@ -329,14 +329,16 @@ public class XMLWriter {
 
 
   /**
-   *  Gets the DOM Document written so far.
+   *  Get the DOM Document written so far.
+   *  
+   *  @return current Document
    */
   public Document getDocument() {
     return doc;
   }
 
   /**
-   *  Description of the Method
+   *  Append node to  document.
    *
    *@param  node                          node whose children to append
    *@exception  org.xml.sax.SAXException  Description of the Exception
@@ -353,10 +355,13 @@ public class XMLWriter {
   }
 
   /**
-   *  Description of the Method
+   *  Locate the Schema and the Object in the current DOM.
    *
-   *@param  node                          node whose children to append
+   *@param  schemaName  Oracle Schema name 
+   *@param objectName   Oracle Object name 
    *@exception  org.xml.sax.SAXException  Description of the Exception
+   *
+   *@return located node
    */
   public Node findObjectNode(String schemaName, String objectName)
        throws org.xml.sax.SAXException {
@@ -381,20 +386,24 @@ public class XMLWriter {
 
 
   /**
-   *  Description of the Method
+   *  Create element with name of <i>tagName</i>.
    *
-   *@param  node                          node whose children to append
-   *@exception  org.xml.sax.SAXException  Description of the Exception
+   *@param  tagName                          text
+   *@exception  org.w3c.dom.DOMException  Description of the Exception
+   *
+   *@return tag as Element
    */
   public Element createElement(String tagName) throws DOMException {
     return doc.createElement(tagName);
   }
 
   /**
-   *  Description of the Method
+   * Convert data into CDATA.
    *
-   *@param  node                          node whose children to append
-   *@exception  org.xml.sax.SAXException  Description of the Exception
+   *@param  data                          text
+   *@exception  org.w3c.dom.DOMException  Description of the Exception
+   *
+   *@return text as  CDATA 
    */
   public CDATASection createCDATASection(String data) throws DOMException {
     return doc.createCDATASection(data);

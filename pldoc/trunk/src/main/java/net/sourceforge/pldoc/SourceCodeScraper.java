@@ -21,7 +21,7 @@ import java.util.Properties;
  *}
  *</pre>
  *
- *<p>Cribbed from {@link apache.commons.io.input.TeeInputStream}</p> 
+ *<p>Cribbed from <i>apache.commons.io.input.TeeInputStream</i></p> 
  */
 public class SourceCodeScraper extends FilterReader
 {

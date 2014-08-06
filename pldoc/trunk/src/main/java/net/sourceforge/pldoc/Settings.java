@@ -146,7 +146,10 @@ public class Settings
     ;
 //    "                          &myvar2=abcdef\n" +
 
-  /** Consumes command line strings received by the main() method */
+  /** Consume command line strings received by the main() method 
+   * @param args array of command-line parameters.
+   * @throws Exception on error 
+   */
   public void processCommandString(String args[]) throws Exception
   {
     if (args.length < 1) {
