@@ -14,6 +14,9 @@ import javax.xml.transform.URIResolver;
 
 import net.sourceforge.pldoc.*;
 
+/** 
+ * Provide a database API for PLDoc, allowing code to be documented within the database. 
+ */
 public class PLDocParser {
 
   public PLDocParser() {
@@ -77,7 +80,7 @@ public class PLDocParser {
   }  
 
   
-    /**
+  /**
   * Parse object PLDoc into intermediate XML.
   *
   * @param schemaName   The name of the owner of the object to be parsed
@@ -122,19 +125,36 @@ public class PLDocParser {
   }  
   */
 
-  /*
-  * Helper method to return fixed URIResolver to alternative applications
+  /**
+  * Helper method to return fixed URIResolver to alternative applications: this provides read access to internal PLDoc resources such as stylesheets.
+  *
+  * @return URIResolver including internal PLDoc resources.
   */
   public static URIResolver getResourceResolver() {
       return PLDoc.getResourceResolver();
   }
 
 
+  /**
+  * Helper method to return InputStream from internal PLDoc resources such as stylesheets.
+  *
+  * @param path name of internal resopurce 
+  * @return internal PLDoc resources.
+  * @throws IOException on problem retrieving PLDoc resource. 
+  */
    public static InputStream getResourceStream(String path) throws java.io.IOException {
     
       return PLDoc.getResourceStream(path);
   }
 
+  /**
+  * Helper method to copy PLDoc resource to provided Clob 
+  *
+  * @param path name of internal resopurce 
+  * @param resourceClob target database Clob.
+  * @throws IOException on problem retrieving PLDoc resource or copying to output. 
+  * @throws SQLException on problem retrieving PLDoc resource. 
+  */
    public static void setResource(String path, Clob resourceClob) throws java.io.IOException, java.sql.SQLException {
 
       Writer output = resourceClob.setCharacterStream(1);
@@ -142,6 +162,15 @@ public class PLDocParser {
 
   }
 
+  /**
+  * Helper method to provision and return Clob from PLDoc resource 
+  *
+  * @param path name of internal resopurce 
+  * @param resourceClob target database Clob.
+  * @throws IOException on problem retrieving PLDoc resource or copying to output. 
+  * @throws SQLException on problem retrieving PLDoc resource. 
+  * @return provisioned database object.
+  */
    public static Clob getResource(String path, Clob resourceClob) throws java.io.IOException, java.sql.SQLException {
     
       PLDocParser.setResource (path, resourceClob ) ;
@@ -149,7 +178,11 @@ public class PLDocParser {
   }
 
  
- /** All processing is via the main method */
+ /** 
+  * Perform <i>ad hoc</i> test using command line parameters or defaults if not supplied.
+  * @param args array of command-line parameters 
+  * @throws Exception on any encountered error  
+  */
   public static void main(String[] args) throws Exception
   {
     String          dbURL               = "jdbc:oracle:thin:@192.168.100.22:1521:orcl";
@@ -354,7 +387,7 @@ public class PLDocParser {
    * @param returnType the required/expected return type java.sql.Types}  
    * @param sqlStatement the SQl steatement to generate the daatabase object
    * @return  the databse Object to be returned 
-   * @throws SQLException 
+   * @throws SQLException on database connection or access problems  
    */
    public static Object getDBObject (
       Connection connection
