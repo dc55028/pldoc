@@ -36,12 +36,20 @@ public class SubstitutionReader extends FilterReader
 
   private String lineSeparator = System.getProperty("line.separator");
   
-  /** Hides the constructor. */
+  /** Hide the constructor. 
+   *
+   * @param in Reader possibly containing symbols for replacement.  
+   */
   private SubstitutionReader(Reader in) {
     super(in);
   }
 
-  /** Constructs a new Reader by substituting all defines in the specified Reader. */
+  /** Construct a new Reader by substituting all defines in the specified Reader. 
+   *
+   * @param inputReader Reader possibly containing symbols for replacement.  
+   * @param defines symbols and replacement values 
+   * @throws Exception on read or write error
+   */
   public SubstitutionReader(BufferedReader inputReader, Properties defines) throws Exception {
     this(inputReader);
     StringBuffer b = new StringBuffer();

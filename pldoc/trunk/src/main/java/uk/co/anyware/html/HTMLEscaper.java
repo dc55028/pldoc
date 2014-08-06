@@ -32,13 +32,15 @@ package uk.co.anyware.html;
  * representation. It will not escape standard ASCII characters unless
  * it is necessary (i.e. will not escape ASCI #32 but will escape "&amp;").
  * Any characters with no corresponding entity are passed through unchanged.
- * It uses a quick string -> array mapping to avoid creating thousands of
+ * It uses a quick string -&lt; array mapping to avoid creating thousands of
  * temporary objects.
  */
 public class HTMLEscaper {
 
   /**
    * A little bit of unit testing
+   *
+   * @param args test command line parameters 
    */
   public static void main(String[] args) {
 
@@ -58,7 +60,7 @@ public class HTMLEscaper {
   /**
    * This method will take the input and escape characters that have
    * an HTML entity representation.
-   * It uses a quick string -> array mapping to avoid creating thousands of
+   * It uses a quick string -&lt; array mapping to avoid creating thousands of
    * temporary objects.
    * @param nonHTMLsrc String containing the text to make HTML-safe
    * @return String containing new copy of string with entities escaped
