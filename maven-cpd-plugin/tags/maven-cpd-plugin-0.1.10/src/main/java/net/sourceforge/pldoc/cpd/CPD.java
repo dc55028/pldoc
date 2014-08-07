@@ -422,6 +422,7 @@ private MatchAlgorithm matchAlgorithm;
 				    ,savedSourceFileWriter
 				    ,false
 				    ,"sourcecode.xsl"
+				    ,null // Context Properties 
 				  )
 			       );
 
