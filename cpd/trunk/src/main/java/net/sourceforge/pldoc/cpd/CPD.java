@@ -423,6 +423,7 @@ private MatchAlgorithm matchAlgorithm;
 				    ,savedSourceFileWriter
 				    ,false
 				    ,"sourcecode.xsl"
+				    ,null // No PLDoc for CPD 
 				  )
 				)
 				;
