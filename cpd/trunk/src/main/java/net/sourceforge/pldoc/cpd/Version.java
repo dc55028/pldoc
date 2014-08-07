@@ -32,7 +32,9 @@ public class Version {
   }
 
   /** Version ID in the form 0.0.0
-  */
+   *
+   *@return CPD version number   
+   */
   public static String id() {
 
     /*
