@@ -125,13 +125,18 @@ private MatchAlgorithm matchAlgorithm;
 
   /**
   * Constructor.
+  * @param settings command-line parameteres 
   */
   public CPD(Settings settings)
   {
     this.settings = settings;
   }
 
-  /** All processing is via the main method */
+  /** Runn CPD using command-line settings.
+   *
+   * @param args command-line parameteres 
+   * @throws Exception on any error 
+   */
   public static void main(String[] args) throws Exception
   {
     long startTime = System.currentTimeMillis();
@@ -182,11 +187,12 @@ private MatchAlgorithm matchAlgorithm;
   }
 
   /**
-  * Runs CPD using the specified settings.
+  * Run CPD using the current settings.
   *
   * 2006-05-16 - Matthias Hendler - Collect some status information during the processing
   *                                 and add them to the application.xml.
   *                                 More verbose output to console added.
+  * @throws Exception on any error 
   */
   public void run() throws Exception
   {
@@ -521,27 +527,21 @@ private MatchAlgorithm matchAlgorithm;
   
   
   /**
-  * Processes a package.
+  * Set monitor that checks for Cut and Paste in processed source code.
   *
-  * 2006-05-16 - Matthias Hendler - Rewritten exception handling and methode signature.
-  *
-  * @param packageSpec  Package specification to parse
-  * @param xmlOut       XML writer
-  * @param pPackageName The name of the package which is processed
-  * @return             Null, if successfully processed or otherwise throwable which was encountered during processing.
-  * @throws SystemExitException   Thrown if an error occurred and the user specified the halt on errors option.
-  *                               All other throwables will be caught.
+  * @param cpdListener  source code listener
   */
 
 
 
-  // CPD
-  //
-  
-
   public void setCpdListener(CPDListener cpdListener) {
         this.listener = cpdListener;
     }
+
+  /**
+  * Find matches in the provided source code using the current settings.
+  *
+  */
 
     public void go() {
         if (settings.isVerbose() ) System.err.println("Checking  " 
@@ -648,7 +648,8 @@ private MatchAlgorithm matchAlgorithm;
     * @param objectName database object name 
     * @param schemaName database user/schema name 
     * @param objectType database object type 
-    * @return independent processing 
+    * @return caught and uncaught events
+    * @throws IOException on read or write error 
    */
    private Throwable add(int fileCount
                     , Reader codeReader
@@ -672,6 +673,7 @@ private MatchAlgorithm matchAlgorithm;
     * @param fileCount to match the equivalent file-based methods 
     * @param file File system reference to  
     * @return independent processing 
+    * @throws IOException on read or write error 
    */
    private Throwable add(int fileCount
                     , Reader codeReader
@@ -686,8 +688,10 @@ private MatchAlgorithm matchAlgorithm;
    /** Pass in Reader with a signature pseudo-path for user friendly referencing.
     *
     * @param fileCount to match the equivalent file-based methods 
+    * @param codeReader source code for examination 
     * @param signature user supplied signature to refence this source code 
     * @return independent processing 
+    * @throws IOException on read or write error 
    */
    private Throwable add(int fileCount
                     , Reader codeReader
