@@ -135,7 +135,10 @@ public class Settings
     "-showSkippedPackages      Show the skipped packages in the summary of the documentation (generator.html).\n" 
     ;
 
-  /** Consumes command line strings received by the main() method */
+  /** Consume command line strings received by the main() method 
+   * @param args Command-line arguments 
+   * @throws Exception on error 
+   */
   public void processCommandString(String args[]) throws Exception
   {
     if (args.length < 1) {
@@ -645,7 +648,8 @@ public class Settings
   /**
   * Generates HTML file from the provided XML file and the specified stylesheet.
   *
-  * @param applicationFile  XML application file
+  * @param outputFile CPD output file 
+  * @throws Exception on error 
   */
   public void generateHtml(File outputFile) throws Exception {
     // apply xsl to generate the HTML frames

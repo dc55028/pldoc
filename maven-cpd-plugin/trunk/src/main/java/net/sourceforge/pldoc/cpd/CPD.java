@@ -122,13 +122,18 @@ private MatchAlgorithm matchAlgorithm;
 
   /**
   * Constructor.
+  * @param settings CPD settings passin from Maven mojo. 
   */
   public CPD(Settings settings)
   {
     this.settings = settings;
   }
 
-  /** All processing is via the main method */
+  /** Test/run this from the command line.
+   *
+   * @param args commandpline 
+   * @throws Exception on error 
+   */
   public static void main(String[] args) throws Exception
   {
     long startTime = System.currentTimeMillis();
@@ -179,8 +184,9 @@ private MatchAlgorithm matchAlgorithm;
   }
 
   /**
-  * Runs CPD using the specified settings.
+  * Search the attached source code using the current settings.
   *
+  * @throws Exception on error 
   */
   public void run() throws Exception
   {
@@ -517,29 +523,23 @@ private MatchAlgorithm matchAlgorithm;
   
   
   /**
-  * Processes a package.
+  * Set up monitoring of source code for similarities.
   *
-  * 2006-05-16 - Matthias Hendler - Rewritten exception handling and methode signature.
-  *
-  * @param packageSpec  Package specification to parse
-  * @param xmlOut       XML writer
-  * @param pPackageName The name of the package which is processed
-  * @return             Null, if successfully processed or otherwise throwable which was encountered during processing.
-  * @throws SystemExitException   Thrown if an error occurred and the user specified the halt on errors option.
-  *                               All other throwables will be caught.
+  * @param cpdListener Track source code files. 
   */
 
-
-
-  // CPD
-  //
-  
 
   public void setCpdListener(CPDListener cpdListener) {
         this.listener = cpdListener;
     }
 
-    public void go() {
+
+  /**
+  * Execute the search for all loaded source code.
+  *
+  */
+
+  public void go() {
         if (settings.isVerbose() ) System.err.println("Checking  " 
                 + tokens.size() + " Abstract Syntax Tree(s) from "
                 + source.size() + " Source(s)."
@@ -644,6 +644,7 @@ private MatchAlgorithm matchAlgorithm;
     * @param schemaName database user/schema name 
     * @param objectType database object type 
     * @return independent processing 
+    * @throws IOException on read/write error 
    */
    private Throwable add(int fileCount
                     , Reader codeReader
@@ -665,8 +666,10 @@ private MatchAlgorithm matchAlgorithm;
     *be an abstract file system reference for duplicate code reporting.</b>
     *
     * @param fileCount to match the equivalent file-based methods 
-    * @param file File system reference to  
+    * @param reader Reader containg source code
+    * @param file File system reference to this source code - this might be a notional, non-existent file name.  
     * @return independent processing 
+    * @throws IOException on read/write error 
    */
    private Throwable add(int fileCount
                     , Reader codeReader
@@ -681,8 +684,10 @@ private MatchAlgorithm matchAlgorithm;
    /** Pass in Reader with a signature pseudo-path for user friendly referencing.
     *
     * @param fileCount to match the equivalent file-based methods 
+    * @param reader Reader containg source code
     * @param signature user supplied signature to refence this source code 
     * @return independent processing 
+    * @throws IOException on read/write error 
    */
    private Throwable add(int fileCount
                     , Reader codeReader
