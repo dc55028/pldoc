@@ -15,13 +15,15 @@ public class CPDUtils
 
 
   /**
-  * Copies required static files into the source code directory.
+  * Copy required static files into the source code directory.
   *
-  * This allows the XSL and CSS hrefs to cope with relocation of the root output directory 
+  *<p>This allows the XSL and CSS hrefs to cope with relocation of the root output directory 
   * or access through a web browser.
+  *</p>
   *
   * @param outputDirectory directory to copy files
   * @param relativePath the relative path to the location of the root output directory 
+  * @throws Exception on error 
   */
   public static void copyStaticSourceDirectoryFiles(File outputDirectory, String relativePath) throws Exception {
     try {
@@ -52,7 +54,9 @@ public class CPDUtils
   * Copies required static files into the root output directory.
   *
   * @param outputDirectory directory to copy files
-  * @param sourceStylesheet the relative path to the location of the root output directory 
+  * @param stylesheet general CSS Stylesheet to format HTML pages   
+  * @param sourceStylesheet general CSS Stylesheet to format source code HTML pages   
+  * @throws Exception on error 
   */
   public static void copyStaticRootDirectoryFiles(File outputDirectory, File stylesheet, File sourceStylesheet) throws Exception {
     try {
@@ -83,8 +87,9 @@ public class CPDUtils
   * Return an InputStream, stripping out any BOM if the specified or default chracter encoding is UTF*.
   *
   * @param inputStream Stream that may or may not contain a BOM
-  * @param inputEncoding 
-  * @throws IOEXception
+  * @param inputEncoding file encoding of code in this InputStream 
+  * @return InputSTream with any BOM stripped.
+  * @throws IOException on read error 
   */
   public static InputStream getBOMInputStream(InputStream inputStream, String inputEncoding) throws IOException {
 

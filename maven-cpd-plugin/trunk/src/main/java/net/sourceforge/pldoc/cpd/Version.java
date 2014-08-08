@@ -32,6 +32,7 @@ public class Version {
   }
 
   /** Version ID in the form 0.0.0
+   *@return plugin version number
   */
   public static String id() {
 
