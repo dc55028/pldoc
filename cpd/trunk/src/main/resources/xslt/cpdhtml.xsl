@@ -63,7 +63,7 @@
         	<td>
         		<table>
         			<xsl:for-each select="file" >
-        				<tr class="TableRowColor" ><td><a><xsl:attribute name="href" ><xsl:value-of select="@path" />#<xsl:value-of select="@line"/></xsl:attribute><xsl:value-of select="@path"/></a></td><td> line <xsl:value-of select="@line"/></td></tr>
+        				<tr class="TableRowColor" ><td><a><xsl:attribute name="href" ><xsl:value-of select="@path" />#<xsl:value-of select="concat('L',@line)"/></xsl:attribute><xsl:value-of select="@path"/></a></td><td> line <xsl:value-of select="@line"/></td></tr>
         			</xsl:for-each>
         		</table>
         	</td>
