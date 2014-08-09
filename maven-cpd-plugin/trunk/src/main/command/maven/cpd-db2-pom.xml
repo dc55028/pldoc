@@ -83,6 +83,8 @@
 			  <driverName>${maven.pldoc.driverName}</driverName>
 			  <getMetadataStatement>${maven.pldoc.getMetadataStatement}</getMetadataStatement>
 			  <getMetadataStatementReturnType>${maven.pldoc.getMetadataStatementReturnType}</getMetadataStatementReturnType>
+			  <format>xml</format>
+			  <outputFile>index.xml</outputFile>
 			  <inputTypes>PROCEDURE,FUNCTION,TRIGGER,PACKAGE,TYPE,PACKAGE BODY,TYPE BODY</inputTypes>
 			  <inputObjects>DB2INST1.GET_%</inputObjects>
 		    </configuration>                    
