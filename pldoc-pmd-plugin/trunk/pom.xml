@@ -23,8 +23,10 @@ under the License.
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>pldoc-pmd-plugin</artifactId>
+  <groupId>net.sourceforge.pldoc</groupId>
   <version>3.2-SNAPSHOT</version>
   <packaging>maven-plugin</packaging>
+  <url>http://pldoc.sourceforge.net</url>
 
   <licenses>
     <license>
