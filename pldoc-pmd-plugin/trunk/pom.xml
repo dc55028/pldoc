@@ -23,7 +23,7 @@ under the License.
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>pldoc-pmd-plugin</artifactId>
-  <version>3.3-SNAPSHOT</version>
+  <version>3.2-SNAPSHOT</version>
   <packaging>maven-plugin</packaging>
 
   <licenses>
