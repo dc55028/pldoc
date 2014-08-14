@@ -321,14 +321,14 @@ public class CpdReport
 		try
 		{
 			DBURI dbURI = new DBURI(uri);
-			File sourceRoot = new File ("/Database");
+			File sourceRoot = new File (DEFAULT_SOURCE_ROOT);
 			cpd.add(dbURI); 
                         
 			final String dbXrefLocation = constructXRefLocation (false);
                         getLog().debug( "executeCpd: sourceRoot==\""+sourceRoot+"\"" );
                         getLog().debug( "executeCpd: dbXrefLocation==\""+dbXrefLocation+"\"" );
   
-                        for (SourceCode source: cpd.getSources())
+            for (SourceCode source: cpd.getSources())
 			{
                                 getLog().debug( "executeCpd: source.getFileName()==\""+source.getFileName()+"\"" );
 				filesToProcess.put(new File(source.getFileName()), new PmdFileInfo( project, sourceRoot, dbXrefLocation )  ) ;
@@ -363,11 +363,11 @@ public class CpdReport
          if ("plsql".equalsIgnoreCase(language))
         {
           //Append .xml suffix to file name 
-          gen = new CpdReportGenerator( getSink(), filesToProcess, getBundle( locale ), aggregate , "$", ".xml" );
+          gen = new CpdReportGenerator( getLog(), getSink(), filesToProcess, getBundle( locale ), aggregate , "$", ".xml" );
         }
         else
         {
-          gen = new CpdReportGenerator( getSink(), filesToProcess, getBundle( locale ), aggregate );
+          gen = new CpdReportGenerator( getLog(), getSink(), filesToProcess, getBundle( locale ), aggregate );
         }
        
       gen.generate( cpd.getMatches() );

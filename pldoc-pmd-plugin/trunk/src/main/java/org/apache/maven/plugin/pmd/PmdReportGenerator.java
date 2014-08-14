@@ -221,13 +221,19 @@ public class PmdReportGenerator
         for ( RuleViolation ruleViolation : violations2 )
         {
             String currentFn = ruleViolation.getFilename();
-            File canonicalFilename = new File( currentFn ).getCanonicalFile();
+            File  file  = new File( currentFn ) ;
+            File canonicalFilename = file.getCanonicalFile();
             log.debug("processViolations RuleViolation.getFilename(): "+currentFn);
-            PmdFileInfo fileInfo = files.get( canonicalFilename );
+            PmdFileInfo fileInfo = files.get( currentFn.startsWith(AbstractPmdReport.DEFAULT_SOURCE_ROOT)
+                                                ?  file
+                                                :  canonicalFilename
+                                             );
             if ( fileInfo == null )
             {
-                log.warn( "Couldn't determine PmdFileInfo for file " + currentFn + " (canonical: " + canonicalFilename
-                              + "). XRef links won't be available." );
+                log.warn( "Couldn't determine PmdFileInfo for file " + currentFn 
+                            + " (abstract file: " + file
+                            + " , canonical: " + canonicalFilename
+                            + "). XRef links won't be available." );
             }
 
             if ( !currentFn.equalsIgnoreCase( previousFilename ) && fileSectionStarted )

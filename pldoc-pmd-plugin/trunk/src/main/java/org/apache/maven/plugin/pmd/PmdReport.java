@@ -398,7 +398,7 @@ public class PmdReport
 		{
 
 
-		    String sourceRootPath = "/Database" ;
+		    String sourceRootPath = DEFAULT_SOURCE_ROOT ;
 		    File sourceRoot = new File (sourceRootPath);
 		    List<DataSource> uriDataSources = PMD.getURIDataSources(uri);
 		    dataSources.addAll(uriDataSources);

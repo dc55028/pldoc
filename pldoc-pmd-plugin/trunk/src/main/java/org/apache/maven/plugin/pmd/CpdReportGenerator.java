@@ -22,6 +22,7 @@ package org.apache.maven.plugin.pmd;
 import net.sourceforge.pmd.cpd.Match;
 import net.sourceforge.pmd.cpd.TokenEntry;
 import org.apache.maven.doxia.sink.Sink;
+import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.StringUtils;
 
@@ -44,6 +45,8 @@ public class CpdReportGenerator
     /** Default filename replacement pattern -  */
     private static final String DEFAULT_REPLACE_PATTERN = ".html";
  
+    private Log log;
+
     private Sink sink;
 
     private Map<File, PmdFileInfo> fileMap;
@@ -59,7 +62,7 @@ public class CpdReportGenerator
     private String replacePattern = DEFAULT_REPLACE_PATTERN;
 
  
-    public CpdReportGenerator( Sink sink, Map<File, PmdFileInfo> fileMap, ResourceBundle bundle, boolean aggregate )
+    public CpdReportGenerator(  Log log, Sink sink, Map<File, PmdFileInfo> fileMap, ResourceBundle bundle, boolean aggregate )
     {
         this.sink = sink;
         this.fileMap = fileMap;
@@ -67,11 +70,12 @@ public class CpdReportGenerator
         this.aggregate = aggregate;
     }
 
-    public CpdReportGenerator( Sink sink, Map<File, PmdFileInfo> fileMap, ResourceBundle bundle, boolean aggregate 
+    public CpdReportGenerator(  Log log, Sink sink, Map<File, PmdFileInfo> fileMap, ResourceBundle bundle, boolean aggregate 
             , String searchPattern
             , String replacePattern
     )
     {
+        this.log = log;
         this.sink = sink;
         this.fileMap = fileMap;
         this.bundle = bundle;
@@ -167,6 +171,14 @@ public class CpdReportGenerator
 
         if ( xrefLocation != null )
         {
+            log.debug("CpdReportGenerator.generateFileLine: xrefLocation=\"" + xrefLocation 
+                            + "\", sourceDirectory=\""+sourceDirectory
+                            + "\", sourceDirectory.getAbsolutePath=\""+sourceDirectory.getAbsolutePath()
+                            + "\", filename=\""+filename
+                            + "\", searchPattern=\""+searchPattern
+                            + "\", result =\"" + filename.replaceAll(searchPattern, replacePattern ).replace( '\\', '/' ) 
+                            );
+
             sink.link(
                 xrefLocation + "/" + filename.replaceAll(searchPattern, replacePattern ).replace( '\\', '/' ) + "#L" + line );
         }

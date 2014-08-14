@@ -59,6 +59,12 @@ public abstract class AbstractPmdReport
     extends AbstractMavenReport
 {
     /**
+     *  Notional source root of database objects 
+     */
+    
+    public static final String DEFAULT_SOURCE_ROOT = "/Database" ;
+
+    /**
      * The output directory for the intermediate XML report.
      */
     @Parameter( property = "project.build.directory", required = true )
