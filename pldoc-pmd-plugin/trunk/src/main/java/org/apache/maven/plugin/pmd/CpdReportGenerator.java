@@ -152,7 +152,20 @@ public class CpdReportGenerator
         File file = new File( filename );
         PmdFileInfo fileInfo = fileMap.get( file );
         File sourceDirectory = fileInfo.getSourceDirectory();
-        filename = StringUtils.substring( filename, sourceDirectory.getAbsolutePath().length() + 1 );
+        filename = //StringUtils.substring( filename, sourceDirectory.getAbsolutePath().length() + 1 );
+           /*
+            * Under Windows, File ("/Database").getAbsolutePath() is returned as ${PWD}/Database, where File ("/Database/path").getAbsolutePath() comes back as expected.
+            * This means that the relative path from the "/Database" SourceDirectory to the "/Database/schema/object-type/object-name.suffix" path
+            * is generated incorrectly.
+            *
+            * The ternary operator below is an explicit, undesirable workaround for this problem.
+            */
+                StringUtils.substring( filename
+                                         , filename.startsWith(AbstractPmdReport.DEFAULT_SOURCE_ROOT)
+                                           ? AbstractPmdReport.DEFAULT_SOURCE_ROOT.length() + 1 
+                                           : sourceDirectory.getAbsolutePath().length() + 1   
+                                       );
+
         String xrefLocation = fileInfo.getXrefLocation();
         MavenProject projectFile = fileInfo.getProject();
         int line = tokenEntry.getBeginLine();

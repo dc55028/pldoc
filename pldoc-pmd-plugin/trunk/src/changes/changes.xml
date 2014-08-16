@@ -8,8 +8,12 @@
     </properties>
     <body>
 
-        <release version="3.2" date="2014-08-12"  description="Initial fork of maven-pmd-plugi n- minimal changes to support PLSQL" >
-            <action type="update" dev="sturton" > downloads.apt.vm - add links to plugin bundles; add information on installing the plugin into a local repository</action>
+        <release version="3.2.1" date="2014-08-14"  description="Correct JXR HTML link generation for Windows platforms" >
+            <action type="fix" dev="sturton" >Correct generated xref links for database-derived code under Windows</action>
+        </release>
+
+        <release version="3.2" date="2014-08-12"  description="Initial fork of maven-pmd-plugin with minimal changes to support PLSQL" >
+            <action type="update" dev="sturton" >Initial check-in of PLSQL fork</action>
         </release>
 
     </body>
