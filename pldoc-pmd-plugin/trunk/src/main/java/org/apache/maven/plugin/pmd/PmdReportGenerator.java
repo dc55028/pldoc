@@ -136,8 +136,21 @@ public class PmdReportGenerator
         log.debug("startFileSection currentFilename set from parameter:"+currentFilename);
         if ( fileInfo != null && fileInfo.getSourceDirectory() != null )
         {
-            this.currentFilename =
-                StringUtils.substring( currentFilename, fileInfo.getSourceDirectory().getAbsolutePath().length() + 1 );
+            /*
+            * Under Windows, File ("/Database").getAbsolutePath() is returned as ${PWD}/Database, where File ("/Database/path").getAbsolutePath() comes back as expected.
+            * This means that the relative path from the "/Database" SourceDirectory to the "/Database/schema/object-type/object-name.suffix" path
+            * is generated incorrectly.
+            *
+            * The ternary operator below is an explicit, undesirable workaround for this problem.
+            */
+
+
+          this.currentFilename =
+                StringUtils.substring( currentFilename
+                                         , currentFilename.startsWith(AbstractPmdReport.DEFAULT_SOURCE_ROOT)
+                                           ? AbstractPmdReport.DEFAULT_SOURCE_ROOT.length() + 1 
+                                           : fileInfo.getSourceDirectory().getAbsolutePath().length() + 1   
+                                       );
           log.debug("startFileSection currentFilename set from parameter:"+currentFilename 
                   + " and fileInfo.sourceDirectory:" + fileInfo.getSourceDirectory().getAbsolutePath()
            );
@@ -269,9 +282,9 @@ public class PmdReportGenerator
         if ( xrefLocation != null )
         {
             //@TODO mapping depends on language - java replace with html; plsql append .xml 
-            log.info("PmdGenerator: currentFilename=="+currentFilename);
-            log.info("PmdGenerator: searchPattern=="+searchPattern);
-            log.info("PmdGenerator: replacePattern=="+replacePattern);
+            log.debug("PmdGenerator: currentFilename=="+currentFilename);
+            log.debug("PmdGenerator: searchPattern=="+searchPattern);
+            log.debug("PmdGenerator: replacePattern=="+replacePattern);
             sink.link( xrefLocation + "/" + currentFilename.replaceAll( searchPattern , replacePattern ) + "#L" + line );
         }
         sink.text( String.valueOf( line ) );
