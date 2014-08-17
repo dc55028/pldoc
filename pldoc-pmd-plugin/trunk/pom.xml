@@ -24,7 +24,7 @@ under the License.
 
   <artifactId>pldoc-pmd-plugin</artifactId>
   <groupId>net.sourceforge.pldoc</groupId>
-  <version>3.2.1-SNAPSHOT</version>
+  <version>3.2.1</version>
   <packaging>maven-plugin</packaging>
   <url>http://pldoc.sourceforge.net</url>
 
@@ -68,9 +68,9 @@ under the License.
   </mailingLists>
 
   <scm>
-    <connection>scm:svn:https://svn.code.sf.net/p/pldoc/code/pldoc-pmd-plugin/trunk</connection>
-    <developerConnection>scm:svn:https://svn.code.sf.net/p/pldoc/code/pldoc-pmd-plugin/trunk</developerConnection>
-    <url>https://sourceforge.net/p/pldoc/code/HEAD/tree/pldoc-pmd-plugin/</url>
+    <connection>scm:svn:https://svn.code.sf.net/p/pldoc/code/pldoc-pmd-plugin/tags/pldoc-pmd-plugin-3.2.1</connection>
+    <developerConnection>scm:svn:https://svn.code.sf.net/p/pldoc/code/pldoc-pmd-plugin/tags/pldoc-pmd-plugin-3.2.1</developerConnection>
+    <url>https://sourceforge.net/p/pldoc/code/HEAD/tree/pldoc-pmd-plugin/tags/pldoc-pmd-plugin-3.2.1</url>
   </scm>
 
   <contributors>
