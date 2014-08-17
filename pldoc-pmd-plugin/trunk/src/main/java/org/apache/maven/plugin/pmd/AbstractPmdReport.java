@@ -370,7 +370,7 @@ public abstract class AbstractPmdReport
 
 			// Relative path to PLDoc Root 
 			String pldocRootPath =
-			    PathTool.getRelativePath( outputDirectory.getAbsolutePath(), pldocRoot.getAbsolutePath() );
+			    PathTool.getRelativeFilePath( outputDirectory.getAbsolutePath(), pldocRoot.getAbsolutePath() );
                         getLog().debug( "outputDirectory Absolute Path is \""+ outputDirectory.getAbsolutePath()+ "\"");
                         getLog().debug( "pldocRoot Absolute Path is \""+ pldocRoot.getAbsolutePath()+ "\"");
                         getLog().debug( "pldocRootPath value is \""+ pldocRootPath+ "\"");
@@ -507,7 +507,7 @@ public abstract class AbstractPmdReport
 
                                   // Relative path to PLDoc Root 
                                   String pldocRootPath =
-                                      PathTool.getRelativePath( outputDirectory.getAbsolutePath(), pldocRoot.getAbsolutePath() );
+                                      PathTool.getRelativeFilePath( outputDirectory.getAbsolutePath(), pldocRoot.getAbsolutePath() );
                                   getLog().debug( "NewConfig- outputDirectory Absolute Path is \""+ outputDirectory.getAbsolutePath()+ "\"");
                                   getLog().debug( "NewConfig- pldocRoot Absolute Path is \""+ pldocRoot.getAbsolutePath()+ "\"");
                                   getLog().debug( "NewConfig- pldocRootPath value is \""+ pldocRootPath+ "\"");
