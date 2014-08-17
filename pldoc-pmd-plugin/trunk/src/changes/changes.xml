@@ -8,7 +8,7 @@
     </properties>
     <body>
 
-        <release version="3.2.1" date="2014-08-14"  description="Correct JXR HTML link generation for Windows platforms" >
+        <release version="3.2.1" date="2014-08-17"  description="Correct JXR HTML link generation for Windows platforms" >
             <action type="fix" dev="sturton" >Correct generated xref links for database-derived code under Windows</action>
         </release>
 
