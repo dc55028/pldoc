@@ -1,4 +1,5 @@
-package org.apache.maven.plugin.pmd;
+//package org.apache.maven.plugin.pmd;
+package net.sourceforge.pldoc.maven.plugin.pmd;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -25,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -329,6 +331,51 @@ public class PmdReportGenerator
         // TODO files summary
     }
 
+    /**
+     * @return a Map summarizing the Metrics: String (rule name) -> Metric (aggregate iof metrics)
+     */
+    private Collection<Metric> getMetricsSummary() {
+        //SRT System.err.println("getMetricsSummary: metrics="+metrics.size());
+        Map<String, Metric> summary = new HashMap<String, Metric>();
+        for (Metric m : metrics) {
+            String name = m.getMetricName();
+            if (!summary.containsKey(name)) {
+                summary.put(name, new Metric(name, m.getCount(), m.getTotal(),m.getLowValue(), m.getHighValue(),m.getAverage(), -1.0) );
+            }
+	    else
+            {
+	      Metric runningAggregate = summary.get(name);
+              // Metric has no setters and all fields are private, so must create a new object 
+	      Metric metric = new Metric ( 
+					   name
+					   ,m.getCount()+runningAggregate.getCount()
+					   ,m.getTotal()+runningAggregate.getTotal()
+					   ,-1 == runningAggregate.getLowValue() || m.getLowValue() < runningAggregate.getLowValue()
+					      ? m.getLowValue() : runningAggregate.getLowValue()
+					   ,m.getHighValue() > runningAggregate.getHighValue()
+					      ? m.getHighValue() : runningAggregate.getHighValue()
+					   ,( m.getAverage()+runningAggregate.getAverage() ) / 2.0 
+					   ,-1.0 
+					); 
+	      summary.put(name, metric);
+            }
+        }
+        //SRT System.err.println("getMetricsSummary: summary="+summary.values().size());
+        return summary.values() ;
+	/*
+        return Collections.sort(
+			       summary.values()
+			       , new Comparator<Metric>() 
+				   {
+				    public int compare(Metric m1, Metric m2) 
+				    {
+				      return m1.getMetricName().compareTo(m2.getMetricName());
+				    }
+				   }    
+			      );
+	*/
+    }
+
 
     private void processMetrics()
     {
@@ -339,7 +386,7 @@ public class PmdReportGenerator
 
         sink.section1();
         sink.sectionTitle1();
-        sink.text( "Metrics" );
+        sink.text( "Metrics Summary" );
         sink.sectionTitle1_();
 
         sink.table();
@@ -361,7 +408,7 @@ public class PmdReportGenerator
         sink.tableHeaderCell_();
         sink.tableRow_();
 
-        for ( Metric met : metrics )
+        for ( Metric met : getMetricsSummary() /* metrics */  )
         {
             sink.tableRow();
             sink.tableCell();

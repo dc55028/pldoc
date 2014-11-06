@@ -1,4 +1,5 @@
-package org.apache.maven.plugin.pmd;
+//package org.apache.maven.plugin.pmd;
+package net.sourceforge.pldoc.maven.plugin.pmd;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -62,7 +63,9 @@ import java.net.MalformedURLException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.ResourceBundle;
@@ -344,6 +347,7 @@ public class PmdReport
         try
         {
             getLog().debug( "Before language="+language);
+            getLog().debug( "Before includes="+includes);
             
             //Make PMD language known to the supertype
             sourceLanguage = language;
@@ -358,7 +362,11 @@ public class PmdReport
                              :  "After file includes size=="+includes.size()
               );
             }
+	    else
+            {
+            }
             getLog().debug( "After language="+language);
+            getLog().debug( "After includes="+includes);
 
             if ( filesToProcess == null )
             {
@@ -505,6 +513,7 @@ public class PmdReport
         //PmdReportGenerator renderer = new PmdReportGenerator( getLog(), sink, getBundle( locale ), aggregate , "\\.[^.]+$", ".html" );
         renderer.setFiles( filesToProcess );
         renderer.setViolations( reportListener.getViolations() );
+        renderer.setMetrics( reportListener.getMetrics() );
 
         try
         {

@@ -1,4 +1,5 @@
-package org.apache.maven.plugin.pmd;
+//package org.apache.maven.plugin.pmd;
+package net.sourceforge.pldoc.maven.plugin.pmd;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -255,7 +256,8 @@ public class CpdReport
 
         try
         {
-            getLog().debug( "Before language="+language);
+            getLog().debug( "CPD Before language="+language);
+            getLog().debug( "CPD Before includes="+includes);
             
             //Make CPD language known to the supertype
             sourceLanguage = language;
@@ -265,11 +267,12 @@ public class CpdReport
             if(null== includes || includes.isEmpty())
             {
               setIncludes(language);
-              getLog().debug( "After file includes size=="+includes.size());
+              getLog().debug( "CPD After file includes size=="+includes.size());
             }
-            getLog().debug( "After language="+language);
+            getLog().debug( "CPD After language="+language);
+            getLog().debug( "CPD After includes="+includes);
 
-          if ( filesToProcess == null )
+            if ( filesToProcess == null )
             {
                 filesToProcess = getFilesToProcess();
             }
@@ -278,8 +281,8 @@ public class CpdReport
 
             CPDConfiguration cpdConfiguration = new CPDConfiguration();
 	    cpdConfiguration.setMinimumTileSize(minimumTokens);
-            getLog().debug( "Before language="+language);
-            getLog().debug( "Before file includes size=="+includes.size());
+            getLog().debug( "CPD Before language="+language);
+            getLog().debug( "CPD Before file includes size=="+includes.size());
             
 	    cpdConfiguration.setLanguage(CPDConfiguration.getLanguageFromString(language));
             //If no explicit list of includes has been defined - set them from the file extensions
@@ -288,8 +291,8 @@ public class CpdReport
             {
               setIncludes(language);
             }
-            getLog().debug( "After language="+language);
-            getLog().debug( "After file includes size=="+includes.size());
+            getLog().debug( "CPD After language="+language);
+            getLog().debug( "CPD After file includes size=="+includes.size());
             
 	    cpdConfiguration.setIgnoreLiterals(ignoreLiterals);
 	    cpdConfiguration.setIgnoreIdentifiers(ignoreIdentifiers);
@@ -302,7 +305,7 @@ public class CpdReport
 
             for ( File file : filesToProcess.keySet() )
             {
-		getLog().debug( "Adding file \""+ file.getCanonicalPath() + "\" for CPD processing");
+		getLog().debug( "CPD Adding file \""+ file.getCanonicalPath() + "\" for CPD processing");
                 cpd.add( file );
             }
         }
@@ -328,7 +331,7 @@ public class CpdReport
                         getLog().debug( "executeCpd: sourceRoot==\""+sourceRoot+"\"" );
                         getLog().debug( "executeCpd: dbXrefLocation==\""+dbXrefLocation+"\"" );
   
-            for (SourceCode source: cpd.getSources())
+		        for (SourceCode source: cpd.getSources())
 			{
                                 getLog().debug( "executeCpd: source.getFileName()==\""+source.getFileName()+"\"" );
 				filesToProcess.put(new File(source.getFileName()), new PmdFileInfo( project, sourceRoot, dbXrefLocation )  ) ;

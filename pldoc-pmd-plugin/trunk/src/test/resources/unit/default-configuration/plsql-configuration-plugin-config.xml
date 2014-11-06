@@ -33,7 +33,7 @@ under the License.
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>pldoc-pmd-plugin</artifactId>
         <configuration>
-          <project implementation="org.apache.maven.plugin.pmd.stubs.DefaultConfigurationMavenProjectStub"/>
+          <project implementation="net.sourceforge.pldoc.maven.plugin.pmd.stubs.DefaultConfigurationMavenProjectStub"/>
 	  <outputDirectory>${basedir}/target/test/unit/default-configuration/target/plsql/site</outputDirectory>
 	  <targetDirectory>${basedir}/target/test/unit/default-configuration/target/plsql</targetDirectory>
           <format>xml</format>
