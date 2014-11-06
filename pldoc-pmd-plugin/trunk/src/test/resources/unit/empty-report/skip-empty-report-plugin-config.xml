@@ -33,7 +33,7 @@ under the License.
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>pldoc-pmd-plugin</artifactId>
         <configuration>
-          <project implementation="org.apache.maven.plugin.pmd.stubs.CustomConfigurationMavenProjectStub"/>
+          <project implementation="net.sourceforge.pldoc.maven.plugin.pmd.stubs.CustomConfigurationMavenProjectStub"/>
           <outputDirectory>${basedir}/target/test/unit/empty-report/target/site</outputDirectory>
           <targetDirectory>${basedir}/target/test/unit/empty-report/target</targetDirectory>
           <compileSourceRoots>
