@@ -1,4 +1,5 @@
-package org.apache.maven.plugin.pmd.stubs;
+//package org.apache.maven.plugin.pmd.stubs;
+package net.sourceforge.pldoc.maven.plugin.pmd.stubs;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -35,20 +36,22 @@ import java.util.List;
  * @author <a href="mailto:oching@apache.org">Maria Odea Ching</a>
  * @version $Id$
  */
-public class InvalidFormatMavenProjectStub
+public class CustomConfigurationMavenProjectStub
     extends MavenProjectStub
 {
     private Build build;
 
-    public InvalidFormatMavenProjectStub()
+    private List reportPlugins = new ArrayList();
+
+    public CustomConfigurationMavenProjectStub()
     {
         MavenXpp3Reader pomReader = new MavenXpp3Reader();
         Model model = null;
 
         try
         {
-            model = pomReader.read( new FileReader( new File(
-                getBasedir() + "/src/test/resources/unit/invalid-format/invalid-format-plugin-config.xml" ) ) );
+            model = pomReader.read( new FileReader( new File( getBasedir() +
+                "/src/test/resources/unit/custom-configuration/custom-configuration-plugin-config.xml" ) ) );
             setModel( model );
         }
         catch ( Exception e )
@@ -69,13 +72,15 @@ public class InvalidFormatMavenProjectStub
 
         Build build = new Build();
         build.setFinalName( model.getBuild().getFinalName() );
-        build.setDirectory( getBasedir() + "/target/test/unit/invalid-format/target" );
-        build.setSourceDirectory( getBasedir() + "/src/test/resources/unit/invalid-format" );
+        build.setDirectory( getBasedir() + "/target/test/unit/custom-configuration/target" );
+        build.setSourceDirectory( getBasedir() + "/src/test/resources/unit/custom-configuration" );
         setBuild( build );
+
+        setReportPlugins( model.getReporting().getPlugins() );
 
         String basedir = getBasedir().getAbsolutePath();
         List compileSourceRoots = new ArrayList();
-        compileSourceRoots.add( basedir + "/src/test/resources/unit/invalid-format/invalid/format" );
+        compileSourceRoots.add( basedir + "/src/test/resources/unit/custom-configuration/custom/configuration" );
         setCompileSourceRoots( compileSourceRoots );
 
         Artifact artifact = new PmdPluginArtifactStub( getGroupId(), getArtifactId(), getVersion(), getPackaging() );
@@ -83,7 +88,6 @@ public class InvalidFormatMavenProjectStub
         setArtifact( artifact );
 
         setFile(new File(getBasedir().getAbsolutePath() + "/pom.xml"));
-
     }
 
     /** {@inheritDoc} */
@@ -97,5 +101,16 @@ public class InvalidFormatMavenProjectStub
     {
         return build;
     }
-    
+
+    public void setReportPlugins( List plugins )
+    {
+        this.reportPlugins = plugins;
+    }
+
+    /** {@inheritDoc} */
+    public List getReportPlugins()
+    {
+        return reportPlugins;
+    }
+
 }

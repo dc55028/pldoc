@@ -1,4 +1,5 @@
-package org.apache.maven.plugin.pmd.stubs;
+//package org.apache.maven.plugin.pmd.stubs;
+package net.sourceforge.pldoc.maven.plugin.pmd.stubs;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -35,14 +36,14 @@ import java.util.List;
  * @author <a href="mailto:oching@apache.org">Maria Odea Ching</a>
  * @version $Id$
  */
-public class CustomConfigurationMavenProjectStub
+public class DefaultConfigurationMavenProjectStub
     extends MavenProjectStub
 {
-    private Build build;
-
     private List reportPlugins = new ArrayList();
 
-    public CustomConfigurationMavenProjectStub()
+    private Build build;
+
+    public DefaultConfigurationMavenProjectStub()
     {
         MavenXpp3Reader pomReader = new MavenXpp3Reader();
         Model model = null;
@@ -50,7 +51,7 @@ public class CustomConfigurationMavenProjectStub
         try
         {
             model = pomReader.read( new FileReader( new File( getBasedir() +
-                "/src/test/resources/unit/custom-configuration/custom-configuration-plugin-config.xml" ) ) );
+                "/src/test/resources/unit/default-configuration/default-configuration-plugin-config.xml" ) ) );
             setModel( model );
         }
         catch ( Exception e )
@@ -71,34 +72,24 @@ public class CustomConfigurationMavenProjectStub
 
         Build build = new Build();
         build.setFinalName( model.getBuild().getFinalName() );
-        build.setDirectory( getBasedir() + "/target/test/unit/custom-configuration/target" );
-        build.setSourceDirectory( getBasedir() + "/src/test/resources/unit/custom-configuration" );
+        build.setDirectory( getBasedir() + "/target/test/unit/default-configuration/target" );
+        build.setSourceDirectory( getBasedir() + "/src/test/resources/unit/default-configuration" );
         setBuild( build );
 
         setReportPlugins( model.getReporting().getPlugins() );
 
         String basedir = getBasedir().getAbsolutePath();
         List compileSourceRoots = new ArrayList();
-        compileSourceRoots.add( basedir + "/src/test/resources/unit/custom-configuration/custom/configuration" );
+        compileSourceRoots.add( basedir + "/src/test/resources/unit/default-configuration/def/configuration" );
         setCompileSourceRoots( compileSourceRoots );
+
+        File file = new File(getBasedir().getAbsolutePath() + "/pom.xml");
+        setFile(file);
 
         Artifact artifact = new PmdPluginArtifactStub( getGroupId(), getArtifactId(), getVersion(), getPackaging() );
         artifact.setArtifactHandler( new DefaultArtifactHandlerStub() );
         setArtifact( artifact );
 
-        setFile(new File(getBasedir().getAbsolutePath() + "/pom.xml"));
-    }
-
-    /** {@inheritDoc} */
-    public void setBuild( Build build )
-    {
-        this.build = build;
-    }
-
-    /** {@inheritDoc} */
-    public Build getBuild()
-    {
-        return build;
     }
 
     public void setReportPlugins( List plugins )
@@ -112,4 +103,15 @@ public class CustomConfigurationMavenProjectStub
         return reportPlugins;
     }
 
+    /** {@inheritDoc} */
+    public void setBuild( Build build )
+    {
+        this.build = build;
+    }
+
+    /** {@inheritDoc} */
+    public Build getBuild()
+    {
+        return build;
+    }
 }
