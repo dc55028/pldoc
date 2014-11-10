@@ -38,6 +38,7 @@ import org.apache.maven.doxia.siterenderer.Renderer;
 import org.apache.maven.model.ConfigurationContainer;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.PluginExecution;
+import org.apache.maven.model.Reporting;
 import org.apache.maven.model.ReportPlugin;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -264,6 +265,15 @@ public abstract class AbstractPmdReport
             getLog().debug( "constructXRefLocation: Attempting to locate Source XRef location " );
             getLog().debug( "constructXRefLocation: xrefTestLocation " + xrefTestLocation);
             getLog().debug( "constructXRefLocation: xrefLocation " + xrefLocation );
+            getLog().debug( "constructXRefLocation: outputDirectory="+ outputDirectory );
+	    File projectReportingOutputDirectory = null ;
+	    Reporting projectReporting = project.getReporting();
+	    getLog().debug( "constructXRefLocation: (PLDoc) project.getReporting()="+projectReporting);
+	    if(null!= projectReporting)
+	    {
+	      getLog().debug( "constructXRefLocation: project.getReporting().getOutputDirectory()="+projectReporting.getOutputDirectory());
+	      projectReportingOutputDirectory = new File( projectReporting.getOutputDirectory() ) ;
+	    }
 
             String relativePath =
                 PathTool.getRelativePath( outputDirectory.getAbsolutePath(), xrefLoc.getAbsolutePath() );
@@ -286,6 +296,7 @@ public abstract class AbstractPmdReport
             }
             else
             {
+                getLog().debug( "project.: xref is not yet generated =" );
                 getLog().debug( "constructXRefLocation: xref is not yet generated =" );
                 // Not yet generated - check if the report is on its way
                 @SuppressWarnings( "unchecked" ) 
@@ -293,6 +304,11 @@ public abstract class AbstractPmdReport
                 //plugins are configured within the project level <reports> tags
                 List<ReportPlugin> reportPlugins = project.getReportPlugins();
                 getLog().debug( "getReportPlugins() ..." );
+                for ( ReportPlugin plugin : reportPlugins )
+                {
+                    String artifactId = plugin.getArtifactId();
+                    getLog().debug( "constructXRefLocation: artifactId="+ artifactId );
+                }
                 for ( ReportPlugin plugin : reportPlugins )
                 {
                     String artifactId = plugin.getArtifactId();
@@ -340,10 +356,14 @@ public abstract class AbstractPmdReport
                         getLog().debug( "PLDoc destDirs " 
                                         + ( (null == destDirs) ? " not found " : " has " + destDirs.size() + " paths" ) 
                                 );
-			File reportOutputDirectory = null;
-                        for (String setting : reportOutputDirs )
+			File reportOutputDirectory = projectReportingOutputDirectory;
+
+			if(null != reportOutputDirs )
 			{
-			    reportOutputDirectory = new File(setting) ;
+			  for (String setting : reportOutputDirs )
+			  {
+			      reportOutputDirectory = new File(setting) ;
+			  }
 			}
 
                         
@@ -367,13 +387,13 @@ public abstract class AbstractPmdReport
                                 pldocRoot = reportOutputDirectory;
                             }
 			}
-                        getLog().debug( "pldocRoot value is \""+ pldocRoot+ "\"");
+                        getLog().debug( "pldocRoot value is \""+ pldocRoot+ "\""   );
 
 			// Relative path to PLDoc Root 
-			String pldocRootPath =
-			    PathTool.getRelativeFilePath( outputDirectory.getAbsolutePath(), pldocRoot.getAbsolutePath() );
                         getLog().debug( "outputDirectory Absolute Path is \""+ outputDirectory.getAbsolutePath()+ "\"");
                         getLog().debug( "pldocRoot Absolute Path is \""+ pldocRoot.getAbsolutePath()+ "\"");
+			String pldocRootPath =
+			    PathTool.getRelativeFilePath( outputDirectory.getAbsolutePath(), pldocRoot.getAbsolutePath() );
                         getLog().debug( "pldocRootPath value is \""+ pldocRootPath+ "\"");
 
 			for (String setting : settings )
@@ -478,6 +498,7 @@ public abstract class AbstractPmdReport
                                                   + ( (null == destDirs) ? " not found " : " has " + destDirs.size() + " paths" ) 
                                           );
                                   File reportOutputDirectory = null;
+
                                   for (String setting : reportOutputDirs )
                                   {
                                       reportOutputDirectory = new File(setting) ;
