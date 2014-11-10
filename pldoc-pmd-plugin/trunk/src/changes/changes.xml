@@ -8,6 +8,10 @@
     </properties>
     <body>
 
+        <release version="3.2.2" date="2014-11-10"  description="Minor fixes" >
+            <action type="fix" dev="sturton" >NPE when plugin used in site without explicit reportOutPutDirectory setting</action>
+        </release>
+
         <release version="3.2.1" date="2014-08-17"  description="Correct JXR HTML link generation for Windows platforms" >
             <action type="fix" dev="sturton" >Correct generated xref links for database-derived code under Windows</action>
         </release>
