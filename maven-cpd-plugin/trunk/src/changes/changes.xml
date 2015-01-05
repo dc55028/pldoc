@@ -8,7 +8,11 @@
     </properties>
     <body>
 
-	    <release version="0.1.12" date="2014-08-09"  description="Generate HTML links with new PMD/JXR compatible link names" >
+	<release version="0.1.13" date="2015-01-05"  description="Dependency Upgrade" >
+	           <action type="update" dev="sturton" >Require latest versions of PLDoc and PLDoc-CPD</action>
+        </release>
+
+	<release version="0.1.12" date="2014-08-09"  description="Generate HTML links with new PMD/JXR compatible link names" >
 	           <action type="fix" dev="sturton" >Generate HTML links with new PMD/JXR compatible link names</action>
         </release>
 
