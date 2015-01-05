@@ -7,6 +7,9 @@
         <author email="altumano at users.sourceforge.net">Albert Tumanov</author>
     </properties>
     <body>
+        <release version="1.5.16" date="2015-01-05"  description="Minor Fixes" >
+		<action type="fix" dev="sturton" >Correct scraped source code suffix mapping for FUNCTIONs ('fns' to 'fnc')</action>
+        </release>
         <release version="1.5.15" date="2014-07-29"  description="Integrate with maven-pmd-plugin" >
 		<action type="update" dev="sturton" >Populate scraped source code with path to PLDoc; alter source stylesheet to generate link to related PLDoc</action>
         </release>
