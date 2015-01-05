@@ -7,6 +7,9 @@
         <author email="altumano at users.sourceforge.net">Albert Tumanov</author>
     </properties>
     <body>
+        <release version="0.1.16" date="2015-01-05"  description="Generate CPD links which match new source code link names" >
+            <action type="update" dev="sturton" >Project POM file - require PLDoc version 1.5.16</action>
+        </release>
         <release version="0.1.15" date="2014-08-09"  description="Generate CPD links which match new source code link names" >
 		<action type="fix" dev="sturton" >Upgrade cpdhtml.xsl to generate links to new PMD/JXR format link names</action>
         </release>
