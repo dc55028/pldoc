@@ -241,6 +241,7 @@ public class PLDoc
                           " FROM dba_synonyms"+
                           " WHERE owner IN (?)"+
                           " AND   table_owner NOT in ('SYS','SYSTEM')"+
+                          " AND   table_name NOT LIKE 'BIN$%'"+ //Exclude tables in the Recycle Bin 
                           " ORDER BY "+
                           " table_owner, table_name"
                           ;
@@ -376,6 +377,7 @@ public class PLDoc
                                         " WHERE owner = ?"+
                                         " AND   object_name LIKE ?"+
                                         " AND  object_type in (" + typeList + ")"+
+                                        " AND  object_name NOT LIKE 'BIN$%'"+ //Exclude objects in the Recycle Bin 
                                         " ORDER BY "+
                                         " object_name"
                                         ;
