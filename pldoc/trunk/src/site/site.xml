@@ -26,7 +26,8 @@
             <item name="Change Log" href="changes-report.html"/>
             <item name="Maven 2 Plugin" href="maven-pldoc-plugin/index.html"/>
             <item name="PL/SQL Cut and Paste Detection" href="pldoc-cpd/index.html"/>
-            <item name="PL/SQL Cut and Paste Maven 2 Plugin" href="maven-cpd-plugin/index.html"/>
+            <item name="PL/SQL Cut and Paste Maven 2 Plugin (Deprecated)" href="maven-cpd-plugin/index.html"/>
+            <item name="PL/SQL PMD and CPD Maven Plugin" href="pldoc-pmd-plugin/index.html"/>
         </menu>
 
         <!-- Run mvn compile site:site to generate the reports for the project. -->
