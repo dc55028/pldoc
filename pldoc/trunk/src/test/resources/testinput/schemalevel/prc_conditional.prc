@@ -57,7 +57,7 @@ prc_conditional IS
    x1 := t * (x1 + y1);
    y1 := t * (x1 + y1);
    z := (
-     // Precompilation Expression within statement 
+     -- Precompilation Expression within statement 
   $IF DBMS_DB_VERSION.VER_LE_9 
   $THEN 
           x1
