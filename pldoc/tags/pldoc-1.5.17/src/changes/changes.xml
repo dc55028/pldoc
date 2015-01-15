@@ -7,6 +7,9 @@
         <author email="altumano at users.sourceforge.net">Albert Tumanov</author>
     </properties>
     <body>
+        <release version="1.5.17" date="2015-01-15"  description="Minor Fixes" >
+		<action type="fix" dev="sturton" >Allow more flexible conditional compilation code; exclude objects in the recycle bin</action>
+        </release>
         <release version="1.5.16" date="2015-01-05"  description="Minor Fixes" >
 		<action type="fix" dev="sturton" >Correct scraped source code suffix mapping for FUNCTIONs ('fns' to 'fnc')</action>
         </release>
