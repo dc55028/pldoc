@@ -287,7 +287,18 @@ public class PmdReportGenerator
             log.debug("PmdGenerator: currentFilename=="+currentFilename);
             log.debug("PmdGenerator: searchPattern=="+searchPattern);
             log.debug("PmdGenerator: replacePattern=="+replacePattern);
-            sink.link( xrefLocation + "/" + currentFilename.replaceAll( searchPattern , replacePattern ) + "#L" + line );
+            sink.link( 
+			/* Transformations 
+			 * ---------------
+			 * xrefLocation - Package and Object Type Specifications are generated under folder path (PACKAGE|TYPE)_SPEC, but PLDoc extracts source under (PACKAGE|TYPE):  convert xrefLocation to correct folder location 
+			 *
+			 * filename -
+			 *            generate the correct file suffix
+			 *            convert Windows folder separators to Unix/ HTML folder separators 
+			 *
+			 */
+			xrefLocation.replaceAll("_SPEC$", "" ) + "/" + currentFilename.replaceAll(searchPattern, replacePattern ).replace( '\\', '/' ) + "#L" + line
+		    );
         }
         sink.text( String.valueOf( line ) );
         if ( xrefLocation != null )

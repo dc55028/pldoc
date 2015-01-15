@@ -194,7 +194,18 @@ public class CpdReportGenerator
                             );
 
             sink.link(
-                xrefLocation + "/" + filename.replaceAll(searchPattern, replacePattern ).replace( '\\', '/' ) + "#L" + line );
+
+		/* Transformations 
+		 * ---------------
+		 *
+		 * xrefLocation - Package and Object Type Specifications are generated under folder path (PACKAGE|TYPE)_SPEC, but PLDoc extracts source under (PACKAGE|TYPE):  convert xrefLocation to correct folder location 
+		 *
+		 * filename -
+		 *            generate the correct file suffix
+		 *            convert Windows folder separators to Unix/ HTML folder separators 
+		 *
+		 */
+                xrefLocation.replaceAll("_SPEC$", "" ) + "/" + filename.replaceAll(searchPattern, replacePattern ).replace( '\\', '/' ) + "#L" + line );
         }
         sink.text( String.valueOf( line ) );
         if ( xrefLocation != null )
