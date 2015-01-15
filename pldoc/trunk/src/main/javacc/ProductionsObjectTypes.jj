@@ -197,6 +197,7 @@ void typeMethod(boolean isPackageLevel,int typeVersion, String alterTypeAction, 
 	[<PARALLEL_ENABLE>]
 	[<PIPELINED>]
 	[<RESULT_CACHE>]
+	[CompilationExpression()]
 
 	// Java or C function wrapped with PL/SQL wrapper declaration 
 	[

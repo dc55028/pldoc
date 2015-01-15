@@ -664,6 +664,7 @@ void programUnit(boolean isPackageLevel, Token objectStart) throws SAXException 
 			   (( <ORDER> | <CLUSTER> ) [ID()] <BY> "(" ID() ( "," ID() )*  ")" ) 
 			 ] //  drvparx.IndexMapDocuments
 	   | <RESULT_CACHE> [ <RELIES_ON> "(" ID() ["." ID()] ( "," ID() ["." ID()])*  ")" ]
+           | CompilationExpression() // Allow Conditional PRAGMA
 	) *
 	
 	[ <AGGREGATE> <USING> tokenODCIAggregateType=ID() ] 
