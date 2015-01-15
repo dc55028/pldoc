@@ -1361,6 +1361,7 @@ void programUnit(boolean isPackageLevel, Token objectStart) throws SAXException 
 			   (( <ORDER> | <CLUSTER> ) [ID()] <BY> "(" ID() ( "," ID() )*  ")" ) 
 			 ] //  drvparx.IndexMapDocuments
 	   | <RESULT_CACHE> [ <RELIES_ON> "(" ID() ["." ID()] ( "," ID() ["." ID()])*  ")" ]
+           | CompilationExpression() // Allow Conditional PRAGMA
 	) *
 	
 	[ <AGGREGATE> <USING> tokenODCIAggregateType=ID() ] 
@@ -2365,7 +2366,7 @@ String Expression() :
 	(
   	LOOKAHEAD( PrimaryExpression() ":" "=" ) (string = Assignment()) {sb.append(string);  }  
 	| (string = ConditionalOrExpression() )  {sb.append(string); }  
-	| (string = CompilationExpression() )  {sb.append(string); }  
+	//| (string = CompilationExpression() )  {sb.append(string); }  //SRT 
 	)
  { 
  return sb.toString(); 
@@ -2739,6 +2740,7 @@ String PrimaryPrefix() :
 (
   ( string = Literal() ) { sb.append(string) ; } 
 | LOOKAHEAD(MultiSetCondition()) string = MultiSetCondition()
+| LOOKAHEAD(CompilationExpression()) string = CompilationExpression() //SRT 
 | LOOKAHEAD(TrimExpression()) string = TrimExpression() //SRT 20110613.3
 | LOOKAHEAD(CaseExpression()) ( string =CaseExpression() ) { sb.append(string) ; } //SRT 20110520
 | LOOKAHEAD(ObjectExpression() ) ( string = ObjectExpression() ) { sb.append(string) ; } //SRT 20110604
@@ -3572,6 +3574,7 @@ void typeMethod(boolean isPackageLevel,int typeVersion, String alterTypeAction, 
 	[<PARALLEL_ENABLE>]
 	[<PIPELINED>]
 	[<RESULT_CACHE>]
+	[CompilationExpression()]
 
 	// Java or C function wrapped with PL/SQL wrapper declaration 
 	[
@@ -6016,6 +6019,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <RESTRICTED>
 //| <RESUMABLE>
 | <RESULT>
+| <RESULT_CACHE> 
 //| <RESUME>
 //| <RETENTION>
 | <RETURN>
