@@ -47,6 +47,28 @@ prc_conditional IS
    y1 := t * (x1 + y1);
    z := (x1 + y1)/t2;
  END P;
+
+ PROCEDURE P(x IN my_real, y IN my_real, z OUT NOCOPY my_real) IS
+   x1 my_real;
+   y1 my_real;
+ BEGIN
+   x1 := x;
+   y1 := y;
+   x1 := t * (x1 + y1);
+   y1 := t * (x1 + y1);
+   z := (
+     // Precompilation Expression within statement 
+  $IF DBMS_DB_VERSION.VER_LE_9 
+  $THEN 
+          x1
+  $ELSE 
+          y1
+  $END 
+   + y1)/t2;
+ END P;
+
+
+
 BEGIN
  P(x, y, z);
  DBMS_OUTPUT.PUT_LINE ('z = '|| z);

@@ -1668,7 +1668,7 @@ String Expression() :
 	(
   	LOOKAHEAD( PrimaryExpression() ":" "=" ) (string = Assignment()) {sb.append(string);  }  
 	| (string = ConditionalOrExpression() )  {sb.append(string); }  
-	| (string = CompilationExpression() )  {sb.append(string); }  
+	//| (string = CompilationExpression() )  {sb.append(string); }  //SRT 
 	)
  { 
  return sb.toString(); 
@@ -2042,6 +2042,7 @@ String PrimaryPrefix() :
 (
   ( string = Literal() ) { sb.append(string) ; } 
 | LOOKAHEAD(MultiSetCondition()) string = MultiSetCondition()
+| LOOKAHEAD(CompilationExpression()) string = CompilationExpression() //SRT 
 | LOOKAHEAD(TrimExpression()) string = TrimExpression() //SRT 20110613.3
 | LOOKAHEAD(CaseExpression()) ( string =CaseExpression() ) { sb.append(string) ; } //SRT 20110520
 | LOOKAHEAD(ObjectExpression() ) ( string = ObjectExpression() ) { sb.append(string) ; } //SRT 20110604
