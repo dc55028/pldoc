@@ -290,14 +290,18 @@ public class PmdReportGenerator
             sink.link( 
 			/* Transformations 
 			 * ---------------
-			 * xrefLocation - Package and Object Type Specifications are generated under folder path (PACKAGE|TYPE)_SPEC, but PLDoc extracts source under (PACKAGE|TYPE):  convert xrefLocation to correct folder location 
 			 *
-			 * filename -
+			 * xrefLocation - 
+			 *
+			 * filename - is actually a file path: Package and Object Type Specifications are generated under folder path 
+			 *                                     (PACKAGE|TYPE)_SPEC, but PLDoc extracts source under (PACKAGE|TYPE):  
+			 *                                     convert filename to correct folder location 
 			 *            generate the correct file suffix
 			 *            convert Windows folder separators to Unix/ HTML folder separators 
 			 *
+			 * .replaceAll("_SPEC([/\\][^/\\]*)$" , "${2}")
 			 */
-			xrefLocation.replaceAll("_SPEC$", "" ) + "/" + currentFilename.replaceAll(searchPattern, replacePattern ).replace( '\\', '/' ) + "#L" + line
+			xrefLocation + "/" + currentFilename.replaceAll(searchPattern, replacePattern ).replace( '\\', '/' ).replaceAll("_SPEC/","/") + "#L" + line
 		    );
         }
         sink.text( String.valueOf( line ) );
