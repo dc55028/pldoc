@@ -8,6 +8,10 @@
     </properties>
     <body>
 
+        <release version="3.2.4" date="2015-01-21"  description="Minor fixes" >
+            <action type="fix" dev="sturton" >Correct links to Package and Object Type Specifications</action>
+        </release>
+
         <release version="3.2.3" date="2015-01-15"  description="Minor fixes" >
             <action type="fix" dev="sturton" >Correct links to Package and Object Type Specifications</action>
         </release>
