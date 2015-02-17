@@ -224,8 +224,11 @@ public class PmdReportTest
         String str = readFile( new File( getBasedir(), "target/test/unit/custom-configuration/target/site/pmd.html" ) );
         assertTrue(str.toLowerCase().contains("Avoid using if statements without curly braces".toLowerCase()));
 
-        assertTrue(
-                str.toLowerCase().contains("Avoid using if...else statements without curly braces".toLowerCase()));
+	// src/test/resources/unit/custom-configuration/custom-configuration-plugin-config.xml contains a custom ruleset description:-
+	//   src/test/resources/unit/custom-configuration/resources/rulesets/custom.xml
+	//   This custom ruleset excludes IfElseStmtsMustUseBraces 
+        //assertTrue(
+        //        str.toLowerCase().contains("Avoid using 'if...else' statements without curly braces".toLowerCase()));
 
         assertTrue( "unnecessary constructor should not be triggered because of low priority",
                 !str.toLowerCase().contains("Avoid unnecessary constructors - the compiler will generate these for you".toLowerCase()));

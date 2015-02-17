@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import net.sourceforge.pmd.PMD;
 import net.sourceforge.pmd.lang.Language;
+import net.sourceforge.pmd.lang.LanguageRegistry;
 import org.apache.maven.doxia.siterenderer.Renderer;
 import org.apache.maven.model.ConfigurationContainer;
 import org.apache.maven.model.Plugin;
@@ -732,7 +733,7 @@ public abstract class AbstractPmdReport
      */
     protected void setIncludes(String languageString)
     {
-        Language language = Language.findByTerseName(languageString);
+        Language language = LanguageRegistry.findLanguageByTerseName(languageString);
         List<String> patterns = new ArrayList<String>();
         
         if (null== language)

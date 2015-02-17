@@ -30,7 +30,7 @@ under the License.
     <finalName>custom-configuration</finalName>
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
+        <groupId>net.sourceforge.pldoc</groupId>
         <artifactId>pldoc-pmd-plugin</artifactId>
         <configuration>
            <targetDirectory>${basedir}/target/test/unit/default-configuration/target</targetDirectory>
