@@ -30,7 +30,7 @@ under the License.
     <finalName>custom-configuration</finalName>
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
+        <groupId>net.sourceforge.pldoc</groupId>
         <artifactId>pldoc-pmd-plugin</artifactId>
         <configuration>
           <project implementation="net.sourceforge.pldoc.maven.plugin.pmd.stubs.CustomConfigurationMavenProjectStub"/>
@@ -59,9 +59,14 @@ under the License.
         </configuration>
         <dependencies>
           <dependency>
-            <groupId>pmd</groupId>
-            <artifactId>pmd</artifactId>
-            <version>3.6</version>
+            <groupId>net.sourceforge.pmd</groupId>
+            <artifactId>pmd-core</artifactId>
+            <version>5.2.3</version>
+          </dependency>
+          <dependency>
+            <groupId>net.sourceforge.pmd</groupId>
+            <artifactId>pmd-java</artifactId>
+            <version>5.2.3</version>
           </dependency>
         </dependencies>
       </plugin>
