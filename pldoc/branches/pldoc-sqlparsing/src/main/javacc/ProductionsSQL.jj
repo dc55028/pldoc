@@ -1,0 +1,1654 @@
+
+/*
+ * Start SQL Parser
+ */
+
+//http://docs.oracle.com/cd/B19306_01/server.102/b14200/statements_4010.htm
+//http://docs.oracle.com/database/121/PLSQLRF/statements_4011.htm#PLSQLRF01110
+void commitStatement()   throws SAXException :
+{}
+{
+	<COMMIT> [<WORK>]
+        [
+		( <COMMENT> StringLiteral() [ <WRITE> [ <IMMEDIATE> | <BATCH>  ] [ <WAIT> | <NOWAIT>  ] ] )
+		|
+		( <FORCE>	(
+				  <CORRUPT_XID_ALL> 
+				| <CORRUPT_XID> StringLiteral() 
+				| StringLiteral() [ "," numericLiteral() ] )
+				)
+        ]
+}
+
+//http://docs.oracle.com/cd/B19306_01/server.102/b14200/statements_9021.htm#PLSQLRF01610
+//http://docs.oracle.com/database/121/PLSQLRF/statements_9022.htm#PLSQLRF01610
+void rollbackStatement()   throws SAXException :
+{}
+{
+	<ROLLBACK> [ <WORK> ]
+        [
+		( <TO> [ <SAVEPOINT> ] ID() )
+		|
+		( <FORCE> StringLiteral() [ "," numericLiteral() ]  )
+        ]
+}
+
+//http://docs.oracle.com/cd/B19306_01/server.102/b14200/statements_10001.htm#BABFIJGC
+//http://docs.oracle.com/database/121/PLSQLRF/statements_10001.htm#PLSQLRF01701
+void savepointStatement()   throws SAXException :
+{}
+{
+	 <SAVEPOINT> ID() 
+}
+
+//http://docs.oracle.com/cd/B19306_01/server.102/b14200/statements_9021.htm#PLSQLRF01610
+//http://docs.oracle.com/database/121/PLSQLRF/statements_10005.htm#PLSQLRF01705
+void setTransactionStatement()   throws SAXException :
+{}
+{
+	<SET> <TRANSACTION> 
+        [
+		(  <READ>  ( <ONLY> | <WRITE> )  )
+		|
+		( <ISOLATION> <LEVEL> ( <SERIALIZABLE>  | <READ> <COMMITTED>  ) )
+		|
+		( <USE> <ROLLBACK> <SEGMENT> ID() )
+        ]
+	<NAME> StringLiteral()
+}
+
+//http://docs.oracle.com/cd/B12037_01/appdev.101/b10807/13_elems027.htm
+void lockTableStatement()   throws SAXException :
+{}
+{
+	//ROW SHARE, ROW EXCLUSIVE, SHARE UPDATE, SHARE, SHARE ROW EXCLUSIVE, or EXCLUSIVE.
+	 <LOCK> <TABLE> qualifiedID()  <IN>  
+         (
+		<ROW> ( <SHARE> | <EXCLUSIVE> )
+		|  <SHARE> [ <UPDATE> | <ROW> <EXCLUSIVE> ]
+		| <EXCLUSIVE> 
+	 )
+	<MODE> [ <NOWAIT> ]  
+}
+
+//http://docs.oracle.com/database/121/PLSQLRF/statements_10002.htm#i2065706
+void sqlSelectStatement()   throws SAXException :
+{}
+{
+	
+	sqlSubquery()
+	[ sqlForUpdateClause() ]
+
+}
+
+
+//http://docs.oracle.com/cd/B19306_01/appdev.102/b14261/delete_statement.htm#i33716
+//http://docs.oracle.com/database/121/PLSQLRF/statements_8005.htm#i2112830
+void sqlDeleteStatement()   throws SAXException :
+{}
+{
+	<DELETE> [ <FROM> ] 
+	(
+		<ONLY> "(" sqlDmlTableExpression() ")"
+		| sqlDmlTableExpression() 
+	) 
+	[ unqualifiedID() ] // alias	
+	[
+		<WHERE> 
+		( <CURRENT> <OF> unqualifiedID() //Cursor Name 
+		| sqlCondition()
+		)
+	]
+
+	[ sqlReturningClause() ]
+
+	[ sqlErrorLoggingClause() ]
+
+}
+
+
+
+void sqlDmlTableExpression()   throws SAXException :
+{}
+{
+		qualifiedName() 
+		| "(" sqlSubquery() ")"
+		| <TABLE> "(" sqlSubquery() ")"   
+
+}
+
+//http://docs.oracle.com/cd/B28359_01/server.111/b28286/statements_9016.htm
+void sqlMergeStatement()   throws SAXException :
+{}
+{
+	<MERGE> <INTO> qualifiedName() //Table NAme
+	<USING>
+	<ON> "(" sqlCondition() ")"
+	// Matched Clause
+	<WHEN> <MATCHED> <THEN> 
+	<UPDATE> <SET> 
+	qualifiedName() 
+	"=" 
+	(
+		<_DEFAULT>
+		|
+		sqlExpression() 
+		
+	)
+	(
+		"'"
+		<_DEFAULT>
+		|
+		sqlExpression() 
+	)*
+	//WHERE 
+	[ sqlWhereClause() ]
+
+	[ <DELETE> sqlWhereClause() ]
+	
+	
+	<WHEN> <NOT> <MATCHED> <THEN> 
+	<INSERT> 
+	"("
+		//Column Alias List 
+		qualifiedID() ( "," qualifiedID() )* 
+	")"
+	<VALUES> 
+	"("
+		(
+			<_DEFAULT>
+			|
+			sqlExpression() 
+			
+		)
+		(
+			"'"
+			<_DEFAULT>
+			|
+			sqlExpression() 
+		)*
+	")"
+	[ sqlWhereClause() ]
+
+	[ sqlErrorLoggingClause() ]
+ 
+
+}
+
+
+
+void sqlErrorLoggingClause()   throws SAXException :
+{}
+{
+	<LOG> <ERRORS> 
+	[
+		<INTO> qualifiedName() 
+		"("
+			sqlExpression() 
+		")"
+	]
+
+	[
+		<REJECT> <LIMIT> ( <UNLIMITED> | numericLiteral() )
+	]
+
+}
+
+//http://docs.oracle.com/database/121/PLSQLRF/statements_9014.htm#sthref7054
+//http://docs.oracle.com/database/121/PLSQLRF/statements_9014.htm#i2111652
+void sqlInsertStatement()   throws SAXException :
+{}
+{
+
+	<INSERT> 
+	(
+		//Single-Table INSERT 
+		(
+			//INSERT INTO Clause 
+			sqlInsertIntoClause() 
+			(
+				//Values Clause 
+				(
+					sqlValuesClause() 
+					[ sqlReturningClause() ] 
+				)
+				| sqlSubquery() 
+			)
+
+
+			[ sqlErrorLoggingClause() ]
+
+			
+		)
+		//Multi-Table INSERT 
+		|
+		(
+			(
+				(
+					<ALL> 
+					
+					//INSERT INTO Clause 
+					sqlInsertIntoClause() 
+					
+					//Values Clause 
+					sqlValuesClause() 
+
+					[ sqlErrorLoggingClause() ]
+				)
+			)
+			| //Multi-table INSERT 
+			(
+				[ <ALL> | <FIRST> ]
+				
+				 ( 
+					<WHEN> sqlCondition() <THEN> 
+
+					//INSERT INTO Clause 
+					sqlInsertIntoClause() 
+					
+					//Values Clause 
+					sqlValuesClause() 
+
+					[ sqlErrorLoggingClause() ]
+				 )*
+
+				<ELSE> 
+					//INSERT INTO Clause 
+					sqlInsertIntoClause() 
+					
+					//Values Clause 
+					sqlValuesClause() 
+
+					[ sqlErrorLoggingClause() ]
+			)
+			sqlSubquery() 
+		)
+	)
+
+	[ sqlReturningClause() ]
+
+	[ sqlErrorLoggingClause() ]
+
+}
+
+
+
+
+void sqlInsertIntoClause()   throws SAXException :
+{}
+{
+
+	//INTO Table Clause 
+	<INTO>
+	sqlDmlTableExpression() 
+
+	[ unqualifiedID() ] //Alias   
+
+	[
+		"("
+			//Column Alias List 
+			unqualifiedID() ( "," unqualifiedID() )* 
+		")"
+	]
+
+}
+
+
+
+void sqlValuesClause()   throws SAXException :
+{}
+{
+	<VALUES> 
+	"("
+		(
+			<_DEFAULT>
+			|
+			sqlExpression() 
+			
+		)
+		(
+			"'"
+			<_DEFAULT>
+			|
+			sqlExpression() 
+		)*
+	")"
+	
+
+}
+
+
+//http://docs.oracle.com/cd/B19306_01/appdev.102/b14261/update_statement.htm#i36431
+void sqlUpdateStatement()   throws SAXException :
+{}
+{
+	<UPDATE> 
+	(
+		qualifiedName() 
+		| "(" sqlSubquery() ")"
+		| <TABLE> "(" sqlSubquery() ")"   
+	) 
+	[ unqualifiedID() ] // alias	
+	<SET> 
+	( 
+          sqlColumnAssignment() ( "," sqlColumnAssignment()  )*
+	)
+	[
+		<WHERE> 
+		( <CURRENT> <OF> unqualifiedID() //Cursor Name 
+		| sqlCondition()
+		)
+	]
+
+	[ sqlReturningClause() ]
+
+	[ sqlErrorLoggingClause() ]
+
+}
+
+
+void sqlColumnAssignment()   throws SAXException :
+{}
+{
+
+	// Multi-column assigment 
+	(
+		"("
+			//Column Alias List 
+			qualifiedID() ( "," qualifiedID() )* 
+		")"
+		"="
+		 "(" sqlSubquery() ")" 
+	)
+	|
+	// Single-column assignment 
+	(
+		qualifiedName() "=" 
+		(
+			( "(" sqlSubquery() ")" )
+			| 
+			sqlExpression() 
+		)
+	)
+}
+
+
+//http://docs.oracle.com/cd/B19306_01/appdev.102/b14261/returninginto_clause.htm#CJAGFGDE
+void sqlReturningClause()   throws SAXException :
+{}
+{
+	( <RETURN> | <RETURNING> ) sqlExpression() ("," sqlExpression())* [<BULK> <COLLECT>] <INTO> sqlExpression() ("," sqlExpression())*
+
+}
+
+//http://docs.oracle.com/database/121/PLSQLRF/statements_10002.htm#i2126016
+void sqlForUpdateClause()   throws SAXException :
+{}
+{
+	
+	<FOR> <UPDATE> 
+	[ 
+		<OF> Name() ( "," Name() )* 
+	]
+	[
+		<NOWAIT>
+		| <WAIT> numericLiteral()
+		| <K_SKIP> <LOCKED>
+	]
+
+}
+
+//http://docs.oracle.com/database/121/PLSQLRF/statements_10002.htm#i2126435
+void sqlSubquery()   throws SAXException :
+{}
+{
+	(
+	/*
+	sqlQueryBlock()
+	| 
+	  ( 
+		// Left recursion sqlSubquery() //@TODO
+		sqlQueryBlock()
+		(
+			<UNION> [ <ALL> ]
+			| <INTERSECT>
+			| <MINUS>
+		//sqlSubquery()
+		sqlSelectClause()
+		)*
+	  )
+        */
+	  ( "(" sqlSubquery() ")" )
+          |
+          ( 
+		sqlQueryBlock()
+		(
+			<UNION> [ <ALL> ]
+			| <INTERSECT>
+			| <MINUS>
+		//sqlSubquery()
+		sqlSelectClause()
+		)*
+	  )
+	)
+	[ sqlOrderByClause() ]
+	sqlRowLimitingClause()
+
+}
+
+
+void sqlQueryBlock()   throws SAXException :
+{}
+{
+	[
+	  sqlWithClause()
+	]
+
+	sqlSelectClause()
+	/* @TODO to circumvent Left recursion  
+	<SELECT>
+	[
+		((<DISTINCT>|<UNIQUE>)
+                 | <ALL>
+                )
+	]
+	sqlSelectList()
+	<FROM>
+	sqlTableClause() ( ","  sqlTableClause() )*
+	sqlWhereClause() 
+	sqlHierarchicalQueryClause() 
+	sqlGroupByClause() 
+	sqlModelClause() 
+	*/
+
+}
+
+
+void sqlSelectClause()   throws SAXException :
+{}
+{
+	<SELECT>
+	[
+		(
+			(<DISTINCT>|<UNIQUE>) //Synonyms 
+			| <ALL>
+		)
+	]
+	sqlSelectList()
+	<FROM>
+	sqlTableClause() ( ","  sqlTableClause() )*
+	[ sqlWhereClause()  ]
+	[ sqlHierarchicalQueryClause() ]
+	[ sqlGroupByClause() ]
+	[ sqlModelClause() ]
+
+}
+
+
+
+void sqlTableClause()   throws SAXException :
+{}
+{
+	/*
+	"(" sqlJoinClause() ")"
+	|  sqlTableReference()
+	| sqlJoinClause()
+        
+	Refactored out leading  sqlTableReference() to remove grammar ambiguity
+	*/
+	"(" sqlTableReference() sqlJoinClause() ")"
+	|  sqlTableReference() [ sqlJoinClause() ]
+
+}
+
+void sqlWithClause()   throws SAXException :
+{
+	Token queryStart = null ;
+}
+{
+
+      queryStart = <WITH> 
+	//@TODO PLSQL Declarations - 12c
+	(
+	sqlPLSQLDeclarations(queryStart) ( sqlPLSQLDeclarations(queryStart) )*
+	| sqlSubqueryRefactoringClause()
+	)+
+
+}
+
+
+void sqlPLSQLDeclarations(Token queryStart)   throws SAXException :
+{}
+{
+	  programUnit(false, queryStart)  
+	/*
+	  methodDeclarator(false, 1, queryStart)  
+	  (
+		declarativeSection(false,null)
+		 <BEGIN> (statement())* (exceptionHandler())?  <END> [ID()] 
+	  ) 
+	*/
+
+}
+
+
+void sqlSubqueryRefactoringClause()   throws SAXException :
+{}
+{
+      unqualifiedID() //Query name) 
+	"("
+		//Column Alias List 
+		unqualifiedID() ( "," unqualifiedID() )* 
+	")"
+	<AS>
+	"("
+		sqlSubquery()
+		sqlSearchClause()
+		sqlCycleClause()
+	")"
+	
+	
+
+}
+
+
+void sqlSearchClause()   throws SAXException :
+{}
+{
+	<SEARCH> 
+	( <DEPTH>|<BREADTH> ) 
+	<FIRST> <BY> sqlColumnOrderingClause() ( "," sqlColumnOrderingClause() )*
+	<SET> Name() //Ordering Column 
+
+}
+
+
+void sqlCycleClause()   throws SAXException :
+{}
+{
+	<CYCLE> 
+	unqualifiedID() ( "," unqualifiedID() )* 
+	<SET> unqualifiedID() //Cycle Mark Column Alias
+	<TO> sqlExpression() <_DEFAULT> sqlExpression()
+	
+
+}
+
+
+
+void sqlSelectList()   throws SAXException :
+{}
+{
+	(
+	[ qualifiedID() "." ]  "*"
+	| sqlExpression() [ [ <AS> ] unqualifiedID() ] //ColumnAlias
+	)
+
+}
+
+
+
+void sqlTableReference()   throws SAXException :
+{}
+{
+
+	(
+		sqlContainersClause()
+		| 
+		(
+			(
+				<ONLY> "(" sqlQueryTableExpression() ")"
+				|
+				sqlQueryTableExpression()
+			)
+			[ sqlFlashbackQueryClause() ]
+			[
+				sqlPivotClause()
+				| sqlUnpivotClause()
+				| sqlRowPatternClause()
+			]
+		)
+	)
+	
+	[ unqualifiedID() ] //Table Alias
+
+}
+
+
+
+void sqlFlashbackQueryClause()   throws SAXException :
+{}
+{
+	(
+		<VERSIONS>
+		(
+			( <BETWEEN> ( <SCN> | <TIMESTAMP> )   )
+			|
+			( <PERIOD> <FOR> qualifiedID() <BETWEEN>  )
+		)
+		(
+			( <MINVALUE> | sqlExpression() )
+			<AND>
+			( <MAXVALUE> | sqlExpression() )
+		)
+	)
+	|
+	(
+		<AS> <OF> 
+		(
+			( <SCN> | <TIMESTAMP> ) 
+			sqlExpression() 
+		)
+		|
+		(
+			( <PERIOD> <FOR> qualifiedID() sqlExpression()  )
+		)
+	
+	)
+
+}
+
+
+void sqlQueryTableExpression()   throws SAXException :
+{}
+{
+	( [ <LATERAL> ] "(" sqlSubquery() [ sqlSubqueryRestrictionClause() ] ")"  )
+	|  sqlTableCollectionExpression()
+	|  ( qualifiedName() 
+		[ 
+			(" @" qualifiedID() /* DBLink Name */ )
+			| 
+			sqlPartitionExtensionClause() 
+		] 
+		[ sqlSampleClause() ]
+	   )
+	//|  unqualifiedID() //Query Name 
+
+}
+
+
+void sqlPivotClause()   throws SAXException :
+{}
+{
+	<PIVOT> [ <XML> ]
+
+	"("
+		(
+			sqlAggregateFunction() "(" sqlExpression() "}" 
+			[ <AS> ]
+			 unqualifiedID() //Alias 
+		)
+		( 
+			"," 
+			(
+				sqlAggregateFunction() "(" sqlExpression() "}" 
+				[ <AS> ]
+				 unqualifiedID() //Alias 
+			)
+		)
+		sqlPivotForClause()
+		sqlPivotInClause()
+	")"
+
+}
+
+
+void sqlReferencedColumns()   throws SAXException :
+{}
+{
+		qualifiedID() //Column Name 
+		|
+		//Column List 
+		(
+			"("
+				qualifiedID() ( "," qualifiedID() )*
+			")"
+		)
+
+}
+
+
+void sqlPivotForClause()   throws SAXException :
+{}
+{
+	<FOR> sqlReferencedColumns() 
+	
+
+}
+
+
+void sqlPivotInClause()   throws SAXException :
+{}
+{
+	<IN> "("
+		(
+
+			<ANY> ( "," <ANY> )*
+			| sqlSubquery()
+			| sqlColumnExpression() ( ","  sqlColumnExpression() )
+		)
+		
+	")"
+
+}
+
+
+void sqlUnpivotClause()   throws SAXException :
+{}
+{
+	<UNPIVOT> 
+	[ [ <INCLUDE> | <EXCLUDE> ] <NULLS> ]
+	"("
+		sqlReferencedColumns() 
+		sqlPivotForClause() 
+		sqlUnpivotInClause()
+	")"
+
+}
+
+
+void sqlUnpivotInClause()   throws SAXException :
+{}
+{
+	<IN> "("
+		sqlReferencedColumns()
+		<AS>
+		(
+			Literal()
+			|
+			"(" Literal() ( "," Literal() )* ")" 
+		)
+		
+	")"
+
+}
+
+
+
+void sqlSampleClause()   throws SAXException :
+{}
+{
+	<SAMPLE> [ <BLOCK> ]
+	"("
+		numericLiteral() //Sample Percentage 
+	")"
+	[
+		<SEED>
+		"("
+			Literal() //Seed Value numericLiteral() ?
+		")"
+	]
+
+
+}
+
+
+void sqlPartitionExtensionClause()   throws SAXException :
+{}
+{
+
+	( <PARTITION> | <SUBPARTITION> )
+	(
+		"(" qualifiedID() ( "," qualifiedID() )*  ")" 
+		|
+		<FOR> "("  qualifiedID() ( "," qualifiedID() )* ")" 
+	)
+
+
+}
+
+
+void sqlSubqueryRestrictionClause()   throws SAXException :
+{}
+{
+
+	<WITH>
+	[ 
+		( <READ> <ONLY> )
+		|
+		( <CHECK> <OPTION> )
+	] 
+	[
+		<CONSTRAINT> unqualifiedID() //Constraint Name 
+	]
+
+
+}
+
+
+void sqlTableCollectionExpression()   throws SAXException :
+{}
+{
+
+	<TABLE> "(" sqlCollectionExpression() ")" [ "(" "+" ")" ]
+
+}
+
+
+
+//http://docs.oracle.com/database/121/PLSQLRF/statements_8005.htm#i2112830
+//The collection_expression can be a subquery, a column, a function, or a collection constructor. Regardless of its form, it must return a collection value¿that is, a value whose type is nested table or varray. This process of extracting the elements of a collection is called collection unnesting.
+void sqlCollectionExpression()   throws SAXException :
+{}
+{
+	sqlSubquery()
+	| sqlExpression() // Column, Function, Collection Constructor 
+
+}
+
+void sqlContainersClause()   throws SAXException :
+{}
+{
+
+	<CONTAINERS>
+	"(" 
+		qualifiedID() ( "," qualifiedID() )*
+	")"
+
+}
+
+
+//http://docs.oracle.com/database/121/PLSQLRF/statements_10002.htm#CHDIJFDJ
+void sqlJoinClause()   throws SAXException :
+{}
+{
+	// Move up to remove ambiguity sqlTableReference()
+	(
+		//@TODO remove sqlJoinedTableReferences()
+		//INNER CROSS JOIN CLAUSE 
+		(
+			(
+				[ <INNER> ] <JOIN> sqlTableReference() 
+				(
+					( <ON> sqlCondition() )
+					( <USING> 
+						//Column List 
+						"(" 
+							qualifiedID() ( "," qualifiedID() )*
+						")"
+					)
+				)
+			)
+			|
+			(
+				(
+					( <CROSS> )
+					|
+					( <NATURAL> [ <INNER> ] )
+				)
+				<JOIN> sqlTableReference() 
+			)
+		)
+
+		//OUTER JOIN CLAUSE 
+		|
+		(
+			[ sqlQueryPartitionClause() ]
+			[ <NATURAL> ]
+			sqlOuterJoinType() 
+			<JOIN> sqlTableReference() 
+			[ sqlQueryPartitionClause() ]
+			(
+				( <ON> sqlExpression() )
+				( <USING> 
+					//Column List 
+					"(" 
+						qualifiedID() ( "," qualifiedID() )*
+					")"
+				)
+			)
+		)
+
+		//CROSS OUTER APPLY CLAUSE 
+		|sqlCrossOuterApplyClause()  
+
+	)+ 
+	
+
+}
+
+
+void sqlQueryPartitionClause()   throws SAXException :
+{}
+{
+	<PARTITION> <BY> 
+	(
+		"(" sqlExpression() ( ","  sqlExpression() )*  ")"
+		| 
+		sqlExpression() 
+	)
+
+}
+
+void sqlColumnExpression()   throws SAXException :
+{}
+{
+	(
+		"(" sqlExpression() ( ","  sqlExpression() )*  ")"
+		| 
+		sqlExpression() 
+	)
+	[ <AS> unqualifiedID() ] //Column Alias 
+
+}
+
+
+void sqlOuterJoinType()   throws SAXException :
+{}
+{
+	( <FULL> | <LEFT> | <RIGHT> )
+	<OUTER>
+
+}
+
+void sqlCrossOuterApplyClause()   throws SAXException :
+{}
+{
+	( <CROSS> | <OUTER> )
+	<APPLY>
+	(
+		sqlTableReference()
+		|
+		sqlCollectionExpression()
+	)
+	
+
+}
+
+
+void sqlWhereClause()   throws SAXException :
+{}
+{
+	<WHERE>
+	sqlCondition()
+
+
+}
+
+
+void sqlHierarchicalQueryClause()   throws SAXException :
+{}
+{
+	(
+		<CONNECT> <BY> [ <NOCYCLE> ] sqlCondition() 
+		[ <START> <WITH> sqlCondition() ]
+	)
+	|
+	(
+		[ <START> <WITH> sqlCondition() <CONNECT> <BY> [ <NOCYCLE> ] ] sqlCondition()
+	)
+	
+
+}
+
+
+void sqlGroupByClause()   throws SAXException :
+{}
+{
+	<GROUP> <BY> 
+	(
+		sqlRollupCubeClause()
+		|sqlGroupingSetsClause()
+		|sqlExpression()
+	)
+	( 
+		"'" 
+		(
+		sqlRollupCubeClause()
+		|sqlGroupingSetsClause()
+		|sqlExpression()
+		)
+	)*
+
+	[ <HAVING> sqlCondition() ]
+
+}
+
+
+void sqlRollupCubeClause()   throws SAXException :
+{}
+{
+	( <ROLLUP> | <CUBE> )
+	"("
+		sqlGroupingExpressionList()
+	")"
+
+}
+
+
+void sqlGroupingSetsClause()   throws SAXException :
+{}
+{
+	<GROUPING> <SETS> 
+	"("
+	(
+		sqlRollupCubeClause()
+		|sqlGroupingExpressionList()
+	)
+	( 
+		"'" 
+		(
+		sqlRollupCubeClause()
+		|sqlGroupingExpressionList()
+		)
+	)*
+	")"
+
+}
+
+
+void sqlGroupingExpressionList()   throws SAXException :
+{}
+{
+	sqlExpressionList() ( "," sqlExpressionList() )*
+
+}
+
+
+void sqlExpressionList()   throws SAXException :
+{}
+{
+	(
+		"(" sqlExpression() ( ","  sqlExpression() )*  ")"
+		| sqlExpression() ( ","  sqlExpression() )*  
+	)
+
+}
+
+
+void sqlModelClause()   throws SAXException :
+{}
+{
+	<MODEL>
+	sqlCellReferenceOptions()
+	[ sqlReturnRowsClause() ]
+	[ ( sqlReferenceModel() )+ ]
+	sqlMainModel()
+
+}
+
+
+void sqlCellReferenceOptions()   throws SAXException :
+{}
+{
+	[
+		 ( <IGNORE> | <KEEP> ) 
+		<NAV>
+	]
+	[
+		<UNIQUE>
+		 ( <DIMENSION> | <SINGLE> <REFERENCE> ) 
+	]
+
+}
+
+
+void sqlReturnRowsClause()   throws SAXException :
+{}
+{
+	<RETURN>
+	( <UPDATED> | <ALL> )
+	<ROWS>
+
+}
+
+
+void sqlReferenceModel()   throws SAXException :
+{}
+{
+	<REFERENCE>
+	unqualifiedID() //Reference Model Name 
+	<ON> 
+	"(" sqlSubquery() ")" 
+	sqlModelColumnClauses()
+	sqlCellReferenceOptions() 
+
+}
+
+
+void sqlMainModel()   throws SAXException :
+{}
+{
+	[
+	<MODEL>
+	unqualifiedID() //Main Model Name 
+	]
+	sqlModelColumnClauses()
+	sqlCellReferenceOptions()
+	sqlModelRulesClause()
+
+}
+
+void sqlModelColumnClauses()   throws SAXException :
+{}
+{
+	<PARTITION> <BY> 
+	"("
+		( sqlExpression() [ qualifiedID() ]  )
+		( "'"  sqlExpression() [ qualifiedID() ] )*
+	")"
+
+	<DIMENSION> <BY> 
+	"("
+		( sqlExpression() [ qualifiedID() ]  )
+		( "'"  sqlExpression() [ qualifiedID() ] )*
+	")"
+
+	<MEASURES> 
+	"("
+		( sqlExpression() [ qualifiedID() ]  )
+		( "'"  sqlExpression() [ qualifiedID() ] )*
+	")"
+
+}
+
+void sqlModelColumn()   throws SAXException :
+{}
+{
+	sqlExpression() [ [ <AS> ] unqualifiedID() ]
+
+}
+
+void sqlModelRulesClause()   throws SAXException :
+{}
+{
+	<RULES>
+	[
+		[ <UPDATE> | <UPSERT> [ <ALL> ] ]
+		[ ( <AUTOMATIC> | <SEQUENTIAL> ) <ORDER> ]
+		sqlModelIterateClause() 
+	]	
+	"("
+		(
+			[ <UPDATE> | <UPSERT> [ <ALL> ] ]
+			sqlCellAssignment()
+			[ sqlOrderByClause() ]
+			"=" 
+			sqlExpression()
+		)
+		(
+			","
+			[ <UPDATE> | <UPSERT> [ <ALL> ] ]
+			sqlCellAssignment()
+			[ sqlOrderByClause() ]
+			"=" 
+			sqlExpression()
+		)*
+		
+		
+	")"
+
+}
+
+
+void sqlModelIterateClause()   throws SAXException :
+{}
+{
+	<ITERATE> "(" numericLiteral() ")" 
+	<UNTIL> "(" sqlCondition() ")" 
+
+}
+
+
+
+void sqlCellAssignment()   throws SAXException :
+{}
+{
+
+	unqualifiedID() //Measure Column 
+	"["
+		sqlMultiColumnForLoop()
+		| (
+			(
+				sqlSingleColumnForLoop()
+				//| sqlCondition()
+				| sqlExpression()
+			)
+			(
+				","
+				sqlSingleColumnForLoop()
+				//| sqlCondition()
+				| sqlExpression()
+			)*
+		)
+	"]"
+
+}
+
+
+
+void sqlCondition()   throws SAXException :
+{}
+{
+	ConditionalOrExpression() 
+
+}
+
+void sqlSingleColumnForLoop()   throws SAXException :
+{}
+{
+	<FOR> 
+	qualifiedID() //Dimension Column 
+	(
+		(
+			<IN> 
+			"("
+				( Literal() | sqlSubquery() )
+				( "," Literal() | sqlSubquery() )*
+			")"
+		)
+		|
+		(
+			[ <LIKE> sqlExpression() /* pattern() */ ] //@TODO what is a valid pattern?  
+			<FROM> Literal() 
+			<TO> Literal()
+			( <INCREMENT> | <DECREMENT> ) Literal()
+		)
+	)
+
+}
+
+
+void sqlMultiColumnForLoop()   throws SAXException :
+{}
+{
+	<FOR> 
+	"(" qualifiedID() //Dimension Column 
+	  "," qualifiedID() //Dimension Column 
+	")"
+	(
+		(
+			<IN> 
+			"("
+				( "(" Literal() ( ","  Literal() )* ")" | sqlSubquery() )
+				( "," "(" Literal() ( ","  Literal() )* ")" | sqlSubquery() )*
+			")"
+		)
+	)
+
+}
+
+
+
+void sqlOrderByClause()   throws SAXException :
+{}
+{
+	<ORDER> [ <SIBLINGS> ] <BY> 
+	sqlColumnOrderingClause() ( "," sqlColumnOrderingClause() )*
+	
+	[ <ASC> | <DESC> ]
+
+}
+
+void sqlColumnOrderingClause()   throws SAXException :
+{}
+{
+	unqualifiedID() // Column Alias 	
+	[ <ASC> | <DESC> ]
+	[ <NULLS>  [ <FIRST> | <LAST> ] ]
+
+}
+
+
+void sqlRowLimitingClause()   throws SAXException :
+{}
+{
+
+	[ <OFFSET> numericLiteral() ( <ROW> | <ROWS> )  ]
+
+	[ 
+		<FETCH> ( <FIRST> | <NEXT> ) 
+		[ numericLiteral() [ <PERCENT> ] ]
+
+		[ <ROW> | <ROWS> ] 
+		[ <ONLY> | <WITH> <TIES> ]
+	]
+
+}
+
+
+
+
+//http://docs.oracle.com/database/121/PLSQLRF/statements_10002.htm#BABDACDD
+void sqlRowPatternClause()   throws SAXException :
+{}
+{
+
+	<MATCH> <RECOGNIZE>
+	"("
+		[ sqlRowPatternPartitionBy() ]
+		[ sqlRowPatternOrderBy() ]
+		[ sqlRowPatternMeasures() ]
+		[ sqlRowPatternRowsPerMatch() ]
+		[ sqlRowPatternSkipTo() ]
+		<PATTERN>
+		"("
+			sqlRowPattern()
+		")"
+		[ sqlRowPatternSubsetClause() ] 
+		<DEFINE>
+		sqlRowPatternDefinitionList()
+	")"
+
+
+}
+
+
+void sqlRowPatternPartitionBy()   throws SAXException :
+{}
+{
+	<PATTERN> <BY> 
+	qualifiedID() //Column 
+	"," qualifiedID() //Column 
+
+}
+
+void sqlRowPatternOrderBy()   throws SAXException :
+{}
+{
+
+	<ORDER> <BY> 
+	qualifiedID() //Column 
+	"," qualifiedID() //Column 
+
+}
+
+
+void sqlRowPatternMeasures()   throws SAXException :
+{}
+{
+	<MEASURES>
+	( sqlExpression() [ <AS> ] unqualifiedID() )
+	( ","  sqlExpression() [ <AS> ] unqualifiedID() )
+
+}
+
+void sqlRowPatternRowsPerMatch()   throws SAXException :
+{}
+{
+
+	( ( <ONE> <ROW> ) | ( <ALL> <ROWS> ) )
+	<PER> <MATCH>
+
+}
+
+void sqlRowPatternSkipTo()   throws SAXException :
+{}
+{
+
+	<AFTER> <MATCH> <K_SKIP> 
+	(
+		(
+			(
+				( <TO> <NEXT> )
+				|
+				( <PAST> <LAST> )
+			)
+			<ROW>
+			
+		)
+	)
+	|
+	(
+		<TO>
+		(
+			( <FIRST> |  <LAST> )
+			Name() //Variable Name 
+		)
+	)
+	
+
+}
+
+
+void sqlRowPattern()   throws SAXException :
+{}
+{
+
+	// [ sqlRowPattern() "|" ]  | sqlRowPatternTerm()  
+	 sqlRowPatternTerm()  ( "|" sqlRowPatternTerm() )*  
+
+}
+
+void sqlRowPatternTerm()   throws SAXException :
+{}
+{
+
+	// Left Recusive [ sqlRowPatternTerm() ]  sqlRowPatternFactor()  
+	( sqlRowPatternFactor() ) + 
+
+}
+
+void sqlRowPatternFactor()   throws SAXException :
+{}
+{
+
+	sqlRowPatternPrimary() | sqlRowPatternQuantifier()  
+
+}
+
+
+void sqlRowPatternPrimary()   throws SAXException :
+{}
+{
+
+	"$"
+	| "^"
+	| sqlRowPatternPermute() 
+	//| "("  sqlRowPattern()  ")"
+	| "(" 
+		(
+			( "-" sqlRowPattern() "-" )
+			|  sqlRowPattern() 
+		)
+	  ")"
+	| Name() 
+
+}
+
+void sqlRowPatternPermute()   throws SAXException :
+{}
+{
+	<PERMUTE>
+	"("
+		sqlRowPattern() ( "," sqlRowPattern() )
+	")"
+
+}
+
+void sqlRowPatternQuantifier()   throws SAXException :
+{}
+{
+
+	(
+		("*" | "+" | "?" )  [ "?" ]
+	)
+	| ( "{" numericLiteral()  [ "," [ numericLiteral() ] ] "}" [ "?" ] )
+	//| ( "{" numericLiteral()  "}" )
+
+}
+
+void sqlRowPatternSubsetClause()   throws SAXException :
+{}
+{
+	<SUBSET>
+	sqlRowPatternSubsetItem()
+	( "," sqlRowPatternSubsetItem() )*
+
+}
+
+
+void sqlRowPatternSubsetItem()   throws SAXException :
+{}
+{
+
+	Name() "=" 
+	"(" 
+		Name() ( "," Name() )* 
+	")"
+
+}
+
+
+void sqlRowPatternDefinitionList()   throws SAXException :
+{}
+{
+	sqlRowPatternDefinition() 
+	
+}
+
+void sqlRowPatternDefinition()   throws SAXException :
+{}
+{
+	Name() <AS> sqlCondition() 
+	
+}
+
+void sqlRowPatternRecFunction()   throws SAXException :
+{}
+{
+
+	( <CLASSIFIER> "(" ")" ) // Row Pattern Classifier Function   
+	| ( <MATCH_NUMBER> "(" ")" )   // Row Pattern Match Number Function   
+	|  sqlRowPatternNavigationFunction()  // Row Pattern Navigation Function   
+	|  sqlRowPatternAggregateFunction()  // Row Pattern Aggregate Function   
+
+}
+
+
+void sqlRowPatternNavigationFunction()   throws SAXException :
+{}
+{
+	//Row Pattern Navigation Logical 
+	(
+		[  <RUNNING> | <FINAL> ]
+		( <FIRST> | <LAST> )
+		"(" sqlExpression() "," numericLiteral() ")" 
+	)
+
+	|
+	(
+		( <PREV> | <NEXT> )
+		(
+			//Row Pattern Navigation Physical 
+			(
+				"(" sqlExpression() "," numericLiteral() ")" 
+			)
+			//Row Pattern Navigation Compound 
+			|
+			(
+				( <PREV> | <NEXT> )
+				"(" 
+					[  <RUNNING> | <FINAL> ]
+					( <FIRST> | <LAST> )
+					"(" sqlExpression() "," numericLiteral() ")"
+
+					"," numericLiteral() 
+				")" 
+			)
+		)
+	)
+
+
+
+}
+
+
+void sqlRowPatternAggregateFunction()   throws SAXException :
+{}
+{
+
+	[ <RUNNING> | <FINAL> ]
+        ( <AVG> | <COUNT> | <MAX> | <MIN> |  <SUM> ) sqlAggregateFunction()
+
+}
+
+
+
+/*
+http://docs.oracle.com/database/121/SQLRF/functions003.htm#i89203
+Aggregate Functions 
+
+
+Analytic Function
+http://docs.oracle.com/database/121/SQLRF/functions004.htm#i81407
+http://docs.oracle.com/cd/E11882_01/server.112/e26088/functions004.htm#SQLRF06174
+AnalyticFunction "(" arguments ")" 
+*/
+
+void sqlAnalyticFunction()   throws SAXException :
+{}
+{
+	PrimaryExpression() 
+	<OVER> "(" 
+			[ sqlQueryPartitionClause() ]
+			[ sqlOrderByClause() ]
+			[ sqlWindowingClause() ]
+		")"
+
+}
+
+void sqlWindowingClause()   throws SAXException :
+{}
+{
+	(
+		<ROWS> | <RANGE> 
+	)
+	(
+		(
+		<BETWEEN> 
+			(
+				( <UNBOUNDED> <PRECEDING> )
+				| ( <CURRENT> <ROW> )
+				| ( sqlExpression() ( <PRECEDING> | <FOLLOWING> ) ) 
+			)
+			<AND>
+			(
+				( <UNBOUNDED> <FOLLOWING> )
+				| ( <CURRENT> <ROW> )
+				| ( sqlExpression() ( <PRECEDING> | <FOLLOWING> ) ) 
+			)
+		)
+		|
+		(
+			( <UNBOUNDED> <PRECEDING> )
+			| ( <CURRENT> <ROW> )
+			| ( sqlExpression() <PRECEDING>  ) 
+		)
+		
+	)
+
+}
+
+
+//@TODO
+void sqlAggregateFunction()   throws SAXException :
+{}
+{
+	PrimaryExpression() 
+
+}
+
+
+//http://docs.oracle.com/database/121/SQLRF/expressions001.htm#i1002626
+//http://docs.oracle.com/database/121/SQLRF/expressions.htm#g1057115
+void sqlExpression()   throws SAXException :
+{ 
+}
+{
+	// Need syntactic lookahead to discriminate between sqlColumnAssignment and a procedure call
+	(
+  	LOOKAHEAD( PrimaryExpression() "=" ) (sqlColumnAssignment())   
+	| (ConditionalOrExpression() )    
+	)
+ 
+}
+
+
+/*
+ * End SQL Parser
+ */
+
+
+
+
