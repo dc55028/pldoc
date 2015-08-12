@@ -1937,7 +1937,6 @@ Token KEYWORD_UNRESERVED (): {}
 | <COVAR_POP>
 | <COVAR_SAMP>
 | <CUME_DIST>
-| <DENSE_RANK>
 //| <FIRST>
 | <GROUP_ID>
 //| <GROUPING>
@@ -2192,7 +2191,7 @@ Token ID(): {}
 /**
  * 2006-05-20 - Matthias Hendler - added <OLD>, <NEW>, <LOOP>, <INT>
  */
-Token unqualifiedID(): {}
+Token UnqualifiedID(): {}
 {
 	(
 		<IDENTIFIER>
@@ -2225,7 +2224,7 @@ Token unqualifiedID(): {}
 /**
  * 2006-05-20 - Matthias Hendler - added <LIMIT>
  */
-Token qualifiedID(): {}
+Token QualifiedID(): {}
 {
 	(
 		<IDENTIFIER>

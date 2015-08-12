@@ -6,7 +6,7 @@
     <groupId>net.sourceforge.pldoc</groupId>
     <packaging>jar</packaging>
     <description>Documentation tool for PLSQL</description>
-    <version>1.5.18-SNAPSHOT</version>
+    <version>1.5.18-SQL-PARSING-SNAPSHOT</version>
     <url>http://pldoc.sourceforge.net</url>
     <licenses>
         <license>
@@ -267,6 +267,7 @@
 						    <include name="ProductionsDDL.jj" />
 						    <include name="ProductionsObjectTypes.jj" />
 						    <include name="ProductionsTriggers.jj" />
+						    <include name="ProductionsSQL.jj" />
 						</fileset>
 					    </concat>
 					    <echo message="Refreshed PLSQL.jj - JAVACC should take about 30 minutes !!! " />

@@ -87,7 +87,7 @@ public class PLSQLParser {
   	private boolean keywordsUppercase = false; //SRT 20110419
   	private boolean keywordsLowercase = false; //SRT 20110419
   	private String schemaName = ""; //SRT 20110418
-  	private String globalPackageName = "_GLOBAL"; //SRT 20110418
+  	private String GlobalPackageName = "_GLOBAL"; //SRT 20110418
   	
   
 	/** Sets the stream to receive output XML text.
@@ -180,9 +180,9 @@ public class PLSQLParser {
 	/**
 	* Sets the GlobalPackageName for this parser 
 	*/
-	public void setGlobalPackageName(String globalPackageName)
+	public void setGlobalPackageName(String GlobalPackageName)
 	{
-	  this.globalPackageName = globalPackageName;
+	  this.GlobalPackageName = GlobalPackageName;
 	}
 
 	/**

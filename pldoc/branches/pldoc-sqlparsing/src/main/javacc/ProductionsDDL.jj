@@ -69,7 +69,7 @@ void view() throws SAXException :
   ["(" viewColumn() ("," viewColumn())* ")"]
   //### OF ... WITH OBJECT IDENTIFIER...
   <AS>
-  statement() //SRT select()
+  Statement() //SRT select()
   //### WITH ...
   (";" | "/")
   { m_out.endElement("VIEW"); }
@@ -115,14 +115,14 @@ void DatabaseLink()  :
     	(<CURRENT_USER> )
 	|
 	(
-	unqualifiedID() <IDENTIFIED> <BY> unqualifiedID()
+	UnqualifiedID() <IDENTIFIED> <BY> UnqualifiedID()
 	<AUTHENTICATED> <BY> 
-	unqualifiedID() <IDENTIFIED> <BY> unqualifiedID()
+	UnqualifiedID() <IDENTIFIED> <BY> UnqualifiedID()
 	)
 
     )
     |
-    unqualifiedID() <IDENTIFIED> <BY> unqualifiedID()
+    UnqualifiedID() <IDENTIFIED> <BY> UnqualifiedID()
   )
   [ <USING> StringLiteral() ]
   (";" | "/")
