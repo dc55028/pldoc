@@ -87,7 +87,7 @@ public class PLSQLParser {
   	private boolean keywordsUppercase = false; //SRT 20110419
   	private boolean keywordsLowercase = false; //SRT 20110419
   	private String schemaName = ""; //SRT 20110418
-  	private String globalPackageName = "_GLOBAL"; //SRT 20110418
+  	private String GlobalPackageName = "_GLOBAL"; //SRT 20110418
   	
   
 	/** Sets the stream to receive output XML text.
@@ -180,9 +180,9 @@ public class PLSQLParser {
 	/**
 	* Sets the GlobalPackageName for this parser 
 	*/
-	public void setGlobalPackageName(String globalPackageName)
+	public void setGlobalPackageName(String GlobalPackageName)
 	{
-	  this.globalPackageName = globalPackageName;
+	  this.GlobalPackageName = GlobalPackageName;
 	}
 
 	/**
@@ -696,24 +696,24 @@ public class PLSQLParser {
 
 PARSER_END(PLSQLParser)
 /**
- * 2006-05-22 - Matthias Hendler - Added parsing of triggers and global functions/procedures
+ * 2006-05-22 - Matthias Hendler - Added parsing of triggers and Global functions/procedures
  *                                 Refactored printing of custom tags into the XML/DOM.
  *                                 Custom tags are language independent. Reserved tags are linked
  *                                 to the documented language like RETURN, PARAM and THROWS.
  */
 
 /**
- * 2006-05-22 - Matthias Hendler - added globalBody()
+ * 2006-05-22 - Matthias Hendler - added GlobalBody()
  */
 void input() throws org.xml.sax.SAXException : {}
 {
 	// SRT 2011-04-17 This syntax breaks the parser when fields of record.attach* are referenced (attachLibrary())*
 	(
-        //    (LOOKAHEAD(6) packageSpec() | LOOKAHEAD(6) packageBody() | LOOKAHEAD(6) typeSpec() | LOOKAHEAD(6) typeBody() | LOOKAHEAD(6) programUnit(true) | sqlPlusCommand())
-	 // SRT 20110514 before (LOOKAHEAD(6) packageSpec() | LOOKAHEAD(6) packageBody() | LOOKAHEAD(6) typeSpec() | LOOKAHEAD(6) typeBody() | LOOKAHEAD(6) table() | LOOKAHEAD(6) view()  | global() | sqlPlusCommand())	("/")*
-	 (LOOKAHEAD(8) javaSpec()  
-	 |LOOKAHEAD(7) packageSpec()  
-	 | LOOKAHEAD(7) packageBody()  
+        //    (LOOKAHEAD(6) PackageSpec() | LOOKAHEAD(6) PackageBody() | LOOKAHEAD(6) typeSpec() | LOOKAHEAD(6) typeBody() | LOOKAHEAD(6) ProgramUnit(true) | SqlPlusCommand())
+	 // SRT 20110514 before (LOOKAHEAD(6) PackageSpec() | LOOKAHEAD(6) PackageBody() | LOOKAHEAD(6) typeSpec() | LOOKAHEAD(6) typeBody() | LOOKAHEAD(6) table() | LOOKAHEAD(6) view()  | Global() | SqlPlusCommand())	("/")*
+	 (LOOKAHEAD(8) JavaSpec()  
+	 |LOOKAHEAD(7) PackageSpec()  
+	 | LOOKAHEAD(7) PackageBody()  
 	 | LOOKAHEAD(6) typeSpec()  
 	 //| LOOKAHEAD(6) typeBody()  {system.err.println("typeSpec"); }
 	 | LOOKAHEAD(6) table()  
@@ -723,11 +723,11 @@ void input() throws org.xml.sax.SAXException : {}
 	 | LOOKAHEAD(6) Synonym()   
 	 | LOOKAHEAD(6) Directory()   
 	 | LOOKAHEAD(6) DatabaseLink()   
-	 | LOOKAHEAD(6) global()  
-	 | LOOKAHEAD(4) programUnit(true,null) 
+	 | LOOKAHEAD(6) Global()  
+	 | LOOKAHEAD(4) ProgramUnit(true,null) 
 	 | LOOKAHEAD(6) DDLCommand()   
-	 | LOOKAHEAD(6) sqlPlusCommand() 
-	 |(<SELECT>|<UPDATE>|<INSERT>|<DELETE>|<COMMIT>|<ROLLBACK>|<SAVEPOINT>|<LOCK><TABLE>|<MERGE>|<WITH>) skipPastNextTokenOccurrence(SQLPLUS_TERMINATOR) //Ignore SQL statements in scripts
+	 | LOOKAHEAD(6) SqlPlusCommand() 
+	 |(<SELECT>|<UPDATE>|<INSERT>|<DELETE>|<COMMIT>|<ROLLBACK>|<SAVEPOINT>|<LOCK><TABLE>|<MERGE>|<WITH>) skipPastNextTokenOccurrence(SQLPLUS_TERMINATOR) //Ignore Sql Statements in scripts
 	 )	
 	 ("/")*
 	)*
@@ -746,10 +746,10 @@ void DDLCommand() :
 }
 
 
-void sqlPlusCommand() : {}
+void SqlPlusCommand() : {}
 {
   // e.g. SHOW ERRORS, GRANT EXECUTE ON ... TO ...
-  // SQLPLUS commands
+  // SqlPLUS commands
   ( "@" 
   | <ACCEPT>
   | <COLUMN>
@@ -786,7 +786,7 @@ void sqlPlusCommand() : {}
 
 /*
 SRT 2011-04-17 This syntax breaks the parser when fields of record.attach* are referenced  in PL/SQL 
-void attachLibrary() :
+void AttachLibrary() :
 {}
 {
 	<".attach"> <IDENTIFIER> <IDENTIFIER> <END> <IDENTIFIER>
@@ -794,22 +794,22 @@ void attachLibrary() :
 */
 
 /**
- * All global definitions of triggers, functions and procedures are evaluated here.
+ * All Global definitions of triggers, functions and procedures are evaluated here.
  * Every occurence goes under a new PACKAGE-Node in the XML document.
- * This happens, cause a global "block" does not have a definied start and end token 
+ * This happens, cause a Global "block" does not have a definied start and end token 
  * like a package specification or a package body.
- * Thats why every construct is handled like a new part of the global package.
+ * Thats why every construct is handled like a new part of the Global package.
  * To overcome this problem, I could use an infinity lookahead - which should solve the problem 
  * and slow down the whole parsing.
  * Another idea would be to lookahead the next tokens and decide wether they belong to a package definition or not.
- * Then I could decide to stay in this global parsing state. By now lookahead gives the parser a hint to
+ * Then I could decide to stay in this Global parsing state. By now lookahead gives the parser a hint to
  * choose the correct way on a given base. So we can't negate it easily.
- * On the other hand I could also hold the global state in a global variable. 
+ * On the other hand I could also hold the Global state in a Global variable. 
  * But this does not seems the correct way to solve the problem, I think.
  *
  * 2006-05-17 - Matthias Hendler - added
  */
-void global() throws SAXException :
+void Global() throws SAXException :
 { 
 	Token name = null; 
 }
@@ -818,28 +818,28 @@ void global() throws SAXException :
 		if (m_out != null)
 		{
 			// now start printing the package
-			m_out.pushAttribute("NAME", purifyIdentifier(globalPackageName));
+			m_out.pushAttribute("NAME", purifyIdentifier(GlobalPackageName));
 			m_out.pushAttribute("SCHEMA", purifyIdentifier(schemaName));
-			// System.err.println("startElement @ global() " );
+			// System.err.println("startElement @ Global() " );
 			m_out.startElement("PACKAGE");
 		}
 	}
 
-	//SRT Work In progress (LOOKAHEAD ([<DECLARE> declarativeSection(false)] <BEGIN>) globalBlock() | LOOKAHEAD (4) programUnit(true) // | triggerUnit()
+	//SRT Work In progress (LOOKAHEAD ([<DECLARE> DeclarativeSection(false)] <BEGIN>) GlobalBlock() | LOOKAHEAD (4) ProgramUnit(true) // | triggerUnit()
 	/*
-	  Remove triggers from global processing because their schema may be defined in the trigger code itself
+	  Remove triggers from Global processing because their schema may be defined in the trigger code itself
 	  Still wrap the trigger in a fake package but make the package name dependent on the actual schema 
-	  defaulting to the globalPackageName if it cannot be found 
+	  defaulting to the GlobalPackageName if it cannot be found 
 	*/
 	(
-	globalBlock(token) 
-	//LOOKAHEAD ( ( label() )* [<DECLARE> declarativeSection(false,token)] <BEGIN>) globalBlock(token) // | LOOKAHEAD (4) programUnit(true,token) 
+	GlobalBlock(token) 
+	//LOOKAHEAD ( ( Label() )* [<DECLARE> DeclarativeSection(false,token)] <BEGIN>) GlobalBlock(token) // | LOOKAHEAD (4) ProgramUnit(true,token) 
 	)
 
 	{
 		if (m_out != null)
 		{
-			// System.err.println("endElement @ global() " );
+			// System.err.println("endElement @ Global() " );
 			m_out.endElement("PACKAGE");
 		}
 	}
@@ -853,25 +853,25 @@ void global() throws SAXException :
  * 
  * 2006-05-17 - Matthias Hendler - added
  */
-void globalBlock(Token objectStart) throws SAXException :
+void GlobalBlock(Token objectStart) throws SAXException :
 { 
 	Token name = null; 
 }
 {
 	(
-		label()
+		Label()
 	)*
 	[
 		<DECLARE>
-		declarativeSection(false, objectStart)
+		DeclarativeSection(false, objectStart)
 	]
 	
-	<BEGIN> (statement())* (exceptionHandler())? <END> [<IDENTIFIER>] ";"
+	<BEGIN> (Statement())* (ExceptionHandler())? <END> [<IDENTIFIER>] ";"
 }
 
 
 
-void javaSpec() throws SAXException :
+void JavaSpec() throws SAXException :
 { ASTCompilationUnit javaCompilationUnit = null ;
   Token schema = null, name = null, tokenCreate = null, tokenPackage = null, tokenJavaType = null, tokenIsAs = null, lastToken = null ; 
 }
@@ -902,7 +902,7 @@ void javaSpec() throws SAXException :
 		{
 			processPackageComment(tokenCreate);
 		}
-// 		System.err.println("processPackageComment @ packageSpec() " );
+// 		System.err.println("processPackageComment @ PackageSpec() " );
 		processPackageComment(tokenPackage);
 	}
 
@@ -912,8 +912,8 @@ void javaSpec() throws SAXException :
 		processPackageComment(tokenIsAs);
 	}
 
-	(tokenIsAs=<ACCESSIBLE> <BY>  "(" [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] qualifiedName()  
-                                          ("," [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] qualifiedName() )*  
+	(tokenIsAs=<ACCESSIBLE> <BY>  "(" [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] QualifiedName()  
+                                          ("," [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] QualifiedName() )*  
                                       ")" 
         )
 	{
@@ -921,7 +921,7 @@ void javaSpec() throws SAXException :
 		processPackageComment(tokenIsAs);
 	}
 
-	(tokenIsAs=<RESOLVER> "("  ( "("  ( "*" | <QUOTED_LITERAL> )  [","] ( "-" | unqualifiedID()  )  ")"  )+    ")"    )?
+	(tokenIsAs=<RESOLVER> "("  ( "("  ( "*" | <QUOTED_LITERAL> )  [","] ( "-" | UnqualifiedID()  )  ")"  )+    ")"    )?
 	{
 		// possibly, package comment is here
 		processPackageComment(tokenIsAs);
@@ -937,8 +937,8 @@ void javaSpec() throws SAXException :
 
 
         (
-           LOOKAHEAD(<BFILE> "(")  ( <BFILE>  "(" unqualifiedID() "," StringLiteral()  ")" )
-          | LOOKAHEAD( ( <CLOB> | <BLOB> | <BFILE> ) <SELECT> ) ( ( <CLOB> | <BLOB> | <BFILE> ) sqlStatement(null,";") [";"] )
+           LOOKAHEAD(<BFILE> "(")  ( <BFILE>  "(" UnqualifiedID() "," StringLiteral()  ")" )
+          | LOOKAHEAD( ( <CLOB> | <BLOB> | <BFILE> ) <SELECT> ) ( ( <CLOB> | <BLOB> | <BFILE> ) SqlStatement(null,";") [";"] )
           | StringLiteral()
         )
 	  )
@@ -963,7 +963,7 @@ void javaSpec() throws SAXException :
 }
 
 
-void packageSpec() throws SAXException :
+void PackageSpec() throws SAXException :
 { Token schema = null, name = null, tokenCreate = null, tokenPackage = null, tokenIsAs = null, lastToken = null ; }
 {
 	[tokenCreate=<CREATE> [<OR> <REPLACE>] [ <EDITIONABLE> | <NONEDITIONABLE> ] ]
@@ -978,7 +978,7 @@ void packageSpec() throws SAXException :
 			// now start printing the package
 			m_out.pushAttribute("NAME", purifyIdentifier(name.toString()));
 			m_out.pushAttribute("SCHEMA", purifyIdentifier(schemaString.toString()));
-			// System.err.println("startElement @ packageSpec() " );
+			// System.err.println("startElement @ PackageSpec() " );
 			m_out.startElement("PACKAGE");
 		}
 		// possibly, package comment is here
@@ -986,7 +986,7 @@ void packageSpec() throws SAXException :
 		{
 			processPackageComment(tokenCreate);
 		}
-// 		System.err.println("processPackageComment @ packageSpec() " );
+// 		System.err.println("processPackageComment @ PackageSpec() " );
 		processPackageComment(tokenPackage);
 	}
 
@@ -997,8 +997,8 @@ void packageSpec() throws SAXException :
 	}
 
         [
-	(tokenIsAs=<ACCESSIBLE> <BY>  "(" [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] qualifiedName()  
-                                         ("," [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] qualifiedName() )*  
+	(tokenIsAs=<ACCESSIBLE> <BY>  "(" [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] QualifiedName()  
+                                         ("," [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] QualifiedName() )*  
                                       ")" 
         )
 	{
@@ -1009,7 +1009,7 @@ void packageSpec() throws SAXException :
 
         (
 	  (
-	    wrappedObject()
+	    WrappedObject()
 	  )
 	  |
 	  (
@@ -1019,7 +1019,7 @@ void packageSpec() throws SAXException :
 		    processPackageComment(tokenIsAs);
 	    }
 
-	    declarativeSection(true,name)
+	    DeclarativeSection(true,name)
 
 	    <END> [ID()] ";" { printSummary("Package Specification", name.beginLine, name, token); }
 	  )
@@ -1029,7 +1029,7 @@ void packageSpec() throws SAXException :
 	}
 }
 
-void packageBody() throws SAXException :
+void PackageBody() throws SAXException :
 { Token schema = null, name = null, tokenCreate = null, tokenModuleType = null, tokenIsAs = null; }
 {
 	[tokenCreate=<CREATE> [<OR> <REPLACE>]  [ <EDITIONABLE> | <NONEDITIONABLE> ]  ]
@@ -1060,7 +1060,7 @@ void packageBody() throws SAXException :
 
 	(
 	  (
-	    wrappedObject()
+	    WrappedObject()
 	  )
 	  |
 	  (
@@ -1070,10 +1070,10 @@ void packageBody() throws SAXException :
 		    processPackageComment(tokenIsAs);
 	    }
 
-		  declarativeSection(true,name) //SRT 20110524 Allow PLDOc in Type Bodies 
+		  DeclarativeSection(true,name) //SRT 20110524 Allow PLDOc in Type Bodies 
 
 						    
-	  [ <BEGIN> (statement())* (exceptionHandler())? ] <END> [ID()] ";" 
+	  [ <BEGIN> (Statement())* (ExceptionHandler())? ] <END> [ID()] ";" 
 	  { printSummary(tokenModuleType.image.toUpperCase().equals("PACKAGE") ?  "Package Body" :  "Object Type Body", name.beginLine, name, token); }
 	  )
 	)
@@ -1086,32 +1086,32 @@ void packageBody() throws SAXException :
 	}
 }
 
-void declarativeUnit(boolean isPackageLevel, Token objectStart) throws SAXException :
+void DeclarativeUnit(boolean isPackageLevel, Token objectStart) throws SAXException :
 {}
 {
-		pragma(isPackageLevel) |
+		Pragma(isPackageLevel) |
 		LOOKAHEAD(2)
-		exceptionDeclaration(isPackageLevel) |
-		LOOKAHEAD((<TYPE>|<SUBTYPE>) qualifiedID() (<IS> | <AS> )  ) //SRT 20110616 - make sue soen't break object type
-		subtype_definition(isPackageLevel) |
-		LOOKAHEAD((<FUNCTION>|<PROCEDURE>) qualifiedID() ) //SRT 20111117 - Special case of parameterless methods:choose method in preference to variable 
-		programUnit(isPackageLevel,objectStart)  |
+		ExceptionDeclaration(isPackageLevel) |
+		LOOKAHEAD((<TYPE>|<SUBTYPE>) QualifiedID() (<IS> | <AS> )  ) //SRT 20110616 - make sue soen't break object type
+		SubtypeDefinition(isPackageLevel) |
+		LOOKAHEAD((<FUNCTION>|<PROCEDURE>) QualifiedID() ) //SRT 20111117 - Special case of parameterless methods:choose method in preference to variable 
+		ProgramUnit(isPackageLevel,objectStart)  |
 		LOOKAHEAD(4)
-		variableOrConstantDeclaration(isPackageLevel) |
+		VariableOrConstantDeclaration(isPackageLevel) |
 		LOOKAHEAD(2)
-		cursorSpec(isPackageLevel) |
-		cursorBody(isPackageLevel) |
-		collectionDeclaration(isPackageLevel) |
-		programUnit(isPackageLevel,objectStart) 
-		|typeMethod(isPackageLevel,1, null,objectStart) //SRT 20110523
+		CursorSpec(isPackageLevel) |
+		CursorBody(isPackageLevel) |
+		CollectionDeclaration(isPackageLevel) |
+		ProgramUnit(isPackageLevel,objectStart) 
+		|TypeMethod(isPackageLevel,1, null,objectStart) //SRT 20110523
 		|CompilationDeclarationFragment(isPackageLevel,objectStart) 
 }
 
-void declarativeSection(boolean isPackageLevel, Token objectStart) throws SAXException :
+void DeclarativeSection(boolean isPackageLevel, Token objectStart) throws SAXException :
 {}
 {
 	(
-		declarativeUnit(isPackageLevel, objectStart) 
+		DeclarativeUnit(isPackageLevel, objectStart) 
 	)*
 }
 
@@ -1123,7 +1123,7 @@ void CompilationDeclarationFragment(boolean isPackageLevel, Token objectStart) t
 	  <CC_IF>  
 	  ConditionalOrExpression()  
 	  <CC_THEN>  
-	    (declarativeUnit(isPackageLevel,objectStart)
+	    (DeclarativeUnit(isPackageLevel,objectStart)
 	     | <CC_ERROR> Expression() <CC_END> 
 	    )* 
 
@@ -1131,14 +1131,14 @@ void CompilationDeclarationFragment(boolean isPackageLevel, Token objectStart) t
 	    <CC_ELSIF> 
 	    ConditionalOrExpression() 
 	    <CC_THEN> 
-	    (declarativeUnit(isPackageLevel,objectStart)
+	    (DeclarativeUnit(isPackageLevel,objectStart)
 	     | <CC_ERROR> Expression() <CC_END> 
 	    )* 
 	  )* 
 
 	  ( 
 	    <CC_ELSE> 
-	    (declarativeUnit(isPackageLevel,objectStart)
+	    (DeclarativeUnit(isPackageLevel,objectStart)
 	     | <CC_ERROR> Expression() <CC_END> 
 	    )* 
 	  )*
@@ -1155,13 +1155,13 @@ void CompilationDeclarationFragment(boolean isPackageLevel, Token objectStart) t
  * 2006-05-22 - Matthias Hendler - Printing of custom tag "@deprecated" removed.
  *                                 Printing of any custom tag added. Now user can define his own
  *								   custom tags which he can evaluate in the XSLT.
- *                                 This methode also documents global functions/procedures.
+ *                                 This methode also documents Global functions/procedures.
  */
-void programUnit(boolean isPackageLevel, Token objectStart) throws SAXException :
+void ProgramUnit(boolean isPackageLevel, Token objectStart) throws SAXException :
 {
 	Token start, name;
 	Token schema = null;
-	Token globalStart = null;
+	Token GlobalStart = null;
 	Token startToken = null;
 	Token tokenODCIAggregateType = null; 
 	Token tokenIsAs = null; 
@@ -1172,20 +1172,20 @@ void programUnit(boolean isPackageLevel, Token objectStart) throws SAXException 
 {
 	(
 
-	[globalStart=<CREATE> [<OR> <REPLACE>] [ <EDITIONABLE> | <NONEDITIONABLE> ] 
+	[GlobalStart=<CREATE> [<OR> <REPLACE>] [ <EDITIONABLE> | <NONEDITIONABLE> ] 
          
         ]
 
 	(start=<FUNCTION>|start=<PROCEDURE>) (LOOKAHEAD(2) schema = ID()".")? name=ID()
 	{
-// 		System.err.println("programUnit: isPackageLevel==" + isPackageLevel);
+// 		System.err.println("ProgramUnit: isPackageLevel==" + isPackageLevel);
 		// element generated only on the package level
 		if (m_out != null && isPackageLevel) {
 
-			//This is actually a global object 
+			//This is actually a Global object 
 			if (null== objectStart)
 			{
-			  String packageString = globalPackageName; // Default Global Package Name 
+			  String packageString = GlobalPackageName; // Default Global Package Name 
 			  String schemaString = schemaName; // Default Schema 
 
 
@@ -1193,7 +1193,7 @@ void programUnit(boolean isPackageLevel, Token objectStart) throws SAXException 
 			  if (null != schema )
 			  {
 			    schemaString = schema.toString();
-			    packageString = ("_" + schemaString ) ; //Base global package name on Schema
+			    packageString = ("_" + schemaString ) ; //Base Global package name on Schema
 			  }
 
 			  m_out.pushAttribute("NAME", purifyIdentifier(packageString));
@@ -1204,27 +1204,27 @@ void programUnit(boolean isPackageLevel, Token objectStart) throws SAXException 
 
 			memberName = purifyKeyword(start.toString()); // SRT 20110420 --start.toString().toUpperCase();
 			/*
-			startToken = (globalStart == null) ? start : globalStart;
-			System.err.println("programUnit: calling processMemberComment @ " + startToken.toString());
+			startToken = (GlobalStart == null) ? start : GlobalStart;
+			System.err.println("ProgramUnit: calling processMemberComment @ " + startToken.toString());
 			tags = processMemberComment(startToken, memberName, name.toString());
 			*/
-			if (globalStart == null) 
+			if (GlobalStart == null) 
 			{ // Look for Package Comments and member comments before the start keyword
-				//SRT 20110422 System.err.println("programUnit:  no CREATE OR REPLACE calling processMemberComment @ " + start.toString());
+				//SRT 20110422 System.err.println("ProgramUnit:  no CREATE OR REPLACE calling processMemberComment @ " + start.toString());
 				tags = processMemberComment(start, memberName, name.toString()); 
-				//SRT 20110422 System.err.println("programUnit:  no CREATE OR REPLACE calling processMemberComment @ START==" + tags.toString());
+				//SRT 20110422 System.err.println("ProgramUnit:  no CREATE OR REPLACE calling processMemberComment @ START==" + tags.toString());
 				tags.putAll(processMemberComment(name, null, null)); // Should find stuff in scripts and database code
-				//SRT 20110422 System.err.println("programUnit:  no CREATE OR REPLACE calling processMemberComment @ NAME==" + tags.toString());
+				//SRT 20110422 System.err.println("ProgramUnit:  no CREATE OR REPLACE calling processMemberComment @ NAME==" + tags.toString());
 			}
 			else
 			{ // Look for Package Comments and member comments before the CREATE OR REPLACE, then the start keyword
-				//SRT 20110422 System.err.println("programUnit:  CREATE OR REPLACE calling processMemberComment GLOBAlSTART " + globalStart.toString());
-				tags = processMemberComment(globalStart, memberName, name.toString()); // Should find stuff in scripts only
-				//SRT 20110422 System.err.println("programUnit:  CREATE OR REPLACE calling processMemberComment @ GLOBALSTART==" + start.toString());
+				//SRT 20110422 System.err.println("ProgramUnit:  CREATE OR REPLACE calling processMemberComment GLOBAlSTART " + GlobalStart.toString());
+				tags = processMemberComment(GlobalStart, memberName, name.toString()); // Should find stuff in scripts only
+				//SRT 20110422 System.err.println("ProgramUnit:  CREATE OR REPLACE calling processMemberComment @ GLOBALSTART==" + start.toString());
 				tags.putAll(processMemberComment(start, null, null)); // Should find stuff in scripts and database code
-				//SRT 20110422 System.err.println("programUnit:  CREATE OR REPLACE calling processMemberComment @ START==" + tags.toString());
+				//SRT 20110422 System.err.println("ProgramUnit:  CREATE OR REPLACE calling processMemberComment @ START==" + tags.toString());
 				tags.putAll(processMemberComment(name, null, null)); // Should find stuff in scripts and database code
-				//SRT 20110422 System.err.println("programUnit:  CREATE OR REPLACE calling processMemberComment @ NAME==" + name.toString());
+				//SRT 20110422 System.err.println("ProgramUnit:  CREATE OR REPLACE calling processMemberComment @ NAME==" + name.toString());
 			}
 		} else {
 			tags = new Hashtable();
@@ -1232,7 +1232,7 @@ void programUnit(boolean isPackageLevel, Token objectStart) throws SAXException 
 	}
 
 	( 
-	( wrappedObject() ) 
+	( WrappedObject() ) 
 	|//UnwrappedCode
 	( ("(") {
 	          /*
@@ -1246,20 +1246,20 @@ void programUnit(boolean isPackageLevel, Token objectStart) throws SAXException 
 		 */
 	          tags.putAll(processMemberComment(token, null, null));
 	        } 
-	  parameterDeclaration(tags,isPackageLevel) ( "," parameterDeclaration(tags,isPackageLevel) )* ")" )*
+	  ParameterDeclaration(tags,isPackageLevel) ( "," ParameterDeclaration(tags,isPackageLevel) )* ")" )*
 	{
-		//SRT 20110422 System.err.println("programUnit: found ParameterDeclaration" );
+		//SRT 20110422 System.err.println("ProgramUnit: found ParameterDeclaration" );
 	}
 
 	[(<RETURN>){
 	          /*
-	           Last chance to collect member comment (and the return tag) before hitting the RETURN statement
+	           Last chance to collect member comment (and the return tag) before hitting the RETURN Statement
 		 */
 	          tags.putAll(processMemberComment(token, null, null));
 	        }  
 	 type=datatype()
 	{
-		//SRT 20110422 System.err.println("programUnit:  RETURN FOUND matching tags in tags=" + tags.toString());
+		//SRT 20110422 System.err.println("ProgramUnit:  RETURN FOUND matching tags in tags=" + tags.toString());
 		// element generated only on the package level
 		if (m_out != null && isPackageLevel) 
 		{
@@ -1314,13 +1314,13 @@ void programUnit(boolean isPackageLevel, Token objectStart) throws SAXException 
 					}
 				}
 			}
-		//SRT 20110422 System.err.println("programUnit: THROW Processing" );
+		//SRT 20110422 System.err.println("ProgramUnit: THROW Processing" );
 		}
 		
 		// now print all custom tags
 		if (m_out != null && isPackageLevel)
 		{
-			//SRT 20110422 System.err.println("programUnit:  pre printCustomTags is tags " + tags.toString());
+			//SRT 20110422 System.err.println("ProgramUnit:  pre printCustomTags is tags " + tags.toString());
 			printCustomTags(tags);
 		}
 	}
@@ -1349,13 +1349,13 @@ void programUnit(boolean isPackageLevel, Token objectStart) throws SAXException 
 
 	( (<AUTHID> ( <CURRENT_USER> | <DEFINER> ) ) 
 	    | (<ACCESSIBLE> <BY>  "(" 
-                                    [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] qualifiedName()  
-                                   ("," [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] qualifiedName() )*  
+                                    [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] QualifiedName()  
+                                   ("," [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] QualifiedName() )*  
                                   ")" 
               )
 
             | <DETERMINISTIC> 
-	    | <PARALLEL_ENABLE>  [ parallel_clause() ] [ <USING> ID() ["." ID()] ] 
+	    | <PARALLEL_ENABLE>  [ ParallelClause() ] [ <USING> ID() ["." ID()] ] 
 	   | <PIPELINED> [ ( <USING> ID() ["." ID()] ) 
 	                   |  //20110531
 			   (( <ORDER> | <CLUSTER> ) [ID()] <BY> "(" ID() ( "," ID() )*  ")" ) 
@@ -1400,17 +1400,17 @@ void programUnit(boolean isPackageLevel, Token objectStart) throws SAXException 
 		//SRT (<IS> | <AS>)
 		(
 			LOOKAHEAD(2)
-			callSpecTail(isPackageLevel) //{ System.err.println("Found callSpecTail") ; }
+			CallSpecTail(isPackageLevel) //{ System.err.println("Found CallSpecTail") ; }
 			|
 			(
-				declarativeSection(false,objectStart)
-				<BEGIN> (statement())* (exceptionHandler())? <END> [ID()]
+				DeclarativeSection(false,objectStart)
+				<BEGIN> (Statement())* (ExceptionHandler())? <END> [ID()]
 			)
 		)
 	]
 	";" //SRT 20110416 { System.err.println("Found terminating semi-colon") ; }
         {
-	   //Do not generate Summaries for interanl programUnits that are not output 
+	   //Do not generate Summaries for interanl ProgramUnits that are not output 
            if (isPackageLevel) printSummary("Program Unit", (isPackageLevel && (null != objectStart) ? objectStart.beginLine : name.beginLine), name, token);
         }
 
@@ -1422,7 +1422,7 @@ void programUnit(boolean isPackageLevel, Token objectStart) throws SAXException 
 		{
 // 			System.err.println("endElement@ " + start.toString());
 			m_out.endElement(purifyKeyword(start.toString())); // SRT20110420 m_out.endElement(purifyIdentifier(start.toString().toUpperCase()))
-			//This is actually a global object 
+			//This is actually a Global object 
 			if (null== objectStart)
 			{
 			  m_out.endElement(purifyKeyword("PACKAGE")); //Wrap the trigger element in a fake package
@@ -1431,7 +1431,7 @@ void programUnit(boolean isPackageLevel, Token objectStart) throws SAXException 
 	}
 }
 
-void parameterDeclaration(Hashtable tags,boolean isPackageLevel) throws SAXException :
+void ParameterDeclaration(Hashtable tags,boolean isPackageLevel) throws SAXException :
 {
 	Token name;
 	Token parameterType = null;
@@ -1477,9 +1477,9 @@ String datatype() :
 		LOOKAHEAD(2) name=scalar_datatype_name()
 		|
 		(
-		  ( [LOOKAHEAD(2) <REF>] name=qualifiedName() 
+		  ( [LOOKAHEAD(2) <REF>] name=QualifiedName() 
 		    //Bug 35352414 - datatype may include dblink 
-		    ["@" dblink = qualifiedName() {name += "@" + dblink ;} ]
+		    ["@" dblink = QualifiedName() {name += "@" + dblink ;} ]
 		    ["%" (<TYPE>{name += "%TYPE";}|<ROWTYPE>{name += "%ROWTYPE";})] )
 		)
 	)
@@ -1532,8 +1532,8 @@ String collection_type_name() :
         name = token.toString();
       }
     }
-	(LOOKAHEAD(2) "(" size=numericLiteral() {name += "(" + size;}
-		["," precision=numericLiteral() {name += "," + precision;}]
+	(LOOKAHEAD(2) "(" size=NumericLiteral() {name += "(" + size;}
+		["," precision=NumericLiteral() {name += "," + precision;}]
 		[ <CHAR> {name += " CHAR" ;}]
 		[ <BYTE> {name += " BYTE" ;}]
 	")" {name += ")";})?
@@ -1605,7 +1605,7 @@ String scalar_datatype_name() :
         name = token.toString();
       }
     }
-	(LOOKAHEAD(2) "(" size=numericLiteral() {name += "(" + size;}
+	(LOOKAHEAD(2) "(" size=NumericLiteral() {name += "(" + size;}
 		["," precisionString=UnaryExpression(true) {name += "," + precisionString;}] //NUMBERS may have negative precision
 		[ <CHAR> {name += " CHAR" ;}]
 		[ <BYTE> {name += " BYTE" ;}]
@@ -1642,7 +1642,7 @@ String scalar_datatype_name() :
     LOOKAHEAD(2) (<TO><MONTH> {name += " TO MONTH";}) |
     LOOKAHEAD(2) (<TO><SECOND> {name += " TO SECOND";} 
 			(
-			  LOOKAHEAD(2) "(" precision=numericLiteral() {name += "(" + precision;}
+			  LOOKAHEAD(2) "(" precision=NumericLiteral() {name += "(" + precision;}
 					")" {name += ")";}
 			)?
                  )
@@ -1697,7 +1697,7 @@ String DateTimeLiteral() :
         }
         
 
-	(LOOKAHEAD(2) "(" size=numericLiteral() {sb.append("("); sb.append(size); } 
+	(LOOKAHEAD(2) "(" size=NumericLiteral() {sb.append("("); sb.append(size); } 
 	")" {sb.append(")"); } 
         )?
 
@@ -1716,7 +1716,7 @@ String DateTimeLiteral() :
          | type2 = <SECOND>
         )
         {sb.append(" "); sb.append(type2.toString()) ;} 
-	(LOOKAHEAD(2) "(" size=numericLiteral() {sb.append("("); sb.append(size);} 
+	(LOOKAHEAD(2) "(" size=NumericLiteral() {sb.append("("); sb.append(size);} 
 	")" {sb.append(")"); } 
         )?
     )
@@ -1729,12 +1729,12 @@ String DateTimeLiteral() :
       }
 }
 
-void exceptionHandler() throws org.xml.sax.SAXException :
+void ExceptionHandler() throws org.xml.sax.SAXException :
 {}
 {
 	<EXCEPTION>
-		( LOOKAHEAD(2) <WHEN> qualifiedName() (<OR> qualifiedName())* <THEN> (statement())+ )*
-		[ <WHEN> <OTHERS> <THEN> (statement())+ ]
+		( LOOKAHEAD(2) <WHEN> QualifiedName() (<OR> QualifiedName())* <THEN> (Statement())+ )*
+		[ <WHEN> <OTHERS> <THEN> (Statement())+ ]
 }
 
 void skip2NextTerminator(String initiator,String terminator) :
@@ -1887,11 +1887,43 @@ String readPastNextOccurrence(String target) :
 /**
  * 2006-05-24 - Matthias Hendler - added MERGE
  */
-void sqlStatement(String initiator, String terminator) throws SAXException :
+void SqlStatement(String initiator, String terminator) throws SAXException :
 {}
 {
 	(<SELECT>|<UPDATE>|<INSERT>|<DELETE>|<COMMIT>|<ROLLBACK>|<SAVEPOINT>|<EXECUTE>|<SET><TRANSACTION>|<LOCK><TABLE>|<MERGE>|<WITH>)
-	skip2NextTerminator(initiator,terminator)
+	//  skip2NextTerminator(initiator,terminator)
+      try {
+    
+	  (
+	   // <SELECT>|<WITH>
+	    SqlSelectStatement()
+	   |//<UPDATE>
+	    SqlUpdateStatement()
+	   |//<DELETE>
+	    SqlDeleteStatement()
+	   |//<INSERT>
+	    SqlInsertStatement()
+	   |//<MERGE>
+	    SqlMergeStatement()
+	   |//<COMMIT>
+	   CommitStatement()
+	   |// <ROLLBACK>
+	    RollbackStatement()
+	   |// <SAVEPOINT>
+	    SavepointStatement()
+	   |// <EXECUTE>
+	    EmbeddedSqlStatement()  
+	   |// <SET><TRANSACTION>
+	    SetTransactionStatement()
+	   |// <LOCK><TABLE>
+	    LockTableStatement()
+	  )
+	}
+	catch (ParseException e) {
+	  e.printStackTrace(System.err);  // print the error message
+	  skip2NextTerminator(initiator,terminator);
+	}
+
 }
 
 
@@ -1934,7 +1966,7 @@ v04omzJ0zOfHdMAzuHQlw+fAsr2ym9YI8I521pRTbnFVAHOOUw4JqPkIyj7wj4VwyL17nhYb
 
 
 
-void wrappedObject() throws SAXException :
+void WrappedObject() throws SAXException :
 {}
 {
 	<WRAPPED>
@@ -1963,45 +1995,45 @@ void wrappedObject() throws SAXException :
 /**
  * 2006-05-24 - Matthias Hendler - added MERGE, EXECUTE choice and LOOKAHEAD at <LOOP>
  */
-void statement() throws SAXException :
+void Statement() throws SAXException :
 {}
 {
-	LOOKAHEAD(["("] <SELECT>|<UPDATE>|<INSERT>|<DELETE>|<COMMIT>|<ROLLBACK>|<SAVEPOINT>|<EXECUTE>|<SET><TRANSACTION>|<LOCK><TABLE>|<MERGE>|<WITH>) sqlStatement(null,";") [";"] 
-		| LOOKAHEAD(3) <CONTINUE> [ <IDENTIFIER> ] [ <WHEN> Expression() ] ";" // 11G CONTINUE statement  
+	LOOKAHEAD(["("] <SELECT>|<UPDATE>|<INSERT>|<DELETE>|<COMMIT>|<ROLLBACK>|<SAVEPOINT>|<EXECUTE>|<SET><TRANSACTION>|<LOCK><TABLE>|<MERGE>|<WITH>) SqlStatement(null,";") [";"] 
+		| LOOKAHEAD(3) <CONTINUE> [ <IDENTIFIER> ] [ <WHEN> Expression() ] ";" // 11G CONTINUE Statement  
 
 		| <CASE> ( Expression() )?
-                ( <WHEN> Expression() <THEN> (statement())+ )*
-		( <ELSE> (statement())+ )*
+                ( <WHEN> Expression() <THEN> (Statement())+ )*
+		( <ELSE> (Statement())+ )*
 		<END> <CASE>  [<IDENTIFIER>]  ";"
-	| <IF> Expression() <THEN> (statement())+
-		( <ELSIF> Expression() <THEN> (statement())+ )*
-		( <ELSE> (statement())+ )*
+	| <IF> Expression() <THEN> (Statement())+
+		( <ELSIF> Expression() <THEN> (Statement())+ )*
+		( <ELSE> (Statement())+ )*
 		<END> <IF> ";"
-	| <FOR> ID() <IN> [<REVERSE>] Expression()[".."Expression()] <LOOP> (statement())+ <END> <LOOP> [<IDENTIFIER>] ";"
+	| <FOR> ID() <IN> [<REVERSE>] Expression()[".."Expression()] <LOOP> (Statement())+ <END> <LOOP> [<IDENTIFIER>] ";"
 	| <FORALL> ID() <IN> 
 			    (
 	                     ( <INDICES> | <VALUES> ) <OF> Expression() // Add support for sparse collections
 	                     | Expression() [".." Expression()]
 			    )
-			    [ <SAVE> <EXCEPTIONS> ] sqlStatement(null,";") ";"
-	| LOOKAHEAD(2) <LOOP> (statement())+ <END> <LOOP> [<IDENTIFIER>] ";"
-	| <WHILE> Expression() <LOOP> (statement())+ <END> <LOOP> [<IDENTIFIER>] ";"
+			    [ <SAVE> <EXCEPTIONS> ] SqlStatement(null,";") ";"
+	| LOOKAHEAD(2) <LOOP> (Statement())+ <END> <LOOP> [<IDENTIFIER>] ";"
+	| <WHILE> Expression() <LOOP> (Statement())+ <END> <LOOP> [<IDENTIFIER>] ";"
 	//
-	| <GOTO> qualifiedName() ";"
+	| <GOTO> QualifiedName() ";"
 	| <RETURN> [Expression()] ";"
 	| <EXIT> [<WHEN> Expression() | <IDENTIFIER> [<WHEN> Expression()]] ";"
-	| <RAISE> [qualifiedName()] ";"
+	| <RAISE> [QualifiedName()] ";"
 	//
-	| <CLOSE> qualifiedName() ";"
+	| <CLOSE> QualifiedName() ";"
 	| <OPEN> [Expression()]
-		//[LOOKAHEAD(functionCall()) functionCall() | qualifiedName()]
+		//[LOOKAHEAD(functionCall()) functionCall() | QualifiedName()]
 		[<FOR> Expression() [<USING> Expression() ("," Expression())*]] ";"
-	| <FETCH> qualifiedName() [<BULK> <COLLECT>]
-	  //MMUE 04/08/2005 <INTO> (LOOKAHEAD(functionCall()) functionCall() | qualifiedName()) ("," (LOOKAHEAD(functionCall()) functionCall() | qualifiedName()))* ";"
+	| <FETCH> QualifiedName() [<BULK> <COLLECT>]
+	  //MMUE 04/08/2005 <INTO> (LOOKAHEAD(functionCall()) functionCall() | QualifiedName()) ("," (LOOKAHEAD(functionCall()) functionCall() | QualifiedName()))* ";"
 	  <INTO> Expression() ("," Expression())* [<LIMIT> Expression()] ";"
 	//
-	| label() statement()
-	| [<DECLARE> declarativeSection(false,token)] <BEGIN> (statement())* (exceptionHandler())? <END> [<IDENTIFIER>] ";"
+	| Label() Statement()
+	| [<DECLARE> DeclarativeSection(false,token)] <BEGIN> (Statement())* (ExceptionHandler())? <END> [<IDENTIFIER>] ";"
 	//
         | <EXECUTE> <IMMEDIATE> Expression() /* <STRING_LITERAL> */ 
 	  [ [ <BULK> <COLLECT> ] <INTO> Name() ("," Name())* ] 
@@ -2013,16 +2045,16 @@ void statement() throws SAXException :
 	// PIPELINED FUNCTION OUTPUT
 	| <PIPE> <ROW> Expression()  ";"
 	// CONDITIONAL COMPILATION 
-	| <CC_IF> ConditionalOrExpression() <CC_THEN> (statement())*
-		( <CC_ELSIF> ConditionalOrExpression() <CC_THEN> (statement())+ )*
-		( <CC_ELSE> (statement())+ )*
+	| <CC_IF> ConditionalOrExpression() <CC_THEN> (Statement())*
+		( <CC_ELSIF> ConditionalOrExpression() <CC_THEN> (Statement())+ )*
+		( <CC_ELSE> (Statement())+ )*
 		<CC_END> 
 	| <CC_ERROR> Expression() <CC_END> 
         | <PRAGMA> Expression() ";"
         | Expression() ";"
 }
 
-void subtype_definition(boolean isPackageLevel) throws SAXException :
+void SubtypeDefinition(boolean isPackageLevel) throws SAXException :
 {
 	Token start, subtype_name=null, constraint=null, base_type=null;
 	Token collection = null, collection2 = null;
@@ -2036,7 +2068,7 @@ void subtype_definition(boolean isPackageLevel) throws SAXException :
 
 	(
 		( 
-		  start=<SUBTYPE> subtype_name=qualifiedID() // SRT 20110605 to Parse SYS.standars ned to allow nprmally reserved words which are low-level types 
+		  start=<SUBTYPE> subtype_name=QualifiedID() // SRT 20110605 to Parse SYS.standars ned to allow nprmally reserved words which are low-level types 
 			{
 				// element generated only on the package level
 				if (m_out != null && isPackageLevel) {
@@ -2066,7 +2098,7 @@ void subtype_definition(boolean isPackageLevel) throws SAXException :
 			[<NOT> <NULL> { returnType += " NOT NULL"; } ] //SRT 20110604
 		)
 		 |
-		( start=<TYPE> subtype_name=qualifiedID() // SRT 20110605 to Parse SYS.standars ned to allow nprmally reserved words which are low-level types 
+		( start=<TYPE> subtype_name=QualifiedID() // SRT 20110605 to Parse SYS.standars ned to allow nprmally reserved words which are low-level types 
 			{
 				// element generated only on the package level
 				if (m_out != null && isPackageLevel) {
@@ -2086,19 +2118,19 @@ void subtype_definition(boolean isPackageLevel) throws SAXException :
 				  { returnType = "NEW " + base_type.toString().toUpperCase() ; }
 				|
 				//SRT 20110606 SYS.STANDRD 
-				(<OBJECT> {baseType = "OBJECT";} "(" fieldDeclaration(isPackageLevel, tags) ("," fieldDeclaration(isPackageLevel, tags))* ")" )
+				(<OBJECT> {baseType = "OBJECT";} "(" FieldDeclaration(isPackageLevel, tags) ("," FieldDeclaration(isPackageLevel, tags))* ")" )
 					{
 						returnType = "OBJECT";
 						// end for
 					}
 				|
-				(<RECORD> {baseType = "RECORD";} "(" fieldDeclaration(isPackageLevel, tags) ("," fieldDeclaration(isPackageLevel, tags))* ")" )
+				(<RECORD> {baseType = "RECORD";} "(" FieldDeclaration(isPackageLevel, tags) ("," FieldDeclaration(isPackageLevel, tags))* ")" )
 				{
 					returnType = "RECORD";
 					// end for
 				}
 				|
-				((collection=<TABLE> | collection=<VARRAY> | collection=<VARYING> collection2=<ARRAY>)["(" constraint=numericLiteral() ")"]
+				((collection=<TABLE> | collection=<VARRAY> | collection=<VARYING> collection2=<ARRAY>)["(" constraint=NumericLiteral() ")"]
 				<OF> baseType=datatype() (notNullable = <NOT> <NULL>)? (<INDEX> <BY> indexBy=datatype())?)
 				{
 					returnType = collection.toString();
@@ -2152,7 +2184,7 @@ void subtype_definition(boolean isPackageLevel) throws SAXException :
 	}
 }
 
-void fieldDeclaration(boolean isPackageLevel, Hashtable tags) throws SAXException :
+void FieldDeclaration(boolean isPackageLevel, Hashtable tags) throws SAXException :
 {
 	Token name;
 	String dataType;
@@ -2179,12 +2211,12 @@ void fieldDeclaration(boolean isPackageLevel, Hashtable tags) throws SAXExceptio
 	}
 }
 
-void collection_type_definition() : {} { <IDENTIFIER> }
-void collectionDeclaration(boolean isPackageLevel) : {} { <IDENTIFIER> }
-void objectDeclaration() : {} { <IDENTIFIER> }
+void CollectionTypeDefinition() : {} { <IDENTIFIER> }
+void CollectionDeclaration(boolean isPackageLevel) : {} { <IDENTIFIER> }
+void ObjectDeclaration() : {} { <IDENTIFIER> }
 
 /** Java stored procedure, external function*/
-void callSpecTail(boolean isPackageLevel) : {
+void CallSpecTail(boolean isPackageLevel) : {
 }
 {
 	// /* <LANGUAGE> (/*"C"*/<IDENTIFIER> | <JAVA>)
@@ -2201,7 +2233,7 @@ void callSpecTail(boolean isPackageLevel) : {
 		  )
 		  |
 		  ( <NAME> (<IDENTIFIER>  | <QUOTED_LITERAL> /* C */| StringLiteral() /* JAVA */ ) )
-		  //SRT 20110517  Need to cope with  callSpecTails in ObjectTypes  // skip2NextTerminator(null,";") 
+		  //SRT 20110517  Need to cope with  CallSpecTails in ObjectTypes  // skip2NextTerminator(null,";") 
 		  //skipPastNextOccurrence(")") // Read until we have eaten the closing bracket ")" 
 		  |
 		  (
@@ -2276,7 +2308,7 @@ void callSpecTail(boolean isPackageLevel) : {
 
 
 /** Cursor (common part of specification and body) */
-void cursorUnit(boolean isPackageLevel) throws SAXException :
+void CursorUnit(boolean isPackageLevel) throws SAXException :
 {
 	Token start, name;
 	String type;
@@ -2293,7 +2325,7 @@ void cursorUnit(boolean isPackageLevel) throws SAXException :
 			tags = new Hashtable();
 		}
 	}
-	( "(" parameterDeclaration(tags,isPackageLevel) ( "," parameterDeclaration(tags,isPackageLevel) )* ")" )*
+	( "(" ParameterDeclaration(tags,isPackageLevel) ( "," ParameterDeclaration(tags,isPackageLevel) )* ")" )*
 	[<RETURN> type=datatype()
 	{
 		// element generated only on the package level
@@ -2326,18 +2358,30 @@ void cursorUnit(boolean isPackageLevel) throws SAXException :
 			m_out.endElement(purifyKeyword(start.toString()));
 		}
 	}
-	[<IS> ("(")* sqlStatement(null,";")] ";"
+	[<IS> ("(")* SqlStatement(null,";")] ";"
 }
 
-void cursorSpec(boolean isPackageLevel) throws SAXException : {}
+void CursorSpec(boolean isPackageLevel) throws SAXException : {}
 {
-	cursorUnit(isPackageLevel)
+	CursorUnit(isPackageLevel)
 }
 
-void cursorBody(boolean isPackageLevel) throws SAXException : {}
+void CursorBody(boolean isPackageLevel) throws SAXException : {}
 {
-	cursorUnit(isPackageLevel)
+	CursorUnit(isPackageLevel)
 //	<IS> /*<SQL_STATEMENT>*/
+}
+
+void EmbeddedSqlStatement()  :
+{}
+{
+   <EXECUTE> <IMMEDIATE> Expression() // StringLiteral() /* <STRING_LITERAL> */ 
+	//SRT 20110429 | <EXECUTE> <IMMEDIATE> StringExpression()  [<USING> Expression() ("," Expression())*] ";"
+	//SRT 20121126 | <EXECUTE> <IMMEDIATE> StringExpression()  
+	[ [ <BULK> <COLLECT> ] <INTO> Name() ("," Name())* ] 
+	[ <USING> [ <IN> [ <OUT> ] | <OUT> ]  Expression() ("," [ <IN> [ <OUT> ] | <OUT> ] Expression())* ] 
+	[ ( <RETURN> | <RETURNING> )  [ <BULK> <COLLECT> ] <INTO> Expression() ("," Expression())*] ";"
+	// PIPELINED FUNCTION OUTPUT
 }
 
 
@@ -2716,7 +2760,7 @@ String PrimaryExpression() :
 {
   ( 
     ( // Explicitly cope with case where "NEW" is a Primary Prefix, such as in a Trigger WHEN clause  
-	    (<NEW_DOT> thisToken = qualifiedID()  ) { sb.append(" NEW."); sb.append(thisToken.toString()); }  
+	    (<NEW_DOT> thisToken = QualifiedID()  ) { sb.append(" NEW."); sb.append(thisToken.toString()); }  
       )
     |
     (
@@ -2770,12 +2814,12 @@ String PrimarySuffix() :
 { Token suffixToken = null ; String timeZoneExpression = null ; String arguments = null; StringBuffer sb = new StringBuffer() ; }
 {
   (
-  (".") {sb.append(".");}  (suffixToken = qualifiedID() ) { sb.append(suffixToken.toString()) ; }
+  (".") {sb.append(".");}  (suffixToken = QualifiedID() ) { sb.append(suffixToken.toString()) ; }
   //Bug 3535118 - Method call may include dblink 
   //String dblink = null;
-  //["@" dblink = qualifiedName() {sb.append("@"); sb.append(dblink); } ]
+  //["@" dblink = QualifiedName() {sb.append("@"); sb.append(dblink); } ]
   | //Possible dblink 
-  ("@") {sb.append("@");}  (suffixToken = qualifiedID() ) { sb.append(suffixToken.toString()) ; }
+  ("@") {sb.append("@");}  (suffixToken = QualifiedID() ) { sb.append(suffixToken.toString()) ; }
   | //Possible Date Time Expression - Bug 3553725  
   ( <AT> {sb.append(" "); sb.append(token.image.toUpperCase());}  
           (  <LOCAL> {sb.append(" "); sb.append(token.image.toUpperCase());}
@@ -2798,7 +2842,7 @@ String Literal() :
 { Token literalToken = null ; String literal = null ; }
 {
   (
-  literalToken = numericLiteral() {literal = literalToken.toString(); }
+  literalToken = NumericLiteral() {literal = literalToken.toString(); }
 |
   <CHARACTER_LITERAL> {literal = token.toString(); }
 |
@@ -2912,7 +2956,7 @@ String MultiSetCondition() :
 * E.g. "+1" would be valid literal, which make parsing of "i+1" impossible
 * (here, we have tokens "i", "+" and "1")
 */
-Token numericLiteral() :
+Token NumericLiteral() :
 { Token main = null; }
 {
 	(
@@ -2929,7 +2973,7 @@ Token numericLiteral() :
 * E.g. "+1" would be valid literal, which make parsing of "i+1" impossible
 * (here, we have tokens "i", "+" and "1")
 */
-String label() :
+String Label() :
 { 
 Token labelID = null; 
 StringBuffer sb = new StringBuffer(); 
@@ -2937,7 +2981,7 @@ StringBuffer sb = new StringBuffer();
 {
 	(
 	  //This cannot be a token because these are valid labels '<< next_msg >>", '<<"OUTER LOOP">>'  
-	"<<" labelID = unqualifiedID() ">>" {sb.append("<<");  sb.append(labelID);  sb.append(">>");  }
+	"<<" labelID = UnqualifiedID() ">>" {sb.append("<<");  sb.append(labelID);  sb.append(">>");  }
 	)
 	{ 
 	 return(sb.toString()); 
@@ -2951,27 +2995,27 @@ String Name() :
 	StringBuffer sb = new StringBuffer();
 }
 {
-  //unqualifiedID() (LOOKAHEAD(2) ("." | "%") qualifiedID())*
-  (thisToken=unqualifiedID()) {sb.append(thisToken); }
+  //UnqualifiedID() (LOOKAHEAD(2) ("." | "%") QualifiedID())*
+  (thisToken=UnqualifiedID()) {sb.append(thisToken); }
   (
    LOOKAHEAD(2) 
-    ("." {sb.append(".");} | "%" {sb.append("%");}) //qualifiedID() 
-    thisToken = qualifiedID() {sb.append(thisToken);}
+    ("." {sb.append(".");} | "%" {sb.append("%");}) //QualifiedID() 
+    thisToken = QualifiedID() {sb.append(thisToken);}
   )*
   {
   return(sb.toString()); 
   }
 }
 
-String qualifiedName() :
+String QualifiedName() :
 {
 	Token thisToken = null;
 	StringBuffer sb = new StringBuffer();
 }
 {
   //Essentially unchanged as it previously returned a String 
-	(thisToken=unqualifiedID()) {sb.append(thisToken); }
-	( ("." thisToken=qualifiedID()) { sb.append("."); sb.append(thisToken); } )*
+	(thisToken=UnqualifiedID()) {sb.append(thisToken); }
+	( ("." thisToken=QualifiedID()) { sb.append("."); sb.append(thisToken); } )*
 	{ 
 	 return(sb.toString()); 
 	}
@@ -3014,8 +3058,8 @@ String Argument() :
 	StringBuffer sb = new StringBuffer();
 }
 {
-	//[LOOKAHEAD(2) unqualifiedID() "=>"] Expression()
-	[LOOKAHEAD(2) (thisToken=unqualifiedID()) {sb.append(thisToken); } ("=>" | <AS> ) { sb.append(" "); sb.append(token.image.toUpperCase()); sb.append(" "); } ] 
+	//[LOOKAHEAD(2) UnqualifiedID() "=>"] Expression()
+	[LOOKAHEAD(2) (thisToken=UnqualifiedID()) {sb.append(thisToken); } ("=>" | <AS> ) { sb.append(" "); sb.append(token.image.toUpperCase()); sb.append(" "); } ] 
         (string = Expression() ) {sb.append(string); } 
 	//Allow Using CharacterSet suffix clause  
 	[
@@ -3033,7 +3077,7 @@ String Argument() :
 // D E C L A R A T I O N S
 // ============================================================================
 
-void variableOrConstantDeclaration(boolean isPackageLevel) throws org.xml.sax.SAXException :
+void VariableOrConstantDeclaration(boolean isPackageLevel) throws org.xml.sax.SAXException :
 { Token name=null;
 	String type;
 	Hashtable tags = null;
@@ -3068,9 +3112,9 @@ void variableOrConstantDeclaration(boolean isPackageLevel) throws org.xml.sax.SA
 	}
 }
 
-void datatypeDeclaration() : {} { <IDENTIFIER> }
+void DatatypeDeclaration() : {} { <IDENTIFIER> }
 
-void pragma(boolean isPackageLevel) throws org.xml.sax.SAXException :
+void Pragma(boolean isPackageLevel) throws org.xml.sax.SAXException :
 { Token start,name = null,functionName,exceptionName,errorNumber; Hashtable tags = null; 
   String string = null ; 
 }
@@ -3086,11 +3130,11 @@ void pragma(boolean isPackageLevel) throws org.xml.sax.SAXException :
 		name=<RESTRICT_REFERENCES> "(" (functionName=ID() /*| <_DEFAULT>*/)
 		("," (ID() | StringLiteral() /* 20110526 <STRING_LITERAL> */ ) )+	")"
 		|
-		name=<EXCEPTION_INIT> "(" exceptionName=<IDENTIFIER> "," ["+"|"-"] errorNumber=numericLiteral() ")"
+		name=<EXCEPTION_INIT> "(" exceptionName=<IDENTIFIER> "," ["+"|"-"] errorNumber=NumericLiteral() ")"
 		|
-		name=<INTERFACE> "(" <IDENTIFIER> "," ID() [ "," numericLiteral() ] ")"
+		name=<INTERFACE> "(" <IDENTIFIER> "," ID() [ "," NumericLiteral() ] ")"
 		| //SRT 20110531 
-		string=qualifiedName() "(" readPastNextOccurrence(")") 
+		string=QualifiedName() "(" readPastNextOccurrence(")") 
 	)
 	";"
 	{
@@ -3105,7 +3149,7 @@ void pragma(boolean isPackageLevel) throws org.xml.sax.SAXException :
 	}
 }
 
-void exceptionDeclaration(boolean isPackageLevel) throws org.xml.sax.SAXException :
+void ExceptionDeclaration(boolean isPackageLevel) throws org.xml.sax.SAXException :
 { Token exception_name; Hashtable tags = null; }
 {
 	exception_name=ID() <EXCEPTION> ";"
@@ -3119,7 +3163,7 @@ void exceptionDeclaration(boolean isPackageLevel) throws org.xml.sax.SAXExceptio
 	}
 }
 
-void parallel_clause() throws org.xml.sax.SAXException :
+void ParallelClause() throws org.xml.sax.SAXException :
 {
 }
 {
@@ -3207,7 +3251,7 @@ void view() throws SAXException :
   ["(" viewColumn() ("," viewColumn())* ")"]
   //### OF ... WITH OBJECT IDENTIFIER...
   <AS>
-  statement() //SRT select()
+  Statement() //SRT select()
   //### WITH ...
   (";" | "/")
   { m_out.endElement("VIEW"); }
@@ -3253,14 +3297,14 @@ void DatabaseLink()  :
     	(<CURRENT_USER> )
 	|
 	(
-	unqualifiedID() <IDENTIFIED> <BY> unqualifiedID()
+	UnqualifiedID() <IDENTIFIED> <BY> UnqualifiedID()
 	<AUTHENTICATED> <BY> 
-	unqualifiedID() <IDENTIFIED> <BY> unqualifiedID()
+	UnqualifiedID() <IDENTIFIED> <BY> UnqualifiedID()
 	)
 
     )
     |
-    unqualifiedID() <IDENTIFIED> <BY> unqualifiedID()
+    UnqualifiedID() <IDENTIFIED> <BY> UnqualifiedID()
   )
   [ <USING> StringLiteral() ]
   (";" | "/")
@@ -3377,7 +3421,7 @@ void comment() throws SAXException :
 
 
 
-void typeMethod(boolean isPackageLevel,int typeVersion, String alterTypeAction, Token objectStart) throws SAXException :
+void TypeMethod(boolean isPackageLevel,int typeVersion, String alterTypeAction, Token objectStart) throws SAXException :
 {
 	Token schemaName = null;
 	Token scope, start,  name;
@@ -3402,7 +3446,7 @@ void typeMethod(boolean isPackageLevel,int typeVersion, String alterTypeAction, 
         //inheritance CLAUSE
         { 
         startToken = getToken(1); 
-        //System.err.println("typeMethod: Result of getToken(1) is \"" + startToken.toString() + "\"" );
+        //System.err.println("TypeMethod: Result of getToken(1) is \"" + startToken.toString() + "\"" );
         } //SRT added to check Token List walking 
         ( [ <NOT> ] ( <OVERRIDING> | <INSTANTIABLE> | <FINAL> )  )*
 
@@ -3411,7 +3455,9 @@ void typeMethod(boolean isPackageLevel,int typeVersion, String alterTypeAction, 
         [ mapOrderMethod = <MAP> | mapOrderMethod = <ORDER> ]
         
         
-	(scope=<CONSTRUCTOR> | scope = <MEMBER> | scope = <STATIC> ) ( start= <FUNCTION> | start= <PROCEDURE> ) (LOOKAHEAD(2) schemaName = ID()".")? name=ID()
+	(scope=<CONSTRUCTOR> | scope = <MEMBER> | scope = <STATIC> ) 
+
+	( start= <FUNCTION> | start= <PROCEDURE> ) (LOOKAHEAD(2) schemaName = ID()".")? name=ID()
 	{
 		// element generated only on the package level
 		if (m_out != null && isPackageLevel) {
@@ -3477,7 +3523,7 @@ void typeMethod(boolean isPackageLevel,int typeVersion, String alterTypeAction, 
 	}
 
 		       
-	( "(" parameterDeclaration(tags,isPackageLevel) ( "," parameterDeclaration(tags,isPackageLevel) )* ")" )*
+	( "(" ParameterDeclaration(tags,isPackageLevel) ( "," ParameterDeclaration(tags,isPackageLevel) )* ")" )*
 //	[<RETURN> ( <SELF> <AS> <RESULT> | type=datatype() )
 	[<RETURN> ( type=datatype() ) //datatype changed to include <SELF> <AS> <RESULT> 
 	{
@@ -3588,12 +3634,12 @@ void typeMethod(boolean isPackageLevel,int typeVersion, String alterTypeAction, 
 			}	
 		}
 		(
-		  callSpecTail(true)
+		  CallSpecTail(true)
  		  [ ";" ] // This only exists in the type body
 		  | // SRT 20110524 Not really a Declaration any more ...  
 		  (
-			declarativeSection(false,objectStart)
-			 <BEGIN> (statement())* (exceptionHandler())?  <END> [ID()] 
+			DeclarativeSection(false,objectStart)
+			 <BEGIN> (Statement())* (ExceptionHandler())?  <END> [ID()] 
 			 ";" // This only exists in the type body
 		  )
 		)
@@ -3609,6 +3655,189 @@ void typeMethod(boolean isPackageLevel,int typeVersion, String alterTypeAction, 
 	}
 }
 
+void MethodDeclarator(boolean isPackageLevel,int typeVersion, Token scope) throws SAXException :
+{
+	Token schemaName = null;
+	//Token scope;
+	Token start;
+	Token name;
+	Token tokenIsAs = null;
+	Token mapOrderMethod = null;
+	Token inheritanceClause = null;
+	Token startToken = null;
+	Token returnToken = null;
+	String methodName = null;
+	String methodType = null;
+	String methodScope = null;
+	String methodOrdering = "";
+	String methodInheritance = "";
+	String methodPrefix = "";
+	String type = null;
+	String returnComment = null;
+	Hashtable tags;
+	Hashtable attributes = new Hashtable();
+}
+{
+	( start= <FUNCTION> | start= <PROCEDURE> ) (LOOKAHEAD(2) schemaName = ID()".")? name=ID()
+	{
+		// element generated only on the package level
+		if (m_out != null && isPackageLevel) {
+			attributes = new Hashtable(); //SRT 20110427
+			attributes.put("VERSION",Integer.toString(typeVersion));
+			//SRT 20110420 if (null!=alterTypeAction) m_out.pushAttribute("ACTION",alterTypeAction);
+		         //SRT Walk lists
+		        Token p = startToken ;
+		        if (null != mapOrderMethod )
+		        {
+				for( ; p != mapOrderMethod ; p = p.next ) 
+				{
+				    methodInheritance += " " + p.image ; 
+
+				} 		     
+				methodOrdering = mapOrderMethod.toString();
+			}
+			else
+			{
+				for( ; p != scope ; p = p.next ) 
+				{
+				    methodInheritance += " " + p.image ; 
+
+				} 		     
+
+			}
+			
+
+			methodScope = scope.toString();
+
+			//SRT 20110419 
+			if (null!=methodInheritance && !"".equals(methodInheritance)) attributes.put("INHERITANCE",purifyKeyword(methodInheritance));
+			if (null!=methodOrdering && !"".equals(methodOrdering))  attributes.put("ORDERING",purifyKeyword(methodOrdering));
+			if (null!=methodScope && !"".equals(methodScope))  attributes.put("SCOPE",purifyKeyword(methodScope));
+
+			methodType = purifyKeyword(start.toString()); //SRT 20110420
+
+			/*
+			System.err.print( "\nEnd of List Walk (Inheritance,Mapping,Scope,Type)=" 
+			                  + "(" + methodInheritance
+			                  + "," + methodOrdering
+			                  + "," + methodScope
+			                  + "," + methodType
+			                  + ")\n" 
+			                  ) ; 
+		        */ 
+			
+			methodName = purifyKeyword(start.toString());
+			//SRT 20081003 startToken = (mapOrderMethod == null) ? scope : mapOrderMethod;
+			tags = processMemberComment(startToken, methodName, name.toString(),attributes);
+
+			//Construct the pseudo-return type, incorporating any inheritance, mapping and scope clauses
+			methodPrefix = (purifyKeyword(methodInheritance
+					       + " " + methodOrdering
+					       + " " + methodScope)
+					       + " " + purifyIdentifier(methodType)
+					       + " " 
+				       ).replaceAll("  ", " ")
+				       ;
+		} else {
+			tags = new Hashtable();
+		}
+	}
+
+		       
+	( "(" ParameterDeclaration(tags,isPackageLevel) ( "," ParameterDeclaration(tags,isPackageLevel) )* ")" )*
+//	[<RETURN> ( <SELF> <AS> <RESULT> | type=datatype() )
+	[<RETURN> ( type=datatype() ) //datatype changed to include <SELF> <AS> <RESULT> 
+	{
+		// element generated only on the package level
+		if (m_out != null && isPackageLevel) 
+		{
+			// @return
+			//SRT String returnComment = null;
+			Collection tagValues = (Collection) tags.get("@return");
+			if (tagValues != null) 
+			{
+				for(Iterator it = tagValues.iterator(); it.hasNext(); )
+					returnComment = (String) it.next();
+			}
+			//SRT m_out.pushAttribute("TYPE", purifyIdentifier(type.toString()));
+			methodPrefix += purifyIdentifier(type.toString());
+			
+			/* SRT
+			An object procedure method with non-default inheritance, mapping and scope
+			will have a pseudo return value despite not returning a value
+			This this means that we should move the output outside this block 
+			m_out.pushAttribute("TYPE",methodPrefix);
+
+			m_out.startElement("RETURN");
+			if (returnComment != null) 
+			{
+				m_out.startElement("COMMENT");
+				m_out.cdata(returnComment);
+				m_out.endElement("COMMENT");
+			}
+			m_out.endElement("RETURN");
+		        */
+		}
+	}
+	]
+
+	
+	{
+
+		//Output the pseudo return value even if not real value is returned
+		if (null != methodPrefix )
+		{
+			m_out.pushAttribute("TYPE",methodPrefix.trim());
+
+			m_out.startElement("RETURN");
+			if (returnComment != null) 
+			{
+				m_out.startElement("COMMENT");
+				m_out.cdata(returnComment);
+				m_out.endElement("COMMENT");
+			}
+			m_out.endElement("RETURN");
+		}
+
+		// element generated only on the package level
+		if (m_out != null && isPackageLevel)
+		{
+			// @throws
+			String throwsComment = null;
+			String exceptionName = null;
+			Collection tagValues = (Collection) tags.get("@throws");
+			if (tagValues != null)
+			{
+				Iterator it = tagValues.iterator();
+				while(it.hasNext()) {
+					throwsComment = (String) it.next();
+					// extract when first word - it's the exception name
+					StringTokenizer st = new StringTokenizer(throwsComment);
+					if (st.hasMoreTokens())
+						 exceptionName = st.nextToken();
+					if (exceptionName != null)
+					{
+						m_out.pushAttribute("NAME", purifyIdentifier(exceptionName));
+						m_out.startElement("THROWS");
+						if (throwsComment != null)
+						{
+							m_out.startElement("COMMENT");
+							m_out.cdata(throwsComment.substring(exceptionName.length()));
+							m_out.endElement("COMMENT");
+						}
+						m_out.endElement("THROWS");
+					}
+				}
+			}
+		}
+		
+		// now print all custom tags
+		if (m_out != null && isPackageLevel)
+		{
+			printCustomTags(tags);
+		}
+	}
+}
 
 void typeSpec() throws SAXException :
 { Token schema = null, name = null, tokenCreate = null, tokenType = null
@@ -3672,7 +3901,7 @@ void typeSpec() throws SAXException :
 	]
 
         [
-	        LOOKAHEAD(3) (tokenIsAsUnder= <ACCESSIBLE> <BY>  "(" [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] qualifiedName()  ("," qualifiedName() )*  ")" )
+	        LOOKAHEAD(3) (tokenIsAsUnder= <ACCESSIBLE> <BY>  "(" [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] QualifiedName()  ("," QualifiedName() )*  ")" )
 		{
 			// possibly, package comment is here
 			processPackageComment(tokenIsAsUnder);
@@ -3774,7 +4003,7 @@ void typeSpec() throws SAXException :
 	] 
 
 	[
-	  wrappedObject()
+	  WrappedObject()
 	]
 
         // //incomplete OBJECT TYPE and COLLECTION TYPEs will not have this 
@@ -3785,11 +4014,11 @@ void typeSpec() throws SAXException :
 			processPackageComment(tokenIsAsUnder);
 		}
                 //Try matching against keywords first to allow FINCTION and procedure as a fallback
-		(LOOKAHEAD(2)  typeMethod(isPackageLevel,typeVersion,null,name) | attributeDeclaration(typeVersion,null) 
-		 | pragma_clause()
+		(LOOKAHEAD(2)  TypeMethod(isPackageLevel,typeVersion,null,name) | AttributeDeclaration(typeVersion,null) 
+		 | PragmaClause()
 		)* //SRT 20111125 This part may be completely empty if is a subtype which is effectively an alias for the supertype 
-		( "," (  typeMethod(isPackageLevel,typeVersion,null,name) | LOOKAHEAD(2) attributeDeclaration(typeVersion,null) 
-		      | pragma_clause()
+		( "," (  TypeMethod(isPackageLevel,typeVersion,null,name) | LOOKAHEAD(2) AttributeDeclaration(typeVersion,null) 
+		      | PragmaClause()
 		      ) 
 		)*
 
@@ -3841,7 +4070,7 @@ void alterTypeSpec(int typeVersion, Token objectStart) throws SAXException :
 }
 {
 	tokenCreate=<ALTER> 
-	tokenType=<TYPE> typeName = qualifiedName() 
+	tokenType=<TYPE> typeName = QualifiedName() 
 	{
 		// possibly, package comment is here
 		processPackageComment(tokenCreate);
@@ -3852,7 +4081,7 @@ void alterTypeSpec(int typeVersion, Token objectStart) throws SAXException :
         //alter_method_spec 
         //(tokenAlterType = <ADD>|tokenAlterType = <MODIFY> |tokenAlterType = <DROP> |tokenAlterType = <REPLACE>)
             
-         //SRT 20110529 Each ALTER TYPE statement may contaon 0 or more ADD or DROP clause 
+         //SRT 20110529 Each ALTER TYPE Statement may contaon 0 or more ADD or DROP clause 
          //When more than one clause exists, each clause is separated by comma ","  
        (
        (
@@ -3864,19 +4093,19 @@ void alterTypeSpec(int typeVersion, Token objectStart) throws SAXException :
         (
 	      // Move typeMethidMatching above attribure matvhing becausse FUNCTION is a valid attribute name 
              ( 
-		 (typeMethod(isPackageLevel,typeVersion, tokenAlterTypeString, objectStart) ) 
-		  //( "," ( typeMethod(isPackageLevel,typeVersion, tokenAlterTypeString) ) )*
+		 (TypeMethod(isPackageLevel,typeVersion, tokenAlterTypeString, objectStart) ) 
+		  //( "," ( TypeMethod(isPackageLevel,typeVersion, tokenAlterTypeString) ) )*
              )
             |
             (
                   <ATTRIBUTE>
 		   ( "("  )*
-		    (attributeDeclaration(typeVersion, tokenAlterTypeString ) ) 
-		    ( "," ( attributeDeclaration(typeVersion, tokenAlterTypeString) ) )*
+		    (AttributeDeclaration(typeVersion, tokenAlterTypeString ) ) 
+		    ( "," ( AttributeDeclaration(typeVersion, tokenAlterTypeString) ) )*
 		   ( ")"  )*
             )
             |
-            (<LIMIT> tokenCollectionSize = numericLiteral() )
+            (<LIMIT> tokenCollectionSize = NumericLiteral() )
             |
             ( <ELEMENT> <TYPE> baseType = datatype() )
         )+
@@ -3895,8 +4124,8 @@ void alterTypeSpec(int typeVersion, Token objectStart) throws SAXException :
             )
             |
              ( 
-		 (typeMethod(isPackageLevel,typeVersion, tokenAlterTypeString, objectStart) ) 
-		  //( "," ( typeMethod(isPackageLevel,typeVersion, tokenAlterTypeString) ) )*
+		 (TypeMethod(isPackageLevel,typeVersion, tokenAlterTypeString, objectStart) ) 
+		  //( "," ( TypeMethod(isPackageLevel,typeVersion, tokenAlterTypeString) ) )*
              )
         )+
        )
@@ -3909,15 +4138,15 @@ void alterTypeSpec(int typeVersion, Token objectStart) throws SAXException :
           }
           | 
           (<DROP> ( 
-		 (typeMethod(isPackageLevel) ) 
-		  ( "," ( typeMethod(isPackageLevel) ) )*
+		 (TypeMethod(isPackageLevel) ) 
+		  ( "," ( TypeMethod(isPackageLevel) ) )*
                  )
                  |
                  (
                   <ATTRIBUTE>
 		   [ "("  ]
-		    (qualifiedName() ) 
-		    ( "," ( qualifiedName() ) )*
+		    (QualifiedName() ) 
+		    ( "," ( QualifiedName() ) )*
 		   [ ")"  ]
                  )
           
@@ -3926,7 +4155,7 @@ void alterTypeSpec(int typeVersion, Token objectStart) throws SAXException :
           //alter_collection_clause 
 	  (        
           <MODIFY> 
-            (<LIMIT> tokenCollectionSize = numericLiteral() )
+            (<LIMIT> tokenCollectionSize = NumericLiteral() )
             |
             ( <ELEMENT> <TYPE> baseType = datatype() )
 	  )        
@@ -3945,7 +4174,7 @@ void alterTypeSpec(int typeVersion, Token objectStart) throws SAXException :
                 ]
 
                 [
-		LOOKAHEAD(3) (tokenIsAsUnder= <ACCESSIBLE> <BY>  "(" [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] qualifiedName()  ("," qualifiedName() )*  ")" )
+		LOOKAHEAD(3) (tokenIsAsUnder= <ACCESSIBLE> <BY>  "(" [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] QualifiedName()  ("," QualifiedName() )*  ")" )
 		{
 			// possibly, package comment is here
 			processPackageComment(tokenIsAsUnder);
@@ -4011,8 +4240,8 @@ void alterTypeSpec(int typeVersion, Token objectStart) throws SAXException :
 			processPackageComment(tokenIsAsUnder);
 		}
 
-		(LOOKAHEAD(2) typeMethod(isPackageLevel,typeVersion, tokenAlterTypeString, objectStart) | attributeDeclaration(typeVersion, tokenAlterTypeString) ) 
-		( "," ( LOOKAHEAD(2) typeMethod(isPackageLevel,typeVersion, tokenAlterTypeString, objectStart) | attributeDeclaration(typeVersion, tokenAlterTypeString) ) )*
+		(LOOKAHEAD(2) TypeMethod(isPackageLevel,typeVersion, tokenAlterTypeString, objectStart) | AttributeDeclaration(typeVersion, tokenAlterTypeString) ) 
+		( "," ( LOOKAHEAD(2) TypeMethod(isPackageLevel,typeVersion, tokenAlterTypeString, objectStart) | AttributeDeclaration(typeVersion, tokenAlterTypeString) ) )*
 
 		")" 
 	]        
@@ -4047,7 +4276,7 @@ void alterTypeSpec(int typeVersion, Token objectStart) throws SAXException :
             
               [
                 [ <FORCE> ]
-                <EXCEPTIONS> <INTO> exceptionsName = qualifiedName()
+                <EXCEPTIONS> <INTO> exceptionsName = QualifiedName()
               ]
             )
         ] 
@@ -4074,15 +4303,15 @@ void typeBody() throws SAXException :
 
 	(
 	  (
-	    wrappedObject() 
+	    WrappedObject() 
 	  )
 	  |
 	  (
 	    (<IS> | <AS>)
 
-		    declarativeSection(true) //SRT 20110524 Allow PLDOc in Type Bodies 
+		    DeclarativeSection(true) //SRT 20110524 Allow PLDOc in Type Bodies 
 
-	    [ <BEGIN> (statement())* (exceptionHandler())? ] <END> [ID()] ";" 
+	    [ <BEGIN> (Statement())* (ExceptionHandler())? ] <END> [ID()] ";" 
 	  )
 	)
 	{
@@ -4096,7 +4325,7 @@ void typeBody() throws SAXException :
 /**
   * Method 
 **/
-void attributeDeclaration(int typeVersion, String alterTypeAction) throws org.xml.sax.SAXException :
+void AttributeDeclaration(int typeVersion, String alterTypeAction) throws org.xml.sax.SAXException :
 { Token name=null;
 	String type;
 	Hashtable tags = null;
@@ -4150,7 +4379,7 @@ void attribute(int typeVersion, String alterTypeAction) throws org.xml.sax.SAXEx
 /*
  This was quick cut from PRAGMA
 */
-void pragma_clause() throws org.xml.sax.SAXException :
+void PragmaClause() throws org.xml.sax.SAXException :
 { Token start,name,functionName,exceptionName,errorNumber; Hashtable tags = null; }
 {
 	start=<PRAGMA>
@@ -4162,11 +4391,1665 @@ void pragma_clause() throws org.xml.sax.SAXException :
 		name=<RESTRICT_REFERENCES> "(" (functionName=ID() /*| <_DEFAULT>*/)
 		("," (ID() | StringLiteral() /* 20110526 <STRING_LITERAL> */) )+	")"
 		|
-		name=<EXCEPTION_INIT> "(" exceptionName=<IDENTIFIER> "," ["+"|"-"] errorNumber=numericLiteral() ")"
+		name=<EXCEPTION_INIT> "(" exceptionName=<IDENTIFIER> "," ["+"|"-"] errorNumber=NumericLiteral() ")"
 		|
-		name=<INTERFACE> "(" <IDENTIFIER> "," <IDENTIFIER> "," numericLiteral() ")"
+		name=<INTERFACE> "(" <IDENTIFIER> "," <IDENTIFIER> "," NumericLiteral() ")"
 	)
 }
+
+
+/*
+ * Start Sql Parser
+ */
+
+//http://docs.oracle.com/cd/B19306_01/server.102/b14200/Statements_4010.htm
+//http://docs.oracle.com/database/121/PLSQLRF/Statements_4011.htm#PLSQLRF01110
+void CommitStatement()   throws SAXException :
+{}
+{
+	<COMMIT> [<WORK>]
+        [
+		( <COMMENT> StringLiteral() [ <WRITE> [ <IMMEDIATE> | <BATCH>  ] [ <WAIT> | <NOWAIT>  ] ] )
+		|
+		( <FORCE>	(
+				  <CORRUPT_XID_ALL> 
+				| <CORRUPT_XID> StringLiteral() 
+				| StringLiteral() [ "," NumericLiteral() ] )
+				)
+        ]
+}
+
+//http://docs.oracle.com/cd/B19306_01/server.102/b14200/Statements_9021.htm#PLSQLRF01610
+//http://docs.oracle.com/database/121/PLSQLRF/Statements_9022.htm#PLSQLRF01610
+void RollbackStatement()   throws SAXException :
+{}
+{
+	<ROLLBACK> [ <WORK> ]
+        [
+		( <TO> [ <SAVEPOINT> ] ID() )
+		|
+		( <FORCE> StringLiteral() [ "," NumericLiteral() ]  )
+        ]
+}
+
+//http://docs.oracle.com/cd/B19306_01/server.102/b14200/Statements_10001.htm#BABFIJGC
+//http://docs.oracle.com/database/121/PLSQLRF/Statements_10001.htm#PLSQLRF01701
+void SavepointStatement()   throws SAXException :
+{}
+{
+	 <SAVEPOINT> ID() 
+}
+
+//http://docs.oracle.com/cd/B19306_01/server.102/b14200/Statements_9021.htm#PLSQLRF01610
+//http://docs.oracle.com/database/121/PLSQLRF/Statements_10005.htm#PLSQLRF01705
+void SetTransactionStatement()   throws SAXException :
+{}
+{
+	<SET> <TRANSACTION> 
+        [
+		(  <READ>  ( <ONLY> | <WRITE> )  )
+		|
+		( <ISOLATION> <LEVEL> ( <SERIALIZABLE>  | <READ> <COMMITTED>  ) )
+		|
+		( <USE> <ROLLBACK> <SEGMENT> ID() )
+        ]
+	<NAME> StringLiteral()
+}
+
+//http://docs.oracle.com/cd/B12037_01/appdev.101/b10807/13_elems027.htm
+void LockTableStatement()   throws SAXException :
+{}
+{
+	//ROW SHARE, ROW EXCLUSIVE, SHARE UPDATE, SHARE, SHARE ROW EXCLUSIVE, or EXCLUSIVE.
+	 <LOCK> <TABLE> QualifiedID()  <IN>  
+         (
+		<ROW> ( <SHARE> | <EXCLUSIVE> )
+		|  <SHARE> [ <UPDATE> | <ROW> <EXCLUSIVE> ]
+		| <EXCLUSIVE> 
+	 )
+	<MODE> [ <NOWAIT> ]  
+}
+
+//http://docs.oracle.com/database/121/PLSQLRF/Statements_10002.htm#i2065706
+void SqlSelectStatement()   throws SAXException :
+{}
+{
+	
+	SqlSubquery()
+	[ SqlForUpdateClause() ]
+
+}
+
+
+//http://docs.oracle.com/cd/B19306_01/appdev.102/b14261/delete_Statement.htm#i33716
+//http://docs.oracle.com/database/121/PLSQLRF/Statements_8005.htm#i2112830
+void SqlDeleteStatement()   throws SAXException :
+{}
+{
+	<DELETE> [ <FROM> ] 
+	(
+		<ONLY> "(" SqlDmlTableExpression() ")"
+		| SqlDmlTableExpression() 
+	) 
+	[ UnqualifiedID() ] // alias	
+	[
+		<WHERE> 
+		( <CURRENT> <OF> UnqualifiedID() //Cursor Name 
+		| SqlCondition()
+		)
+	]
+
+	[ SqlReturningClause() ]
+
+	[ SqlErrorLoggingClause() ]
+
+}
+
+
+
+void SqlDmlTableExpression()   throws SAXException :
+{}
+{
+		QualifiedName() 
+		| "(" SqlSubquery() ")"
+		| <TABLE> "(" SqlSubquery() ")"   
+
+}
+
+//http://docs.oracle.com/cd/B28359_01/server.111/b28286/Statements_9016.htm
+void SqlMergeStatement()   throws SAXException :
+{}
+{
+	<MERGE> <INTO> QualifiedName() //Table NAme
+	<USING>
+	<ON> "(" SqlCondition() ")"
+	// Matched Clause
+	<WHEN> <MATCHED> <THEN> 
+	<UPDATE> <SET> 
+	QualifiedName() 
+	"=" 
+	(
+		<_DEFAULT>
+		|
+		SqlExpression() 
+		
+	)
+	(
+		"'"
+		<_DEFAULT>
+		|
+		SqlExpression() 
+	)*
+	//WHERE 
+	[ SqlWhereClause() ]
+
+	[ <DELETE> SqlWhereClause() ]
+	
+	
+	<WHEN> <NOT> <MATCHED> <THEN> 
+	<INSERT> 
+	"("
+		//Column Alias List 
+		QualifiedID() ( "," QualifiedID() )* 
+	")"
+	<VALUES> 
+	"("
+		(
+			<_DEFAULT>
+			|
+			SqlExpression() 
+			
+		)
+		(
+			"'"
+			<_DEFAULT>
+			|
+			SqlExpression() 
+		)*
+	")"
+	[ SqlWhereClause() ]
+
+	[ SqlErrorLoggingClause() ]
+ 
+
+}
+
+
+
+void SqlErrorLoggingClause()   throws SAXException :
+{}
+{
+	<LOG> <ERRORS> 
+	[
+		<INTO> QualifiedName() 
+		"("
+			SqlExpression() 
+		")"
+	]
+
+	[
+		<REJECT> <LIMIT> ( <UNLIMITED> | NumericLiteral() )
+	]
+
+}
+
+//http://docs.oracle.com/database/121/PLSQLRF/Statements_9014.htm#sthref7054
+//http://docs.oracle.com/database/121/PLSQLRF/Statements_9014.htm#i2111652
+void SqlInsertStatement()   throws SAXException :
+{}
+{
+
+	<INSERT> 
+	(
+		//Single-Table INSERT 
+		(
+			//INSERT INTO Clause 
+			SqlInsertIntoClause() 
+			(
+				//Values Clause 
+				(
+					SqlValuesClause() 
+					[ SqlReturningClause() ] 
+				)
+				| SqlSubquery() 
+			)
+
+
+			[ SqlErrorLoggingClause() ]
+
+			
+		)
+		//Multi-Table INSERT 
+		|
+		(
+			(
+				(
+					<ALL> 
+					
+					//INSERT INTO Clause 
+					SqlInsertIntoClause() 
+					
+					//Values Clause 
+					SqlValuesClause() 
+
+					[ SqlErrorLoggingClause() ]
+				)
+			)
+			| //Multi-table INSERT 
+			(
+				[ <ALL> | <FIRST> ]
+				
+				 ( 
+					<WHEN> SqlCondition() <THEN> 
+
+					//INSERT INTO Clause 
+					SqlInsertIntoClause() 
+					
+					//Values Clause 
+					SqlValuesClause() 
+
+					[ SqlErrorLoggingClause() ]
+				 )*
+
+				<ELSE> 
+					//INSERT INTO Clause 
+					SqlInsertIntoClause() 
+					
+					//Values Clause 
+					SqlValuesClause() 
+
+					[ SqlErrorLoggingClause() ]
+			)
+			SqlSubquery() 
+		)
+	)
+
+	[ SqlReturningClause() ]
+
+	[ SqlErrorLoggingClause() ]
+
+}
+
+
+
+
+void SqlInsertIntoClause()   throws SAXException :
+{}
+{
+
+	//INTO Table Clause 
+	<INTO>
+	SqlDmlTableExpression() 
+
+	[ UnqualifiedID() ] //Alias   
+
+	[
+		"("
+			//Column Alias List 
+			UnqualifiedID() ( "," UnqualifiedID() )* 
+		")"
+	]
+
+}
+
+
+
+void SqlValuesClause()   throws SAXException :
+{}
+{
+	<VALUES> 
+	"("
+		(
+			<_DEFAULT>
+			|
+			SqlExpression() 
+			
+		)
+		(
+			"'"
+			<_DEFAULT>
+			|
+			SqlExpression() 
+		)*
+	")"
+	
+
+}
+
+
+//http://docs.oracle.com/cd/B19306_01/appdev.102/b14261/update_Statement.htm#i36431
+void SqlUpdateStatement()   throws SAXException :
+{}
+{
+	<UPDATE> 
+	(
+		QualifiedName() 
+		| "(" SqlSubquery() ")"
+		| <TABLE> "(" SqlSubquery() ")"   
+	) 
+	[ UnqualifiedID() ] // alias	
+	<SET> 
+	( 
+          SqlColumnAssignment() ( "," SqlColumnAssignment()  )*
+	)
+	[
+		<WHERE> 
+		( <CURRENT> <OF> UnqualifiedID() //Cursor Name 
+		| SqlCondition()
+		)
+	]
+
+	[ SqlReturningClause() ]
+
+	[ SqlErrorLoggingClause() ]
+
+}
+
+
+void SqlColumnAssignment()   throws SAXException :
+{}
+{
+
+	// Multi-column assigment 
+	(
+		"("
+			//Column Alias List 
+			QualifiedID() ( "," QualifiedID() )* 
+		")"
+		"="
+		 "(" SqlSubquery() ")" 
+	)
+	|
+	// Single-column assignment 
+	(
+		QualifiedName() "=" 
+		(
+			( "(" SqlSubquery() ")" )
+			| 
+			SqlExpression() 
+		)
+	)
+}
+
+
+//http://docs.oracle.com/cd/B19306_01/appdev.102/b14261/returninginto_clause.htm#CJAGFGDE
+void SqlReturningClause()   throws SAXException :
+{}
+{
+	( <RETURN> | <RETURNING> ) SqlExpression() ("," SqlExpression())* [<BULK> <COLLECT>] <INTO> SqlExpression() ("," SqlExpression())*
+
+}
+
+//http://docs.oracle.com/database/121/PLSQLRF/Statements_10002.htm#i2126016
+void SqlForUpdateClause()   throws SAXException :
+{}
+{
+	
+	<FOR> <UPDATE> 
+	[ 
+		<OF> Name() ( "," Name() )* 
+	]
+	[
+		<NOWAIT>
+		| <WAIT> NumericLiteral()
+		| <K_SKIP> <LOCKED>
+	]
+
+}
+
+//http://docs.oracle.com/database/121/PLSQLRF/Statements_10002.htm#i2126435
+void SqlSubquery()   throws SAXException :
+{}
+{
+	(
+	/*
+	SqlQueryBlock()
+	| 
+	  ( 
+		// Left recursion SqlSubquery() //@TODO
+		SqlQueryBlock()
+		(
+			<UNION> [ <ALL> ]
+			| <INTERSECT>
+			| <MINUS>
+		//SqlSubquery()
+		SqlSelectClause()
+		)*
+	  )
+        */
+	  ( "(" SqlSubquery() ")" )
+          |
+          ( 
+		SqlQueryBlock()
+		(
+			<UNION> [ <ALL> ]
+			| <INTERSECT>
+			| <MINUS>
+		//SqlSubquery()
+		SqlSelectClause()
+		)*
+	  )
+	)
+	[ SqlOrderByClause() ]
+	SqlRowLimitingClause()
+
+}
+
+
+void SqlQueryBlock()   throws SAXException :
+{}
+{
+	[
+	  SqlWithClause()
+	]
+
+	SqlSelectClause()
+	/* @TODO to circumvent Left recursion  
+	<SELECT>
+	[
+		((<DISTINCT>|<UNIQUE>)
+                 | <ALL>
+                )
+	]
+	SqlSelectList()
+	<FROM>
+	SqlTableClause() ( ","  SqlTableClause() )*
+	SqlWhereClause() 
+	SqlHierarchicalQueryClause() 
+	SqlGroupByClause() 
+	SqlModelClause() 
+	*/
+
+}
+
+
+void SqlSelectClause()   throws SAXException :
+{}
+{
+	<SELECT>
+	[
+		(
+			(<DISTINCT>|<UNIQUE>) //Synonyms 
+			| <ALL>
+		)
+	]
+	SqlSelectList()
+	<FROM>
+	SqlTableClause() ( ","  SqlTableClause() )*
+	[ SqlWhereClause()  ]
+	[ SqlHierarchicalQueryClause() ]
+	[ SqlGroupByClause() ]
+	[ SqlModelClause() ]
+
+}
+
+
+
+void SqlTableClause()   throws SAXException :
+{}
+{
+	/*
+	"(" SqlJoinClause() ")"
+	|  SqlTableReference()
+	| SqlJoinClause()
+        
+	Refactored out leading  SqlTableReference() to remove grammar ambiguity
+	*/
+	"(" SqlTableReference() SqlJoinClause() ")"
+	|  SqlTableReference() [ SqlJoinClause() ]
+
+}
+
+void SqlWithClause()   throws SAXException :
+{
+	Token queryStart = null ;
+}
+{
+
+      queryStart = <WITH> 
+	//@TODO PLSQL Declarations - 12c
+	(
+	SqlPLSQLDeclarations(queryStart) ( SqlPLSQLDeclarations(queryStart) )*
+	| SqlSubqueryRefactoringClause()
+	)+
+
+}
+
+
+void SqlPLSQLDeclarations(Token queryStart)   throws SAXException :
+{}
+{
+	  ProgramUnit(false, queryStart)  
+	/*
+	  MethodDeclarator(false, 1, queryStart)  
+	  (
+		DeclarativeSection(false,null)
+		 <BEGIN> (Statement())* (ExceptionHandler())?  <END> [ID()] 
+	  ) 
+	*/
+
+}
+
+
+void SqlSubqueryRefactoringClause()   throws SAXException :
+{}
+{
+      UnqualifiedID() //Query name) 
+	"("
+		//Column Alias List 
+		UnqualifiedID() ( "," UnqualifiedID() )* 
+	")"
+	<AS>
+	"("
+		SqlSubquery()
+		SqlSearchClause()
+		SqlCycleClause()
+	")"
+	
+	
+
+}
+
+
+void SqlSearchClause()   throws SAXException :
+{}
+{
+	<SEARCH> 
+	( <DEPTH>|<BREADTH> ) 
+	<FIRST> <BY> SqlColumnOrderingClause() ( "," SqlColumnOrderingClause() )*
+	<SET> Name() //Ordering Column 
+
+}
+
+
+void SqlCycleClause()   throws SAXException :
+{}
+{
+	<CYCLE> 
+	UnqualifiedID() ( "," UnqualifiedID() )* 
+	<SET> UnqualifiedID() //Cycle Mark Column Alias
+	<TO> SqlExpression() <_DEFAULT> SqlExpression()
+	
+
+}
+
+
+
+void SqlSelectList()   throws SAXException :
+{}
+{
+	(
+	[ QualifiedID() "." ]  "*"
+	| SqlExpression() [ [ <AS> ] UnqualifiedID() ] //ColumnAlias
+	)
+
+}
+
+
+
+void SqlTableReference()   throws SAXException :
+{}
+{
+
+	(
+		SqlContainersClause()
+		| 
+		(
+			(
+				<ONLY> "(" SqlQueryTableExpression() ")"
+				|
+				SqlQueryTableExpression()
+			)
+			[ SqlFlashbackQueryClause() ]
+			[
+				SqlPivotClause()
+				| SqlUnpivotClause()
+				| SqlRowPatternClause()
+			]
+		)
+	)
+	
+	[ UnqualifiedID() ] //Table Alias
+
+}
+
+
+
+void SqlFlashbackQueryClause()   throws SAXException :
+{}
+{
+	(
+		<VERSIONS>
+		(
+			( <BETWEEN> ( <SCN> | <TIMESTAMP> )   )
+			|
+			( <PERIOD> <FOR> QualifiedID() <BETWEEN>  )
+		)
+		(
+			( <MINVALUE> | SqlExpression() )
+			<AND>
+			( <MAXVALUE> | SqlExpression() )
+		)
+	)
+	|
+	(
+		<AS> <OF> 
+		(
+			( <SCN> | <TIMESTAMP> ) 
+			SqlExpression() 
+		)
+		|
+		(
+			( <PERIOD> <FOR> QualifiedID() SqlExpression()  )
+		)
+	
+	)
+
+}
+
+
+void SqlQueryTableExpression()   throws SAXException :
+{}
+{
+	( [ <LATERAL> ] "(" SqlSubquery() [ SqlSubqueryRestrictionClause() ] ")"  )
+	|  SqlTableCollectionExpression()
+	|  ( QualifiedName() 
+		[ 
+			(" @" QualifiedID() /* DBLink Name */ )
+			| 
+			SqlPartitionExtensionClause() 
+		] 
+		[ SqlSampleClause() ]
+	   )
+	//|  UnqualifiedID() //Query Name 
+
+}
+
+
+void SqlPivotClause()   throws SAXException :
+{}
+{
+	<PIVOT> [ <XML> ]
+
+	"("
+		(
+			SqlAggregateFunction() "(" SqlExpression() "}" 
+			[ <AS> ]
+			 UnqualifiedID() //Alias 
+		)
+		( 
+			"," 
+			(
+				SqlAggregateFunction() "(" SqlExpression() "}" 
+				[ <AS> ]
+				 UnqualifiedID() //Alias 
+			)
+		)
+		SqlPivotForClause()
+		SqlPivotInClause()
+	")"
+
+}
+
+
+void SqlReferencedColumns()   throws SAXException :
+{}
+{
+		QualifiedID() //Column Name 
+		|
+		//Column List 
+		(
+			"("
+				QualifiedID() ( "," QualifiedID() )*
+			")"
+		)
+
+}
+
+
+void SqlPivotForClause()   throws SAXException :
+{}
+{
+	<FOR> SqlReferencedColumns() 
+	
+
+}
+
+
+void SqlPivotInClause()   throws SAXException :
+{}
+{
+	<IN> "("
+		(
+
+			<ANY> ( "," <ANY> )*
+			| SqlSubquery()
+			| SqlColumnExpression() ( ","  SqlColumnExpression() )
+		)
+		
+	")"
+
+}
+
+
+void SqlUnpivotClause()   throws SAXException :
+{}
+{
+	<UNPIVOT> 
+	[ [ <INCLUDE> | <EXCLUDE> ] <NULLS> ]
+	"("
+		SqlReferencedColumns() 
+		SqlPivotForClause() 
+		SqlUnpivotInClause()
+	")"
+
+}
+
+
+void SqlUnpivotInClause()   throws SAXException :
+{}
+{
+	<IN> "("
+		SqlReferencedColumns()
+		<AS>
+		(
+			Literal()
+			|
+			"(" Literal() ( "," Literal() )* ")" 
+		)
+		
+	")"
+
+}
+
+
+
+void SqlSampleClause()   throws SAXException :
+{}
+{
+	<SAMPLE> [ <BLOCK> ]
+	"("
+		NumericLiteral() //Sample Percentage 
+	")"
+	[
+		<SEED>
+		"("
+			Literal() //Seed Value NumericLiteral() ?
+		")"
+	]
+
+
+}
+
+
+void SqlPartitionExtensionClause()   throws SAXException :
+{}
+{
+
+	( <PARTITION> | <SUBPARTITION> )
+	(
+		"(" QualifiedID() ( "," QualifiedID() )*  ")" 
+		|
+		<FOR> "("  QualifiedID() ( "," QualifiedID() )* ")" 
+	)
+
+
+}
+
+
+void SqlSubqueryRestrictionClause()   throws SAXException :
+{}
+{
+
+	<WITH>
+	[ 
+		( <READ> <ONLY> )
+		|
+		( <CHECK> <OPTION> )
+	] 
+	[
+		<CONSTRAINT> UnqualifiedID() //Constraint Name 
+	]
+
+
+}
+
+
+void SqlTableCollectionExpression()   throws SAXException :
+{}
+{
+
+	<TABLE> "(" SqlCollectionExpression() ")" [ "(" "+" ")" ]
+
+}
+
+
+
+//http://docs.oracle.com/database/121/PLSQLRF/Statements_8005.htm#i2112830
+//The collection_expression can be a subquery, a column, a function, or a collection constructor. Regardless of its form, it must return a collection value¿that is, a value whose type is nested table or varray. This process of extracting the elements of a collection is called collection unnesting.
+void SqlCollectionExpression()   throws SAXException :
+{}
+{
+	SqlSubquery()
+	| SqlExpression() // Column, Function, Collection Constructor 
+
+}
+
+void SqlContainersClause()   throws SAXException :
+{}
+{
+
+	<CONTAINERS>
+	"(" 
+		QualifiedID() ( "," QualifiedID() )*
+	")"
+
+}
+
+
+//http://docs.oracle.com/database/121/PLSQLRF/Statements_10002.htm#CHDIJFDJ
+void SqlJoinClause()   throws SAXException :
+{}
+{
+	// Move up to remove ambiguity SqlTableReference()
+	(
+		//@TODO remove SqlJoinedTableReferences()
+		//INNER CROSS JOIN CLAUSE 
+		(
+			(
+				[ <INNER> ] <JOIN> SqlTableReference() 
+				(
+					( <ON> SqlCondition() )
+					( <USING> 
+						//Column List 
+						"(" 
+							QualifiedID() ( "," QualifiedID() )*
+						")"
+					)
+				)
+			)
+			|
+			(
+				(
+					( <CROSS> )
+					|
+					( <NATURAL> [ <INNER> ] )
+				)
+				<JOIN> SqlTableReference() 
+			)
+		)
+
+		//OUTER JOIN CLAUSE 
+		|
+		(
+			[ SqlQueryPartitionClause() ]
+			[ <NATURAL> ]
+			SqlOuterJoinType() 
+			<JOIN> SqlTableReference() 
+			[ SqlQueryPartitionClause() ]
+			(
+				( <ON> SqlExpression() )
+				( <USING> 
+					//Column List 
+					"(" 
+						QualifiedID() ( "," QualifiedID() )*
+					")"
+				)
+			)
+		)
+
+		//CROSS OUTER APPLY CLAUSE 
+		|SqlCrossOuterApplyClause()  
+
+	)+ 
+	
+
+}
+
+
+void SqlQueryPartitionClause()   throws SAXException :
+{}
+{
+	<PARTITION> <BY> 
+	(
+		"(" SqlExpression() ( ","  SqlExpression() )*  ")"
+		| 
+		SqlExpression() 
+	)
+
+}
+
+void SqlColumnExpression()   throws SAXException :
+{}
+{
+	(
+		"(" SqlExpression() ( ","  SqlExpression() )*  ")"
+		| 
+		SqlExpression() 
+	)
+	[ <AS> UnqualifiedID() ] //Column Alias 
+
+}
+
+
+void SqlOuterJoinType()   throws SAXException :
+{}
+{
+	( <FULL> | <LEFT> | <RIGHT> )
+	<OUTER>
+
+}
+
+void SqlCrossOuterApplyClause()   throws SAXException :
+{}
+{
+	( <CROSS> | <OUTER> )
+	<APPLY>
+	(
+		SqlTableReference()
+		|
+		SqlCollectionExpression()
+	)
+	
+
+}
+
+
+void SqlWhereClause()   throws SAXException :
+{}
+{
+	<WHERE>
+	SqlCondition()
+
+
+}
+
+
+void SqlHierarchicalQueryClause()   throws SAXException :
+{}
+{
+	(
+		<CONNECT> <BY> [ <NOCYCLE> ] SqlCondition() 
+		[ <START> <WITH> SqlCondition() ]
+	)
+	|
+	(
+		[ <START> <WITH> SqlCondition() <CONNECT> <BY> [ <NOCYCLE> ] ] SqlCondition()
+	)
+	
+
+}
+
+
+void SqlGroupByClause()   throws SAXException :
+{}
+{
+	<GROUP> <BY> 
+	(
+		SqlRollupCubeClause()
+		|SqlGroupingSetsClause()
+		|SqlExpression()
+	)
+	( 
+		"'" 
+		(
+		SqlRollupCubeClause()
+		|SqlGroupingSetsClause()
+		|SqlExpression()
+		)
+	)*
+
+	[ <HAVING> SqlCondition() ]
+
+}
+
+
+void SqlRollupCubeClause()   throws SAXException :
+{}
+{
+	( <ROLLUP> | <CUBE> )
+	"("
+		SqlGroupingExpressionList()
+	")"
+
+}
+
+
+void SqlGroupingSetsClause()   throws SAXException :
+{}
+{
+	<GROUPING> <SETS> 
+	"("
+	(
+		SqlRollupCubeClause()
+		|SqlGroupingExpressionList()
+	)
+	( 
+		"'" 
+		(
+		SqlRollupCubeClause()
+		|SqlGroupingExpressionList()
+		)
+	)*
+	")"
+
+}
+
+
+void SqlGroupingExpressionList()   throws SAXException :
+{}
+{
+	SqlExpressionList() ( "," SqlExpressionList() )*
+
+}
+
+
+void SqlExpressionList()   throws SAXException :
+{}
+{
+	(
+		"(" SqlExpression() ( ","  SqlExpression() )*  ")"
+		| SqlExpression() ( ","  SqlExpression() )*  
+	)
+
+}
+
+
+void SqlModelClause()   throws SAXException :
+{}
+{
+	<MODEL>
+	SqlCellReferenceOptions()
+	[ SqlReturnRowsClause() ]
+	[ ( SqlReferenceModel() )+ ]
+	SqlMainModel()
+
+}
+
+
+void SqlCellReferenceOptions()   throws SAXException :
+{}
+{
+	[
+		 ( <IGNORE> | <KEEP> ) 
+		<NAV>
+	]
+	[
+		<UNIQUE>
+		 ( <DIMENSION> | <SINGLE> <REFERENCE> ) 
+	]
+
+}
+
+
+void SqlReturnRowsClause()   throws SAXException :
+{}
+{
+	<RETURN>
+	( <UPDATED> | <ALL> )
+	<ROWS>
+
+}
+
+
+void SqlReferenceModel()   throws SAXException :
+{}
+{
+	<REFERENCE>
+	UnqualifiedID() //Reference Model Name 
+	<ON> 
+	"(" SqlSubquery() ")" 
+	SqlModelColumnClauses()
+	SqlCellReferenceOptions() 
+
+}
+
+
+void SqlMainModel()   throws SAXException :
+{}
+{
+	[
+	<MODEL>
+	UnqualifiedID() //Main Model Name 
+	]
+	SqlModelColumnClauses()
+	SqlCellReferenceOptions()
+	SqlModelRulesClause()
+
+}
+
+void SqlModelColumnClauses()   throws SAXException :
+{}
+{
+	<PARTITION> <BY> 
+	"("
+		( SqlExpression() [ QualifiedID() ]  )
+		( "'"  SqlExpression() [ QualifiedID() ] )*
+	")"
+
+	<DIMENSION> <BY> 
+	"("
+		( SqlExpression() [ QualifiedID() ]  )
+		( "'"  SqlExpression() [ QualifiedID() ] )*
+	")"
+
+	<MEASURES> 
+	"("
+		( SqlExpression() [ QualifiedID() ]  )
+		( "'"  SqlExpression() [ QualifiedID() ] )*
+	")"
+
+}
+
+void SqlModelColumn()   throws SAXException :
+{}
+{
+	SqlExpression() [ [ <AS> ] UnqualifiedID() ]
+
+}
+
+void SqlModelRulesClause()   throws SAXException :
+{}
+{
+	<RULES>
+	[
+		[ <UPDATE> | <UPSERT> [ <ALL> ] ]
+		[ ( <AUTOMATIC> | <SEQUENTIAL> ) <ORDER> ]
+		SqlModelIterateClause() 
+	]	
+	"("
+		(
+			[ <UPDATE> | <UPSERT> [ <ALL> ] ]
+			SqlCellAssignment()
+			[ SqlOrderByClause() ]
+			"=" 
+			SqlExpression()
+		)
+		(
+			","
+			[ <UPDATE> | <UPSERT> [ <ALL> ] ]
+			SqlCellAssignment()
+			[ SqlOrderByClause() ]
+			"=" 
+			SqlExpression()
+		)*
+		
+		
+	")"
+
+}
+
+
+void SqlModelIterateClause()   throws SAXException :
+{}
+{
+	<ITERATE> "(" NumericLiteral() ")" 
+	<UNTIL> "(" SqlCondition() ")" 
+
+}
+
+
+
+void SqlCellAssignment()   throws SAXException :
+{}
+{
+
+	UnqualifiedID() //Measure Column 
+	"["
+		SqlMultiColumnForLoop()
+		| (
+			(
+				SqlSingleColumnForLoop()
+				//| SqlCondition()
+				| SqlExpression()
+			)
+			(
+				","
+				SqlSingleColumnForLoop()
+				//| SqlCondition()
+				| SqlExpression()
+			)*
+		)
+	"]"
+
+}
+
+
+
+void SqlCondition()   throws SAXException :
+{}
+{
+	ConditionalOrExpression() 
+
+}
+
+void SqlSingleColumnForLoop()   throws SAXException :
+{}
+{
+	<FOR> 
+	QualifiedID() //Dimension Column 
+	(
+		(
+			<IN> 
+			"("
+				( Literal() | SqlSubquery() )
+				( "," Literal() | SqlSubquery() )*
+			")"
+		)
+		|
+		(
+			[ <LIKE> SqlExpression() /* pattern() */ ] //@TODO what is a valid pattern?  
+			<FROM> Literal() 
+			<TO> Literal()
+			( <INCREMENT> | <DECREMENT> ) Literal()
+		)
+	)
+
+}
+
+
+void SqlMultiColumnForLoop()   throws SAXException :
+{}
+{
+	<FOR> 
+	"(" QualifiedID() //Dimension Column 
+	  "," QualifiedID() //Dimension Column 
+	")"
+	(
+		(
+			<IN> 
+			"("
+				( "(" Literal() ( ","  Literal() )* ")" | SqlSubquery() )
+				( "," "(" Literal() ( ","  Literal() )* ")" | SqlSubquery() )*
+			")"
+		)
+	)
+
+}
+
+
+
+void SqlOrderByClause()   throws SAXException :
+{}
+{
+	<ORDER> [ <SIBLINGS> ] <BY> 
+	SqlColumnOrderingClause() ( "," SqlColumnOrderingClause() )*
+	
+	[ <ASC> | <DESC> ]
+
+}
+
+void SqlColumnOrderingClause()   throws SAXException :
+{}
+{
+	UnqualifiedID() // Column Alias 	
+	[ <ASC> | <DESC> ]
+	[ <NULLS>  [ <FIRST> | <LAST> ] ]
+
+}
+
+
+void SqlRowLimitingClause()   throws SAXException :
+{}
+{
+
+	[ <OFFSET> NumericLiteral() ( <ROW> | <ROWS> )  ]
+
+	[ 
+		<FETCH> ( <FIRST> | <NEXT> ) 
+		[ NumericLiteral() [ <PERCENT> ] ]
+
+		[ <ROW> | <ROWS> ] 
+		[ <ONLY> | <WITH> <TIES> ]
+	]
+
+}
+
+
+
+
+//http://docs.oracle.com/database/121/PLSQLRF/Statements_10002.htm#BABDACDD
+void SqlRowPatternClause()   throws SAXException :
+{}
+{
+
+	<MATCH> <RECOGNIZE>
+	"("
+		[ SqlRowPatternPartitionBy() ]
+		[ SqlRowPatternOrderBy() ]
+		[ SqlRowPatternMeasures() ]
+		[ SqlRowPatternRowsPerMatch() ]
+		[ SqlRowPatternSkipTo() ]
+		<PATTERN>
+		"("
+			SqlRowPattern()
+		")"
+		[ SqlRowPatternSubsetClause() ] 
+		<DEFINE>
+		SqlRowPatternDefinitionList()
+	")"
+
+
+}
+
+
+void SqlRowPatternPartitionBy()   throws SAXException :
+{}
+{
+	<PATTERN> <BY> 
+	QualifiedID() //Column 
+	"," QualifiedID() //Column 
+
+}
+
+void SqlRowPatternOrderBy()   throws SAXException :
+{}
+{
+
+	<ORDER> <BY> 
+	QualifiedID() //Column 
+	"," QualifiedID() //Column 
+
+}
+
+
+void SqlRowPatternMeasures()   throws SAXException :
+{}
+{
+	<MEASURES>
+	( SqlExpression() [ <AS> ] UnqualifiedID() )
+	( ","  SqlExpression() [ <AS> ] UnqualifiedID() )
+
+}
+
+void SqlRowPatternRowsPerMatch()   throws SAXException :
+{}
+{
+
+	( ( <ONE> <ROW> ) | ( <ALL> <ROWS> ) )
+	<PER> <MATCH>
+
+}
+
+void SqlRowPatternSkipTo()   throws SAXException :
+{}
+{
+
+	<AFTER> <MATCH> <K_SKIP> 
+	(
+		(
+			(
+				( <TO> <NEXT> )
+				|
+				( <PAST> <LAST> )
+			)
+			<ROW>
+			
+		)
+	)
+	|
+	(
+		<TO>
+		(
+			( <FIRST> |  <LAST> )
+			Name() //Variable Name 
+		)
+	)
+	
+
+}
+
+
+void SqlRowPattern()   throws SAXException :
+{}
+{
+
+	// [ SqlRowPattern() "|" ]  | SqlRowPatternTerm()  
+	 SqlRowPatternTerm()  ( "|" SqlRowPatternTerm() )*  
+
+}
+
+void SqlRowPatternTerm()   throws SAXException :
+{}
+{
+
+	// Left Recusive [ SqlRowPatternTerm() ]  SqlRowPatternFactor()  
+	( SqlRowPatternFactor() ) + 
+
+}
+
+void SqlRowPatternFactor()   throws SAXException :
+{}
+{
+
+	SqlRowPatternPrimary() | SqlRowPatternQuantifier()  
+
+}
+
+
+void SqlRowPatternPrimary()   throws SAXException :
+{}
+{
+
+	"$"
+	| "^"
+	| SqlRowPatternPermute() 
+	//| "("  SqlRowPattern()  ")"
+	| "(" 
+		(
+			( "-" SqlRowPattern() "-" )
+			|  SqlRowPattern() 
+		)
+	  ")"
+	| Name() 
+
+}
+
+void SqlRowPatternPermute()   throws SAXException :
+{}
+{
+	<PERMUTE>
+	"("
+		SqlRowPattern() ( "," SqlRowPattern() )
+	")"
+
+}
+
+void SqlRowPatternQuantifier()   throws SAXException :
+{}
+{
+
+	(
+		("*" | "+" | "?" )  [ "?" ]
+	)
+	| ( "{" NumericLiteral()  [ "," [ NumericLiteral() ] ] "}" [ "?" ] )
+	//| ( "{" NumericLiteral()  "}" )
+
+}
+
+void SqlRowPatternSubsetClause()   throws SAXException :
+{}
+{
+	<SUBSET>
+	SqlRowPatternSubsetItem()
+	( "," SqlRowPatternSubsetItem() )*
+
+}
+
+
+void SqlRowPatternSubsetItem()   throws SAXException :
+{}
+{
+
+	Name() "=" 
+	"(" 
+		Name() ( "," Name() )* 
+	")"
+
+}
+
+
+void SqlRowPatternDefinitionList()   throws SAXException :
+{}
+{
+	SqlRowPatternDefinition() 
+	
+}
+
+void SqlRowPatternDefinition()   throws SAXException :
+{}
+{
+	Name() <AS> SqlCondition() 
+	
+}
+
+void SqlRowPatternRecFunction()   throws SAXException :
+{}
+{
+
+	( <CLASSIFIER> "(" ")" ) // Row Pattern Classifier Function   
+	| ( <MATCH_NUMBER> "(" ")" )   // Row Pattern Match Number Function   
+	|  SqlRowPatternNavigationFunction()  // Row Pattern Navigation Function   
+	|  SqlRowPatternAggregateFunction()  // Row Pattern Aggregate Function   
+
+}
+
+
+void SqlRowPatternNavigationFunction()   throws SAXException :
+{}
+{
+	//Row Pattern Navigation Logical 
+	(
+		[  <RUNNING> | <FINAL> ]
+		( <FIRST> | <LAST> )
+		"(" SqlExpression() "," NumericLiteral() ")" 
+	)
+
+	|
+	(
+		( <PREV> | <NEXT> )
+		(
+			//Row Pattern Navigation Physical 
+			(
+				"(" SqlExpression() "," NumericLiteral() ")" 
+			)
+			//Row Pattern Navigation Compound 
+			|
+			(
+				( <PREV> | <NEXT> )
+				"(" 
+					[  <RUNNING> | <FINAL> ]
+					( <FIRST> | <LAST> )
+					"(" SqlExpression() "," NumericLiteral() ")"
+
+					"," NumericLiteral() 
+				")" 
+			)
+		)
+	)
+
+
+
+}
+
+
+void SqlRowPatternAggregateFunction()   throws SAXException :
+{}
+{
+
+	[ <RUNNING> | <FINAL> ]
+        ( <AVG> | <COUNT> | <MAX> | <MIN> |  <SUM> ) SqlAggregateFunction()
+
+}
+
+
+
+/*
+http://docs.oracle.com/database/121/SQLRF/functions003.htm#i89203
+Aggregate Functions 
+
+
+Analytic Function
+http://docs.oracle.com/database/121/SQLRF/functions004.htm#i81407
+http://docs.oracle.com/cd/E11882_01/server.112/e26088/functions004.htm#SQLRF06174
+AnalyticFunction "(" arguments ")" 
+*/
+
+void SqlAnalyticFunction()   throws SAXException :
+{}
+{
+	PrimaryExpression() 
+	<OVER> "(" 
+			[ SqlQueryPartitionClause() ]
+			[ SqlOrderByClause() ]
+			[ SqlWindowingClause() ]
+		")"
+
+}
+
+void SqlWindowingClause()   throws SAXException :
+{}
+{
+	(
+		<ROWS> | <RANGE> 
+	)
+	(
+		(
+		<BETWEEN> 
+			(
+				( <UNBOUNDED> <PRECEDING> )
+				| ( <CURRENT> <ROW> )
+				| ( SqlExpression() ( <PRECEDING> | <FOLLOWING> ) ) 
+			)
+			<AND>
+			(
+				( <UNBOUNDED> <FOLLOWING> )
+				| ( <CURRENT> <ROW> )
+				| ( SqlExpression() ( <PRECEDING> | <FOLLOWING> ) ) 
+			)
+		)
+		|
+		(
+			( <UNBOUNDED> <PRECEDING> )
+			| ( <CURRENT> <ROW> )
+			| ( SqlExpression() <PRECEDING>  ) 
+		)
+		
+	)
+
+}
+
+
+//@TODO
+void SqlAggregateFunction()   throws SAXException :
+{}
+{
+	PrimaryExpression() 
+
+}
+
+
+//http://docs.oracle.com/database/121/SQLRF/expressions001.htm#i1002626
+//http://docs.oracle.com/database/121/SQLRF/expressions.htm#g1057115
+void SqlExpression()   throws SAXException :
+{ 
+}
+{
+	// Need syntactic lookahead to discriminate between SqlColumnAssignment and a procedure call
+	(
+  	LOOKAHEAD( PrimaryExpression() "=" ) ( SqlColumnAssignment())   
+	| (ConditionalOrExpression() )    
+	)
+ 
+}
+
+
+/*
+ * End Sql Parser
+ */
+
+
+
 
 /** 
  * Trigger
@@ -4238,7 +6121,7 @@ BEFORE STATEMENT IS tps_body END BEFORE STATEMENT
 
 
 tps_body:
-(statement)+
+(Statement)+
 (EXCEPTION exception_handler )*
 
 */
@@ -4291,7 +6174,7 @@ void triggerUnit() throws SAXException :
 		}
 
 		if (m_out != null) {
-			String packageString = globalPackageName; // Default Global Package Name 
+			String packageString = GlobalPackageName; // Default Global Package Name 
 			String schemaString = schemaName; // Default Schema 
 			final String fullname ;
 
@@ -4324,16 +6207,16 @@ void triggerUnit() throws SAXException :
 			if (null != schema )
 			{
 			  schemaString = schema.toString();
-			  packageString = ("_" + schemaString ) ; //Base global package name on Schema
+			  packageString = ("_" + schemaString ) ; //Base Global package name on Schema
 			}
 
 			/*
 			Previously triggers were wrapped in the _GLOBAL package,
 			which alsoe help all ScHema-level functions and procedures 
-			This was changed so that there was one global package per Schema.
+			This was changed so that there was one Global package per Schema.
 
 			In order to get these triggers in the correct schema triggers are no longer processed
-			as global productions.
+			as Global productions.
 
 			In order to minimise the downstream changes the code wraps the trigger element
 			in the best possible Global Package Name 
@@ -4394,10 +6277,10 @@ void triggerUnit() throws SAXException :
 	  (
 	    [
 	    <DECLARE>
-		    declarativeSection(false,name)
+		    DeclarativeSection(false,name)
 	    ]
 	    
-	    <BEGIN> (statement())* (exceptionHandler())? <END> [ID()] ";"
+	    <BEGIN> (Statement())* (ExceptionHandler())? <END> [ID()] ";"
 	  )
 	//| //<CALL> routine 
 	)
@@ -4434,7 +6317,7 @@ void timing_point_section() throws SAXException :
  )  
  <IS> 
  begin = <BEGIN>
- (statement())+ 
+ (Statement())+ 
  <END>  ( end = <BEFORE> | end = <AFTER> | end = <INSTEADOF> ) ( end_scope = <STATEMENT> | end_scope = <EACH> <ROW>) ";"
  )
  {
@@ -4470,22 +6353,22 @@ void compound_trigger_block(Token objectStart) throws SAXException :
 
   (
     //Problems making the declaration optional
-    //declarativeSection(true)
+    //DeclarativeSection(true)
     //(timing_point_section())+
     	(
                timing_point_section()|
-		pragma(true) |
+		Pragma(true) |
 		LOOKAHEAD(2)
-		exceptionDeclaration(true) |
+		ExceptionDeclaration(true) |
 		LOOKAHEAD(2)
-		subtype_definition(true) |
+		SubtypeDefinition(true) |
 		LOOKAHEAD(4)
-		variableOrConstantDeclaration(true) |
+		VariableOrConstantDeclaration(true) |
 		LOOKAHEAD(2)
-		cursorSpec(true) |
-		cursorBody(true) |
-		collectionDeclaration(true) |
-		programUnit(true,objectStart) 
+		CursorSpec(true) |
+		CursorBody(true) |
+		CollectionDeclaration(true) |
+		ProgramUnit(true,objectStart) 
 	)*
 
 
@@ -4557,8 +6440,8 @@ Token non_dml_event(): {}
 }
 
 /*
-When DBMS_METADATA.GET_DDL returns a trigger, it can come in 2 DDL statements.
-The first is the CREATE OR REPLACE TRIGER statement; the second is an ALTER TRIGGER statement,
+When DBMS_METADATA.GET_DDL returns a trigger, it can come in 2 DDL Statements.
+The first is the CREATE OR REPLACE TRIGER Statement; the second is an ALTER TRIGGER Statement,
 enabling or disabling the trigger.
 
 Unlike the ALTER TYPE, it does not seem to alter the structure of the object.
@@ -4645,6 +6528,7 @@ TOKEN [IGNORE_CASE]:
 <EXCEPTION_INIT: "EXCEPTION_INIT"> |
 <AUTONOMOUS_TRANSACTION: "AUTONOMOUS_TRANSACTION"> |
 <LANGUAGE: "LANGUAGE">
+| <INLINE: "INLINE"> // PRAGMA INLINE  
 }
 
 /* PL/SQL RESERVED WORDS */
@@ -4697,6 +6581,7 @@ TOKEN [IGNORE_CASE]:
 <CONTINUE: "CONTINUE"> |
 <CONVERT: "CONVERT"> |
 <CREATE: "CREATE"> |
+<CROSS: "CROSS"> |
 <CURRENT: "CURRENT"> |
 <CURRVAL: "CURRVAL"> |
 <CURSOR: "CURSOR"> |
@@ -4719,6 +6604,7 @@ TOKEN [IGNORE_CASE]:
 <ELSIF: "ELSIF"> |
 <ENABLE: "ENABLE"> | // Needed for 11G Trigger Syntax 
 <END: "END"> |
+<ERRORS: "ERRORS"> |
 <ESCAPE: "ESCAPE"> |
 <EXCEPT: "EXCEPT"> |
 <EXCEPTION: "EXCEPTION"> |
@@ -4734,11 +6620,13 @@ TOKEN [IGNORE_CASE]:
 <FALSE: "FALSE"> |
 <FETCH: "FETCH"> |
 <FINAL: "FINAL"> |
+<FIRST: "FIRST"> |
 <FLOAT: "FLOAT"> |
 <FOR: "FOR"> |
 <FORALL: "FORALL"> |
 <FORCE: "FORCE"> |
 <FROM: "FROM"> |
+<FULL: "FULL"> |
 <FUNCTION: "FUNCTION"> |
 <GLOBAL: "GLOBAL"> |
 <GOTO: "GOTO"> |
@@ -4757,6 +6645,7 @@ TOKEN [IGNORE_CASE]:
 <INCLUDING: "INCLUDING"> |
 <INDEXTYPE: "INDEXTYPE"> |
 <INDICATOR: "INDICATOR"> |
+<INNER: "INNER"> |
 <INSERT: "INSERT"> |
 <INSTANTIABLE: "INSTANTIABLE"> |
 <INTEGER: "INTEGER"> |
@@ -4769,6 +6658,7 @@ TOKEN [IGNORE_CASE]:
 <ISOLATION: "ISOLATION"> |
 <JAVA: "JAVA"> |
 //<LANGUAGE: "LANGUAGE"> |
+<LAST: "LAST"> |
 <LEVEL: "LEVEL"> |
 <LIKE: "LIKE"> |
 <LIMIT: "LIMIT"> | 
@@ -4776,7 +6666,9 @@ TOKEN [IGNORE_CASE]:
 <LOCK: "LOCK"> |
 <LONG: "LONG"> |
 <LOOP: "LOOP"> |
+<JOIN: "JOIN"> |
 <MAP: "MAP"> |
+<MATCHED: "MATCHED"> |
 <MAX: "MAX"> |
 <MEMBER: "MEMBER"> | 
 <MERGE: "MERGE"> | 
@@ -4792,6 +6684,7 @@ TOKEN [IGNORE_CASE]:
 <NATURALN: "NATURALN"> |
 <NEW: "NEW"> |
 <NEW_DOT: "NEW."> |
+<NEXT: "NEXT"> |
 <NEXTVAL: "NEXTVAL"> |
 <NO: "NO"> |
 <NOCOMPRESS: "NOCOMPRESS"> | //SRT 2011-04-17
@@ -4813,6 +6706,7 @@ TOKEN [IGNORE_CASE]:
 <OF: "OF"> |
 <OID: "OID"> |
 <ON: "ON"> |
+<ONLY: "ONLY"> |
 <OPAQUE: "OPAQUE"> |
 <OPEN: "OPEN"> |
 <OPERATOR: "OPERATOR"> |
@@ -4822,6 +6716,8 @@ TOKEN [IGNORE_CASE]:
 <ORGANIZATION: "ORGANIZATION"> |
 <OTHERS: "OTHERS"> |
 <OUT: "OUT"> |
+<OUTER: "OUTER"> |
+<OVER: "OVER"> |
 <OVERRIDING: "OVERRIDING"> |
 <PACKAGE: "PACKAGE"> |
 <PARALLEL_ENABLE: "PARALLEL_ENABLE"> |
@@ -4846,6 +6742,7 @@ TOKEN [IGNORE_CASE]:
 <REAL: "REAL"> |
 <RECORD: "RECORD"> |
 <REF: "REF"> |
+<REJECT: "REJECT"> |
 <RELEASE: "RELEASE"> |
 <RELIES_ON: "RELIES_ON"> | 
 <RENAME: "RENAME"> | //SRT 2011-04-17
@@ -4871,6 +6768,7 @@ TOKEN [IGNORE_CASE]:
 <SET: "SET"> |
 <SIZE: "SIZE"> | //SRT 2011-04-17
 <SHARE: "SHARE"> |
+<K_SKIP: "SKIP"> |
 <SMALLINT: "SMALLINT"> |
 <SPACE: "SPACE"> |
 <SQL: "SQL"> |
@@ -4880,6 +6778,7 @@ TOKEN [IGNORE_CASE]:
 <STATIC: "STATIC"> |
 <STDDEV: "STDDEV"> |
 <SUBTYPE: "SUBTYPE"> |
+<SUBPARTITION: "SUBPARTITION"> |
 <SUBSTITUTABLE: "SUBSTITUTABLE"> |
 <SUCCESSFUL: "SUCCESSFUL"> |
 <SUM: "SUM"> |
@@ -4903,6 +6802,7 @@ TOKEN [IGNORE_CASE]:
 <UI: "UI"> |
 <UNDER: "UNDER"> |
 <UNIQUE: "UNIQUE"> | //SRT 2011-04-17
+<UNLIMITED: "UNLIMITED"> | 
 <USING: "USING"> |
 <VALUES: "VALUES"> | //SRT 2011-04-17
 <WHEN: "WHEN"> |
@@ -5037,6 +6937,145 @@ TOKEN [IGNORE_CASE]:
 | <SHARED : "SHARED">
 | <DIRECTORY : "DIRECTORY">
 | <USER : "USER">
+| <SEARCH: "SEARCH">  
+| <DEPTH: "DEPTH">  
+| <BREADTH: "BREADTH">  
+| <CYCLE: "CYCLE">  
+| <NOCYCLE: "NOCYCLE">  
+| <VERSIONS: "VERSIONS">  
+| <PERIOD: "PERIOD">  
+| <SCN: "SCN">  
+| <MINVALUE: "MINVALUE">  
+| <MAXVALUE: "MAXVALUE">  
+| <LATERAL: "LATERAL">  
+| <PIVOT: "PIVOT">  
+| <UNPIVOT: "UNPIVOT">  
+| <SAMPLE: "SAMPLE">  
+| <BLOCK: "BLOCK">  
+| <SEED: "SEED">  
+| <CONTAINERS: "CONTAINERS">  
+| <APPLY: "APPLY">  
+| <GROUPING: "GROUPING">  
+| <SETS: "SETS">  
+| <ROLLUP: "ROLLUP">  
+| <CUBE: "CUBE">  
+| <MODEL: "MODEL">  
+| <IGNORE: "IGNORE">  
+| <KEEP: "KEEP">  
+| <NAV: "NAV">  
+| <DIMENSION: "DIMENSION">  
+| <SINGLE: "SINGLE">  
+| <REFERENCE: "REFERENCE">  
+| <MEASURES: "MEASURES">  
+| <RULES: "RULES">  
+| <UPSERT: "UPSERT">  
+| <UPDATED: "UPDATED">  
+| <AUTOMATIC: "AUTOMATIC">  
+| <SEQUENTIAL: "SEQUENTIAL">  
+| <ITERATE: "ITERATE">  
+| <UNTIL: "UNTIL">  
+| <INCREMENT: "INCREMENT">  
+| <DECREMENT: "DECREMENT">  
+| <SIBLINGS: "SIBLINGS">  
+| <PERCENT: "PERCENT">  
+| <PERMUTE: "PERMUTE">  
+| <TIES: "TIES">  
+| <WAIT: "WAIT">  
+| <LOCKED: "LOCKED">  
+| <PATTERN: "PATTERN">  
+| <PER: "PER">  
+| <MATCH: "MATCH">  
+| <RECOGNIZE: "RECOGNIZE">  
+| <PAST: "PAST">  
+| <SUBSET: "SUBSET">  
+| <RUNNING: "RUNNING">  
+| <BATCH: "BATCH">
+| <CLASSIFIER: "CLASSIFIER">
+| <COMMITTED: "COMMITTED">
+| <CONSTRAINT: "CONSTRAINT">
+| <EXCLUDE: "EXCLUDE">
+| <INCLUDE: "INCLUDE">
+| <LOG: "LOG">
+| <MATCH_NUMBER: "MATCH_NUMBER">
+| <NULLS: "NULLS">
+| <OFFSET: "OFFSET">
+| <ONE: "ONE">
+| <ORDERED: "ORDERED">
+| <PREV: "PREV">
+| <READ: "READ">
+| <SEGMENT: "SEGMENT">
+| <SERIALIZABLE: "SERIALIZABLE">
+| <USE: "USE">
+| <WORK: "WORK">
+| <WRITE: "WRITE">
+| <XML: "XML">
+| <CORRUPT_XID: "CORRUPT_XID">
+| <CORRUPT_XID_ALL: "CORRUPT_XID_ALL">
+
+/*
+http://docs.oracle.com/database/121/SQLRF/functions003.htm#i89203
+Aggregate Functions 
+*/
+
+| <APPROX_COUNT_DISTINCT: "APPROX_COUNT_DISTINCT">
+//| <AVG: "AVG">
+//| <COLLECT: "COLLECT">
+| <CORR: "CORR">
+//@TODO | <CORR_*: "CORR_*">
+| <COUNT: "COUNT">
+| <COVAR_POP: "COVAR_POP">
+| <COVAR_SAMP: "COVAR_SAMP">
+| <CUME_DIST: "CUME_DIST">
+| <DENSE_RANK: "DENSE_RANK">
+//| <FIRST: "FIRST">
+| <GROUP_ID: "GROUP_ID">
+//| <GROUPING: "GROUPING">
+| <GROUPING_ID: "GROUPING_ID">
+//| <LAST: "LAST">
+| <LISTAGG: "LISTAGG">
+//| <MAX: "MAX">
+| <MEDIAN: "MEDIAN">
+//| <MIN: "MIN">
+| <PERCENT_RANK: "PERCENT_RANK">
+| <PERCENTILE_CONT: "PERCENTILE_CONT">
+| <PERCENTILE_DISC: "PERCENTILE_DISC">
+| <RANK: "RANK">
+| <REGR_SLOPE: "REGR_SLOPE">
+| <REGR_INTERCEPT: "REGR_INTERCEPT">
+| <REGR_COUNT: "REGR_COUNT">
+| <REGR_R2: "REGR_R2">
+| <REGR_AVGX: "REGR_AVGX">
+| <REGR_AVGY: "REGR_AVGY">
+| <REGR_SXX: "REGR_SXX">
+| <REGR_SYY: "REGR_SYY">
+| <REGR_SXY: "REGR_SXY">
+| <STATS_BINOMIAL_TEST: "STATS_BINOMIAL_TEST">
+| <STATS_CROSSTAB: "STATS_CROSSTAB">
+| <STATS_F_TEST: "STATS_F_TEST">
+| <STATS_KS_TEST: "STATS_KS_TEST">
+| <STATS_MODE: "STATS_MODE">
+| <STATS_MW_TEST: "STATS_MW_TEST">
+| <STATS_ONE_WAY_ANOVA: "STATS_ONE_WAY_ANOVA">
+| <STATS_T_TEST_ONE: "STATS_T_TEST_ONE">
+| <STATS_T_TEST_PAIRED: "STATS_T_TEST_PAIRED">
+| <STATS_T_TEST_INDEP: "STATS_T_TEST_INDEP">
+| <STATS_T_TEST_INDEPU: "STATS_T_TEST_INDEPU">
+| <STATS_WSR_TEST: "STATS_WSR_TEST">
+//| <STDDEV: "STDDEV">
+| <STDDEV_POP: "STDDEV_POP">
+| <STDDEV_SAMP: "STDDEV_SAMP">
+//| <SUM: "SUM">
+| <SYS_OP_ZONE_ID: "SYS_OP_ZONE_ID">
+| <SYS_XMLAGG: "SYS_XMLAGG">
+| <VAR_POP: "VAR_POP">
+| <VAR_SAMP: "VAR_SAMP">
+| <VARIANCE: "VARIANCE">
+| <XMLAGG: "XMLAGG">
+
+//ANALYTIC FUNCTION KEYWORDS 
+| <UNBOUNDED: "UNBOUNDED">
+| <FOLLOWING: "FOLLOWING">
+| <PRECEDING: "PRECEDING">
 //Support JAVA SOURCE
 |<COMPILE: "COMPILE"> 
 |<RESOLVE: "RESOLVE"> 
@@ -5188,7 +7227,7 @@ Token KEYWORD_RESERVED (): {}
 | <PRIOR>
 | <PUBLIC>
 | <RAW>
-//| <RENAME> // Bug-91 Although RENAME is a reserved word, it may be used in PLSQL as a name 
+// | <RENAME> // Although RENAME is an Oracle reserved word, it may be used as a PL/SQL name.
 | <RESOURCE>
 | <REVOKE>
 | <SELECT>
@@ -5245,7 +7284,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <AND_EQUAL>
 //| <ANTIJOIN>
 //| <APPEND>
-//| <APPLY>
+| <APPLY>
 //| <ARCHIVE>
 //| <ARCHIVELOG>
 //| <ARRAY>test_unreserved_keyword.pks
@@ -5262,7 +7301,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <AUTO>
 //| <AUTOALLOCATE>
 //| <AUTOEXTEND>
-//| <AUTOMATIC>
+| <AUTOMATIC>
 //| <AVAILABILITY>
 //| <BACKUP>
 //| <BATCH>
@@ -5285,7 +7324,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <BITMAPS>
 //| <BITS>
 | <BLOB>
-//| <BLOCK>
+| <BLOCK>
 //| <BLOCK_RANGE>
 //| <BLOCKS>
 //| <BLOCKSIZE>
@@ -5327,6 +7366,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <CHUNK>
 //| <CIV_GB>
 | <CLASS>
+| <CLASSIFIER>
 //| <CLEAR>
 | <CLOB>
 //| <CLONE>
@@ -5366,7 +7406,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <CONTENT>
 //| <CONTENTS>
 | <CONTEXT>
-| <CONTINUE>
+| <CONTINUE> 
 //| <CONTROLFILE>
 | <CONVERT>
 | <COPY>
@@ -5376,8 +7416,8 @@ Token KEYWORD_UNRESERVED (): {}
 //| <CPU_PER_CALL>
 //| <CPU_PER_SESSION>
 //| <CREATE_STORED_OUTLINES>
-//| <CROSS>
-//| <CUBE>
+| <CROSS>
+| <CUBE>
 //| <CUBE_GB>
 | <CURRENT>
 //| <CURRENT_DATE>
@@ -5388,7 +7428,7 @@ Token KEYWORD_UNRESERVED (): {}
 | <CURSOR>
 //| <CURSOR_SHARING_EXACT>
 //| <CURSOR_SPECIFIC_SEGMENT>
-//| <CYCLE>
+| <CYCLE>
 //| <DANGLING>
 | <DATA>
 | <DATABASE>
@@ -5407,24 +7447,24 @@ Token KEYWORD_UNRESERVED (): {}
 //| <DEBUG>
 | <DEC>
 //| <DECLARE>
-//| <DECREMENT>
+| <DECREMENT>
 //| <DECRYPT>
 //| <DEFERRABLE>
 //| <DEFERRED>
+| <DEFINE>// SQL*Plus command 
 //| <DEFINED>
-| <DEFINE>
 | <DEFINER>
 //| <DEGREE>
 //| <DELAY>
 //| <DEMAND>
-//| <DENSE_RANK>
+| <DENSE_RANK>
 //| <DEQUEUE>
 //| <DEREF>
 //| <DEREF_NO_REWRITE>
 //| <DETACHED>
 //| <DETERMINES>
 //| <DICTIONARY>
-//| <DIMENSION>
+| <DIMENSION>
 | <DIRECTORY>
 | <DISABLE>
 //| <DISABLE_RPKE>
@@ -5467,7 +7507,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <ENTRY>
 //| <ERROR>
 //| <ERROR_ON_OVERLAP_TIME>
-//| <ERRORS>
+| <ERRORS>
 | <ESCAPE>
 //| <ESTIMATE>
 //| <EVALNAME>
@@ -5475,9 +7515,10 @@ Token KEYWORD_UNRESERVED (): {}
 //| <EVENTS>
 | <EXCEPT>
 | <EXCEPTIONS>
+| <EXIT>
 //| <EXCHANGE>
 //| <EXCLUDING>
-//| <EXECUTE>
+| <EXECUTE>
 //| <EXEMPT>
 //| <EXPAND_GSET_TO_UNION>
 //| <EXPIRE>
@@ -5504,13 +7545,13 @@ Token KEYWORD_UNRESERVED (): {}
 | <FINAL>
 //| <FINE>
 //| <FINISH>
-//| <FIRST>
+| <FIRST>
 //| <FIRST_ROWS>
 //| <FLAGGER>
 //| <FLASHBACK>
 //| <FLOB>
 //| <FLUSH>
-//| <FOLLOWING>
+| <FOLLOWING>
 | <FOLLOWS>
 | <FORCE>
 //| <FORCE_XML_QUERY_REWRITE>
@@ -5519,7 +7560,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <FREELISTS>
 //| <FREEPOOLS>
 //| <FRESH>
-//| <FULL>
+| <FULL>
 | <FUNCTION>
 //| <FUNCTIONS>
 //| <G>
@@ -5531,7 +7572,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <GLOBAL_TOPIC_ENABLED>
 //| <GLOBALLY>
 //| <GROUP_BY>
-//| <GROUPING>
+| <GROUPING>
 //| <GROUPS>
 //| <GUARANTEE>
 //| <GUARANTEED>
@@ -5555,7 +7596,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <IDGENERATORS>
 //| <IDLE_TIME>
 //| <IF>
-//| <IGNORE>
+| <IGNORE>
 //| <IGNORE_OPTIM_EMBEDDED_HINTS>
 //| <IGNORE_WHERE_CLAUSE>
 | <IMMEDIATE>
@@ -5563,7 +7604,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <IN_MEMORY_METADATA>
 //| <INCLUDE_VERSION>
 //| <INCLUDING>
-//| <INCREMENT>
+| <INCREMENT>
 //| <INCREMENTAL>
 //| <INDEX_ASC>
 //| <INDEX_COMBINE>
@@ -5596,7 +7637,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <INITRANS>
 //| <INLINE>
 //| <INLINE_XMLTYPE_NT>
-//| <INNER>
+| <INNER>
 //| <INSTANCE>
 //| <INSTANCES>
 | <INSTANTIABLE>
@@ -5611,13 +7652,13 @@ Token KEYWORD_UNRESERVED (): {}
 | <INVALIDATE>
 | <ISOLATION>
 //| <ISOLATION_LEVEL>
-//| <ITERATE>
+| <ITERATE>
 //| <ITERATION_NUMBER>
 | <JAVA>
 //| <JOB>
-//| <JOIN>
+| <JOIN>
 //| <K>
-//| <KEEP>
+| <KEEP>
 //| <KERBEROS>
 //| <KEY>
 //| <KEY_LENGTH>
@@ -5625,8 +7666,8 @@ Token KEYWORD_UNRESERVED (): {}
 //| <KEYSIZE>
 //| <KILL>
 | <LANGUAGE>
-//| <LAST>
-//| <LATERAL>
+| <LAST>
+| <LATERAL>
 //| <LAYER>
 //| <LDAP_REG_SYNC_INTERVAL>
 //| <LDAP_REGISTRATION>
@@ -5652,7 +7693,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <LOCALTIMESTAMP>
 //| <LOCATION>
 //| <LOCATOR>
-//| <LOCKED>
+| <LOCKED>
 //| <LOG>
 //| <LOGFILE>
 //| <LOGGING>
@@ -5670,7 +7711,7 @@ Token KEYWORD_UNRESERVED (): {}
 | <MAP> // Bug 3512150
 //| <MAPPING>
 //| <MASTER>
-//| <MATCHED>
+| <MATCHED>
 //| <MATERIALIZE>
 //| <MATERIALIZED>
 | <MAX>
@@ -5685,8 +7726,8 @@ Token KEYWORD_UNRESERVED (): {}
 //| <MAXLOGMEMBERS>
 //| <MAXSIZE>
 //| <MAXTRANS>
-//| <MAXVALUE>
-//| <MEASURES>
+| <MAXVALUE>
+| <MEASURES>
 | <MEMBER>
 //| <MEMORY>
 | <MERGE>
@@ -5701,10 +7742,10 @@ Token KEYWORD_UNRESERVED (): {}
 //| <MINIMUM>
 //| <MINUS_NULL>
 | <MINUTE>
-//| <MINVALUE>
+| <MINVALUE>
 //| <MIRROR>
 | <MLSLABEL>
-//| <MODEL>
+| <MODEL>
 //| <MODEL_COMPILE_SUBQUERY>
 //| <MODEL_DONTVERIFY_UNIQUENESS>
 //| <MODEL_DYNAMIC_SUBQUERY>
@@ -5727,7 +7768,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <NATIVE>
 //| <NATIVE_FULL_OUTER_JOIN>
 | <NATURAL>
-//| <NAV>
+| <NAV>
 | <NCHAR>
 | <NCHAR_CS>
 | <NCLOB>
@@ -5741,7 +7782,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <NETWORK>
 //| <NEVER>
 | <NEW>
-//| <NEXT>
+| <NEXT>
 //| <NL_AJ>
 //| <NL_SJ>
 //| <NLS_CALENDAR>
@@ -5815,7 +7856,7 @@ Token KEYWORD_UNRESERVED (): {}
 | <NOAUDIT>
 //| <NOCACHE>
 //| <NOCPU_COSTING>
-//| <NOCYCLE>
+| <NOCYCLE>
 //| <NODELAY>
 //| <NOFORCE>
 //| <NOGUARANTEE>
@@ -5858,7 +7899,7 @@ Token KEYWORD_UNRESERVED (): {}
 | <OLD>
 //| <OLD_PUSH_PRED>
 //| <ONLINE>
-//| <ONLY>
+| <ONLY>
 | <OPAQUE>
 //| <OPAQUE_TRANSFORM>
 //| <OPAQUE_XCANONICAL>
@@ -5872,16 +7913,16 @@ Token KEYWORD_UNRESERVED (): {}
 //| <OPTIMIZER_GOAL>
 //| <OR_EXPAND>
 //| <ORA_ROWSCN>
-//| <ORDERED>
+| <ORDERED>
 //| <ORDERED_PREDICATES>
 //| <ORDINALITY>
 | <ORGANIZATION>
 | <OTHERS>
 //| <OUT_OF_LINE>
-//| <OUTER>
+| <OUTER>
 //| <OUTLINE>
 //| <OUTLINE_LEAF>
-//| <OVER>
+| <OVER>
 //| <OVERFLOW>
 //| <OVERFLOW_NOMOVE>
 //| <OVERLAPS>
@@ -5915,7 +7956,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <PCTTHRESHOLD>
 //| <PCTUSED>
 //| <PCTVERSION>
-//| <PERCENT>
+| <PERCENT>
 //| <PERFORMANCE>
 //| <PERMANENT>
 //| <PFILE>
@@ -5936,7 +7977,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <PQ_MAP>
 //| <PQ_NOMAP>
 //| <PREBUILT>
-//| <PRECEDING>
+| <PRECEDING>
 | <PRECISION>
 //| <PRECOMPUTE_SUBQUERY>
 //| <PREPARE>
@@ -5991,14 +8032,14 @@ Token KEYWORD_UNRESERVED (): {}
 //| <REDUNDANCY>
 | <REF>
 //| <REF_CASCADE_CURSOR>
-//| <REFERENCE>
+| <REFERENCE>
 //| <REFERENCED>
 //| <REFERENCES>
 //| <REFERENCING>
 //| <REFRESH>
 //| <REGEXP_LIKE>
 //| <REGISTER>
-//| <REJECT>
+| <REJECT>
 //| <REKEY>
 //| <RELATIONAL>
 //| <RELY>
@@ -6020,7 +8061,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <RESTRICTED>
 //| <RESUMABLE>
 | <RESULT>
-| <RESULT_CACHE> 
+| <RESULT_CACHE>
 //| <RESUME>
 //| <RETENTION>
 | <RETURN>
@@ -6034,7 +8075,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <ROLES>
 | <ROLLBACK>
 //| <ROLLING>
-//| <ROLLUP>
+| <ROLLUP>
 | <ROW>
 //| <ROW_LENGTH>
 //| <ROWDEPENDENCIES>
@@ -6042,9 +8083,9 @@ Token KEYWORD_UNRESERVED (): {}
 | <ROWNUM>
 | <ROWS>
 //| <RULE>
-//| <RULES>
+| <RULES>
 //| <SALT>
-//| <SAMPLE>
+| <SAMPLE>
 | <SAVE>
 //| <SAVE_AS_INTERVALS>
 | <SAVEPOINT>
@@ -6055,15 +8096,16 @@ Token KEYWORD_UNRESERVED (): {}
 //| <SCAN_INSTANCES>
 //| <SCHEDULER>
 | <SCHEMA>
-//| <SCN>
+| <SCN>
 //| <SCN_ASCENDING>
 //| <SCOPE>
 //| <SD_ALL>
 //| <SD_INHIBIT>
 //| <SD_SHOW>
+| <SEARCH>
 | <SECOND>
 //| <SECURITY>
-//| <SEED>
+| <SEED>
 //| <SEG_BLOCK>
 //| <SEG_FILE>
 //| <SEGMENT>
@@ -6073,7 +8115,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <SEMIJOIN_DRIVER>
 //| <SEQUENCE>
 //| <SEQUENCED>
-//| <SEQUENTIAL>
+| <SEQUENTIAL>
 //| <SERIALIZABLE>
 | <SERVERERROR>
 //| <SESSION>
@@ -6081,21 +8123,21 @@ Token KEYWORD_UNRESERVED (): {}
 //| <SESSIONS_PER_USER>
 | <SESSIONTIMEZONE>
 //| <SESSIONTZNAME>
-| <SET> //SET is defined as a reserved word but is used in "SYS"."DBMS_RESULT_CACHE_API" as a function name and as a pragma parameter
+| <SET> //SET is defined as a reserved word but is used in "SYS"."DBMS_RESULT_CACHE_API" as a function name and as a Pragma parameter
 //| <SET_TO_JOIN>
-//| <SETS>
+| <SETS>
 //| <SETTINGS>
 //| <SEVERE>
 | <SHARED>
 //| <SHARED_POOL>
 //| <SHRINK>
 | <SHUTDOWN>
-//| <SIBLINGS>
+| <SIBLINGS>
 //| <SID>
 //| <SIMPLE>
-//| <SINGLE>
+| <SINGLE>
 //| <SINGLETASK>
-//| <K_SKIP>
+| <K_SKIP>
 //| <SKIP_EXT_OPTIMIZER>
 //| <SKIP_UNQ_UNUSABLE_IDX>
 //| <SKIP_UNUSABLE_INDEXES>
@@ -6131,7 +8173,7 @@ Token KEYWORD_UNRESERVED (): {}
 | <STRUCT>
 //| <STRUCTURE>
 | <SUBMULTISET>
-//| <SUBPARTITION>
+| <SUBPARTITION>
 //| <SUBPARTITION_REL>
 //| <SUBPARTITIONS>
 //| <SUBQUERIES>
@@ -6211,28 +8253,28 @@ Token KEYWORD_UNRESERVED (): {}
 //| <UID>
 //| <UNARCHIVED>
 //| <UNBOUND>
-//| <UNBOUNDED>
+| <UNBOUNDED>
 | <UNDEFINE>
 | <UNDER>
 //| <UNDO>
 //| <UNDROP>
 //| <UNIFORM>
-//| <UNLIMITED>
+| <UNLIMITED>
 //| <UNLOCK>
 //| <UNNEST>
 //| <UNPACKED>
 //| <UNPROTECTED>
 //| <UNQUIESCE>
 //| <UNRECOVERABLE>
-//| <UNTIL>
+| <UNTIL>
 //| <UNUSABLE>
 //| <UNUSED>
 //| <UPD_INDEXES>
 //| <UPD_JOININDEX>
 //| <UPDATABLE>
-//| <UPDATED>
+| <UPDATED>
 //| <UPGRADE>
-//| <UPSERT>
+| <UPSERT>
 | <UROWID>
 //| <USAGE>
 //| <USE>
@@ -6262,8 +8304,8 @@ Token KEYWORD_UNRESERVED (): {}
 //| <VECTOR_READ>
 //| <VECTOR_READ_TRACE>
 //| <VERSION>
-//| <VERSIONS>
-//| <WAIT>
+| <VERSIONS>
+| <WAIT>
 //| <WALLET>
 //| <WELLFORMED>
 //| <WHEN>
@@ -6300,8 +8342,104 @@ Token KEYWORD_UNRESERVED (): {}
 | <NONEDITIONABLE> 
 | <ACCESSIBLE> 
 | <NULLIF> 
-| <RENAME>
-| <RELEASE>  // RELEASE - 
+| <RENAME> //Although RENAME is an Oracle reserved word, it may be used as a PL/SQL name.
+| <RELEASE> //Although RELEASE is an Oracle reserved word, it may be used as a PL/SQL name. 
+| <INLINE> // PRAGMA INLINE is not a PLSQL reserved word
+//| <SEARCH>
+| <DEPTH>
+| <BREADTH>
+| <PIVOT>
+| <UNPIVOT>
+//| <SAMPLE>
+//| <BLOCK>
+//| <SEED>
+| <CONTAINERS>
+| <PATTERN>  
+| <PER>  
+| <MATCH>  
+| <RECOGNIZE>  
+//| <PERCENT>  
+| <PERMUTE>  
+| <PAST>  
+| <SUBSET>  
+| <RUNNING>  
+//| <FINAL>  
+| <BATCH>
+//| <CLASSIFIER>
+| <COMMITTED>
+| <CONSTRAINT>
+| <EXCLUDE>
+| <INCLUDE>
+| <LOG>
+| <MATCH_NUMBER>
+| <NULLS>
+| <OFFSET>
+| <ONE>
+//| <ORDERED>
+| <PREV>
+| <READ>
+| <SEGMENT>
+| <SERIALIZABLE>
+| <USE>
+| <WORK>
+| <WRITE>
+| <XML>
+| <CORRUPT_XID>
+| <CORRUPT_XID_ALL>
+// Aggregate Functions 
+| <APPROX_COUNT_DISTINCT>
+//| <AVG>
+//| <COLLECT>
+| <CORR>
+//@TODO | <CORR_*>
+| <COUNT>
+| <COVAR_POP>
+| <COVAR_SAMP>
+| <CUME_DIST>
+//| <FIRST>
+| <GROUP_ID>
+//| <GROUPING>
+| <GROUPING_ID>
+//| <LAST>
+| <LISTAGG>
+//| <MAX>
+| <MEDIAN>
+//| <MIN>
+| <PERCENT_RANK>
+| <PERCENTILE_CONT>
+| <PERCENTILE_DISC>
+| <RANK>
+| <REGR_SLOPE>
+| <REGR_INTERCEPT>
+| <REGR_COUNT>
+| <REGR_R2>
+| <REGR_AVGX>
+| <REGR_AVGY>
+| <REGR_SXX>
+| <REGR_SYY>
+| <REGR_SXY>
+| <STATS_BINOMIAL_TEST>
+| <STATS_CROSSTAB>
+| <STATS_F_TEST>
+| <STATS_KS_TEST>
+| <STATS_MODE>
+| <STATS_MW_TEST>
+| <STATS_ONE_WAY_ANOVA>
+| <STATS_T_TEST_ONE>
+| <STATS_T_TEST_PAIRED>
+| <STATS_T_TEST_INDEP>
+| <STATS_T_TEST_INDEPU>
+| <STATS_WSR_TEST>
+//| <STDDEV>
+| <STDDEV_POP>
+| <STDDEV_SAMP>
+//| <SUM>
+| <SYS_OP_ZONE_ID>
+| <SYS_XMLAGG>
+| <VAR_POP>
+| <VAR_SAMP>
+| <VARIANCE>
+| <XMLAGG>
 )
 
 { return token; }
@@ -6369,9 +8507,9 @@ Token ID(): {}
 		//| <END> |<CURRENT_USER> 
 		| <EXCEPTION> //SYNTAX 
 		| <EXCLUSIVE> //SYNTAX //RESERVED WORD 
-		| <EXECUTE> //SYNTAX 
+		//| <EXECUTE> //SYNTAX 
 		| <EXISTS> //SYNTAX //RESERVED WORD 
-		| <EXIT> //SYNTAX 
+		//| <EXIT> //SYNTAX 
 		//20120501 | <EXTENDS> 
 		| <FETCH> //SYNTAX 
 		| <FLOAT> //SYNTAX //RESERVED WORD 
@@ -6444,7 +8582,7 @@ Token ID(): {}
 		| <RAW>  //RESERVED WORD  
 		//20120501 | <REAL> 
 		//<RECORD> | <RETURN> |  <SET> |<REF> | 
-		//20131021| <RELEASE> 
+		//| <RELEASE> 
 		//20120501 | <REVERSE> 
 		//20120501 | <ROLLBACK> //SYNTAX 
 		//20120501 | <ROWID> 
@@ -6512,7 +8650,7 @@ Token ID(): {}
 /**
  * 2006-05-20 - Matthias Hendler - added <OLD>, <NEW>, <LOOP>, <INT>
  */
-Token unqualifiedID(): {}
+Token UnqualifiedID(): {}
 {
 	(
 		<IDENTIFIER>
@@ -6545,7 +8683,7 @@ Token unqualifiedID(): {}
 /**
  * 2006-05-20 - Matthias Hendler - added <LIMIT>
  */
-Token qualifiedID(): {}
+Token QualifiedID(): {}
 {
 	(
 		<IDENTIFIER>
@@ -6620,9 +8758,9 @@ Token qualifiedID(): {}
 		//<END>
 		//<EXCEPTION>
 		//<EXCLUSIVE>
-		| <EXECUTE>
+		//| <EXECUTE>
 		| <EXISTS>
-		| <EXIT>
+		//| <EXIT>
 		//20120501 | <EXTENDS>
 		//<FETCH>
 		| <FLOAT>
@@ -6706,7 +8844,7 @@ Token qualifiedID(): {}
 		//20120501 | <REAL>
 		//| <RECORD>
 		//| <REF>
-		//20131021| <RELEASE>
+		//| <RELEASE>
 		//| <RETURN>
 		//20120501 | <REVERSE>
 		//20120501 | <ROLLBACK>
@@ -6788,7 +8926,7 @@ Token typeKeyword(): {}
 	<LONG> | <RAW> | <ROWID> | <CHAR> | <CHARACTER> | <MLSLABEL> | <BLOB> | <CLOB> | <BFILE> |
 	<NCHAR> | <NVARCHAR2> | <NCLOB> | <PLS_INTEGER> | <TIME> | <TIMESTAMP> | <UROWID> |
 //
-	<ARRAY> | <AUTHID> | <ACCESSIBLE>
+	<ARRAY> | <AUTHID> | <ACCESSIBLE> 
 	<CHAR_BASE> |
 	<CURRVAL> |
 	<HOUR> |

@@ -1,5 +1,5 @@
 
-void typeMethod(boolean isPackageLevel,int typeVersion, String alterTypeAction, Token objectStart) throws SAXException :
+void TypeMethod(boolean isPackageLevel,int typeVersion, String alterTypeAction, Token objectStart) throws SAXException :
 {
 	Token schemaName = null;
 	Token scope, start,  name;
@@ -24,7 +24,7 @@ void typeMethod(boolean isPackageLevel,int typeVersion, String alterTypeAction, 
         //inheritance CLAUSE
         { 
         startToken = getToken(1); 
-        //System.err.println("typeMethod: Result of getToken(1) is \"" + startToken.toString() + "\"" );
+        //System.err.println("TypeMethod: Result of getToken(1) is \"" + startToken.toString() + "\"" );
         } //SRT added to check Token List walking 
         ( [ <NOT> ] ( <OVERRIDING> | <INSTANTIABLE> | <FINAL> )  )*
 
@@ -33,7 +33,9 @@ void typeMethod(boolean isPackageLevel,int typeVersion, String alterTypeAction, 
         [ mapOrderMethod = <MAP> | mapOrderMethod = <ORDER> ]
         
         
-	(scope=<CONSTRUCTOR> | scope = <MEMBER> | scope = <STATIC> ) ( start= <FUNCTION> | start= <PROCEDURE> ) (LOOKAHEAD(2) schemaName = ID()".")? name=ID()
+	(scope=<CONSTRUCTOR> | scope = <MEMBER> | scope = <STATIC> ) 
+
+	( start= <FUNCTION> | start= <PROCEDURE> ) (LOOKAHEAD(2) schemaName = ID()".")? name=ID()
 	{
 		// element generated only on the package level
 		if (m_out != null && isPackageLevel) {
@@ -99,7 +101,7 @@ void typeMethod(boolean isPackageLevel,int typeVersion, String alterTypeAction, 
 	}
 
 		       
-	( "(" parameterDeclaration(tags,isPackageLevel) ( "," parameterDeclaration(tags,isPackageLevel) )* ")" )*
+	( "(" ParameterDeclaration(tags,isPackageLevel) ( "," ParameterDeclaration(tags,isPackageLevel) )* ")" )*
 //	[<RETURN> ( <SELF> <AS> <RESULT> | type=datatype() )
 	[<RETURN> ( type=datatype() ) //datatype changed to include <SELF> <AS> <RESULT> 
 	{
@@ -210,12 +212,12 @@ void typeMethod(boolean isPackageLevel,int typeVersion, String alterTypeAction, 
 			}	
 		}
 		(
-		  callSpecTail(true)
+		  CallSpecTail(true)
  		  [ ";" ] // This only exists in the type body
 		  | // SRT 20110524 Not really a Declaration any more ...  
 		  (
-			declarativeSection(false,objectStart)
-			 <BEGIN> (statement())* (exceptionHandler())?  <END> [ID()] 
+			DeclarativeSection(false,objectStart)
+			 <BEGIN> (Statement())* (ExceptionHandler())?  <END> [ID()] 
 			 ";" // This only exists in the type body
 		  )
 		)
@@ -231,6 +233,189 @@ void typeMethod(boolean isPackageLevel,int typeVersion, String alterTypeAction, 
 	}
 }
 
+void MethodDeclarator(boolean isPackageLevel,int typeVersion, Token scope) throws SAXException :
+{
+	Token schemaName = null;
+	//Token scope;
+	Token start;
+	Token name;
+	Token tokenIsAs = null;
+	Token mapOrderMethod = null;
+	Token inheritanceClause = null;
+	Token startToken = null;
+	Token returnToken = null;
+	String methodName = null;
+	String methodType = null;
+	String methodScope = null;
+	String methodOrdering = "";
+	String methodInheritance = "";
+	String methodPrefix = "";
+	String type = null;
+	String returnComment = null;
+	Hashtable tags;
+	Hashtable attributes = new Hashtable();
+}
+{
+	( start= <FUNCTION> | start= <PROCEDURE> ) (LOOKAHEAD(2) schemaName = ID()".")? name=ID()
+	{
+		// element generated only on the package level
+		if (m_out != null && isPackageLevel) {
+			attributes = new Hashtable(); //SRT 20110427
+			attributes.put("VERSION",Integer.toString(typeVersion));
+			//SRT 20110420 if (null!=alterTypeAction) m_out.pushAttribute("ACTION",alterTypeAction);
+		         //SRT Walk lists
+		        Token p = startToken ;
+		        if (null != mapOrderMethod )
+		        {
+				for( ; p != mapOrderMethod ; p = p.next ) 
+				{
+				    methodInheritance += " " + p.image ; 
+
+				} 		     
+				methodOrdering = mapOrderMethod.toString();
+			}
+			else
+			{
+				for( ; p != scope ; p = p.next ) 
+				{
+				    methodInheritance += " " + p.image ; 
+
+				} 		     
+
+			}
+			
+
+			methodScope = scope.toString();
+
+			//SRT 20110419 
+			if (null!=methodInheritance && !"".equals(methodInheritance)) attributes.put("INHERITANCE",purifyKeyword(methodInheritance));
+			if (null!=methodOrdering && !"".equals(methodOrdering))  attributes.put("ORDERING",purifyKeyword(methodOrdering));
+			if (null!=methodScope && !"".equals(methodScope))  attributes.put("SCOPE",purifyKeyword(methodScope));
+
+			methodType = purifyKeyword(start.toString()); //SRT 20110420
+
+			/*
+			System.err.print( "\nEnd of List Walk (Inheritance,Mapping,Scope,Type)=" 
+			                  + "(" + methodInheritance
+			                  + "," + methodOrdering
+			                  + "," + methodScope
+			                  + "," + methodType
+			                  + ")\n" 
+			                  ) ; 
+		        */ 
+			
+			methodName = purifyKeyword(start.toString());
+			//SRT 20081003 startToken = (mapOrderMethod == null) ? scope : mapOrderMethod;
+			tags = processMemberComment(startToken, methodName, name.toString(),attributes);
+
+			//Construct the pseudo-return type, incorporating any inheritance, mapping and scope clauses
+			methodPrefix = (purifyKeyword(methodInheritance
+					       + " " + methodOrdering
+					       + " " + methodScope)
+					       + " " + purifyIdentifier(methodType)
+					       + " " 
+				       ).replaceAll("  ", " ")
+				       ;
+		} else {
+			tags = new Hashtable();
+		}
+	}
+
+		       
+	( "(" ParameterDeclaration(tags,isPackageLevel) ( "," ParameterDeclaration(tags,isPackageLevel) )* ")" )*
+//	[<RETURN> ( <SELF> <AS> <RESULT> | type=datatype() )
+	[<RETURN> ( type=datatype() ) //datatype changed to include <SELF> <AS> <RESULT> 
+	{
+		// element generated only on the package level
+		if (m_out != null && isPackageLevel) 
+		{
+			// @return
+			//SRT String returnComment = null;
+			Collection tagValues = (Collection) tags.get("@return");
+			if (tagValues != null) 
+			{
+				for(Iterator it = tagValues.iterator(); it.hasNext(); )
+					returnComment = (String) it.next();
+			}
+			//SRT m_out.pushAttribute("TYPE", purifyIdentifier(type.toString()));
+			methodPrefix += purifyIdentifier(type.toString());
+			
+			/* SRT
+			An object procedure method with non-default inheritance, mapping and scope
+			will have a pseudo return value despite not returning a value
+			This this means that we should move the output outside this block 
+			m_out.pushAttribute("TYPE",methodPrefix);
+
+			m_out.startElement("RETURN");
+			if (returnComment != null) 
+			{
+				m_out.startElement("COMMENT");
+				m_out.cdata(returnComment);
+				m_out.endElement("COMMENT");
+			}
+			m_out.endElement("RETURN");
+		        */
+		}
+	}
+	]
+
+	
+	{
+
+		//Output the pseudo return value even if not real value is returned
+		if (null != methodPrefix )
+		{
+			m_out.pushAttribute("TYPE",methodPrefix.trim());
+
+			m_out.startElement("RETURN");
+			if (returnComment != null) 
+			{
+				m_out.startElement("COMMENT");
+				m_out.cdata(returnComment);
+				m_out.endElement("COMMENT");
+			}
+			m_out.endElement("RETURN");
+		}
+
+		// element generated only on the package level
+		if (m_out != null && isPackageLevel)
+		{
+			// @throws
+			String throwsComment = null;
+			String exceptionName = null;
+			Collection tagValues = (Collection) tags.get("@throws");
+			if (tagValues != null)
+			{
+				Iterator it = tagValues.iterator();
+				while(it.hasNext()) {
+					throwsComment = (String) it.next();
+					// extract when first word - it's the exception name
+					StringTokenizer st = new StringTokenizer(throwsComment);
+					if (st.hasMoreTokens())
+						 exceptionName = st.nextToken();
+					if (exceptionName != null)
+					{
+						m_out.pushAttribute("NAME", purifyIdentifier(exceptionName));
+						m_out.startElement("THROWS");
+						if (throwsComment != null)
+						{
+							m_out.startElement("COMMENT");
+							m_out.cdata(throwsComment.substring(exceptionName.length()));
+							m_out.endElement("COMMENT");
+						}
+						m_out.endElement("THROWS");
+					}
+				}
+			}
+		}
+		
+		// now print all custom tags
+		if (m_out != null && isPackageLevel)
+		{
+			printCustomTags(tags);
+		}
+	}
+}
 
 void typeSpec() throws SAXException :
 { Token schema = null, name = null, tokenCreate = null, tokenType = null
@@ -294,7 +479,7 @@ void typeSpec() throws SAXException :
 	]
 
         [
-	        LOOKAHEAD(3) (tokenIsAsUnder= <ACCESSIBLE> <BY>  "(" [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] qualifiedName()  ("," qualifiedName() )*  ")" )
+	        LOOKAHEAD(3) (tokenIsAsUnder= <ACCESSIBLE> <BY>  "(" [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] QualifiedName()  ("," QualifiedName() )*  ")" )
 		{
 			// possibly, package comment is here
 			processPackageComment(tokenIsAsUnder);
@@ -396,7 +581,7 @@ void typeSpec() throws SAXException :
 	] 
 
 	[
-	  wrappedObject()
+	  WrappedObject()
 	]
 
         // //incomplete OBJECT TYPE and COLLECTION TYPEs will not have this 
@@ -407,11 +592,11 @@ void typeSpec() throws SAXException :
 			processPackageComment(tokenIsAsUnder);
 		}
                 //Try matching against keywords first to allow FINCTION and procedure as a fallback
-		(LOOKAHEAD(2)  typeMethod(isPackageLevel,typeVersion,null,name) | attributeDeclaration(typeVersion,null) 
-		 | pragma_clause()
+		(LOOKAHEAD(2)  TypeMethod(isPackageLevel,typeVersion,null,name) | AttributeDeclaration(typeVersion,null) 
+		 | PragmaClause()
 		)* //SRT 20111125 This part may be completely empty if is a subtype which is effectively an alias for the supertype 
-		( "," (  typeMethod(isPackageLevel,typeVersion,null,name) | LOOKAHEAD(2) attributeDeclaration(typeVersion,null) 
-		      | pragma_clause()
+		( "," (  TypeMethod(isPackageLevel,typeVersion,null,name) | LOOKAHEAD(2) AttributeDeclaration(typeVersion,null) 
+		      | PragmaClause()
 		      ) 
 		)*
 
@@ -463,7 +648,7 @@ void alterTypeSpec(int typeVersion, Token objectStart) throws SAXException :
 }
 {
 	tokenCreate=<ALTER> 
-	tokenType=<TYPE> typeName = qualifiedName() 
+	tokenType=<TYPE> typeName = QualifiedName() 
 	{
 		// possibly, package comment is here
 		processPackageComment(tokenCreate);
@@ -474,7 +659,7 @@ void alterTypeSpec(int typeVersion, Token objectStart) throws SAXException :
         //alter_method_spec 
         //(tokenAlterType = <ADD>|tokenAlterType = <MODIFY> |tokenAlterType = <DROP> |tokenAlterType = <REPLACE>)
             
-         //SRT 20110529 Each ALTER TYPE statement may contaon 0 or more ADD or DROP clause 
+         //SRT 20110529 Each ALTER TYPE Statement may contaon 0 or more ADD or DROP clause 
          //When more than one clause exists, each clause is separated by comma ","  
        (
        (
@@ -486,19 +671,19 @@ void alterTypeSpec(int typeVersion, Token objectStart) throws SAXException :
         (
 	      // Move typeMethidMatching above attribure matvhing becausse FUNCTION is a valid attribute name 
              ( 
-		 (typeMethod(isPackageLevel,typeVersion, tokenAlterTypeString, objectStart) ) 
-		  //( "," ( typeMethod(isPackageLevel,typeVersion, tokenAlterTypeString) ) )*
+		 (TypeMethod(isPackageLevel,typeVersion, tokenAlterTypeString, objectStart) ) 
+		  //( "," ( TypeMethod(isPackageLevel,typeVersion, tokenAlterTypeString) ) )*
              )
             |
             (
                   <ATTRIBUTE>
 		   ( "("  )*
-		    (attributeDeclaration(typeVersion, tokenAlterTypeString ) ) 
-		    ( "," ( attributeDeclaration(typeVersion, tokenAlterTypeString) ) )*
+		    (AttributeDeclaration(typeVersion, tokenAlterTypeString ) ) 
+		    ( "," ( AttributeDeclaration(typeVersion, tokenAlterTypeString) ) )*
 		   ( ")"  )*
             )
             |
-            (<LIMIT> tokenCollectionSize = numericLiteral() )
+            (<LIMIT> tokenCollectionSize = NumericLiteral() )
             |
             ( <ELEMENT> <TYPE> baseType = datatype() )
         )+
@@ -517,8 +702,8 @@ void alterTypeSpec(int typeVersion, Token objectStart) throws SAXException :
             )
             |
              ( 
-		 (typeMethod(isPackageLevel,typeVersion, tokenAlterTypeString, objectStart) ) 
-		  //( "," ( typeMethod(isPackageLevel,typeVersion, tokenAlterTypeString) ) )*
+		 (TypeMethod(isPackageLevel,typeVersion, tokenAlterTypeString, objectStart) ) 
+		  //( "," ( TypeMethod(isPackageLevel,typeVersion, tokenAlterTypeString) ) )*
              )
         )+
        )
@@ -531,15 +716,15 @@ void alterTypeSpec(int typeVersion, Token objectStart) throws SAXException :
           }
           | 
           (<DROP> ( 
-		 (typeMethod(isPackageLevel) ) 
-		  ( "," ( typeMethod(isPackageLevel) ) )*
+		 (TypeMethod(isPackageLevel) ) 
+		  ( "," ( TypeMethod(isPackageLevel) ) )*
                  )
                  |
                  (
                   <ATTRIBUTE>
 		   [ "("  ]
-		    (qualifiedName() ) 
-		    ( "," ( qualifiedName() ) )*
+		    (QualifiedName() ) 
+		    ( "," ( QualifiedName() ) )*
 		   [ ")"  ]
                  )
           
@@ -548,7 +733,7 @@ void alterTypeSpec(int typeVersion, Token objectStart) throws SAXException :
           //alter_collection_clause 
 	  (        
           <MODIFY> 
-            (<LIMIT> tokenCollectionSize = numericLiteral() )
+            (<LIMIT> tokenCollectionSize = NumericLiteral() )
             |
             ( <ELEMENT> <TYPE> baseType = datatype() )
 	  )        
@@ -567,7 +752,7 @@ void alterTypeSpec(int typeVersion, Token objectStart) throws SAXException :
                 ]
 
                 [
-		LOOKAHEAD(3) (tokenIsAsUnder= <ACCESSIBLE> <BY>  "(" [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] qualifiedName()  ("," qualifiedName() )*  ")" )
+		LOOKAHEAD(3) (tokenIsAsUnder= <ACCESSIBLE> <BY>  "(" [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] QualifiedName()  ("," QualifiedName() )*  ")" )
 		{
 			// possibly, package comment is here
 			processPackageComment(tokenIsAsUnder);
@@ -633,8 +818,8 @@ void alterTypeSpec(int typeVersion, Token objectStart) throws SAXException :
 			processPackageComment(tokenIsAsUnder);
 		}
 
-		(LOOKAHEAD(2) typeMethod(isPackageLevel,typeVersion, tokenAlterTypeString, objectStart) | attributeDeclaration(typeVersion, tokenAlterTypeString) ) 
-		( "," ( LOOKAHEAD(2) typeMethod(isPackageLevel,typeVersion, tokenAlterTypeString, objectStart) | attributeDeclaration(typeVersion, tokenAlterTypeString) ) )*
+		(LOOKAHEAD(2) TypeMethod(isPackageLevel,typeVersion, tokenAlterTypeString, objectStart) | AttributeDeclaration(typeVersion, tokenAlterTypeString) ) 
+		( "," ( LOOKAHEAD(2) TypeMethod(isPackageLevel,typeVersion, tokenAlterTypeString, objectStart) | AttributeDeclaration(typeVersion, tokenAlterTypeString) ) )*
 
 		")" 
 	]        
@@ -669,7 +854,7 @@ void alterTypeSpec(int typeVersion, Token objectStart) throws SAXException :
             
               [
                 [ <FORCE> ]
-                <EXCEPTIONS> <INTO> exceptionsName = qualifiedName()
+                <EXCEPTIONS> <INTO> exceptionsName = QualifiedName()
               ]
             )
         ] 
@@ -696,15 +881,15 @@ void typeBody() throws SAXException :
 
 	(
 	  (
-	    wrappedObject() 
+	    WrappedObject() 
 	  )
 	  |
 	  (
 	    (<IS> | <AS>)
 
-		    declarativeSection(true) //SRT 20110524 Allow PLDOc in Type Bodies 
+		    DeclarativeSection(true) //SRT 20110524 Allow PLDOc in Type Bodies 
 
-	    [ <BEGIN> (statement())* (exceptionHandler())? ] <END> [ID()] ";" 
+	    [ <BEGIN> (Statement())* (ExceptionHandler())? ] <END> [ID()] ";" 
 	  )
 	)
 	{
@@ -718,7 +903,7 @@ void typeBody() throws SAXException :
 /**
   * Method 
 **/
-void attributeDeclaration(int typeVersion, String alterTypeAction) throws org.xml.sax.SAXException :
+void AttributeDeclaration(int typeVersion, String alterTypeAction) throws org.xml.sax.SAXException :
 { Token name=null;
 	String type;
 	Hashtable tags = null;
@@ -772,7 +957,7 @@ void attribute(int typeVersion, String alterTypeAction) throws org.xml.sax.SAXEx
 /*
  This was quick cut from PRAGMA
 */
-void pragma_clause() throws org.xml.sax.SAXException :
+void PragmaClause() throws org.xml.sax.SAXException :
 { Token start,name,functionName,exceptionName,errorNumber; Hashtable tags = null; }
 {
 	start=<PRAGMA>
@@ -784,9 +969,9 @@ void pragma_clause() throws org.xml.sax.SAXException :
 		name=<RESTRICT_REFERENCES> "(" (functionName=ID() /*| <_DEFAULT>*/)
 		("," (ID() | StringLiteral() /* 20110526 <STRING_LITERAL> */) )+	")"
 		|
-		name=<EXCEPTION_INIT> "(" exceptionName=<IDENTIFIER> "," ["+"|"-"] errorNumber=numericLiteral() ")"
+		name=<EXCEPTION_INIT> "(" exceptionName=<IDENTIFIER> "," ["+"|"-"] errorNumber=NumericLiteral() ")"
 		|
-		name=<INTERFACE> "(" <IDENTIFIER> "," <IDENTIFIER> "," numericLiteral() ")"
+		name=<INTERFACE> "(" <IDENTIFIER> "," <IDENTIFIER> "," NumericLiteral() ")"
 	)
 }
 

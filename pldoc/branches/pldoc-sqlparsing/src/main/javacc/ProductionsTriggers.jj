@@ -68,7 +68,7 @@ BEFORE STATEMENT IS tps_body END BEFORE STATEMENT
 
 
 tps_body:
-(statement)+
+(Statement)+
 (EXCEPTION exception_handler )*
 
 */
@@ -121,7 +121,7 @@ void triggerUnit() throws SAXException :
 		}
 
 		if (m_out != null) {
-			String packageString = globalPackageName; // Default Global Package Name 
+			String packageString = GlobalPackageName; // Default Global Package Name 
 			String schemaString = schemaName; // Default Schema 
 			final String fullname ;
 
@@ -154,16 +154,16 @@ void triggerUnit() throws SAXException :
 			if (null != schema )
 			{
 			  schemaString = schema.toString();
-			  packageString = ("_" + schemaString ) ; //Base global package name on Schema
+			  packageString = ("_" + schemaString ) ; //Base Global package name on Schema
 			}
 
 			/*
 			Previously triggers were wrapped in the _GLOBAL package,
 			which alsoe help all ScHema-level functions and procedures 
-			This was changed so that there was one global package per Schema.
+			This was changed so that there was one Global package per Schema.
 
 			In order to get these triggers in the correct schema triggers are no longer processed
-			as global productions.
+			as Global productions.
 
 			In order to minimise the downstream changes the code wraps the trigger element
 			in the best possible Global Package Name 
@@ -224,10 +224,10 @@ void triggerUnit() throws SAXException :
 	  (
 	    [
 	    <DECLARE>
-		    declarativeSection(false,name)
+		    DeclarativeSection(false,name)
 	    ]
 	    
-	    <BEGIN> (statement())* (exceptionHandler())? <END> [ID()] ";"
+	    <BEGIN> (Statement())* (ExceptionHandler())? <END> [ID()] ";"
 	  )
 	//| //<CALL> routine 
 	)
@@ -264,7 +264,7 @@ void timing_point_section() throws SAXException :
  )  
  <IS> 
  begin = <BEGIN>
- (statement())+ 
+ (Statement())+ 
  <END>  ( end = <BEFORE> | end = <AFTER> | end = <INSTEADOF> ) ( end_scope = <STATEMENT> | end_scope = <EACH> <ROW>) ";"
  )
  {
@@ -300,22 +300,22 @@ void compound_trigger_block(Token objectStart) throws SAXException :
 
   (
     //Problems making the declaration optional
-    //declarativeSection(true)
+    //DeclarativeSection(true)
     //(timing_point_section())+
     	(
                timing_point_section()|
-		pragma(true) |
+		Pragma(true) |
 		LOOKAHEAD(2)
-		exceptionDeclaration(true) |
+		ExceptionDeclaration(true) |
 		LOOKAHEAD(2)
-		subtype_definition(true) |
+		SubtypeDefinition(true) |
 		LOOKAHEAD(4)
-		variableOrConstantDeclaration(true) |
+		VariableOrConstantDeclaration(true) |
 		LOOKAHEAD(2)
-		cursorSpec(true) |
-		cursorBody(true) |
-		collectionDeclaration(true) |
-		programUnit(true,objectStart) 
+		CursorSpec(true) |
+		CursorBody(true) |
+		CollectionDeclaration(true) |
+		ProgramUnit(true,objectStart) 
 	)*
 
 
@@ -387,8 +387,8 @@ Token non_dml_event(): {}
 }
 
 /*
-When DBMS_METADATA.GET_DDL returns a trigger, it can come in 2 DDL statements.
-The first is the CREATE OR REPLACE TRIGER statement; the second is an ALTER TRIGGER statement,
+When DBMS_METADATA.GET_DDL returns a trigger, it can come in 2 DDL Statements.
+The first is the CREATE OR REPLACE TRIGER Statement; the second is an ALTER TRIGGER Statement,
 enabling or disabling the trigger.
 
 Unlike the ALTER TYPE, it does not seem to alter the structure of the object.
