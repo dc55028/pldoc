@@ -1223,6 +1223,7 @@ void SqlStatement(String initiator, String terminator) throws SAXException :
 	  )
 	}
 	catch (ParseException e) {
+          System.err.println( "SQL parsing error in " + inputPath ); 
 	  e.printStackTrace(System.err);  // print the error message
 	  skip2NextTerminator(initiator,terminator);
 	}

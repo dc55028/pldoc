@@ -88,6 +88,7 @@ public class PLSQLParser {
   	private boolean keywordsLowercase = false; //SRT 20110419
   	private String schemaName = ""; //SRT 20110418
   	private String GlobalPackageName = "_GLOBAL"; //SRT 20110418
+  	private String inputPath = "input"; 
   	
   
 	/** Sets the stream to receive output XML text.
@@ -183,6 +184,14 @@ public class PLSQLParser {
 	public void setGlobalPackageName(String GlobalPackageName)
 	{
 	  this.GlobalPackageName = GlobalPackageName;
+	}
+
+	/**
+	*Set the path (file path) or pseudo-path of the current input  
+	*/
+	public void setInputPath(String inputPath)
+	{
+	  this.inputPath = inputPath;
 	}
 
 	/**
@@ -618,6 +627,7 @@ public class PLSQLParser {
       throws ParseException, SAXException {
 
     PLSQLParser parser = new PLSQLParser(System.in);
+    parser.setInputPath("standard input") ;
     parser.input();
 
     String s;
@@ -683,7 +693,7 @@ public class PLSQLParser {
               else
               {
                 ParseException plsqlParseException =
-                new ParseException( "Error reported by Java parser: " + message);
+                new ParseException( "Error in " + inputPath + " reported by Java parser: " + message);
                 throw (ParseException) plsqlParseException.initCause( javaParseException );
                }
           }
@@ -1920,6 +1930,7 @@ void SqlStatement(String initiator, String terminator) throws SAXException :
 	  )
 	}
 	catch (ParseException e) {
+          System.err.println( "SQL parsing error in " + inputPath ); 
 	  e.printStackTrace(System.err);  // print the error message
 	  skip2NextTerminator(initiator,terminator);
 	}
@@ -8973,7 +8984,7 @@ Token equalsOldIDNewID(Token pOldID) :
 		if (pOldID.image.equals(newID.image)) {
 			return newID;
 		} else {
-			throw new ParseException("PLSQL syntax error on line "+newID.beginLine+" at column "+newID.beginColumn+"!\n"
+			throw new ParseException("PLSQL syntax error in " + inputPath + " on line "+newID.beginLine+" at column "+newID.beginColumn+"!\n"
 				+ "Found \""+newID.image+"\" but expected \""+pOldID.image+"\".");
 		}
 	}

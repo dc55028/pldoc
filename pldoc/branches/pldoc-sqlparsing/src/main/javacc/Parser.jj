@@ -88,6 +88,7 @@ public class PLSQLParser {
   	private boolean keywordsLowercase = false; //SRT 20110419
   	private String schemaName = ""; //SRT 20110418
   	private String GlobalPackageName = "_GLOBAL"; //SRT 20110418
+  	private String inputPath = "input"; 
   	
   
 	/** Sets the stream to receive output XML text.
@@ -183,6 +184,14 @@ public class PLSQLParser {
 	public void setGlobalPackageName(String GlobalPackageName)
 	{
 	  this.GlobalPackageName = GlobalPackageName;
+	}
+
+	/**
+	*Set the path (file path) or pseudo-path of the current input  
+	*/
+	public void setInputPath(String inputPath)
+	{
+	  this.inputPath = inputPath;
 	}
 
 	/**
@@ -618,6 +627,7 @@ public class PLSQLParser {
       throws ParseException, SAXException {
 
     PLSQLParser parser = new PLSQLParser(System.in);
+    parser.setInputPath("standard input") ;
     parser.input();
 
     String s;
@@ -683,7 +693,7 @@ public class PLSQLParser {
               else
               {
                 ParseException plsqlParseException =
-                new ParseException( "Error reported by Java parser: " + message);
+                new ParseException( "Error in " + inputPath + " reported by Java parser: " + message);
                 throw (ParseException) plsqlParseException.initCause( javaParseException );
                }
           }
