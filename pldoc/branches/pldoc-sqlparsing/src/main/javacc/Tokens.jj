@@ -2514,7 +2514,7 @@ Token equalsOldIDNewID(Token pOldID) :
 		if (pOldID.image.equals(newID.image)) {
 			return newID;
 		} else {
-			throw new ParseException("PLSQL syntax error on line "+newID.beginLine+" at column "+newID.beginColumn+"!\n"
+			throw new ParseException("PLSQL syntax error in " + inputPath + " on line "+newID.beginLine+" at column "+newID.beginColumn+"!\n"
 				+ "Found \""+newID.image+"\" but expected \""+pOldID.image+"\".");
 		}
 	}

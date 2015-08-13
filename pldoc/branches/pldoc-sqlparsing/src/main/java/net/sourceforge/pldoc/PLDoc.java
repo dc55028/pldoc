@@ -320,6 +320,7 @@ public class PLDoc
               xmlOut, packagename
 	      , (null == schemaName || schemaName.equals("") ) ? "" :  schemaName//SRT 20110418"" 
 	      , (null == schemaName || schemaName.equals("") ) ? "_GLOBAL" : ("_" + schemaName) //SRT 20110418
+	      , inputFileName 
           );
 
           // Test the processing result
@@ -555,11 +556,13 @@ public class PLDoc
 			     }
 
 
+                            final String pseudoPath = "pldoc://" + inputSchemaName +"/" + dbmsMetadataObjectType +"/" + rset.getString(1);
 			    final Throwable throwable = processPackage(
 				 bufferedReader 
 			      ,xmlOut, packagename
 			      ,inputSchemaName 
 			      , ("_" + inputSchemaName) // ("-" + inputSchemaName + " Schema Level" ) //SRT 20110503 //"_GLOBAL" //SRT 20110418
+			      ,pseudoPath
 			    );
 
 			  // Test the processing result
@@ -784,6 +787,7 @@ public class PLDoc
   * @param pPackageName The name of the package which is processed
   * @param pSchemaName  The name of the package owner 
   * @param pGlobalPackageName The name of the default package name to contain function, procedure and trigger PLDoc if pSchemaName is not provided
+  * @param path          Real file-path or pseudo-path (SCHEMA/TYPE/NAME) if code is scraped from a database    
   * @return             Null, if successfully processed or otherwise throwable which was encountered during processing.
   * @throws SystemExitException   Thrown if an error occurred and the user specified the halt on errors option.
   *                               All other throwables will be caught.
@@ -791,16 +795,19 @@ public class PLDoc
 
   public Throwable processPackage(BufferedReader packageSpec, XMLWriter xmlOut, String pPackageName
 		                   , String pSchemaName, String pGlobalPackageName
+				   , String path  
 				  )
       throws SystemExitException
   {
     Throwable result = null;
     SubstitutionReader input = null;
+    String fullyQualifiedName =  ( null != pSchemaName) ? pSchemaName + "." : "" +pPackageName ;
     try {
       input = new SubstitutionReader(packageSpec, settings.getDefines());
 
       // parse the input file
       PLSQLParser parser = new PLSQLParser(input);
+      parser.setInputPath(path);
 
       // start writing new XML for the input file
       XMLWriter outXML = new XMLWriter();
@@ -822,8 +829,7 @@ public class PLDoc
       if (null != pGlobalPackageName) parser.setGlobalPackageName(pGlobalPackageName); //SRT 20110418
        
 
-      
-      // run parser
+      //// run parser
       parser.input();
 
       outXML.endElement("FILE");
@@ -833,23 +839,25 @@ public class PLDoc
       // append all nodes below FILE to the main XML
       xmlOut.appendNodeChildren(outXML.getDocument().getDocumentElement());
     } catch(ParseException e) {
-      System.err.println("ParseException at package <"+pPackageName+">: "+e);
+      System.err.println("ParseException in " + path + " for " 
+	  +" object <" + fullyQualifiedName +">: "
+	  +e);
       System.err.println("Last consumed token: \"" + e.currentToken + "\"");
       e.printStackTrace(System.err);
       // exit with error only if specifically required by user
       if (settings.isExitOnError()) {
         throw new SystemExitException(e);
       }
-      System.err.println("Package " + pPackageName + " skipped.");
+      System.err.println("Object " + fullyQualifiedName + " skipped.");
       result = e;
     } catch (Throwable t) {
       // Parser can cause errors which we also want to skip
-      System.err.println("Throwable at package <"+pPackageName+">: "+t);
+      System.err.println("Throwable at object <"+fullyQualifiedName+">: "+t);
       t.printStackTrace(System.err);
       if (settings.isExitOnError()) {
         throw new SystemExitException(t);
       }
-      System.err.println("Package " + pPackageName + " skipped.");
+      System.err.println("Object " + fullyQualifiedName + " skipped.");
       result = t;
     } finally {
       try {

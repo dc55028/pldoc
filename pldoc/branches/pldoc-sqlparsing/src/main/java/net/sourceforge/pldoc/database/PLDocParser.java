@@ -67,6 +67,7 @@ public class PLDocParser {
                                               ,objectName
                                               ,schemaName
                                               ,"PUBLIC"
+                                              ,"pldoc://" + schemaName +"/" + objectType +"/" + objectName 
                                             );
       xmlWriter.endDocument();
 
@@ -112,6 +113,7 @@ public class PLDocParser {
                                               ,objectName
                                               ,schemaName
                                               ,"PUBLIC"
+                                              ,"pldoc://" + schemaName +"/" + objectType +"/" + objectName 
                                             );
       xmlWriter.endDocument();
 
