@@ -801,7 +801,11 @@ public class PLDoc
   {
     Throwable result = null;
     SubstitutionReader input = null;
-    String fullyQualifiedName =  ( null != pSchemaName) ? pSchemaName + "." : "" +pPackageName ;
+    String fullyQualifiedName =  ( ( null != pSchemaName && ! "".equals(pSchemaName) ) ? pSchemaName + "." : "" )  + pPackageName  ;
+    String parsingReference = (null != fullyQualifiedName && ! "".equals(fullyQualifiedName) ) 
+	    ?  "Object " + fullyQualifiedName  
+	    : "File "+ path 
+	    ; 
     try {
       input = new SubstitutionReader(packageSpec, settings.getDefines());
 
@@ -840,7 +844,7 @@ public class PLDoc
       xmlOut.appendNodeChildren(outXML.getDocument().getDocumentElement());
     } catch(ParseException e) {
       System.err.println("ParseException in " + path + " for " 
-	  +" object <" + fullyQualifiedName +">: "
+	  +parsingReference + ": "
 	  +e);
       System.err.println("Last consumed token: \"" + e.currentToken + "\"");
       e.printStackTrace(System.err);
@@ -848,16 +852,16 @@ public class PLDoc
       if (settings.isExitOnError()) {
         throw new SystemExitException(e);
       }
-      System.err.println("Object " + fullyQualifiedName + " skipped.");
+      System.err.println(parsingReference + " skipped.");
       result = e;
     } catch (Throwable t) {
       // Parser can cause errors which we also want to skip
-      System.err.println("Throwable at object <"+fullyQualifiedName+">: "+t);
+      System.err.println("Throwable at " +parsingReference +": "+t);
       t.printStackTrace(System.err);
       if (settings.isExitOnError()) {
         throw new SystemExitException(t);
       }
-      System.err.println("Object " + fullyQualifiedName + " skipped.");
+      System.err.println(parsingReference + " skipped.");
       result = t;
     } finally {
       try {
