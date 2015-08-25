@@ -1900,7 +1900,7 @@ String readPastNextOccurrence(String target) :
 void SqlStatement(String initiator, String terminator) throws SAXException :
 {}
 {
-	(<SELECT>|<UPDATE>|<INSERT>|<DELETE>|<COMMIT>|<ROLLBACK>|<SAVEPOINT>|<EXECUTE>|<SET><TRANSACTION>|<LOCK><TABLE>|<MERGE>|<WITH>)
+	//(<SELECT>|<UPDATE>|<INSERT>|<DELETE>|<COMMIT>|<ROLLBACK>|<SAVEPOINT>|<EXECUTE>|<SET><TRANSACTION>|<LOCK><TABLE>|<MERGE>|<WITH>)
 	//  skip2NextTerminator(initiator,terminator)
       try {
     
@@ -2369,7 +2369,7 @@ void CursorUnit(boolean isPackageLevel) throws SAXException :
 			m_out.endElement(purifyKeyword(start.toString()));
 		}
 	}
-	[<IS> ("(")* SqlStatement(null,";")] ";"
+	[<IS> SqlStatement(null,";")] ";"
 }
 
 void CursorSpec(boolean isPackageLevel) throws SAXException : {}
@@ -4485,6 +4485,7 @@ void LockTableStatement()   throws SAXException :
 void SqlSelectStatement()   throws SAXException :
 {}
 {
+{System.err.println("SqlSelectStatement: attempting SqlSelectStatement()"); }
 	
 	SqlSubquery()
 	[ SqlForUpdateClause() ]
@@ -4497,6 +4498,7 @@ void SqlSelectStatement()   throws SAXException :
 void SqlDeleteStatement()   throws SAXException :
 {}
 {
+{System.err.println("SqlDeleteStatement: attempting SqlDeleteStatement()"); }
 	<DELETE> [ <FROM> ] 
 	(
 		<ONLY> "(" SqlDmlTableExpression() ")"
@@ -4521,9 +4523,10 @@ void SqlDeleteStatement()   throws SAXException :
 void SqlDmlTableExpression()   throws SAXException :
 {}
 {
-		QualifiedName() 
+{System.err.println("SqlDMlTableExpression: attempting SqlDMlTableExpression()"); }
+		<TABLE> "(" SqlSubquery() ")"   
+		| QualifiedName() [ "@" QualifiedName() /* DBLink Name */ ]  
 		| "(" SqlSubquery() ")"
-		| <TABLE> "(" SqlSubquery() ")"   
 
 }
 
@@ -4531,7 +4534,8 @@ void SqlDmlTableExpression()   throws SAXException :
 void SqlMergeStatement()   throws SAXException :
 {}
 {
-	<MERGE> <INTO> QualifiedName() //Table NAme
+{System.err.println("SqlMergeStatement: attempting SqlMergeStatement()"); }
+	<MERGE> <INTO> QualifiedName() //Table Name
 	<USING>
 	<ON> "(" SqlCondition() ")"
 	// Matched Clause
@@ -4546,7 +4550,7 @@ void SqlMergeStatement()   throws SAXException :
 		
 	)
 	(
-		"'"
+		","
 		<_DEFAULT>
 		|
 		SqlExpression() 
@@ -4572,10 +4576,12 @@ void SqlMergeStatement()   throws SAXException :
 			
 		)
 		(
-			"'"
-			<_DEFAULT>
-			|
-			SqlExpression() 
+			","
+			(
+			  <_DEFAULT>
+			  |
+			  SqlExpression() 
+			)
 		)*
 	")"
 	[ SqlWhereClause() ]
@@ -4609,6 +4615,7 @@ void SqlErrorLoggingClause()   throws SAXException :
 void SqlInsertStatement()   throws SAXException :
 {}
 {
+{System.err.println("SqlInsertStatement: attempting SqlInsertStatement()"); }
 
 	<INSERT> 
 	(
@@ -4687,6 +4694,7 @@ void SqlInsertStatement()   throws SAXException :
 void SqlInsertIntoClause()   throws SAXException :
 {}
 {
+{System.err.println("SqlInsertClause: attempting SqlInsertClause()"); }
 
 	//INTO Table Clause 
 	<INTO>
@@ -4708,19 +4716,21 @@ void SqlInsertIntoClause()   throws SAXException :
 void SqlValuesClause()   throws SAXException :
 {}
 {
+{System.err.println("SqlValuesClause: attempting SqlValuesClause()"); }
 	<VALUES> 
 	"("
 		(
 			<_DEFAULT>
 			|
 			SqlExpression() 
-			
 		)
 		(
-			"'"
-			<_DEFAULT>
-			|
-			SqlExpression() 
+			","
+			(
+			  <_DEFAULT>
+			  |
+			  SqlExpression() 
+			)
 		)*
 	")"
 	
@@ -4732,18 +4742,30 @@ void SqlValuesClause()   throws SAXException :
 void SqlUpdateStatement()   throws SAXException :
 {}
 {
+{System.err.println("SqlUpdateStatement: attempting SqlUpdateStatement()"); }
 	<UPDATE> 
 	(
-		QualifiedName() 
+		QualifiedName()  [ "@" QualifiedName() /* DBLink Name */ ]  
 		| "(" SqlSubquery() ")"
 		| <TABLE> "(" SqlSubquery() ")"   
 	) 
-	[ UnqualifiedID() ] // alias	
-	<SET> 
+        (
+	   <SET> 
+         |
+	   (
+  {System.err.println("SqlUpdateStatement: attempting alias keyword"); }
+	      UnqualifiedID()  // alias	
+  {System.err.println("SqlUpdateStatement: attempting SET keyword"); }
+	      <SET> 
+  {System.err.println("SqlUpdateStatement: attempting GOT keyword"); }
+	   )
+        )
 	( 
+{System.err.println("SqlUpdateStatement: attempting column assignments"); }
           SqlColumnAssignment() ( "," SqlColumnAssignment()  )*
 	)
 	[
+{System.err.println("SqlUpdateStatement: attempting WHERE clause"); }
 		<WHERE> 
 		( <CURRENT> <OF> UnqualifiedID() //Cursor Name 
 		| SqlCondition()
@@ -4760,6 +4782,7 @@ void SqlUpdateStatement()   throws SAXException :
 void SqlColumnAssignment()   throws SAXException :
 {}
 {
+{System.err.println("SqlColumnAssignment: attempting SqlColumnAssignment()"); }
 
 	// Multi-column assigment 
 	(
@@ -4812,6 +4835,8 @@ void SqlForUpdateClause()   throws SAXException :
 void SqlSubquery()   throws SAXException :
 {}
 {
+ {System.err.println("SqlSubquery: attempting SqlSubQuery() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+
 	(
 	/*
 	SqlQueryBlock()
@@ -4828,14 +4853,23 @@ void SqlSubquery()   throws SAXException :
 		)*
 	  )
         */
-	  ( "(" SqlSubquery() ")" )
+	  ( 
+	     {System.err.println("SqlSubquery: attempting BRACKETED SqlSubQuery() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+            "(" SqlSubquery() ")" 
+	     {System.err.println("SqlSubquery: completed BRACKETED SqlSubQuery() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+          )
           |
           ( 
+		{System.err.println("SqlSubquery: attempting first SqlQueryBlock() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 		SqlQueryBlock()
+		{System.err.println("SqlSubquery: completed first SqlQueryBlock() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 		(
-			<UNION> [ <ALL> ]
-			| <INTERSECT>
-			| <MINUS>
+		  {System.err.println("SqlSubquery: attempting UNION/MINUS/INTESECTclause line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+		  (
+		    <UNION> [ <ALL> ]
+		    | <INTERSECT>
+		    | <MINUS>
+		  )
 		//SqlSubquery()
 		SqlSelectClause()
 		)*
@@ -4843,6 +4877,7 @@ void SqlSubquery()   throws SAXException :
 	)
 	[ SqlOrderByClause() ]
 	SqlRowLimitingClause()
+ {System.err.println("SqlSubquery: completed SqlSubQuery() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 
 }
 
@@ -4850,6 +4885,7 @@ void SqlSubquery()   throws SAXException :
 void SqlQueryBlock()   throws SAXException :
 {}
 {
+{System.err.println("SqlQueryBlock: attempting WITH "); }
 	[
 	  SqlWithClause()
 	]
@@ -4871,12 +4907,14 @@ void SqlQueryBlock()   throws SAXException :
 	SqlModelClause() 
 	*/
 
+{System.err.println("SqlQueryBlock: completed SQLQueryBlock()"); }
 }
 
 
 void SqlSelectClause()   throws SAXException :
 {}
 {
+  {System.err.println("SqlSelectClause: attempting <SELECT> ..."); }
 	<SELECT>
 	[
 		(
@@ -4885,12 +4923,17 @@ void SqlSelectClause()   throws SAXException :
 		)
 	]
 	SqlSelectList()
+	[ <INTO> SqlTargetList() ]
+  {System.err.println("SqlSelectClause: attempting <FROM> ..."); }
 	<FROM>
 	SqlTableClause() ( ","  SqlTableClause() )*
+  {System.err.println("SqlSelectClause: after SqlTableClause() list "); }
 	[ SqlWhereClause()  ]
 	[ SqlHierarchicalQueryClause() ]
 	[ SqlGroupByClause() ]
 	[ SqlModelClause() ]
+
+  {System.err.println("SqlSelectClause: completed SqlSelectClause() list "); }
 
 }
 
@@ -4899,6 +4942,7 @@ void SqlSelectClause()   throws SAXException :
 void SqlTableClause()   throws SAXException :
 {}
 {
+{System.err.println("SqlTableClause: attempting SqlTableClause()"); }
 	/*
 	"(" SqlJoinClause() ")"
 	|  SqlTableReference()
@@ -4909,6 +4953,7 @@ void SqlTableClause()   throws SAXException :
 	"(" SqlTableReference() SqlJoinClause() ")"
 	|  SqlTableReference() [ SqlJoinClause() ]
 
+{System.err.println("SqlTableClause: completed SqlTableClause()"); }
 }
 
 void SqlWithClause()   throws SAXException :
@@ -4916,12 +4961,12 @@ void SqlWithClause()   throws SAXException :
 	Token queryStart = null ;
 }
 {
+{System.err.println("SqlWithClause: attempting SqlWithClause()"); }
 
       queryStart = <WITH> 
-	//@TODO PLSQL Declarations - 12c
 	(
 	SqlPLSQLDeclarations(queryStart) ( SqlPLSQLDeclarations(queryStart) )*
-	| SqlSubqueryRefactoringClause()
+	| SqlSubqueryFactoringClause()
 	)+
 
 }
@@ -4942,20 +4987,23 @@ void SqlPLSQLDeclarations(Token queryStart)   throws SAXException :
 }
 
 
-void SqlSubqueryRefactoringClause()   throws SAXException :
+void SqlSubqueryFactoringClause()   throws SAXException :
 {}
 {
+{System.err.println("SqlSubqueryFactoringClause: attempting SqlQueryRefactoringClause()"); }
       UnqualifiedID() //Query name) 
-	"("
-		//Column Alias List 
-		UnqualifiedID() ( "," UnqualifiedID() )* 
-	")"
+	 [
+	  "("
+		  //Column Alias List 
+		  UnqualifiedID() ( "," UnqualifiedID() )* 
+	  ")"
+	 ]
 	<AS>
 	"("
-		SqlSubquery()
-		SqlSearchClause()
-		SqlCycleClause()
+	  SqlSubquery()
 	")"
+	[ SqlSearchClause() ]
+	[ SqlCycleClause() ]
 	
 	
 
@@ -4986,14 +5034,49 @@ void SqlCycleClause()   throws SAXException :
 
 
 
+void SqlTargetList()   throws SAXException :
+{}
+{
+{System.err.println("SqlTargetList: attempting SqlTargetList()"); }
+	({System.err.println("SqlTargetList: attempting first SqlExpression"); }
+          Name() 
+	)
+	(
+	  ({System.err.println("SqlTargetList: attempting repeating SqlExpression"); }
+	    "," Name() 
+	  )
+	)*
+
+}
+
+
 void SqlSelectList()   throws SAXException :
 {}
 {
-	(
-	[ QualifiedID() "." ]  "*"
-	| SqlExpression() [ [ <AS> ] UnqualifiedID() ] //ColumnAlias
+{System.err.println("SqlSelectList: attempting SqlSelectList()"); }
+	({System.err.println("SqlSelectList: attempting first SqlItem"); }
+	  "*"
+           | SqlSelectItem() 
 	)
+	(
+	  ({System.err.println("SqlSelectList: attempting repeating SqlItem"); }
+	    "," SqlSelectItem() 
+	  )
+	)*
 
+}
+
+
+void SqlSelectItem() throws SAXException :
+{}
+{
+{System.err.println("SqlSelectItem: attempting SqlSelectItem()"); }
+  ({System.err.println("SqlSelectItem: attempting SqlSelectItem(QualifiedID())"); } 
+    QualifiedName() [ "." "*" ] 
+  )
+  |  ({System.err.println("SqlSelectItem: attempting SqlSelectItem(SqlExpression())"); }  
+       SqlExpression() [ [ <AS> ] UnqualifiedID() ] //ColumnAlias )
+     )
 }
 
 
@@ -5066,7 +5149,7 @@ void SqlQueryTableExpression()   throws SAXException :
 	|  SqlTableCollectionExpression()
 	|  ( QualifiedName() 
 		[ 
-			(" @" QualifiedID() /* DBLink Name */ )
+			( "@" QualifiedName() /* DBLink Name */ )
 			| 
 			SqlPartitionExtensionClause() 
 		] 
@@ -5231,6 +5314,7 @@ void SqlTableCollectionExpression()   throws SAXException :
 {
 
 	<TABLE> "(" SqlCollectionExpression() ")" [ "(" "+" ")" ]
+	//Possibly @TODO <CAST> "(" <MULTISET> "(" SqlCollectionExpression() ")" ")" 
 
 }
 
@@ -5268,6 +5352,15 @@ void SqlJoinClause()   throws SAXException :
 		//INNER CROSS JOIN CLAUSE 
 		(
 			(
+				(
+					( <CROSS> )
+					|
+					( <NATURAL> [ <INNER> ] )
+				)
+				<JOIN> SqlTableReference() 
+			)
+			|
+			(
 				[ <INNER> ] <JOIN> SqlTableReference() 
 				(
 					( <ON> SqlCondition() )
@@ -5278,15 +5371,6 @@ void SqlJoinClause()   throws SAXException :
 						")"
 					)
 				)
-			)
-			|
-			(
-				(
-					( <CROSS> )
-					|
-					( <NATURAL> [ <INNER> ] )
-				)
-				<JOIN> SqlTableReference() 
 			)
 		)
 
@@ -5402,7 +5486,7 @@ void SqlGroupByClause()   throws SAXException :
 		|SqlExpression()
 	)
 	( 
-		"'" 
+		"," 
 		(
 		SqlRollupCubeClause()
 		|SqlGroupingSetsClause()
@@ -5436,7 +5520,7 @@ void SqlGroupingSetsClause()   throws SAXException :
 		|SqlGroupingExpressionList()
 	)
 	( 
-		"'" 
+		"," 
 		(
 		SqlRollupCubeClause()
 		|SqlGroupingExpressionList()
@@ -5535,19 +5619,19 @@ void SqlModelColumnClauses()   throws SAXException :
 	<PARTITION> <BY> 
 	"("
 		( SqlExpression() [ QualifiedID() ]  )
-		( "'"  SqlExpression() [ QualifiedID() ] )*
+		( ","  SqlExpression() [ QualifiedID() ] )*
 	")"
 
 	<DIMENSION> <BY> 
 	"("
 		( SqlExpression() [ QualifiedID() ]  )
-		( "'"  SqlExpression() [ QualifiedID() ] )*
+		( ","  SqlExpression() [ QualifiedID() ] )*
 	")"
 
 	<MEASURES> 
 	"("
 		( SqlExpression() [ QualifiedID() ]  )
-		( "'"  SqlExpression() [ QualifiedID() ] )*
+		( ","  SqlExpression() [ QualifiedID() ] )*
 	")"
 
 }
@@ -5693,7 +5777,7 @@ void SqlOrderByClause()   throws SAXException :
 void SqlColumnOrderingClause()   throws SAXException :
 {}
 {
-	UnqualifiedID() // Column Alias 	
+	Expression() // Column Alias 	
 	[ <ASC> | <DESC> ]
 	[ <NULLS>  [ <FIRST> | <LAST> ] ]
 
@@ -5989,6 +6073,7 @@ AnalyticFunction "(" arguments ")"
 void SqlAnalyticFunction()   throws SAXException :
 {}
 {
+  {System.err.println("SqlAnalyticFunctio: attempting SqlAnalyticFunctio()"); }
 	PrimaryExpression() 
 	<OVER> "(" 
 			[ SqlQueryPartitionClause() ]
@@ -6001,6 +6086,7 @@ void SqlAnalyticFunction()   throws SAXException :
 void SqlWindowingClause()   throws SAXException :
 {}
 {
+  {System.err.println("SqlWindowingClause: attempting SqlWindowingClause()"); }
 	(
 		<ROWS> | <RANGE> 
 	)
@@ -6035,6 +6121,7 @@ void SqlWindowingClause()   throws SAXException :
 void SqlAggregateFunction()   throws SAXException :
 {}
 {
+  {System.err.println("SqlAggregateFunction: attempting SqlAggregateFunction()"); }
 	PrimaryExpression() 
 
 }
@@ -6046,10 +6133,17 @@ void SqlExpression()   throws SAXException :
 { 
 }
 {
+  {System.err.println("SqlExpression: attempting SqlExpression()"); }
 	// Need syntactic lookahead to discriminate between SqlColumnAssignment and a procedure call
 	(
-  	LOOKAHEAD( PrimaryExpression() "=" ) ( SqlColumnAssignment())   
-	| (ConditionalOrExpression() )    
+  	LOOKAHEAD( PrimaryExpression() "=" ) ( 
+  {System.err.println("SqlExpression: attempting SqlColumnAssignment()"); }
+              SqlColumnAssignment() 
+               )   
+	| (
+  {System.err.println("SqlExpression: attempting ConditionalOrExpression()"); }
+            ConditionalOrExpression() 
+          )    
 	)
  
 }

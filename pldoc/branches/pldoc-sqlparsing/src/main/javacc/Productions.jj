@@ -1193,7 +1193,7 @@ String readPastNextOccurrence(String target) :
 void SqlStatement(String initiator, String terminator) throws SAXException :
 {}
 {
-	(<SELECT>|<UPDATE>|<INSERT>|<DELETE>|<COMMIT>|<ROLLBACK>|<SAVEPOINT>|<EXECUTE>|<SET><TRANSACTION>|<LOCK><TABLE>|<MERGE>|<WITH>)
+	//(<SELECT>|<UPDATE>|<INSERT>|<DELETE>|<COMMIT>|<ROLLBACK>|<SAVEPOINT>|<EXECUTE>|<SET><TRANSACTION>|<LOCK><TABLE>|<MERGE>|<WITH>)
 	//  skip2NextTerminator(initiator,terminator)
       try {
     
@@ -1662,7 +1662,7 @@ void CursorUnit(boolean isPackageLevel) throws SAXException :
 			m_out.endElement(purifyKeyword(start.toString()));
 		}
 	}
-	[<IS> ("(")* SqlStatement(null,";")] ";"
+	[<IS> SqlStatement(null,";")] ";"
 }
 
 void CursorSpec(boolean isPackageLevel) throws SAXException : {}
