@@ -1199,7 +1199,7 @@ void SqlStatement(String initiator, String terminator) throws SAXException :
     
 	  (
 	   // <SELECT>|<WITH>
-	    SqlSelectStatement()
+	    SqlSelectStatement() 
 	   |//<UPDATE>
 	    SqlUpdateStatement()
 	   |//<DELETE>
@@ -1662,7 +1662,9 @@ void CursorUnit(boolean isPackageLevel) throws SAXException :
 			m_out.endElement(purifyKeyword(start.toString()));
 		}
 	}
-	[<IS> SqlStatement(null,";")] ";"
+	[<IS> SqlSelectStatement()
+	{System.err.println("CursorUnit: completed SqlSelectStatement()"); }
+        ] ";"
 }
 
 void CursorSpec(boolean isPackageLevel) throws SAXException : {}
@@ -2095,10 +2097,10 @@ String PrimaryPrefix() :
 | LOOKAHEAD(ObjectExpression() ) ( string = ObjectExpression() ) { sb.append(string) ; } //SRT 20110604
 //| LOOKAHEAD(LikeExpression()) ( string = LikeExpression() ) { sb.append(string) ; } //SRT 20110604 
 | ( string =Name() ) { sb.append(string) ; } 
-| LOOKAHEAD(<SELECT>) (<SELECT>) {sb.append("SELECT ..."); }  skip2NextTerminator(null,";")  
-| LOOKAHEAD(("(")+ <SELECT>) ("(") {sb.append("(SELECT ..."); }  skip2NextTerminator("(",")") ")"   
-| LOOKAHEAD(<WITH>) (<WITH>) {sb.append("WITH ..."); }  skip2NextTerminator(null,";")  
-| LOOKAHEAD(("(")+ <WITH>) ("(") {sb.append("(WITH ..."); }  skip2NextTerminator("(",")") ")"   
+//SRT @TODO | LOOKAHEAD(<SELECT>) (<SELECT>) {sb.append("SELECT ..."); }  skip2NextTerminator(null,";")  
+//SRT @TODO | LOOKAHEAD(("(")+ <SELECT>) ("(") {sb.append("(SELECT ..."); }  skip2NextTerminator("(",")") ")"   
+//SRT @TODO | LOOKAHEAD(<WITH>) (<WITH>) {sb.append("WITH ..."); }  skip2NextTerminator(null,";")  
+//SRT @TODO | LOOKAHEAD(("(")+ <WITH>) ("(") {sb.append("(WITH ..."); }  skip2NextTerminator("(",")") ")"   
 |
   ("(" ) {sb.append("("); } 
   (string = Expression() ) {sb.append(string); } 
