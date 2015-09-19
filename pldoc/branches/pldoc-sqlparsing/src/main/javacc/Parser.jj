@@ -702,6 +702,44 @@ public class PLSQLParser {
   }
 
 
+  /** Is this string valid for an alias name  
+   *
+   *<p>Assume that if the string is one of the keywords associated with SQL statements ( e.g. WHERE, JOIN, GROUP),
+   * then the string is not a valid alias.    
+   *
+   *@param aliasCandidate 
+   */
+  private boolean isValidAlias (String aliasCandidate )
+  {
+	  String alias = aliasCandidate.toUpperCase() ;
+	  boolean isInvalid = 
+	  (
+	     ";".equals(alias) 
+	  || ")".equals(alias) 
+	  || ",".equals(alias) 
+	  || "INNER".equals(alias) 
+	  || "OUTER".equals(alias) 
+	  || "JOIN".equals(alias) 
+	  || "FULL".equals(alias) 
+	  || "CROSS".equals(alias) 
+	  || "NATURAL".equals(alias) 
+	  || "WHERE".equals(alias) 
+	  || "START".equals(alias) 
+	  || "CONNECT".equals(alias) 
+	  || "GROUP".equals(alias) 
+	  || "ORDER".equals(alias) 
+	  || "UNION".equals(alias) 
+	  || "MINUS".equals(alias) 
+	  || "INTERSECT".equals(alias) 
+	    );
+
+    System.err.println("isValidAlias: valid Alias candidate " + aliasCandidate + "/" + alias + " ? = " + !isInvalid );
+	  
+    return ! isInvalid ;
+   
+  } 
+
 }
+
 
 PARSER_END(PLSQLParser)
