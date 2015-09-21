@@ -1,7 +1,7 @@
 CREATE OR REPLACE 
 PACKAGE BODY pkg_analytic
 AS
-	PROCEDURE analytic
+	PROCEDURE analytic IS 
 
 	l_empno emp.empno%TYPE;
 	l_deptno emp.deptno%TYPE;

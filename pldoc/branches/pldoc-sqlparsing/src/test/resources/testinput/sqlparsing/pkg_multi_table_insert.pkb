@@ -33,6 +33,7 @@ INSERT ALL
   WHERE  ROWNUM <= 50
   ;
 
+/* Apparently not allowed with conditional clause
 --INSERT FIRST
 
 INSERT FIRST
@@ -62,7 +63,7 @@ INSERT FIRST
   WHERE  ROWNUM <= 50
   ;
 
-
+*/
 
 --INSERT ALL
 

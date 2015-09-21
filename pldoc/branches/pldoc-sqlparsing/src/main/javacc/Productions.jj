@@ -1313,7 +1313,7 @@ void Statement() throws SAXException :
 		( <ELSIF> Expression() <THEN> (Statement())+ )*
 		( <ELSE> (Statement())+ )*
 		<END> <IF> ";"
-	| <FOR> ID() <IN> [<REVERSE>] Expression()[".."Expression()] <LOOP> (Statement())+ <END> <LOOP> [<IDENTIFIER>] ";"
+	| <FOR> ID() <IN> ( ( "(" SqlSubquery() ")" ) | ( [<REVERSE>] Expression()[".."Expression()] ) ) <LOOP> (Statement())+ <END> <LOOP> [<IDENTIFIER>] ";"
 	| <FORALL> ID() <IN> 
 			    (
 	                     ( <INDICES> | <VALUES> ) <OF> Expression() // Add support for sparse collections
