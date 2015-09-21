@@ -731,6 +731,8 @@ public class PLSQLParser {
 	  || "UNION".equals(alias) 
 	  || "MINUS".equals(alias) 
 	  || "INTERSECT".equals(alias) 
+	  || "RETURN".equals(alias) 
+	  || "RETURNING".equals(alias) 
 	    );
 
     System.err.println("isValidAlias: valid Alias candidate " + aliasCandidate + "/" + alias + " ? = " + !isInvalid );

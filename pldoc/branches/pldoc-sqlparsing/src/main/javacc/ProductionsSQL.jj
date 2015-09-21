@@ -255,13 +255,15 @@ void SqlInsertStatement()   throws SAXException :
 				( 
 				    <WHEN> SqlCondition() <THEN> 
 
-				    //INSERT INTO Clause 
-				    SqlInsertIntoClause() 
-				    
-				    //Values Clause 
-				    SqlValuesClause() 
+                                    (
+				      //INSERT INTO Clause 
+				      SqlInsertIntoClause() 
+				      
+				      //Values Clause 
+				      SqlValuesClause() 
 
-				    [ SqlErrorLoggingClause() ]
+				      [ SqlErrorLoggingClause() ]
+                                    )+
 				)+
 
 				<ELSE> 
@@ -278,11 +280,14 @@ void SqlInsertStatement()   throws SAXException :
 			SqlSubquery() 
 		)
 	)
+  {System.err.println("SqlInsertStatement: before SqlReturningClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 
 	[ SqlReturningClause() ]
+  {System.err.println("SqlInsertStatement: after SqlReturningClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 
 	[ SqlErrorLoggingClause() ]
 
+  {System.err.println("SqlInsertStatement: after SqlErrorLoggingingClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 }
 
 
@@ -432,7 +437,7 @@ void SqlForUpdateClause()   throws SAXException :
 
 //http://docs.oracle.com/database/121/PLSQLRF/Statements_10002.htm#i2126435
 void SqlSubquery()   throws SAXException :
-{}
+{ Token start = token ; }
 {
  {System.err.println("SqlSubquery: attempting SqlSubQuery() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 
@@ -505,49 +510,20 @@ void SqlSubquery()   throws SAXException :
 	| "(" Subquery() ")"
         */
 
-/*
-	  ( 
-	     {System.err.println("SqlSubquery: attempting BRACKETED SqlSubQuery() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
-            "(" SqlSubquery() ")" 
-	     {System.err.println("SqlSubquery: completed BRACKETED SqlSubQuery() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
-          )
-          |
-          LOOKAHEAD( SqlQueryBlock() ( <UNION> [ <ALL> ] | <INTERSECT> | <MINUS>) )
-          ( 
-		{System.err.println("SqlSubquery: attempting first SqlQueryBlock() of SET query at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
-		SqlQueryBlock()
-		{System.err.println("SqlSubquery: completed first SqlQueryBlock() SET query at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
-		(
-		  {System.err.println("SqlSubquery: attempting UNION/MINUS/INTERSECTclause line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
-		  (
-		    <UNION> [ <ALL> ]
-		    | <INTERSECT>
-		    | <MINUS>
-		  )
-		//SqlSubquery()
-		SqlSelectClause()
-		)+
-		  {System.err.println("SqlSubquery: completed UNION/MINUS/INTERSECT clauses line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
-	  )
-          |
-          ( 
-		{System.err.println("SqlSubquery: attempting lone SqlQueryBlock() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
-		SqlQueryBlock()
-		{System.err.println("SqlSubquery: completed lone SqlQueryBlock() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
-	  )
-	)
-SRT */
 
-
+	{ start = token ; }
         SqlSubqueryClause()
+	{System.err.println("SqlSubquery: after first SqlSubqueryClause() at line "+start.beginLine+", column "+start.beginColumn+" - \""+start.image+"\" "); }
 
 	(
+	{System.err.println("SqlSubquery: before SET SqlSubqueryClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 	  (
 	    <UNION> [ <ALL> ]
 	    | <INTERSECT>
 	    | <MINUS>
 	  )
 	  SqlSubqueryClause()
+	{System.err.println("SqlSubquery: after SET SqlSubqueryClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 	)*
 
 	//SRT @TODO {System.err.println("SqlSubquery: attempting optional SqlOrderByClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
@@ -570,52 +546,57 @@ SRT */
 	  [ <ROW> | <ROWS> ] 
 	  [ <ONLY> | <WITH> <TIES> ]
 	]
- {System.err.println("SqlSubquery: completed SqlSubQuery() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+ {System.err.println("SqlSubquery: completed SqlSubQuery() starting at at line "+start.beginLine+", column "+start.beginColumn+" - \""+start.image+"\" " + " and ending at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+	
 
 }
 
 
 void SqlSubqueryClause()   throws SAXException :
-{}
+{Token start = token ; }
 {
 {System.err.println("SqlSubqueryClause: "); }
 
+        ( "(" SqlSubquery() ")" )
+	| 
 	SqlQueryBlock()
-	| "(" SqlSubquery() ")"
-{System.err.println("Completed SqlSubqueryClause: "); }
+ {System.err.println("SqlSubqueryClause: completed SqlSubQueryClause() starting at at line "+start.beginLine+", column "+start.beginColumn+" - \""+start.image+"\" " + " and ending at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 }
 
 void SqlQueryBlock()   throws SAXException :
-{}
+{Token start = token ; }
 {
 {System.err.println("SqlQueryBlock: attempting WITH "); }
-	[
+	(
 	  SqlWithClause()
-	]
 
-	SqlSelectClause()
-	/* @TODO to circumvent Left recursion  
-	<SELECT>
-	[
-		((<DISTINCT>|<UNIQUE>)
-                 | <ALL>
-                )
-	]
-	SqlSelectList()
-	<FROM>
-	SqlTableClause() ( ","  SqlTableClause() )*
-	SqlWhereClause() 
-	SqlHierarchicalQueryClause() 
-	SqlGroupByClause() 
-	SqlModelClause() 
-	*/
+	  (
+	    ( 
+	       {System.err.println("SqlQueryBlock: attempting Bracketed SqlSubquery() after WITH clause starting at at line "+start.beginLine+", column "+start.beginColumn+" - \""+start.image+"\" " + " and ending at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+               "(" SqlSubquery() ")" 
+	       {System.err.println("SqlQueryBlock: completed Bracketed SqlSubquery() after WITH clause starting at at line "+start.beginLine+", column "+start.beginColumn+" - \""+start.image+"\" " + " and ending at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+            )
+	    |
+	    (
+	       {System.err.println("SqlQueryBlock: attempting SelectClause() after WITH clause starting at at line "+start.beginLine+", column "+start.beginColumn+" - \""+start.image+"\" " + " and ending at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+              SqlSelectClause() 
+	       {System.err.println("SqlQueryBlock: completed SelectClause() after WITH clause starting at at line "+start.beginLine+", column "+start.beginColumn+" - \""+start.image+"\" " + " and ending at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+            )
+	  )
+	 {System.err.println("SqlQueryBlock: completed SqlQueryBlock() WITH Query starting at at line "+start.beginLine+", column "+start.beginColumn+" - \""+start.image+"\" " + " and ending at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+	)
+	|
+	(
+	  {System.err.println("SqlQueryBlock: attempting SqlQueryBlock().SqlSelectClause() starting at at line "+start.beginLine+", column "+start.beginColumn+" - \""+start.image+"\" " + " and ending at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+	  SqlSelectClause()
+	 {System.err.println("SqlQueryBlock: completed SqlQueryBlock().SqlSelectClause() starting at at line "+start.beginLine+", column "+start.beginColumn+" - \""+start.image+"\" " + " and ending at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+	)
 
-{System.err.println("SqlQueryBlock: completed SQLQueryBlock() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 }
 
 
 void SqlSelectClause()   throws SAXException :
-{}
+{Token start = token ; }
 {
   {System.err.println("SqlSelectClause: attempting <SELECT> ... at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 	<SELECT>
@@ -641,7 +622,7 @@ void SqlSelectClause()   throws SAXException :
 	[ SqlModelClause() ]
   {System.err.println("SqlSelectClause: after SqlModelClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 
-  {System.err.println("SqlSelectClause: completed SqlSelectClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+  {System.err.println("SqlSelectClause: completed SqlSelectClause() starting at at line "+start.beginLine+", column "+start.beginColumn+" - \""+start.image+"\" " + " and ending at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 
 }
 
@@ -667,19 +648,19 @@ void SqlTableClause()   throws SAXException :
 
 void SqlWithClause()   throws SAXException :
 {
-	Token queryStart = null ;
+	Token start = token ;
 }
 {
 {System.err.println("SqlWithClause: attempting SqlWithClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 
-      queryStart = <WITH> 
+        start = <WITH> 
 	//@TODO PLSQL Declarations - 12c
 	(
-	  SqlPLSQLDeclarations(queryStart) ( SqlPLSQLDeclarations(queryStart) )*
+	  SqlPLSQLDeclarations(start) ( SqlPLSQLDeclarations(start) )*
 	  | SqlSubqueryFactoringClause()
 	)+
 
-{System.err.println("SqlWithClause: completed SqlWithClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+  {System.err.println("SqlWithClause: completed SqlWithClause() starting at at line "+start.beginLine+", column "+start.beginColumn+" - \""+start.image+"\" " + " and ending at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 }
 
 
@@ -1203,8 +1184,10 @@ void SqlWhereClause()   throws SAXException :
 {}
 {
   {System.err.println("SqlWhereClause: attempting SqlWhereClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+	(
 	<WHERE>
 	SqlCondition()
+	)
 
   {System.err.println("SqlWhereClause: after SqlWhereClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 
@@ -1214,15 +1197,17 @@ void SqlWhereClause()   throws SAXException :
 void SqlHierarchicalQueryClause()   throws SAXException :
 {}
 {
+  {System.err.println("SqlHierarchicalQueryClause: attempting SqlHierarchicalQueryClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 	(
 		<CONNECT> <BY> [ <NOCYCLE> ] SqlCondition() 
 		[ <START> <WITH> SqlCondition() ]
 	)
 	|
 	(
-		[ <START> <WITH> SqlCondition() <CONNECT> <BY> [ <NOCYCLE> ] ] SqlCondition()
+		<START> <WITH> SqlCondition() <CONNECT> <BY> [ <NOCYCLE> ] SqlCondition()
 	)
 	
+  {System.err.println("SqlHierarchicalQueryClause: after SqlHierarchicalQueryClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 
 }
 
@@ -1230,6 +1215,7 @@ void SqlHierarchicalQueryClause()   throws SAXException :
 void SqlGroupByClause()   throws SAXException :
 {}
 {
+  {System.err.println("SqlGroupByClause: attempting SqlGroupByClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 	<GROUP> <BY> 
 	(
 		SqlRollupCubeClause()
@@ -1247,6 +1233,7 @@ void SqlGroupByClause()   throws SAXException :
 
 	[ <HAVING> SqlCondition() ]
 
+  {System.err.println("SqlGroupByClause: after SqlGroupByClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 }
 
 
@@ -1304,12 +1291,14 @@ void SqlExpressionList()   throws SAXException :
 void SqlModelClause()   throws SAXException :
 {}
 {
+  {System.err.println("SqlModelClause: attempting SqlModelClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 	<MODEL>
 	SqlCellReferenceOptions()
 	[ SqlReturnRowsClause() ]
 	[ ( SqlReferenceModel() )+ ]
 	SqlMainModel()
 
+  {System.err.println("SqlModelClause: after SqlModelClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 }
 
 
