@@ -5,7 +5,7 @@
 
 //http://docs.oracle.com/cd/B19306_01/server.102/b14200/Statements_4010.htm
 //http://docs.oracle.com/database/121/PLSQLRF/Statements_4011.htm#PLSQLRF01110
-void CommitStatement()   throws SAXException :
+void CommitStatement()    :
 {}
 {
 	<COMMIT> [<WORK>]
@@ -22,7 +22,7 @@ void CommitStatement()   throws SAXException :
 
 //http://docs.oracle.com/cd/B19306_01/server.102/b14200/Statements_9021.htm#PLSQLRF01610
 //http://docs.oracle.com/database/121/PLSQLRF/Statements_9022.htm#PLSQLRF01610
-void RollbackStatement()   throws SAXException :
+void RollbackStatement()    :
 {}
 {
 	<ROLLBACK> [ <WORK> ]
@@ -35,7 +35,7 @@ void RollbackStatement()   throws SAXException :
 
 //http://docs.oracle.com/cd/B19306_01/server.102/b14200/Statements_10001.htm#BABFIJGC
 //http://docs.oracle.com/database/121/PLSQLRF/Statements_10001.htm#PLSQLRF01701
-void SavepointStatement()   throws SAXException :
+void SavepointStatement()    :
 {}
 {
 	 <SAVEPOINT> ID() 
@@ -43,7 +43,7 @@ void SavepointStatement()   throws SAXException :
 
 //http://docs.oracle.com/cd/B19306_01/server.102/b14200/Statements_9021.htm#PLSQLRF01610
 //http://docs.oracle.com/database/121/PLSQLRF/Statements_10005.htm#PLSQLRF01705
-void SetTransactionStatement()   throws SAXException :
+void SetTransactionStatement()    :
 {}
 {
 	<SET> <TRANSACTION> 
@@ -58,7 +58,7 @@ void SetTransactionStatement()   throws SAXException :
 }
 
 //http://docs.oracle.com/cd/B12037_01/appdev.101/b10807/13_elems027.htm
-void LockTableStatement()   throws SAXException :
+void LockTableStatement()    :
 {}
 {
 	//ROW SHARE, ROW EXCLUSIVE, SHARE UPDATE, SHARE, SHARE ROW EXCLUSIVE, or EXCLUSIVE.
@@ -72,7 +72,7 @@ void LockTableStatement()   throws SAXException :
 }
 
 //http://docs.oracle.com/database/121/PLSQLRF/Statements_10002.htm#i2065706
-void SqlSelectStatement()   throws SAXException :
+void SqlSelectStatement()    :
 {}
 {
 {System.err.println("SqlSelectStatement: attempting SqlSelectStatement()"); }
@@ -88,7 +88,7 @@ void SqlSelectStatement()   throws SAXException :
 
 //http://docs.oracle.com/cd/B19306_01/appdev.102/b14261/delete_Statement.htm#i33716
 //http://docs.oracle.com/database/121/PLSQLRF/Statements_8005.htm#i2112830
-void SqlDeleteStatement()   throws SAXException :
+void SqlDeleteStatement()    :
 {}
 {
 {System.err.println("SqlDeleteStatement: attempting SqlDeleteStatement()"); }
@@ -113,7 +113,7 @@ void SqlDeleteStatement()   throws SAXException :
 
 
 
-void SqlDmlTableExpression()   throws SAXException :
+void SqlDmlTableExpression()    :
 {}
 {
 {System.err.println("SqlDMlTableExpression: attempting SqlDMlTableExpression()"); }
@@ -124,7 +124,7 @@ void SqlDmlTableExpression()   throws SAXException :
 }
 
 //http://docs.oracle.com/cd/B28359_01/server.111/b28286/Statements_9016.htm
-void SqlMergeStatement()   throws SAXException :
+void SqlMergeStatement()    :
 {}
 {
 {System.err.println("SqlMergeStatement: attempting SqlMergeStatement()"); }
@@ -186,7 +186,7 @@ void SqlMergeStatement()   throws SAXException :
 
 
 
-void SqlErrorLoggingClause()   throws SAXException :
+void SqlErrorLoggingClause()    :
 {}
 {
 	<LOG> <ERRORS> 
@@ -205,7 +205,7 @@ void SqlErrorLoggingClause()   throws SAXException :
 
 //http://docs.oracle.com/database/121/PLSQLRF/Statements_9014.htm#sthref7054
 //http://docs.oracle.com/database/121/PLSQLRF/Statements_9014.htm#i2111652
-void SqlInsertStatement()   throws SAXException :
+void SqlInsertStatement()    :
 {}
 {
 {System.err.println("SqlInsertStatement: attempting SqlInsertStatement()"); }
@@ -213,7 +213,9 @@ void SqlInsertStatement()   throws SAXException :
 	<INSERT> 
 	(
 		//Single-Table INSERT 
+		LOOKAHEAD(1,<INTO>)
 		(
+{System.err.println("SqlInsertStatement: attempting Single Table Insert()"); }
 			//INSERT INTO Clause 
 			SqlInsertIntoClause() 
 			(
@@ -233,8 +235,10 @@ void SqlInsertStatement()   throws SAXException :
 		//Multi-Table INSERT 
 		|
 		(
+			LOOKAHEAD(2,<ALL> <INTO>)
 			(
 				(
+{System.err.println("SqlInsertStatement: attempting Multi-Table Insert"); }
 					<ALL> 
 					
 					(
@@ -248,9 +252,10 @@ void SqlInsertStatement()   throws SAXException :
 					)+
 				)
 			)
-			| //Multi-table INSERT 
+			| //Conditional Multi-table INSERT 
 			(
-				[ <ALL> | <FIRST> ]
+{System.err.println("SqlInsertStatement: attempting Conditional Multi-Table Insert"); }
+				[ <FIRST> | <ALL> ]
 				
 				( 
 				    <WHEN> SqlCondition() <THEN> 
@@ -293,7 +298,7 @@ void SqlInsertStatement()   throws SAXException :
 
 
 
-void SqlInsertIntoClause()   throws SAXException :
+void SqlInsertIntoClause()    :
 {}
 {
 {System.err.println("SqlInsertClause: attempting SqlInsertClause()"); }
@@ -315,7 +320,7 @@ void SqlInsertIntoClause()   throws SAXException :
 
 
 
-void SqlValuesClause()   throws SAXException :
+void SqlValuesClause()    :
 {}
 {
 {System.err.println("SqlValuesClause: attempting SqlValuesClause()"); }
@@ -341,7 +346,7 @@ void SqlValuesClause()   throws SAXException :
 
 
 //http://docs.oracle.com/cd/B19306_01/appdev.102/b14261/update_Statement.htm#i36431
-void SqlUpdateStatement()   throws SAXException :
+void SqlUpdateStatement()    :
 {}
 {
 {System.err.println("SqlUpdateStatement: attempting SqlUpdateStatement()"); }
@@ -381,7 +386,7 @@ void SqlUpdateStatement()   throws SAXException :
 }
 
 
-void SqlColumnAssignment()   throws SAXException :
+void SqlColumnAssignment()    :
 {}
 {
 {System.err.println("SqlColumnAssignment: attempting SqlColumnAssignment()"); }
@@ -409,7 +414,7 @@ void SqlColumnAssignment()   throws SAXException :
 
 
 //http://docs.oracle.com/cd/B19306_01/appdev.102/b14261/returninginto_clause.htm#CJAGFGDE
-void SqlReturningClause()   throws SAXException :
+void SqlReturningClause()    :
 {}
 {
  {System.err.println("SqlReturningClause: attempting SqlReturningClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
@@ -419,7 +424,7 @@ void SqlReturningClause()   throws SAXException :
 }
 
 //http://docs.oracle.com/database/121/PLSQLRF/Statements_10002.htm#i2126016
-void SqlForUpdateClause()   throws SAXException :
+void SqlForUpdateClause()    :
 {}
 {
 	
@@ -436,7 +441,7 @@ void SqlForUpdateClause()   throws SAXException :
 }
 
 //http://docs.oracle.com/database/121/PLSQLRF/Statements_10002.htm#i2126435
-void SqlSubquery()   throws SAXException :
+void SqlSubquery()    :
 { Token start = token ; }
 {
  {System.err.println("SqlSubquery: attempting SqlSubQuery() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
@@ -552,7 +557,7 @@ void SqlSubquery()   throws SAXException :
 }
 
 
-void SqlSubqueryClause()   throws SAXException :
+void SqlSubqueryClause()    :
 {Token start = token ; }
 {
 {System.err.println("SqlSubqueryClause: "); }
@@ -563,7 +568,7 @@ void SqlSubqueryClause()   throws SAXException :
  {System.err.println("SqlSubqueryClause: completed SqlSubQueryClause() starting at at line "+start.beginLine+", column "+start.beginColumn+" - \""+start.image+"\" " + " and ending at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 }
 
-void SqlQueryBlock()   throws SAXException :
+void SqlQueryBlock()    :
 {Token start = token ; }
 {
 {System.err.println("SqlQueryBlock: attempting WITH "); }
@@ -595,7 +600,7 @@ void SqlQueryBlock()   throws SAXException :
 }
 
 
-void SqlSelectClause()   throws SAXException :
+void SqlSelectClause()    :
 {Token start = token ; }
 {
   {System.err.println("SqlSelectClause: attempting <SELECT> ... at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
@@ -619,6 +624,8 @@ void SqlSelectClause()   throws SAXException :
   {System.err.println("SqlSelectClause: after SqlHierachicalQueryClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 	[ SqlGroupByClause() ]
   {System.err.println("SqlSelectClause: after SqlGroupByClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+	[ <HAVING> SqlCondition() ]
+  {System.err.println("SqlSelectClause: after SqlHavingClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 	[ SqlModelClause() ]
   {System.err.println("SqlSelectClause: after SqlModelClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 
@@ -628,7 +635,7 @@ void SqlSelectClause()   throws SAXException :
 
 
 
-void SqlTableClause()   throws SAXException :
+void SqlTableClause()    :
 {}
 {
 {System.err.println("SqlTableClause: attempting SqlTableClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
@@ -646,7 +653,7 @@ void SqlTableClause()   throws SAXException :
 {System.err.println("SqlTableClause: completed SqlTableClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 }
 
-void SqlWithClause()   throws SAXException :
+void SqlWithClause()    :
 {
 	Token start = token ;
 }
@@ -664,9 +671,11 @@ void SqlWithClause()   throws SAXException :
 }
 
 
-void SqlPLSQLDeclarations(Token queryStart)   throws SAXException :
-{}
+void SqlPLSQLDeclarations(Token queryStart)    :
+{ Token start = token ; }
 {
+	try
+	{
 	  ProgramUnit(false, queryStart)  
 	/*
 	  MethodDeclarator(false, 1, queryStart)  
@@ -675,11 +684,16 @@ void SqlPLSQLDeclarations(Token queryStart)   throws SAXException :
 		 <BEGIN> (Statement())* (ExceptionHandler())?  <END> [ID()] 
 	  ) 
 	*/
+	}
+	catch (SAXException ex)
+	{ 
+	  System.err.println("SqlPLSQLDeclaration: completed SqlPLSQLDeclaration() starting at at line "+start.beginLine+", column "+start.beginColumn+" - \""+start.image+"\" " + " and ending at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); 
+	} 
 
 }
 
 
-void SqlSubqueryFactoringClause()   throws SAXException :
+void SqlSubqueryFactoringClause()    :
 {}
 {
 {System.err.println("SqlSubqueryFactoringClause: attempting SqlQueryRefactoringClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
@@ -703,7 +717,7 @@ void SqlSubqueryFactoringClause()   throws SAXException :
 }
 
 
-void SqlSearchClause()   throws SAXException :
+void SqlSearchClause()    :
 {}
 {
 	<SEARCH> 
@@ -714,7 +728,7 @@ void SqlSearchClause()   throws SAXException :
 }
 
 
-void SqlCycleClause()   throws SAXException :
+void SqlCycleClause()    :
 {}
 {
 	<CYCLE> 
@@ -727,7 +741,7 @@ void SqlCycleClause()   throws SAXException :
 
 
 
-void SqlTargetList()   throws SAXException :
+void SqlTargetList()    :
 {}
 {
 {System.err.println("SqlTargetList: attempting SqlTargetList()"); }
@@ -743,8 +757,9 @@ void SqlTargetList()   throws SAXException :
 }
 
 
-void SqlSelectList()   throws SAXException :
-{}
+void SqlSelectList()    :
+{Token start = token; 
+}
 {
 {System.err.println("SqlSelectList: attempting SqlSelectList()"); }
 	({System.err.println("SqlSelectList: attempting first SqlItem"); }
@@ -757,25 +772,34 @@ void SqlSelectList()   throws SAXException :
 	  )
 	)*
 
-{System.err.println("SqlSelectList: completed SqlSelectList() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+ {System.err.println("SqlSelectList: completed SqlSelectList() starting at at line "+start.beginLine+", column "+start.beginColumn+" - \""+start.image+"\" " + " and ending at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 }
 
 
-void SqlSelectItem() throws SAXException :
-{}
+void SqlSelectItem()  :
+{Token start = token ;
+}
 {
 {System.err.println("SqlSelectItem: attempting SqlSelectItem()"); }
-  ({System.err.println("SqlSelectItem: attempting SqlSelectItem(QualifiedID())"); } 
-    QualifiedName() [ "." "*" ] 
+/*
+  ( {System.err.println("SqlSelectItem: attempting SqlSelectItem(QualifiedID())"); } 
+    QualifiedName()  "." "*" 
   )
-  |  ({System.err.println("SqlSelectItem: attempting SqlSelectItem(SqlExpression())"); }  
-       SqlExpression() [ [ <AS> ] UnqualifiedID() ] //ColumnAlias )
-     )
+  |  
+  SqlAggregateFunction() 
+  |
+  SqlAnalyticeFunction() 
+  |
+*/
+  ({System.err.println("SqlSelectItem: attempting SqlSelectItem(SqlExpression())"); }  
+    SqlExpression() [ [ <AS> ] UnqualifiedID() ] //ColumnAlias )
+  )
+ {System.err.println("SqlSelectItem: completed SqlSelectItem() starting at at line "+start.beginLine+", column "+start.beginColumn+" - \""+start.image+"\" " + " and ending at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 }
 
 
 
-void SqlTableReference()   throws SAXException :
+void SqlTableReference()    :
 {
   Token alias = null;
 }
@@ -827,7 +851,7 @@ Token SqlTableAlias ()
 }
 
 
-void SqlFlashbackQueryClause()   throws SAXException :
+void SqlFlashbackQueryClause()    :
 {}
 {
  {System.err.println("SqlFlashbackQueryClause: attempting SqlFlashbackQueryClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
@@ -862,12 +886,15 @@ void SqlFlashbackQueryClause()   throws SAXException :
 }
 
 
-void SqlQueryTableExpression()   throws SAXException :
-{}
+void SqlQueryTableExpression()    :
+{Token start = token ;}
 {
  {System.err.println("SqlQueryTableExpression: attempting SqlQueryTableExpression() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
-	( [ <LATERAL> ] "(" SqlSubquery() [ SqlSubqueryRestrictionClause() ] ")"  )
+	( [ <LATERAL> ] "(" SqlSubquery() [ SqlSubqueryRestrictionClause() ] ")"  
+ {System.err.println("SqlQueryTableExpression: found LATEREAL ... at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+        )
 	|  SqlTableCollectionExpression()
+ {System.err.println("SqlQueryTableExpression: found SqlTableExpression() .. at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 	|  ( QualifiedName() 
 		[ 
 			( "@" QualifiedName() /* DBLink Name */ )
@@ -875,6 +902,7 @@ void SqlQueryTableExpression()   throws SAXException :
 			SqlPartitionExtensionClause() 
 		] 
 		[ SqlSampleClause() ]
+ {System.err.println("SqlQueryTableExpression: found QualifiedName() .. at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 	   )
 	//|  UnqualifiedID() //Query Name 
 
@@ -882,7 +910,7 @@ void SqlQueryTableExpression()   throws SAXException :
 }
 
 
-void SqlPivotClause()   throws SAXException :
+void SqlPivotClause()    :
 {}
 {
  {System.err.println("SqlPivotClause: attempting SqlPivotClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
@@ -910,7 +938,7 @@ void SqlPivotClause()   throws SAXException :
 }
 
 
-void SqlReferencedColumns()   throws SAXException :
+void SqlReferencedColumns()    :
 {}
 {
 		QualifiedID() //Column Name 
@@ -925,7 +953,7 @@ void SqlReferencedColumns()   throws SAXException :
 }
 
 
-void SqlPivotForClause()   throws SAXException :
+void SqlPivotForClause()    :
 {}
 {
 	<FOR> SqlReferencedColumns() 
@@ -934,7 +962,7 @@ void SqlPivotForClause()   throws SAXException :
 }
 
 
-void SqlPivotInClause()   throws SAXException :
+void SqlPivotInClause()    :
 {}
 {
 	<IN> "("
@@ -950,7 +978,7 @@ void SqlPivotInClause()   throws SAXException :
 }
 
 
-void SqlUnpivotClause()   throws SAXException :
+void SqlUnpivotClause()    :
 {}
 {
 	<UNPIVOT> 
@@ -964,7 +992,7 @@ void SqlUnpivotClause()   throws SAXException :
 }
 
 
-void SqlUnpivotInClause()   throws SAXException :
+void SqlUnpivotInClause()    :
 {}
 {
 	<IN> "("
@@ -982,12 +1010,21 @@ void SqlUnpivotInClause()   throws SAXException :
 
 
 
-void SqlSampleClause()   throws SAXException :
+void SqlSampleClause()    :
 {}
 {
+ {System.err.println("SqlSampleClause: attempting SqlSampleClause()  at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 	<SAMPLE> [ <BLOCK> ]
 	"("
 		NumericLiteral() //Sample Percentage 
+                /*@TODO
+			Disagreement between syntax 
+                        SAMPLE [ BLOCK] ( number ) [ SEED (number) ] http://docs.oracle.com/database/121/SQLRF/statements_10002.htm#SQLRF01702 
+                        SAMPLE BLOCK ( number, number ) https://blogs.oracle.com/datamining/entry/to_sample_or_not_to_sample_part_2 
+		*/
+		[
+		  "," NumericLiteral() 
+		]
 	")"
 	[
 		<SEED>
@@ -996,11 +1033,12 @@ void SqlSampleClause()   throws SAXException :
 		")"
 	]
 
+ {System.err.println("SqlSampleClause: found SqlSampleClause()  at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 
 }
 
 
-void SqlPartitionExtensionClause()   throws SAXException :
+void SqlPartitionExtensionClause()    :
 {}
 {
 
@@ -1015,7 +1053,7 @@ void SqlPartitionExtensionClause()   throws SAXException :
 }
 
 
-void SqlSubqueryRestrictionClause()   throws SAXException :
+void SqlSubqueryRestrictionClause()    :
 {}
 {
 
@@ -1033,7 +1071,7 @@ void SqlSubqueryRestrictionClause()   throws SAXException :
 }
 
 
-void SqlTableCollectionExpression()   throws SAXException :
+void SqlTableCollectionExpression()    :
 {}
 {
 
@@ -1046,7 +1084,7 @@ void SqlTableCollectionExpression()   throws SAXException :
 
 //http://docs.oracle.com/database/121/PLSQLRF/Statements_8005.htm#i2112830
 //The collection_expression can be a subquery, a column, a function, or a collection constructor. Regardless of its form, it must return a collection value¿that is, a value whose type is nested table or varray. This process of extracting the elements of a collection is called collection unnesting.
-void SqlCollectionExpression()   throws SAXException :
+void SqlCollectionExpression()    :
 {}
 {
 	SqlSubquery()
@@ -1054,7 +1092,7 @@ void SqlCollectionExpression()   throws SAXException :
 
 }
 
-void SqlContainersClause()   throws SAXException :
+void SqlContainersClause()    :
 {}
 {
 
@@ -1067,7 +1105,7 @@ void SqlContainersClause()   throws SAXException :
 
 
 //http://docs.oracle.com/database/121/PLSQLRF/Statements_10002.htm#CHDIJFDJ
-void SqlJoinClause()   throws SAXException :
+void SqlJoinClause()    :
 {}
 {
  {System.err.println("SqlJoinClause: attempting SqlJoinClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
@@ -1132,7 +1170,7 @@ void SqlJoinClause()   throws SAXException :
 }
 
 
-void SqlQueryPartitionClause()   throws SAXException :
+void SqlQueryPartitionClause()    :
 {}
 {
 	<PARTITION> <BY> 
@@ -1144,7 +1182,7 @@ void SqlQueryPartitionClause()   throws SAXException :
 
 }
 
-void SqlColumnExpression()   throws SAXException :
+void SqlColumnExpression()    :
 {}
 {
 	(
@@ -1157,7 +1195,7 @@ void SqlColumnExpression()   throws SAXException :
 }
 
 
-void SqlOuterJoinType()   throws SAXException :
+void SqlOuterJoinType()    :
 {}
 {
 	( <FULL> | <LEFT> | <RIGHT> )
@@ -1165,7 +1203,7 @@ void SqlOuterJoinType()   throws SAXException :
 
 }
 
-void SqlCrossOuterApplyClause()   throws SAXException :
+void SqlCrossOuterApplyClause()    :
 {}
 {
 	( <CROSS> | <OUTER> )
@@ -1180,7 +1218,7 @@ void SqlCrossOuterApplyClause()   throws SAXException :
 }
 
 
-void SqlWhereClause()   throws SAXException :
+void SqlWhereClause()    :
 {}
 {
   {System.err.println("SqlWhereClause: attempting SqlWhereClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
@@ -1194,7 +1232,7 @@ void SqlWhereClause()   throws SAXException :
 }
 
 
-void SqlHierarchicalQueryClause()   throws SAXException :
+void SqlHierarchicalQueryClause()    :
 {}
 {
   {System.err.println("SqlHierarchicalQueryClause: attempting SqlHierarchicalQueryClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
@@ -1212,7 +1250,7 @@ void SqlHierarchicalQueryClause()   throws SAXException :
 }
 
 
-void SqlGroupByClause()   throws SAXException :
+void SqlGroupByClause()    :
 {}
 {
   {System.err.println("SqlGroupByClause: attempting SqlGroupByClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
@@ -1231,13 +1269,23 @@ void SqlGroupByClause()   throws SAXException :
 		)
 	)*
 
-	[ <HAVING> SqlCondition() ]
+	//[ <HAVING> SqlCondition() ]
 
   {System.err.println("SqlGroupByClause: after SqlGroupByClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 }
 
 
-void SqlRollupCubeClause()   throws SAXException :
+void SqlHavingClause()    :
+{}
+{
+  {System.err.println("SqlHavingClause: attempting SqlHavingClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+	<HAVING> SqlCondition() 
+
+  {System.err.println("SqlHavingClause: after SqlHavingClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+}
+
+
+void SqlRollupCubeClause()    :
 {}
 {
 	( <ROLLUP> | <CUBE> )
@@ -1248,7 +1296,7 @@ void SqlRollupCubeClause()   throws SAXException :
 }
 
 
-void SqlGroupingSetsClause()   throws SAXException :
+void SqlGroupingSetsClause()    :
 {}
 {
 	<GROUPING> <SETS> 
@@ -1269,7 +1317,7 @@ void SqlGroupingSetsClause()   throws SAXException :
 }
 
 
-void SqlGroupingExpressionList()   throws SAXException :
+void SqlGroupingExpressionList()    :
 {}
 {
 	SqlExpressionList() ( "," SqlExpressionList() )*
@@ -1277,7 +1325,7 @@ void SqlGroupingExpressionList()   throws SAXException :
 }
 
 
-void SqlExpressionList()   throws SAXException :
+void SqlExpressionList()    :
 {}
 {
 	(
@@ -1288,7 +1336,7 @@ void SqlExpressionList()   throws SAXException :
 }
 
 
-void SqlModelClause()   throws SAXException :
+void SqlModelClause()    :
 {}
 {
   {System.err.println("SqlModelClause: attempting SqlModelClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
@@ -1302,7 +1350,7 @@ void SqlModelClause()   throws SAXException :
 }
 
 
-void SqlCellReferenceOptions()   throws SAXException :
+void SqlCellReferenceOptions()    :
 {}
 {
 	[
@@ -1317,7 +1365,7 @@ void SqlCellReferenceOptions()   throws SAXException :
 }
 
 
-void SqlReturnRowsClause()   throws SAXException :
+void SqlReturnRowsClause()    :
 {}
 {
 	<RETURN>
@@ -1327,7 +1375,7 @@ void SqlReturnRowsClause()   throws SAXException :
 }
 
 
-void SqlReferenceModel()   throws SAXException :
+void SqlReferenceModel()    :
 {}
 {
 	<REFERENCE>
@@ -1340,7 +1388,7 @@ void SqlReferenceModel()   throws SAXException :
 }
 
 
-void SqlMainModel()   throws SAXException :
+void SqlMainModel()    :
 {}
 {
 	[
@@ -1353,7 +1401,7 @@ void SqlMainModel()   throws SAXException :
 
 }
 
-void SqlModelColumnClauses()   throws SAXException :
+void SqlModelColumnClauses()    :
 {}
 {
 	<PARTITION> <BY> 
@@ -1376,14 +1424,14 @@ void SqlModelColumnClauses()   throws SAXException :
 
 }
 
-void SqlModelColumn()   throws SAXException :
+void SqlModelColumn()    :
 {}
 {
 	SqlExpression() [ [ <AS> ] UnqualifiedID() ]
 
 }
 
-void SqlModelRulesClause()   throws SAXException :
+void SqlModelRulesClause()    :
 {}
 {
 	<RULES>
@@ -1415,7 +1463,7 @@ void SqlModelRulesClause()   throws SAXException :
 }
 
 
-void SqlModelIterateClause()   throws SAXException :
+void SqlModelIterateClause()    :
 {}
 {
 	<ITERATE> "(" NumericLiteral() ")" 
@@ -1425,7 +1473,7 @@ void SqlModelIterateClause()   throws SAXException :
 
 
 
-void SqlCellAssignment()   throws SAXException :
+void SqlCellAssignment()    :
 {}
 {
 
@@ -1451,7 +1499,7 @@ void SqlCellAssignment()   throws SAXException :
 
 
 
-void SqlCondition()   throws SAXException :
+void SqlCondition()    :
 {}
 {
   {System.err.println("SqlCondition: attempting SqlCondition() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
@@ -1460,7 +1508,7 @@ void SqlCondition()   throws SAXException :
 
 }
 
-void SqlSingleColumnForLoop()   throws SAXException :
+void SqlSingleColumnForLoop()    :
 {}
 {
 	<FOR> 
@@ -1485,7 +1533,7 @@ void SqlSingleColumnForLoop()   throws SAXException :
 }
 
 
-void SqlMultiColumnForLoop()   throws SAXException :
+void SqlMultiColumnForLoop()    :
 {}
 {
 	<FOR> 
@@ -1506,7 +1554,7 @@ void SqlMultiColumnForLoop()   throws SAXException :
 
 
 
-void SqlOrderByClause()   throws SAXException :
+void SqlOrderByClause()    :
 {}
 {
 	<ORDER> [ <SIBLINGS> ] <BY> 
@@ -1516,7 +1564,7 @@ void SqlOrderByClause()   throws SAXException :
 
 }
 
-void SqlColumnOrderingClause()   throws SAXException :
+void SqlColumnOrderingClause()    :
 {}
 {
 	Expression() // Column Alias 	
@@ -1526,7 +1574,7 @@ void SqlColumnOrderingClause()   throws SAXException :
 }
 
 
-void SqlRowLimitingClause()   throws SAXException :
+void SqlRowLimitingClause()    :
 {}
 {
 
@@ -1546,7 +1594,7 @@ void SqlRowLimitingClause()   throws SAXException :
 
 
 //http://docs.oracle.com/database/121/PLSQLRF/Statements_10002.htm#BABDACDD
-void SqlRowPatternClause()   throws SAXException :
+void SqlRowPatternClause()    :
 {}
 {
 
@@ -1570,7 +1618,7 @@ void SqlRowPatternClause()   throws SAXException :
 }
 
 
-void SqlRowPatternPartitionBy()   throws SAXException :
+void SqlRowPatternPartitionBy()    :
 {}
 {
 	<PATTERN> <BY> 
@@ -1579,7 +1627,7 @@ void SqlRowPatternPartitionBy()   throws SAXException :
 
 }
 
-void SqlRowPatternOrderBy()   throws SAXException :
+void SqlRowPatternOrderBy()    :
 {}
 {
 
@@ -1590,7 +1638,7 @@ void SqlRowPatternOrderBy()   throws SAXException :
 }
 
 
-void SqlRowPatternMeasures()   throws SAXException :
+void SqlRowPatternMeasures()    :
 {}
 {
 	<MEASURES>
@@ -1599,7 +1647,7 @@ void SqlRowPatternMeasures()   throws SAXException :
 
 }
 
-void SqlRowPatternRowsPerMatch()   throws SAXException :
+void SqlRowPatternRowsPerMatch()    :
 {}
 {
 
@@ -1608,7 +1656,7 @@ void SqlRowPatternRowsPerMatch()   throws SAXException :
 
 }
 
-void SqlRowPatternSkipTo()   throws SAXException :
+void SqlRowPatternSkipTo()    :
 {}
 {
 
@@ -1637,7 +1685,7 @@ void SqlRowPatternSkipTo()   throws SAXException :
 }
 
 
-void SqlRowPattern()   throws SAXException :
+void SqlRowPattern()    :
 {}
 {
 
@@ -1646,7 +1694,7 @@ void SqlRowPattern()   throws SAXException :
 
 }
 
-void SqlRowPatternTerm()   throws SAXException :
+void SqlRowPatternTerm()    :
 {}
 {
 
@@ -1655,7 +1703,7 @@ void SqlRowPatternTerm()   throws SAXException :
 
 }
 
-void SqlRowPatternFactor()   throws SAXException :
+void SqlRowPatternFactor()    :
 {}
 {
 
@@ -1664,7 +1712,7 @@ void SqlRowPatternFactor()   throws SAXException :
 }
 
 
-void SqlRowPatternPrimary()   throws SAXException :
+void SqlRowPatternPrimary()    :
 {}
 {
 
@@ -1682,7 +1730,7 @@ void SqlRowPatternPrimary()   throws SAXException :
 
 }
 
-void SqlRowPatternPermute()   throws SAXException :
+void SqlRowPatternPermute()    :
 {}
 {
 	<PERMUTE>
@@ -1692,7 +1740,7 @@ void SqlRowPatternPermute()   throws SAXException :
 
 }
 
-void SqlRowPatternQuantifier()   throws SAXException :
+void SqlRowPatternQuantifier()    :
 {}
 {
 
@@ -1704,7 +1752,7 @@ void SqlRowPatternQuantifier()   throws SAXException :
 
 }
 
-void SqlRowPatternSubsetClause()   throws SAXException :
+void SqlRowPatternSubsetClause()    :
 {}
 {
 	<SUBSET>
@@ -1714,7 +1762,7 @@ void SqlRowPatternSubsetClause()   throws SAXException :
 }
 
 
-void SqlRowPatternSubsetItem()   throws SAXException :
+void SqlRowPatternSubsetItem()    :
 {}
 {
 
@@ -1726,21 +1774,21 @@ void SqlRowPatternSubsetItem()   throws SAXException :
 }
 
 
-void SqlRowPatternDefinitionList()   throws SAXException :
+void SqlRowPatternDefinitionList()    :
 {}
 {
 	SqlRowPatternDefinition() 
 	
 }
 
-void SqlRowPatternDefinition()   throws SAXException :
+void SqlRowPatternDefinition()    :
 {}
 {
 	Name() <AS> SqlCondition() 
 	
 }
 
-void SqlRowPatternRecFunction()   throws SAXException :
+void SqlRowPatternRecFunction()    :
 {}
 {
 
@@ -1752,7 +1800,7 @@ void SqlRowPatternRecFunction()   throws SAXException :
 }
 
 
-void SqlRowPatternNavigationFunction()   throws SAXException :
+void SqlRowPatternNavigationFunction()    :
 {}
 {
 	//Row Pattern Navigation Logical 
@@ -1790,7 +1838,7 @@ void SqlRowPatternNavigationFunction()   throws SAXException :
 }
 
 
-void SqlRowPatternAggregateFunction()   throws SAXException :
+void SqlRowPatternAggregateFunction()    :
 {}
 {
 
@@ -1812,10 +1860,10 @@ http://docs.oracle.com/cd/E11882_01/server.112/e26088/functions004.htm#SQLRF0617
 AnalyticFunction "(" arguments ")" 
 */
 
-void SqlAnalyticFunction()   throws SAXException :
+void SqlAnalyticFunction()    :
 {}
 {
-  {System.err.println("SqlAnalyticFunctio: attempting SqlAnalyticFunctio()"); }
+  {System.err.println("SqlAnalyticFunction: attempting SqlAnalyticFunctio()"); }
 	PrimaryExpression() 
 	<OVER> "(" 
 			[ SqlQueryPartitionClause() ]
@@ -1825,7 +1873,7 @@ void SqlAnalyticFunction()   throws SAXException :
 
 }
 
-void SqlWindowingClause()   throws SAXException :
+void SqlWindowingClause()    :
 {}
 {
   {System.err.println("SqlWindowingClause: attempting SqlWindowingClause()"); }
@@ -1859,19 +1907,25 @@ void SqlWindowingClause()   throws SAXException :
 }
 
 
-//@TODO
-void SqlAggregateFunction()   throws SAXException :
+void SqlAggregateFunction()    :
 {}
 {
   {System.err.println("SqlAggregateFunction: attempting SqlAggregateFunction()"); }
 	PrimaryExpression() 
+	(
+	<KEEP>
+	"("
+		<DENSE_RANK> ( <FIRST> | <LAST> ) SqlOrderByClause()
+	")"
+	)
 
+  {System.err.println("SqlAggregateFunction: completede SqlAggregateFunction()"); }
 }
 
 
 //http://docs.oracle.com/database/121/SQLRF/expressions001.htm#i1002626
 //http://docs.oracle.com/database/121/SQLRF/expressions.htm#g1057115
-void SqlExpression()   throws SAXException :
+void SqlExpression()    :
 { 
 }
 {
