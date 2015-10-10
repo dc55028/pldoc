@@ -37,6 +37,43 @@ void input() throws org.xml.sax.SAXException : {}
 	<EOF>
 }
 
+JAVACODE
+String parenthesesContents() 
+{
+	Token t;
+	StringBuffer sb = new StringBuffer() ;
+	int nesting = 0;
+	while (true)
+	{
+		t = getToken(1);
+		if (t.kind == 0)
+		{
+			throw new ParseException();
+		}
+
+		sb.append(t.image); 
+		if (t.image.equals("(") )
+		{
+			nesting++;
+  {System.err.println("parenthesesContents: incremented nesting to " + nesting + " at line "+t.beginLine+", column "+t.beginColumn+" - \""+t.image+"\" "); }
+		}
+
+		if (t.image.equals(")") ) 
+		{
+			nesting--;
+  {System.err.println("parenthesesContents: decremented " + nesting + " at line "+t.beginLine+", column "+t.beginColumn+" - \""+t.image+"\" "); }
+			if ( 0 == nesting )
+			{
+				break;
+			}
+		}
+		t = getNextToken();
+	}
+	
+  {System.err.println("parenthesesContents: completed at line "+t.beginLine+", column "+t.beginColumn+" - \""+t.image+"\" "); }
+  return sb.toString(); 
+}
+
 
 void DDLCommand() : 
 { 
@@ -1853,6 +1890,7 @@ String ObjectExpression() :
   )
   ( "." Expression() )*
  { 
+ {System.err.println("ObjectExpression: \""+sb.toString() + "\""); }
  return sb.toString(); 
  }
 }
@@ -1867,6 +1905,7 @@ String ConditionalOrExpression() :
   )*
   )
  { 
+ {System.err.println("ConditionalOrExpression: \""+sb.toString() + "\""); }
  return sb.toString(); 
  }
 }
@@ -1881,6 +1920,7 @@ String ConditionalAndExpression() :
    )*
   )
  { 
+ {System.err.println("ConditionalAndExpression: \""+sb.toString() + "\""); }
  return sb.toString(); 
  }
 }
@@ -1905,6 +1945,7 @@ String EqualityExpression() :
 	  )*
   )
  { 
+ {System.err.println("EqualityExpression: \""+sb.toString() + "\""); }
  return sb.toString(); 
  }
 }
@@ -1916,8 +1957,16 @@ String RelationalExpression() :
 { String string = null; StringBuffer sb = new StringBuffer() ; }
 {
  (
+  {System.err.println("RelationalExpression: attempting RelationalExpression() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+
   //AdditiveExpression() ( ( "<" | ">" | "<=" | ">=" | [<NOT>] (<IN> | <BETWEEN> | <LIKE> | <FROM>) ) AdditiveExpression() )*
-  (string = AdditiveExpression() ) { sb.append(string); }
+  ( 
+   //( LOOKAHEAD(2, [ <NOT> ] <EXISTS> ) ( [ <NOT> ] <EXISTS>  SqlSubquery() { string = "[NOT] EXISTS ... " ; } ) ) //SQL  
+   ( LOOKAHEAD(2, { getToken(1).image.equalsIgnoreCase("EXISTS") || ( getToken(1).image.equalsIgnoreCase("EXISTS")  && getToken(2).image.equalsIgnoreCase("EXISTS") )  } ) ( [ <NOT> ] <EXISTS>  SqlSubquery() { string = "[NOT] EXISTS ... " ; } ) 
+   ) //SQL  
+   | 
+    string = AdditiveExpression() 
+  ) { sb.append(string); }
   ( 
    ( 
       (
@@ -1931,19 +1980,21 @@ String RelationalExpression() :
     
       )
       { sb.append(" "); } 
-   | [(<NOT>) { sb.append(" NOT "); }] 
-     ((<IN>) { sb.append(" IN "); } 
-     | (<BETWEEN> ) { sb.append(" BETWEEN "); }
-     | (<LIKE> ) { sb.append(" LIKE "); }
-     | (<FROM>) { sb.append(" FROM "); }
-     | (
-	 (
-	   (<MEMBER>) { sb.append(" MEMBER "); }
-	   |
-	   (<SUBMULTISET>) { sb.append(" SUBMULTISET "); }
-	 )
-         [ <OF> { sb.append(" OF "); } ]
-       )
+     | [(<NOT>) { sb.append(" NOT "); }] 
+     (
+	       (<IN>) { sb.append(" IN "); } 
+	     | (<EXISTS> ) { sb.append(" EXISTS "); } //SQL 
+	     | (<BETWEEN> ) { sb.append(" BETWEEN "); }
+	     | (<LIKE> ) { sb.append(" LIKE "); }
+	//@TODO SQL Breaks SqlSelectItem - is <FROM> valid here?      | (<FROM>) { sb.append(" FROM "); }
+	     | (
+		 (
+		   (<MEMBER>) { sb.append(" MEMBER "); }
+		   |
+		   (<SUBMULTISET>) { sb.append(" SUBMULTISET "); }
+		 )
+		 [ <OF> { sb.append(" OF "); } ]
+	       )
      ) 
     // MULTISET Operators 
     | ( 
@@ -1967,6 +2018,8 @@ String RelationalExpression() :
   )*
  )
  { 
+  {System.err.println("RelationalExpression: completed RelationalExpression() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+ {System.err.println("RelationalExpression: \""+sb.toString() + "\""); }
  return sb.toString(); 
  }
 }
@@ -1985,6 +2038,7 @@ String AdditiveExpression() :
   )*
  )
  { 
+ {System.err.println("AdditiveExpression: \""+sb.toString() + "\""); }
  return sb.toString(); 
  }
 }
@@ -2021,6 +2075,7 @@ String MultiplicativeExpression() :
   )*
  )
  { 
+ {System.err.println("MultiplicativeExpression: \""+sb.toString() + "\""); }
  return sb.toString(); 
  }
 }
@@ -2028,6 +2083,7 @@ String MultiplicativeExpression() :
 String UnaryExpression(boolean isUnarySign) :
 { String string = null; StringBuffer sb = new StringBuffer() ; }
 {
+  {System.err.println("UnaryExpression: attempting UnaryExpression() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
  (
    ( ("+" ) { sb.append(isUnarySign ? " +" : " + "); }
    | ("-" ) { sb.append(isUnarySign ? " -" : " - "); }
@@ -2037,6 +2093,8 @@ String UnaryExpression(boolean isUnarySign) :
    (string = UnaryExpressionNotPlusMinus() ) { sb.append(string); }
  )
  { 
+  {System.err.println("UnaryExpression: completed UnaryExpression() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+ {System.err.println("UnaryExpression: \""+sb.toString() + "\""); }
  return sb.toString(); 
  }
 }
@@ -2044,6 +2102,7 @@ String UnaryExpression(boolean isUnarySign) :
 String UnaryExpressionNotPlusMinus() :
 { String string = null; StringBuffer sb = new StringBuffer() ; }
 {
+  {System.err.println("UnaryExpressionNotPlusMinus: attempting UnaryExpressionNotPlusMinus() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
   (
   (<NOT>) {sb.append(" NOT "); } 
   (string = UnaryExpression(false) ) { sb.append(string); }
@@ -2051,6 +2110,8 @@ String UnaryExpressionNotPlusMinus() :
    (string = PrimaryExpression() ) { sb.append(string); }
   )
  { 
+  {System.err.println("UnaryExpressionNotPlusMinus: completed UnaryExpressionNotPlusMinus() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+ {System.err.println("UnaryExpressionNotPlusMinus: \""+sb.toString() + "\""); }
  return sb.toString(); 
  }
 }
@@ -2064,6 +2125,7 @@ String PrimaryExpression() :
 { Token thisToken ; String string = null; StringBuffer sb = new StringBuffer() ;
 }
 {
+  {System.err.println("PrimaryExpression: attempting PrimaryExpression() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
   ( 
     ( // Explicitly cope with case where "NEW" is a Primary Prefix, such as in a Trigger WHEN clause  
 	    (<NEW_DOT> thisToken = QualifiedID()  ) { sb.append(" NEW."); sb.append(thisToken.toString()); }  
@@ -2074,11 +2136,15 @@ String PrimaryExpression() :
         <NEW> { sb.append(" NEW "); } (string = PrimaryPrefix() ) {sb.append(string);}  
       |       (string = PrimaryPrefix() ) {sb.append(string);}  
 	  
-	  )
-	  ( LOOKAHEAD(2) (string = PrimarySuffix() ) { sb.append(string); }  )*
+    )
+  {System.err.println("PrimaryExpression: attempting PrimarySuffix() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+    ( LOOKAHEAD(2) (string = PrimarySuffix() ) { sb.append(string); }  )*
+  {System.err.println("PrimaryExpression: completed PrimarySuffix() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
   )
 
  { 
+  {System.err.println("PrimaryExpression: completed PrimaryExpression() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+ {System.err.println("PrimaryExpression: \""+sb.toString() + "\""); }
  return sb.toString(); 
  }
 }
@@ -2088,6 +2154,7 @@ String PrimaryPrefix() :
 
 }
 {
+  {System.err.println("PrimaryPrefix: attempting PrimaryPrefix() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 (
   ( string = Literal() ) { sb.append(string) ; } 
 | LOOKAHEAD(MultiSetCondition()) string = MultiSetCondition()
@@ -2097,10 +2164,13 @@ String PrimaryPrefix() :
 | LOOKAHEAD(ObjectExpression() ) ( string = ObjectExpression() ) { sb.append(string) ; } //SRT 20110604
 //| LOOKAHEAD(LikeExpression()) ( string = LikeExpression() ) { sb.append(string) ; } //SRT 20110604 
 | ( string =Name() ) { sb.append(string) ; } 
-//SRT @TODO | LOOKAHEAD(<SELECT>) (<SELECT>) {sb.append("SELECT ..."); }  skip2NextTerminator(null,";")  
-//SRT @TODO | LOOKAHEAD(("(")+ <SELECT>) ("(") {sb.append("(SELECT ..."); }  skip2NextTerminator("(",")") ")"   
-//SRT @TODO | LOOKAHEAD(<WITH>) (<WITH>) {sb.append("WITH ..."); }  skip2NextTerminator(null,";")  
-//SRT @TODO | LOOKAHEAD(("(")+ <WITH>) ("(") {sb.append("(WITH ..."); }  skip2NextTerminator("(",")") ")"   
+//SQL
+| LOOKAHEAD(<SELECT>) (<SELECT>) {sb.append("SELECT ..."); }  skip2NextTerminator(null,";")  
+| LOOKAHEAD(("(")+ <SELECT>) ("(") {sb.append("(SELECT ..."); }  skip2NextTerminator("(",")") ")"   
+| LOOKAHEAD(<WITH>) (<WITH>) {sb.append("WITH ..."); }  skip2NextTerminator(null,";")  
+| LOOKAHEAD(("(")+ <WITH>) ("(") {sb.append("(WITH ..."); }  skip2NextTerminator("(",")") ")"   
+| ("(*)" ) {sb.append("(*)"); } //SQL @TODO make "(" and ")" Tokens    //SQL
+// | LOOKAHEAD( ["("] (<SELECT> | <WITH>) ) SqlSubquery() //SQL @TODO 
 |
   ("(" ) {sb.append("("); } 
   (string = Expression() ) {sb.append(string); } 
@@ -2112,6 +2182,8 @@ String PrimaryPrefix() :
 
 )
  { 
+  {System.err.println("PrimaryPrefix: completed PrimaryPrefix() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+ {System.err.println("PrimaryPrefix: \""+sb.toString() + "\""); }
  return sb.toString(); 
  }
 }
@@ -2119,6 +2191,7 @@ String PrimaryPrefix() :
 String PrimarySuffix() :
 { Token suffixToken = null ; String timeZoneExpression = null ; String arguments = null; StringBuffer sb = new StringBuffer() ; }
 {
+  {System.err.println("PrimarySuffix: attempting PrimarySuffix() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
   (
   (".") {sb.append(".");}  (suffixToken = QualifiedID() ) { sb.append(suffixToken.toString()) ; }
   //Bug 3535118 - Method call may include dblink 
@@ -2137,9 +2210,37 @@ String PrimarySuffix() :
          )   
   ) 
   |
-  ( arguments = Arguments() ) {sb.append(arguments) ; }
+  ( 
+  {System.err.println("PrimarySuffix: attempting Arguments() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+  //( arguments = Arguments() |  arguments = parenthesesContents() )
+  arguments = Arguments() 
+  //arguments = parenthesesContents() 
+  {System.err.println("PrimarySuffix: completed Arguments() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+  ) {sb.append(arguments) ; }
+    //SQL Add Aggregate function  
+    [
+      <KEEP>
+      "("
+	      <DENSE_RANK> ( <FIRST> | <LAST> ) SqlOrderByClause()
+      ")"
+
+      {sb.append(" KEEP ( ... ) ") ; }
+    ]
+
+    //SQL Add Analytic function  
+    [
+      <OVER> "(" 
+	[ SqlQueryPartitionClause() ]
+	[ SqlOrderByClause() ]
+	[ SqlWindowingClause() ]
+      ")"
+
+      {sb.append(" OVER ( ...  ) ") ; }
+    ]
   )
  { 
+  {System.err.println("PrimarySuffix: completed PrimarySuffix() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+ {System.err.println("PrimarySuffix: \""+sb.toString() + "\""); }
  return sb.toString(); 
  }
 }
@@ -2333,11 +2434,15 @@ String Arguments() :
 	StringBuffer sb = new StringBuffer();
 }
 {
+  {System.err.println("Arguments: attempting Arguments() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+  {System.out.println("Arguments: attempting Arguments() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
   //"(" [ ArgumentList() ] ")"
   ("(") { sb.append("("); }  
   [ (argumentList = ArgumentList()) { sb.append(argumentList); } ] 
   (")") { sb.append(")"); }  
  { 
+  {System.err.println("Arguments: completed Arguments() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+  {System.out.println("Arguments: completed Arguments() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
  return sb.toString(); 
  }
 }
@@ -2349,10 +2454,14 @@ String ArgumentList() :
 	StringBuffer sb = new StringBuffer();
 }
 {
+  {System.err.println("ArgumentList: attempting ArgumentList() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+  {System.out.println("ArgumentList: attempting ArgumentList() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
   //Argument() ("," token=Argument())*
   (argument = Argument()) { sb.append(argument); } 
   (("," ) { sb.append(", "); }  (argument = Argument()) {sb.append(argument); } )*
  { 
+  {System.err.println("ArgumentList: completed ArgumentList() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+  {System.out.println("ArgumentList: completed ArgumentList() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
  return sb.toString(); 
  }
 }
@@ -2364,15 +2473,20 @@ String Argument() :
 	StringBuffer sb = new StringBuffer();
 }
 {
+  {System.err.println("Argument: attempting Argument() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+  {System.out.println("Argument: attempting Argument() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 	//[LOOKAHEAD(2) UnqualifiedID() "=>"] Expression()
-	[LOOKAHEAD(2) (thisToken=UnqualifiedID()) {sb.append(thisToken); } ("=>" | <AS> ) { sb.append(" "); sb.append(token.image.toUpperCase()); sb.append(" "); } ] 
-        (string = Expression() ) {sb.append(string); } 
+	[LOOKAHEAD(2) ( thisToken="*" | thisToken=UnqualifiedID() ) {sb.append(thisToken); } ("=>" | <AS> ) { sb.append(" "); sb.append(token.image.toUpperCase()); sb.append(" "); } ] 
+        (string = ConditionalOrExpression() ) {sb.append(string); } 
 	//Allow Using CharacterSet suffix clause  
 	[
 	   ( <USING>  )  { sb.append(" "); sb.append(token.image.toUpperCase()); } 
 	   ( <CHAR_CS> | <NCHAR_CS>  )  { sb.append(" "); sb.append(token.image.toUpperCase()); } 
 	]
  { 
+ {System.err.println("Argument: \""+sb.toString() + "\""); }
+ {System.out.println("Argument: \""+sb.toString() + "\""); }
+  {System.err.println("Argument: completed Argument() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
  return sb.toString(); 
  }
 }

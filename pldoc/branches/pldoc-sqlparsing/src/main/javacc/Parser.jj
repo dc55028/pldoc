@@ -701,7 +701,6 @@ public class PLSQLParser {
           return cu;
   }
 
-
   /** Is this string valid for an alias name  
    *
    *<p>Assume that if the string is one of the keywords associated with SQL statements ( e.g. WHERE, JOIN, GROUP),
@@ -727,6 +726,7 @@ public class PLSQLParser {
 	  || "START".equals(alias) 
 	  || "CONNECT".equals(alias) 
 	  || "GROUP".equals(alias) 
+	  || "HAVING".equals(alias) 
 	  || "ORDER".equals(alias) 
 	  || "UNION".equals(alias) 
 	  || "MINUS".equals(alias) 
@@ -745,3 +745,4 @@ public class PLSQLParser {
 
 
 PARSER_END(PLSQLParser)
+
