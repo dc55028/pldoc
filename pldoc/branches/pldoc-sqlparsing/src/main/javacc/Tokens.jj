@@ -637,6 +637,7 @@ TOKEN :
   <RPAREN:    ")" >
 |
   <MULT:      "*" >
+//| <WILDCARD_ARGS:      "\(\*\)" >
 |
 < #GERMAN_SPECIAL_CHARACTERS: "�" | "�" | "�" | "�" | "�" | "�" | "�" >
 |

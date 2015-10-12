@@ -2222,23 +2222,30 @@ String PrimarySuffix() :
   ) {sb.append(arguments) ; }
     //SQL Add Aggregate function  
     [
+  {System.err.println("PrimarySuffix: attempting KEEP Clause at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
       <KEEP>
       <LPAREN>
 	      <DENSE_RANK> ( <FIRST> | <LAST> ) SqlOrderByClause()
       <RPAREN>
 
-      {sb.append(" KEEP ( ... ) ") ; }
+      {
+       System.err.println("PrimarySuffix: completed KEEP Clause at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); 
+       sb.append(" KEEP ( ... ) ") ; 
+      }
     ]
 
     //SQL Add Analytic function  
     [
+  {System.err.println("PrimarySuffix: attempting OVER Clause at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
       <OVER> <LPAREN> 
 	[ SqlQueryPartitionClause() ]
 	[ SqlOrderByClause() ]
 	[ SqlWindowingClause() ]
       <RPAREN>
 
-      {sb.append(" OVER ( ...  ) ") ; }
+      {sb.append(" OVER ( ...  ) ") ; 
+       System.err.println("PrimarySuffix: completed OVER Clause at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); 
+      }
     ]
   )
  { 
@@ -2433,19 +2440,32 @@ String QualifiedName() :
 
 String Arguments() :
 {
+	Token t = null ;
 	String argumentList = null;
 	StringBuffer sb = new StringBuffer();
 }
 {
-  {System.err.println("Arguments: attempting Arguments() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
-  {System.out.println("Arguments: attempting Arguments() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
-  //<LPAREN> [ ArgumentList() ] <RPAREN>
-  (<LPAREN>) { sb.append("("); }  
-  [ LOOKAHEAD(2, <MULT> <RPAREN> ) <MULT> <RPAREN>  { sb.append("*)") ; } 
-   |
-   (argumentList = ArgumentList()) { sb.append(argumentList); } 
-  ] 
-  (<RPAREN>) { sb.append(")"); }  
+  {System.err.println("Arguments: attempting Arguments() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); 
+  }
+  ("(*)") { sb.append( token.image ) ; }  
+  |
+  (
+	  //<LPAREN> [ ArgumentList() ] <RPAREN>
+	  (<LPAREN>) { sb.append("("); 
+	  System.err.println("Arguments: found LPAREN at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); 
+	  System.out.println("Arguments: found LPAREN at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); 
+	  }  
+	  [ 
+
+	  LOOKAHEAD(2, <MULT> <RPAREN> ) <MULT> { sb.append("*") ; 
+	  System.err.println("Arguments: found MULT RPAREN  at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); 
+	  System.out.println("Arguments: found MULT RPAREN  at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); 
+	   } 
+	   |
+	   (argumentList = ArgumentList()) { sb.append(argumentList); } 
+	  ] 
+	  (<RPAREN>) { sb.append(")"); }  
+  )
  { 
   {System.err.println("Arguments: completed Arguments() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
   {System.out.println("Arguments: completed Arguments() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
