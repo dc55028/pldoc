@@ -632,6 +632,12 @@ Aggregate Functions
  */
 TOKEN :
 {
+  <LPAREN:    "(" >
+|
+  <RPAREN:    ")" >
+|
+  <MULT:      "*" >
+|
 < #GERMAN_SPECIAL_CHARACTERS: "�" | "�" | "�" | "�" | "�" | "�" | "�" >
 |
 < #LETTER: ["A"-"Z"] | ["a"-"z"] | <GERMAN_SPECIAL_CHARACTERS> >
@@ -640,14 +646,14 @@ TOKEN :
 |
 < #_CHARACTER: <_CHARACTER_WO_ASTERISK> | "'" >
 |
-< #_CHARACTER_WO_ASTERISK: <LETTER> | <DIGIT> | "(" | ")" | "+" | "-" | "*" | "/" | "<" | ">"
+< #_CHARACTER_WO_ASTERISK: <LETTER> | <DIGIT> | <LPAREN> | <RPAREN> | "+" | "-" | <MULT> | "/" | "<" | ">"
  | "=" | "!" | "~" | "^" | ";" | ":" | "." | "@" | "%" | "," | "\"" | "#"
  | "$" | "&" | "_" | "|" | "{" | "}" | "?" | "[" | "]"
  | " " | "\t" >
 |
 < #SPECIAL_CHARACTERS: "�" | "�" | "�" | "�" | "�" | "�" | "�" | "�" | "�" | "�" | "�">
 |
-< #DELIMITER: "+" | "%" | "'" | "\"" | "." | "/" | "(" | ")" | ":" | "," | "*" | "=" | "<" | ">" | "@" | ";" | "-">
+< #DELIMITER: "+" | "%" | "'" | "\"" | "." | "/" | <LPAREN> | <RPAREN> | ":" | "," | <MULT> | "=" | "<" | ">" | "@" | ";" | "-">
 |
 < IDENTIFIER:
 	( ("$" | ":" | <LETTER>) ( <LETTER> | <DIGIT> | "$" | "_" | "#" )* ) // 2006-05-17 - Matthias Hendler - Bind variablen werden nun als Identifier akzeptiert.
