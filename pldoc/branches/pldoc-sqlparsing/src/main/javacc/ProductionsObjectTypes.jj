@@ -75,7 +75,7 @@ void TypeMethod(boolean isPackageLevel,int typeVersion, String alterTypeAction, 
 
 			/*
 			System.err.print( "\nEnd of List Walk (Inheritance,Mapping,Scope,Type)=" 
-			                  + "(" + methodInheritance
+			                  + <LPAREN> + methodInheritance
 			                  + "," + methodOrdering
 			                  + "," + methodScope
 			                  + "," + methodType
@@ -101,7 +101,7 @@ void TypeMethod(boolean isPackageLevel,int typeVersion, String alterTypeAction, 
 	}
 
 		       
-	( "(" ParameterDeclaration(tags,isPackageLevel) ( "," ParameterDeclaration(tags,isPackageLevel) )* ")" )*
+	( <LPAREN> ParameterDeclaration(tags,isPackageLevel) ( "," ParameterDeclaration(tags,isPackageLevel) )* <RPAREN> )*
 //	[<RETURN> ( <SELF> <AS> <RESULT> | type=datatype() )
 	[<RETURN> ( type=datatype() ) //datatype changed to include <SELF> <AS> <RESULT> 
 	{
@@ -296,7 +296,7 @@ void MethodDeclarator(boolean isPackageLevel,int typeVersion, Token scope) throw
 
 			/*
 			System.err.print( "\nEnd of List Walk (Inheritance,Mapping,Scope,Type)=" 
-			                  + "(" + methodInheritance
+			                  + <LPAREN> + methodInheritance
 			                  + "," + methodOrdering
 			                  + "," + methodScope
 			                  + "," + methodType
@@ -322,7 +322,7 @@ void MethodDeclarator(boolean isPackageLevel,int typeVersion, Token scope) throw
 	}
 
 		       
-	( "(" ParameterDeclaration(tags,isPackageLevel) ( "," ParameterDeclaration(tags,isPackageLevel) )* ")" )*
+	( <LPAREN> ParameterDeclaration(tags,isPackageLevel) ( "," ParameterDeclaration(tags,isPackageLevel) )* <RPAREN> )*
 //	[<RETURN> ( <SELF> <AS> <RESULT> | type=datatype() )
 	[<RETURN> ( type=datatype() ) //datatype changed to include <SELF> <AS> <RESULT> 
 	{
@@ -479,7 +479,7 @@ void typeSpec() throws SAXException :
 	]
 
         [
-	        LOOKAHEAD(3) (tokenIsAsUnder= <ACCESSIBLE> <BY>  "(" [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] QualifiedName()  ("," QualifiedName() )*  ")" )
+	        LOOKAHEAD(3) (tokenIsAsUnder= <ACCESSIBLE> <BY>  <LPAREN> [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] QualifiedName()  ("," QualifiedName() )*  <RPAREN> )
 		{
 			// possibly, package comment is here
 			processPackageComment(tokenIsAsUnder);
@@ -586,7 +586,7 @@ void typeSpec() throws SAXException :
 
         // //incomplete OBJECT TYPE and COLLECTION TYPEs will not have this 
         [
-		(tokenIsAsUnder= "(" )
+		(tokenIsAsUnder= <LPAREN> )
 		{
 			// possibly, package comment is here
 			processPackageComment(tokenIsAsUnder);
@@ -600,7 +600,7 @@ void typeSpec() throws SAXException :
 		      ) 
 		)*
 
-		")" 
+		<RPAREN> 
 	]        
         
 	( [ <NOT> ] 
@@ -677,10 +677,10 @@ void alterTypeSpec(int typeVersion, Token objectStart) throws SAXException :
             |
             (
                   <ATTRIBUTE>
-		   ( "("  )*
+		   ( <LPAREN>  )*
 		    (AttributeDeclaration(typeVersion, tokenAlterTypeString ) ) 
 		    ( "," ( AttributeDeclaration(typeVersion, tokenAlterTypeString) ) )*
-		   ( ")"  )*
+		   ( <RPAREN>  )*
             )
             |
             (<LIMIT> tokenCollectionSize = NumericLiteral() )
@@ -695,10 +695,10 @@ void alterTypeSpec(int typeVersion, Token objectStart) throws SAXException :
         (
             (
                   <ATTRIBUTE>
-		   ( "("  )*
+		   ( <LPAREN>  )*
 		    (attribute(typeVersion, tokenAlterTypeString) ) 
 		    ( "," ( attribute(typeVersion, tokenAlterTypeString) ) )*
-		   ( ")"  )*
+		   ( <RPAREN>  )*
             )
             |
              ( 
@@ -722,10 +722,10 @@ void alterTypeSpec(int typeVersion, Token objectStart) throws SAXException :
                  |
                  (
                   <ATTRIBUTE>
-		   [ "("  ]
+		   [ <LPAREN>  ]
 		    (QualifiedName() ) 
 		    ( "," ( QualifiedName() ) )*
-		   [ ")"  ]
+		   [ <RPAREN>  ]
                  )
           
           )
@@ -752,7 +752,7 @@ void alterTypeSpec(int typeVersion, Token objectStart) throws SAXException :
                 ]
 
                 [
-		LOOKAHEAD(3) (tokenIsAsUnder= <ACCESSIBLE> <BY>  "(" [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] QualifiedName()  ("," QualifiedName() )*  ")" )
+		LOOKAHEAD(3) (tokenIsAsUnder= <ACCESSIBLE> <BY>  <LPAREN> [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] QualifiedName()  ("," QualifiedName() )*  <RPAREN> )
 		{
 			// possibly, package comment is here
 			processPackageComment(tokenIsAsUnder);
@@ -812,7 +812,7 @@ void alterTypeSpec(int typeVersion, Token objectStart) throws SAXException :
 			}
 		}
 
-		(tokenIsAsUnder= "(" )
+		(tokenIsAsUnder= <LPAREN> )
 		{
 			// possibly, package comment is here
 			processPackageComment(tokenIsAsUnder);
@@ -821,7 +821,7 @@ void alterTypeSpec(int typeVersion, Token objectStart) throws SAXException :
 		(LOOKAHEAD(2) TypeMethod(isPackageLevel,typeVersion, tokenAlterTypeString, objectStart) | AttributeDeclaration(typeVersion, tokenAlterTypeString) ) 
 		( "," ( LOOKAHEAD(2) TypeMethod(isPackageLevel,typeVersion, tokenAlterTypeString, objectStart) | AttributeDeclaration(typeVersion, tokenAlterTypeString) ) )*
 
-		")" 
+		<RPAREN> 
 	]        
         
 /* */
@@ -966,12 +966,12 @@ void PragmaClause() throws org.xml.sax.SAXException :
 		|
 		name=<AUTONOMOUS_TRANSACTION>
 		|
-		name=<RESTRICT_REFERENCES> "(" (functionName=ID() /*| <_DEFAULT>*/)
-		("," (ID() | StringLiteral() /* 20110526 <STRING_LITERAL> */) )+	")"
+		name=<RESTRICT_REFERENCES> <LPAREN> (functionName=ID() /*| <_DEFAULT>*/)
+		("," (ID() | StringLiteral() /* 20110526 <STRING_LITERAL> */) )+	<RPAREN>
 		|
-		name=<EXCEPTION_INIT> "(" exceptionName=<IDENTIFIER> "," ["+"|"-"] errorNumber=NumericLiteral() ")"
+		name=<EXCEPTION_INIT> <LPAREN> exceptionName=<IDENTIFIER> "," ["+"|"-"] errorNumber=NumericLiteral() <RPAREN>
 		|
-		name=<INTERFACE> "(" <IDENTIFIER> "," <IDENTIFIER> "," NumericLiteral() ")"
+		name=<INTERFACE> <LPAREN> <IDENTIFIER> "," <IDENTIFIER> "," NumericLiteral() <RPAREN>
 	)
 }
 
