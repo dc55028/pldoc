@@ -94,7 +94,7 @@ void SqlDeleteStatement()    :
 {System.err.println("SqlDeleteStatement: attempting SqlDeleteStatement()"); }
 	<DELETE> [ <FROM> ] 
 	(
-		<ONLY> "(" SqlDmlTableExpression() ")"
+		<ONLY> <LPAREN> SqlDmlTableExpression() <RPAREN>
 		| SqlDmlTableExpression() 
 	) 
 	[ UnqualifiedID() ] // alias	
@@ -117,9 +117,9 @@ void SqlDmlTableExpression()    :
 {}
 {
 {System.err.println("SqlDMlTableExpression: attempting SqlDMlTableExpression()"); }
-		<TABLE> "(" SqlSubquery() ")"   
+		<TABLE> <LPAREN> SqlSubquery() <RPAREN>   
 		| QualifiedName() [ "@" QualifiedName() /* DBLink Name */ ]  
-		| "(" SqlSubquery() ")"
+		| <LPAREN> SqlSubquery() <RPAREN>
 
 }
 
@@ -130,7 +130,7 @@ void SqlMergeStatement()    :
 {System.err.println("SqlMergeStatement: attempting SqlMergeStatement()"); }
 	<MERGE> <INTO> QualifiedName() //Table Name
 	<USING>
-	<ON> "(" SqlCondition() ")"
+	<ON> <LPAREN> SqlCondition() <RPAREN>
 	// Matched Clause
 	<WHEN> <MATCHED> <THEN> 
 	<UPDATE> <SET> 
@@ -156,12 +156,12 @@ void SqlMergeStatement()    :
 	
 	<WHEN> <NOT> <MATCHED> <THEN> 
 	<INSERT> 
-	"("
+	<LPAREN>
 		//Column Alias List 
 		QualifiedID() ( "," QualifiedID() )* 
-	")"
+	<RPAREN>
 	<VALUES> 
-	"("
+	<LPAREN>
 		(
 			<_DEFAULT>
 			|
@@ -176,7 +176,7 @@ void SqlMergeStatement()    :
 			  SqlExpression() 
 			)
 		)*
-	")"
+	<RPAREN>
 	[ SqlWhereClause() ]
 
 	[ SqlErrorLoggingClause() ]
@@ -192,9 +192,9 @@ void SqlErrorLoggingClause()    :
 	<LOG> <ERRORS> 
 	[
 		<INTO> QualifiedName() 
-		"("
+		<LPAREN>
 			SqlExpression() 
-		")"
+		<RPAREN>
 	]
 
 	[
@@ -310,10 +310,10 @@ void SqlInsertIntoClause()    :
 	[ UnqualifiedID() ] //Alias   
 
 	[
-		"("
+		<LPAREN>
 			//Column Alias List 
 			UnqualifiedID() ( "," UnqualifiedID() )* 
-		")"
+		<RPAREN>
 	]
 
 }
@@ -325,7 +325,7 @@ void SqlValuesClause()    :
 {
 {System.err.println("SqlValuesClause: attempting SqlValuesClause()"); }
 	<VALUES> 
-	"("
+	<LPAREN>
 		(
 			<_DEFAULT>
 			|
@@ -339,7 +339,7 @@ void SqlValuesClause()    :
 			  SqlExpression() 
 			)
 		)*
-	")"
+	<RPAREN>
 	
 
 }
@@ -353,8 +353,8 @@ void SqlUpdateStatement()    :
 	<UPDATE> 
 	(
 		QualifiedName()  [ "@" QualifiedName() /* DBLink Name */ ]  
-		| "(" SqlSubquery() ")"
-		| <TABLE> "(" SqlSubquery() ")"   
+		| <LPAREN> SqlSubquery() <RPAREN>
+		| <TABLE> <LPAREN> SqlSubquery() <RPAREN>   
 	) 
         (
 	   <SET> 
@@ -393,19 +393,19 @@ void SqlColumnAssignment()    :
 
 	// Multi-column assigment 
 	(
-		"("
+		<LPAREN>
 			//Column Alias List 
 			QualifiedID() ( "," QualifiedID() )* 
-		")"
+		<RPAREN>
 		"="
-		 "(" SqlSubquery() ")" 
+		 <LPAREN> SqlSubquery() <RPAREN> 
 	)
 	|
 	// Single-column assignment 
 	(
 		QualifiedName() "=" 
 		(
-			( "(" SqlSubquery() ")" )
+			( <LPAREN> SqlSubquery() <RPAREN> )
 			| 
 			SqlExpression() 
 		)
@@ -466,10 +466,10 @@ void SqlSubquery()    :
 	SqlQueryBlock()
 	| 
 	  ( 
-		"(" 
+		<LPAREN> 
 		// Left recursion SqlSubquery() //@TODO
 		(
- 			"(" SqlQueryBlock() ")"
+ 			<LPAREN> SqlQueryBlock() <RPAREN>
  			| SqlQueryBlock()
 		)
 		(
@@ -477,17 +477,17 @@ void SqlSubquery()    :
 			| <INTERSECT>
 			| <MINUS>
 		(
-		  "(" SqlSubquery() ")"
+		  <LPAREN> SqlSubquery() <RPAREN>
 		  | SqlSubquery()
 		)
 		)*
-		")" 
+		<RPAREN> 
 	  )
 	  |
 	  ( 
 		// Left recursion SqlSubquery() //@TODO
 		(
- 			"(" SqlQueryBlock() ")"
+ 			<LPAREN> SqlQueryBlock() <RPAREN>
  			| SqlQueryBlock()
 		)
 		(
@@ -495,7 +495,7 @@ void SqlSubquery()    :
 			| <INTERSECT>
 			| <MINUS>
 		(
-		  "(" SqlSubquery() ")"
+		  <LPAREN> SqlSubquery() <RPAREN>
 		  | SqlSubquery()
 		)
 		)*
@@ -512,7 +512,7 @@ void SqlSubquery()    :
 
 	Where SubqueryClause() is
 	QueryBlock()
-	| "(" Subquery() ")"
+	| <LPAREN> Subquery() <RPAREN>
         */
 
 
@@ -562,7 +562,7 @@ void SqlSubqueryClause()    :
 {
 {System.err.println("SqlSubqueryClause: "); }
 
-        ( "(" SqlSubquery() ")" )
+        ( <LPAREN> SqlSubquery() <RPAREN> )
 	| 
 	SqlQueryBlock()
  {System.err.println("SqlSubqueryClause: completed SqlSubQueryClause() starting at at line "+start.beginLine+", column "+start.beginColumn+" - \""+start.image+"\" " + " and ending at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
@@ -578,7 +578,7 @@ void SqlQueryBlock()    :
 	  (
 	    ( 
 	       {System.err.println("SqlQueryBlock: attempting Bracketed SqlSubquery() after WITH clause starting at at line "+start.beginLine+", column "+start.beginColumn+" - \""+start.image+"\" " + " and ending at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
-               "(" SqlSubquery() ")" 
+               <LPAREN> SqlSubquery() <RPAREN> 
 	       {System.err.println("SqlQueryBlock: completed Bracketed SqlSubquery() after WITH clause starting at at line "+start.beginLine+", column "+start.beginColumn+" - \""+start.image+"\" " + " and ending at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
             )
 	    |
@@ -640,14 +640,14 @@ void SqlTableClause()    :
 {
 {System.err.println("SqlTableClause: attempting SqlTableClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 	/*
-	"(" SqlJoinClause() ")"
+	<LPAREN> SqlJoinClause() <RPAREN>
 	|  SqlTableReference()
 	| SqlJoinClause()
         
 	Refactored out leading  SqlTableReference() to remove grammar ambiguity
 	*/
 	
-	"(" SqlTableReference() /* [ UnqualifiedID() ] Table Alias*/ SqlJoinClause() ")"
+	<LPAREN> SqlTableReference() /* [ UnqualifiedID() ] Table Alias*/ SqlJoinClause() <RPAREN>
 	|  SqlTableReference() /* [ UnqualifiedID() ] Table Alias*/ [ SqlJoinClause() ]
 
 {System.err.println("SqlTableClause: completed SqlTableClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
@@ -699,15 +699,15 @@ void SqlSubqueryFactoringClause()    :
 {System.err.println("SqlSubqueryFactoringClause: attempting SqlQueryRefactoringClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
       UnqualifiedID() //Query name) 
 	[
-	  "("
+	  <LPAREN>
 		  //Column Alias List 
 		  UnqualifiedID() ( "," UnqualifiedID() )* 
-	  ")"
+	  <RPAREN>
 	]
 	<AS>
-	"("
+	<LPAREN>
 		SqlSubquery()
-	")"
+	<RPAREN>
 	[ SqlSearchClause() ]
 	[ SqlCycleClause() ]
 	
@@ -763,7 +763,7 @@ void SqlSelectList()    :
 {
 {System.err.println("SqlSelectList: attempting SqlSelectList()"); }
 	({System.err.println("SqlSelectList: attempting first SqlItem"); }
-	  "*"
+	  <MULT> /* SQL WIldcard */
            | SqlSelectItem() 
 	)
 	(
@@ -783,7 +783,7 @@ void SqlSelectItem()  :
 {System.err.println("SqlSelectItem: attempting SqlSelectItem()"); }
 /*
   ( {System.err.println("SqlSelectItem: attempting SqlSelectItem(QualifiedID())"); } 
-    QualifiedName()  "." "*" 
+    QualifiedName()  "." <MULT> /* SQL Wildcard * / 
   )
   |  
   SqlAggregateFunction() 
@@ -811,7 +811,7 @@ void SqlTableReference()    :
 		| 
 		(
 			(
-				<ONLY> "(" SqlQueryTableExpression() ")"
+				<ONLY> <LPAREN> SqlQueryTableExpression() <RPAREN>
 				|
 				SqlQueryTableExpression()
 			)
@@ -826,7 +826,7 @@ void SqlTableReference()    :
 	
  {System.err.println("SqlTableReference: potential Table Alias at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 /*
-	LOOKAHEAD( { !( ")".equalsIgnoreCase(getToken(1).image) || "INNER".equalsIgnoreCase(getToken(1).image) || "OUTER".equalsIgnoreCase(getToken(1).image) || "JOIN".equalsIgnoreCase(getToken(1).image) || "FULL".equalsIgnoreCase(getToken(1).image) || "CROSS".equalsIgnoreCase(getToken(1).image) || "NATURAL".equalsIgnoreCase(getToken(1).image) || "WHERE".equalsIgnoreCase(getToken(1).image) || "START".equalsIgnoreCase(getToken(1).image) || "CONNECT".equalsIgnoreCase(getToken(1).image) || "GROUP".equalsIgnoreCase(getToken(1).image) || "ORDER".equalsIgnoreCase(getToken(1).image) || "UNION".equalsIgnoreCase(getToken(1).image) || "MINUS".equalsIgnoreCase(getToken(1).image) || "INTERSECT".equalsIgnoreCase(getToken(1).image) ) } ) 
+	LOOKAHEAD( { !( <RPAREN>.equalsIgnoreCase(getToken(1).image) || "INNER".equalsIgnoreCase(getToken(1).image) || "OUTER".equalsIgnoreCase(getToken(1).image) || "JOIN".equalsIgnoreCase(getToken(1).image) || "FULL".equalsIgnoreCase(getToken(1).image) || "CROSS".equalsIgnoreCase(getToken(1).image) || "NATURAL".equalsIgnoreCase(getToken(1).image) || "WHERE".equalsIgnoreCase(getToken(1).image) || "START".equalsIgnoreCase(getToken(1).image) || "CONNECT".equalsIgnoreCase(getToken(1).image) || "GROUP".equalsIgnoreCase(getToken(1).image) || "ORDER".equalsIgnoreCase(getToken(1).image) || "UNION".equalsIgnoreCase(getToken(1).image) || "MINUS".equalsIgnoreCase(getToken(1).image) || "INTERSECT".equalsIgnoreCase(getToken(1).image) ) } ) 
    (
 	UnqualifiedID() 
        {System.err.println("SqlTableReference: found Table Alias() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
@@ -890,7 +890,7 @@ void SqlQueryTableExpression()    :
 {Token start = token ;}
 {
  {System.err.println("SqlQueryTableExpression: attempting SqlQueryTableExpression() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
-	( [ <LATERAL> ] "(" SqlSubquery() [ SqlSubqueryRestrictionClause() ] ")"  
+	( [ <LATERAL> ] <LPAREN> SqlSubquery() [ SqlSubqueryRestrictionClause() ] <RPAREN>  
  {System.err.println("SqlQueryTableExpression: found LATEREAL ... at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
         )
 	|  SqlTableCollectionExpression()
@@ -916,23 +916,23 @@ void SqlPivotClause()    :
  {System.err.println("SqlPivotClause: attempting SqlPivotClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 	<PIVOT> [ <XML> ]
 
-	"("
+	<LPAREN>
 		(
-			SqlAggregateFunction() "(" SqlExpression() "}" 
+			SqlAggregateFunction() <LPAREN> SqlExpression() "}" 
 			[ <AS> ]
 			 UnqualifiedID() //Alias 
 		)
 		( 
 			"," 
 			(
-				SqlAggregateFunction() "(" SqlExpression() "}" 
+				SqlAggregateFunction() <LPAREN> SqlExpression() "}" 
 				[ <AS> ]
 				 UnqualifiedID() //Alias 
 			)
 		)
 		SqlPivotForClause()
 		SqlPivotInClause()
-	")"
+	<RPAREN>
 
  {System.err.println("SqlPivotClause: completed SqlPivotClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 }
@@ -945,9 +945,9 @@ void SqlReferencedColumns()    :
 		|
 		//Column List 
 		(
-			"("
+			<LPAREN>
 				QualifiedID() ( "," QualifiedID() )*
-			")"
+			<RPAREN>
 		)
 
 }
@@ -965,7 +965,7 @@ void SqlPivotForClause()    :
 void SqlPivotInClause()    :
 {}
 {
-	<IN> "("
+	<IN> <LPAREN>
 		(
 
 			<ANY> ( "," <ANY> )*
@@ -973,7 +973,7 @@ void SqlPivotInClause()    :
 			| SqlColumnExpression() ( ","  SqlColumnExpression() )
 		)
 		
-	")"
+	<RPAREN>
 
 }
 
@@ -983,11 +983,11 @@ void SqlUnpivotClause()    :
 {
 	<UNPIVOT> 
 	[ [ <INCLUDE> | <EXCLUDE> ] <NULLS> ]
-	"("
+	<LPAREN>
 		SqlReferencedColumns() 
 		SqlPivotForClause() 
 		SqlUnpivotInClause()
-	")"
+	<RPAREN>
 
 }
 
@@ -995,16 +995,16 @@ void SqlUnpivotClause()    :
 void SqlUnpivotInClause()    :
 {}
 {
-	<IN> "("
+	<IN> <LPAREN>
 		SqlReferencedColumns()
 		<AS>
 		(
 			Literal()
 			|
-			"(" Literal() ( "," Literal() )* ")" 
+			<LPAREN> Literal() ( "," Literal() )* <RPAREN> 
 		)
 		
-	")"
+	<RPAREN>
 
 }
 
@@ -1015,7 +1015,7 @@ void SqlSampleClause()    :
 {
  {System.err.println("SqlSampleClause: attempting SqlSampleClause()  at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 	<SAMPLE> [ <BLOCK> ]
-	"("
+	<LPAREN>
 		NumericLiteral() //Sample Percentage 
                 /*@TODO
 			Disagreement between syntax 
@@ -1025,12 +1025,12 @@ void SqlSampleClause()    :
 		[
 		  "," NumericLiteral() 
 		]
-	")"
+	<RPAREN>
 	[
 		<SEED>
-		"("
+		<LPAREN>
 			Literal() //Seed Value NumericLiteral() ?
-		")"
+		<RPAREN>
 	]
 
  {System.err.println("SqlSampleClause: found SqlSampleClause()  at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
@@ -1044,9 +1044,9 @@ void SqlPartitionExtensionClause()    :
 
 	( <PARTITION> | <SUBPARTITION> )
 	(
-		"(" QualifiedID() ( "," QualifiedID() )*  ")" 
+		<LPAREN> QualifiedID() ( "," QualifiedID() )*  <RPAREN> 
 		|
-		<FOR> "("  QualifiedID() ( "," QualifiedID() )* ")" 
+		<FOR> <LPAREN>  QualifiedID() ( "," QualifiedID() )* <RPAREN> 
 	)
 
 
@@ -1075,8 +1075,8 @@ void SqlTableCollectionExpression()    :
 {}
 {
 
-	<TABLE> "(" SqlCollectionExpression() ")" [ "(" "+" ")" ]
-	//Possibly @TODO <CAST> "(" <MULTISET> "(" SqlCollectionExpression() ")" ")" 
+	<TABLE> <LPAREN> SqlCollectionExpression() <RPAREN> [ <LPAREN> "+" <RPAREN> ]
+	//Possibly @TODO <CAST> <LPAREN> <MULTISET> <LPAREN> SqlCollectionExpression() <RPAREN> <RPAREN> 
 
 }
 
@@ -1097,9 +1097,9 @@ void SqlContainersClause()    :
 {
 
 	<CONTAINERS>
-	"(" 
+	<LPAREN> 
 		QualifiedID() ( "," QualifiedID() )*
-	")"
+	<RPAREN>
 
 }
 
@@ -1121,9 +1121,9 @@ void SqlJoinClause()    :
 					( <ON> SqlCondition() )
 					( <USING> 
 						//Column List 
-						"(" 
+						<LPAREN> 
 							QualifiedID() ( "," QualifiedID() )*
-						")"
+						<RPAREN>
 					)
 				)
 			)
@@ -1135,7 +1135,7 @@ void SqlJoinClause()    :
 					( <NATURAL> [ <INNER> ] )
 				)
 				<JOIN> SqlTableReference() 
-				//LOOKAHEAD( { !")".equalsIgnoreCase(getToken(1).image) && !"WHERE".equalsIgnoreCase(getToken(1).image) && !"START".equalsIgnoreCase(getToken(1).image) && !"CONNECT".equalsIgnoreCase(getToken(1).image) && !"GROUP".equalsIgnoreCase(getToken(1).image) && !"ORDER".equalsIgnoreCase(getToken(1).image) && !"UNION".equalsIgnoreCase(getToken(1).image) && !"MINUS".equalsIgnoreCase(getToken(1).image) && !"INTERSECT".equalsIgnoreCase(getToken(1).image) } ) ( UnqualifiedID() ) /*Table Alias*/
+				//LOOKAHEAD( { !<RPAREN>.equalsIgnoreCase(getToken(1).image) && !"WHERE".equalsIgnoreCase(getToken(1).image) && !"START".equalsIgnoreCase(getToken(1).image) && !"CONNECT".equalsIgnoreCase(getToken(1).image) && !"GROUP".equalsIgnoreCase(getToken(1).image) && !"ORDER".equalsIgnoreCase(getToken(1).image) && !"UNION".equalsIgnoreCase(getToken(1).image) && !"MINUS".equalsIgnoreCase(getToken(1).image) && !"INTERSECT".equalsIgnoreCase(getToken(1).image) } ) ( UnqualifiedID() ) /*Table Alias*/
 				//[ UnqualifiedID() ]
 {System.err.println("Completed CROSS/NATURAL JOIN : "); }
 			)
@@ -1153,9 +1153,9 @@ void SqlJoinClause()    :
 				( <ON> SqlExpression() )
 				( <USING> 
 					//Column List 
-					"(" 
+					<LPAREN> 
 						QualifiedID() ( "," QualifiedID() )*
-					")"
+					<RPAREN>
 				)
 			)
 		)
@@ -1175,7 +1175,7 @@ void SqlQueryPartitionClause()    :
 {
 	<PARTITION> <BY> 
 	(
-		"(" SqlExpression() ( ","  SqlExpression() )*  ")"
+		<LPAREN> SqlExpression() ( ","  SqlExpression() )*  <RPAREN>
 		| 
 		SqlExpression() 
 	)
@@ -1186,7 +1186,7 @@ void SqlColumnExpression()    :
 {}
 {
 	(
-		"(" SqlExpression() ( ","  SqlExpression() )*  ")"
+		<LPAREN> SqlExpression() ( ","  SqlExpression() )*  <RPAREN>
 		| 
 		SqlExpression() 
 	)
@@ -1289,9 +1289,9 @@ void SqlRollupCubeClause()    :
 {}
 {
 	( <ROLLUP> | <CUBE> )
-	"("
+	<LPAREN>
 		SqlGroupingExpressionList()
-	")"
+	<RPAREN>
 
 }
 
@@ -1300,7 +1300,7 @@ void SqlGroupingSetsClause()    :
 {}
 {
 	<GROUPING> <SETS> 
-	"("
+	<LPAREN>
 	(
 		SqlRollupCubeClause()
 		|SqlGroupingExpressionList()
@@ -1312,7 +1312,7 @@ void SqlGroupingSetsClause()    :
 		|SqlGroupingExpressionList()
 		)
 	)*
-	")"
+	<RPAREN>
 
 }
 
@@ -1329,7 +1329,7 @@ void SqlExpressionList()    :
 {}
 {
 	(
-		"(" SqlExpression() ( ","  SqlExpression() )*  ")"
+		<LPAREN> SqlExpression() ( ","  SqlExpression() )*  <RPAREN>
 		| SqlExpression() ( ","  SqlExpression() )*  
 	)
 
@@ -1381,7 +1381,7 @@ void SqlReferenceModel()    :
 	<REFERENCE>
 	UnqualifiedID() //Reference Model Name 
 	<ON> 
-	"(" SqlSubquery() ")" 
+	<LPAREN> SqlSubquery() <RPAREN> 
 	SqlModelColumnClauses()
 	SqlCellReferenceOptions() 
 
@@ -1405,22 +1405,22 @@ void SqlModelColumnClauses()    :
 {}
 {
 	<PARTITION> <BY> 
-	"("
+	<LPAREN>
 		( SqlExpression() [ QualifiedID() ]  )
 		( ","  SqlExpression() [ QualifiedID() ] )*
-	")"
+	<RPAREN>
 
 	<DIMENSION> <BY> 
-	"("
+	<LPAREN>
 		( SqlExpression() [ QualifiedID() ]  )
 		( ","  SqlExpression() [ QualifiedID() ] )*
-	")"
+	<RPAREN>
 
 	<MEASURES> 
-	"("
+	<LPAREN>
 		( SqlExpression() [ QualifiedID() ]  )
 		( ","  SqlExpression() [ QualifiedID() ] )*
-	")"
+	<RPAREN>
 
 }
 
@@ -1440,7 +1440,7 @@ void SqlModelRulesClause()    :
 		[ ( <AUTOMATIC> | <SEQUENTIAL> ) <ORDER> ]
 		SqlModelIterateClause() 
 	]	
-	"("
+	<LPAREN>
 		(
 			[ <UPDATE> | <UPSERT> [ <ALL> ] ]
 			SqlCellAssignment()
@@ -1458,7 +1458,7 @@ void SqlModelRulesClause()    :
 		)*
 		
 		
-	")"
+	<RPAREN>
 
 }
 
@@ -1466,8 +1466,8 @@ void SqlModelRulesClause()    :
 void SqlModelIterateClause()    :
 {}
 {
-	<ITERATE> "(" NumericLiteral() ")" 
-	<UNTIL> "(" SqlCondition() ")" 
+	<ITERATE> <LPAREN> NumericLiteral() <RPAREN> 
+	<UNTIL> <LPAREN> SqlCondition() <RPAREN> 
 
 }
 
@@ -1516,10 +1516,10 @@ void SqlSingleColumnForLoop()    :
 	(
 		(
 			<IN> 
-			"("
+			<LPAREN>
 				( Literal() | SqlSubquery() )
 				( "," Literal() | SqlSubquery() )*
-			")"
+			<RPAREN>
 		)
 		|
 		(
@@ -1537,16 +1537,16 @@ void SqlMultiColumnForLoop()    :
 {}
 {
 	<FOR> 
-	"(" QualifiedID() //Dimension Column 
+	<LPAREN> QualifiedID() //Dimension Column 
 	  "," QualifiedID() //Dimension Column 
-	")"
+	<RPAREN>
 	(
 		(
 			<IN> 
-			"("
-				( "(" Literal() ( ","  Literal() )* ")" | SqlSubquery() )
-				( "," "(" Literal() ( ","  Literal() )* ")" | SqlSubquery() )*
-			")"
+			<LPAREN>
+				( <LPAREN> Literal() ( ","  Literal() )* <RPAREN> | SqlSubquery() )
+				( "," <LPAREN> Literal() ( ","  Literal() )* <RPAREN> | SqlSubquery() )*
+			<RPAREN>
 		)
 	)
 
@@ -1599,20 +1599,20 @@ void SqlRowPatternClause()    :
 {
 
 	<MATCH> <RECOGNIZE>
-	"("
+	<LPAREN>
 		[ SqlRowPatternPartitionBy() ]
 		[ SqlRowPatternOrderBy() ]
 		[ SqlRowPatternMeasures() ]
 		[ SqlRowPatternRowsPerMatch() ]
 		[ SqlRowPatternSkipTo() ]
 		<PATTERN>
-		"("
+		<LPAREN>
 			SqlRowPattern()
-		")"
+		<RPAREN>
 		[ SqlRowPatternSubsetClause() ] 
 		<DEFINE>
 		SqlRowPatternDefinitionList()
-	")"
+	<RPAREN>
 
 
 }
@@ -1719,13 +1719,13 @@ void SqlRowPatternPrimary()    :
 	"$"
 	| "^"
 	| SqlRowPatternPermute() 
-	//| "("  SqlRowPattern()  ")"
-	| "(" 
+	//| <LPAREN>  SqlRowPattern()  <RPAREN>
+	| <LPAREN> 
 		(
 			( "-" SqlRowPattern() "-" )
 			|  SqlRowPattern() 
 		)
-	  ")"
+	  <RPAREN>
 	| Name() 
 
 }
@@ -1734,9 +1734,9 @@ void SqlRowPatternPermute()    :
 {}
 {
 	<PERMUTE>
-	"("
+	<LPAREN>
 		SqlRowPattern() ( "," SqlRowPattern() )
-	")"
+	<RPAREN>
 
 }
 
@@ -1745,7 +1745,7 @@ void SqlRowPatternQuantifier()    :
 {
 
 	(
-		("*" | "+" | "?" )  [ "?" ]
+		(<MULT> /* SQL Wildcard */ | "+" | "?" )  [ "?" ]
 	)
 	| ( "{" NumericLiteral()  [ "," [ NumericLiteral() ] ] "}" [ "?" ] )
 	//| ( "{" NumericLiteral()  "}" )
@@ -1767,9 +1767,9 @@ void SqlRowPatternSubsetItem()    :
 {
 
 	Name() "=" 
-	"(" 
+	<LPAREN> 
 		Name() ( "," Name() )* 
-	")"
+	<RPAREN>
 
 }
 
@@ -1792,8 +1792,8 @@ void SqlRowPatternRecFunction()    :
 {}
 {
 
-	( <CLASSIFIER> "(" ")" ) // Row Pattern Classifier Function   
-	| ( <MATCH_NUMBER> "(" ")" )   // Row Pattern Match Number Function   
+	( <CLASSIFIER> <LPAREN> <RPAREN> ) // Row Pattern Classifier Function   
+	| ( <MATCH_NUMBER> <LPAREN> <RPAREN> )   // Row Pattern Match Number Function   
 	|  SqlRowPatternNavigationFunction()  // Row Pattern Navigation Function   
 	|  SqlRowPatternAggregateFunction()  // Row Pattern Aggregate Function   
 
@@ -1807,7 +1807,7 @@ void SqlRowPatternNavigationFunction()    :
 	(
 		[  <RUNNING> | <FINAL> ]
 		( <FIRST> | <LAST> )
-		"(" SqlExpression() "," NumericLiteral() ")" 
+		<LPAREN> SqlExpression() "," NumericLiteral() <RPAREN> 
 	)
 
 	|
@@ -1816,19 +1816,19 @@ void SqlRowPatternNavigationFunction()    :
 		(
 			//Row Pattern Navigation Physical 
 			(
-				"(" SqlExpression() "," NumericLiteral() ")" 
+				<LPAREN> SqlExpression() "," NumericLiteral() <RPAREN> 
 			)
 			//Row Pattern Navigation Compound 
 			|
 			(
 				( <PREV> | <NEXT> )
-				"(" 
+				<LPAREN> 
 					[  <RUNNING> | <FINAL> ]
 					( <FIRST> | <LAST> )
-					"(" SqlExpression() "," NumericLiteral() ")"
+					<LPAREN> SqlExpression() "," NumericLiteral() <RPAREN>
 
 					"," NumericLiteral() 
-				")" 
+				<RPAREN> 
 			)
 		)
 	)
@@ -1857,7 +1857,7 @@ Aggregate Functions
 Analytic Function
 http://docs.oracle.com/database/121/SQLRF/functions004.htm#i81407
 http://docs.oracle.com/cd/E11882_01/server.112/e26088/functions004.htm#SQLRF06174
-AnalyticFunction "(" arguments ")" 
+AnalyticFunction <LPAREN> arguments <RPAREN> 
 */
 
 void SqlAnalyticFunction()    :
@@ -1865,11 +1865,11 @@ void SqlAnalyticFunction()    :
 {
   {System.err.println("SqlAnalyticFunction: attempting SqlAnalyticFunctio()"); }
 	PrimaryExpression() 
-	<OVER> "(" 
+	<OVER> <LPAREN> 
 			[ SqlQueryPartitionClause() ]
 			[ SqlOrderByClause() ]
 			[ SqlWindowingClause() ]
-		")"
+		<RPAREN>
 
 }
 
@@ -1914,9 +1914,9 @@ void SqlAggregateFunction()    :
 	PrimaryExpression() 
 	(
 	<KEEP>
-	"("
+	<LPAREN>
 		<DENSE_RANK> ( <FIRST> | <LAST> ) SqlOrderByClause()
-	")"
+	<RPAREN>
 	)
 
   {System.err.println("SqlAggregateFunction: completede SqlAggregateFunction()"); }

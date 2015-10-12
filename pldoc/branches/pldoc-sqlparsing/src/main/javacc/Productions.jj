@@ -38,11 +38,14 @@ void input() throws org.xml.sax.SAXException : {}
 }
 
 JAVACODE
+/** Return teh contents of paired parantheses.
+ *<p>This does not consume the parantheses. 
+*/
 String parenthesesContents() 
 {
 	Token t;
 	StringBuffer sb = new StringBuffer() ;
-	int nesting = 0;
+	int nesting = 1;
 	while (true)
 	{
 		t = getToken(1);
@@ -52,13 +55,13 @@ String parenthesesContents()
 		}
 
 		sb.append(t.image); 
-		if (t.image.equals("(") )
+		if (t.image.equals(LPAREN) )
 		{
 			nesting++;
   {System.err.println("parenthesesContents: incremented nesting to " + nesting + " at line "+t.beginLine+", column "+t.beginColumn+" - \""+t.image+"\" "); }
 		}
 
-		if (t.image.equals(")") ) 
+		if (t.image.equals(RPAREN) ) 
 		{
 			nesting--;
   {System.err.println("parenthesesContents: decremented " + nesting + " at line "+t.beginLine+", column "+t.beginColumn+" - \""+t.image+"\" "); }
@@ -252,16 +255,16 @@ void JavaSpec() throws SAXException :
 		processPackageComment(tokenIsAs);
 	}
 
-	(tokenIsAs=<ACCESSIBLE> <BY>  "(" [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] QualifiedName()  
+	(tokenIsAs=<ACCESSIBLE> <BY>  <LPAREN> [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] QualifiedName()  
                                           ("," [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] QualifiedName() )*  
-                                      ")" 
+                                      <RPAREN> 
         )
 	{
 		// possibly, package comment is here
 		processPackageComment(tokenIsAs);
 	}
 
-	(tokenIsAs=<RESOLVER> "("  ( "("  ( "*" | <QUOTED_LITERAL> )  [","] ( "-" | UnqualifiedID()  )  ")"  )+    ")"    )?
+	(tokenIsAs=<RESOLVER> <LPAREN>  ( <LPAREN>  ( <MULT> | <QUOTED_LITERAL> )  [","] ( "-" | UnqualifiedID()  )  <RPAREN>  )+    <RPAREN>    )?
 	{
 		// possibly, package comment is here
 		processPackageComment(tokenIsAs);
@@ -277,7 +280,7 @@ void JavaSpec() throws SAXException :
 
 
         (
-           LOOKAHEAD(<BFILE> "(")  ( <BFILE>  "(" UnqualifiedID() "," StringLiteral()  ")" )
+           LOOKAHEAD(<BFILE> <LPAREN>)  ( <BFILE>  <LPAREN> UnqualifiedID() "," StringLiteral()  <RPAREN> )
           | LOOKAHEAD( ( <CLOB> | <BLOB> | <BFILE> ) <SELECT> ) ( ( <CLOB> | <BLOB> | <BFILE> ) SqlStatement(null,";") [";"] )
           | StringLiteral()
         )
@@ -337,9 +340,9 @@ void PackageSpec() throws SAXException :
 	}
 
         [
-	(tokenIsAs=<ACCESSIBLE> <BY>  "(" [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] QualifiedName()  
+	(tokenIsAs=<ACCESSIBLE> <BY>  <LPAREN> [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] QualifiedName()  
                                          ("," [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] QualifiedName() )*  
-                                      ")" 
+                                      <RPAREN> 
         )
 	{
 		// possibly, package comment is here
@@ -574,7 +577,7 @@ void ProgramUnit(boolean isPackageLevel, Token objectStart) throws SAXException 
 	( 
 	( WrappedObject() ) 
 	|//UnwrappedCode
-	( ("(") {
+	( (<LPAREN>) {
 	          /*
 	           Last chance to collect member comment before hitting the parameters
 		   Using DBMS_METADATA.GET_DDL here (between the name and the parameter start is the only 
@@ -586,7 +589,7 @@ void ProgramUnit(boolean isPackageLevel, Token objectStart) throws SAXException 
 		 */
 	          tags.putAll(processMemberComment(token, null, null));
 	        } 
-	  ParameterDeclaration(tags,isPackageLevel) ( "," ParameterDeclaration(tags,isPackageLevel) )* ")" )*
+	  ParameterDeclaration(tags,isPackageLevel) ( "," ParameterDeclaration(tags,isPackageLevel) )* <RPAREN> )*
 	{
 		//SRT 20110422 System.err.println("ProgramUnit: found ParameterDeclaration" );
 	}
@@ -688,19 +691,19 @@ void ProgramUnit(boolean isPackageLevel, Token objectStart) throws SAXException 
 	*/
 
 	( (<AUTHID> ( <CURRENT_USER> | <DEFINER> ) ) 
-	    | (<ACCESSIBLE> <BY>  "(" 
+	    | (<ACCESSIBLE> <BY>  <LPAREN> 
                                     [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] QualifiedName()  
                                    ("," [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] QualifiedName() )*  
-                                  ")" 
+                                  <RPAREN> 
               )
 
             | <DETERMINISTIC> 
 	    | <PARALLEL_ENABLE>  [ ParallelClause() ] [ <USING> ID() ["." ID()] ] 
 	   | <PIPELINED> [ ( <USING> ID() ["." ID()] ) 
 	                   |  //20110531
-			   (( <ORDER> | <CLUSTER> ) [ID()] <BY> "(" ID() ( "," ID() )*  ")" ) 
+			   (( <ORDER> | <CLUSTER> ) [ID()] <BY> <LPAREN> ID() ( "," ID() )*  <RPAREN> ) 
 			 ] //  drvparx.IndexMapDocuments
-	   | <RESULT_CACHE> [ <RELIES_ON> "(" ID() ["." ID()] ( "," ID() ["." ID()])*  ")" ]
+	   | <RESULT_CACHE> [ <RELIES_ON> <LPAREN> ID() ["." ID()] ( "," ID() ["." ID()])*  <RPAREN> ]
            | CompilationExpression() // Allow Conditional PRAGMA
 	) *
 	
@@ -872,11 +875,11 @@ String collection_type_name() :
         name = token.toString();
       }
     }
-	(LOOKAHEAD(2) "(" size=NumericLiteral() {name += "(" + size;}
+	(LOOKAHEAD(2) <LPAREN> size=NumericLiteral() {name += "(" + size;}
 		["," precision=NumericLiteral() {name += "," + precision;}]
 		[ <CHAR> {name += " CHAR" ;}]
 		[ <BYTE> {name += " BYTE" ;}]
-	")" {name += ")";})?
+	<RPAREN> {name += ")" ;})?
 
       { return name; }
 }
@@ -945,11 +948,11 @@ String scalar_datatype_name() :
         name = token.toString();
       }
     }
-	(LOOKAHEAD(2) "(" size=NumericLiteral() {name += "(" + size;}
+	(LOOKAHEAD(2) <LPAREN> size=NumericLiteral() {name += "(" + size;}
 		["," precisionString=UnaryExpression(true) {name += "," + precisionString;}] //NUMBERS may have negative precision
 		[ <CHAR> {name += " CHAR" ;}]
 		[ <BYTE> {name += " BYTE" ;}]
-	")" {name += ")";})?
+	<RPAREN> {name += ")" ;})?
 
         /*
 	    LOOKAHEAD(3) (<DAY><TO><SECOND> {name += " DAY TO SECOND";}) |
@@ -982,8 +985,8 @@ String scalar_datatype_name() :
     LOOKAHEAD(2) (<TO><MONTH> {name += " TO MONTH";}) |
     LOOKAHEAD(2) (<TO><SECOND> {name += " TO SECOND";} 
 			(
-			  LOOKAHEAD(2) "(" precision=NumericLiteral() {name += "(" + precision;}
-					")" {name += ")";}
+			  LOOKAHEAD(2) <LPAREN> precision=NumericLiteral() {name += "(" + precision;}
+					<RPAREN> {name += ")" ;}
 			)?
                  )
    ]
@@ -1037,8 +1040,8 @@ String DateTimeLiteral() :
         }
         
 
-	(LOOKAHEAD(2) "(" size=NumericLiteral() {sb.append("("); sb.append(size); } 
-	")" {sb.append(")"); } 
+	(LOOKAHEAD(2) <LPAREN> size=NumericLiteral() {sb.append("("); sb.append(size); } 
+	<RPAREN> {sb.append(")"); } 
         )?
 
 
@@ -1056,8 +1059,8 @@ String DateTimeLiteral() :
          | type2 = <SECOND>
         )
         {sb.append(" "); sb.append(type2.toString()) ;} 
-	(LOOKAHEAD(2) "(" size=NumericLiteral() {sb.append("("); sb.append(size);} 
-	")" {sb.append(")"); } 
+	(LOOKAHEAD(2) <LPAREN> size=NumericLiteral() {sb.append("("); sb.append(size);} 
+	<RPAREN> {sb.append(")"); } 
         )?
     )
    ]
@@ -1339,7 +1342,7 @@ void WrappedObject() throws SAXException :
 void Statement() throws SAXException :
 {}
 {
-	LOOKAHEAD(["("] <SELECT>|<UPDATE>|<INSERT>|<DELETE>|<COMMIT>|<ROLLBACK>|<SAVEPOINT>|<EXECUTE>|<SET><TRANSACTION>|<LOCK><TABLE>|<MERGE>|<WITH>) SqlStatement(null,";") [";"] 
+	LOOKAHEAD([<LPAREN>] <SELECT>|<UPDATE>|<INSERT>|<DELETE>|<COMMIT>|<ROLLBACK>|<SAVEPOINT>|<EXECUTE>|<SET><TRANSACTION>|<LOCK><TABLE>|<MERGE>|<WITH>) SqlStatement(null,";") [";"] 
 		| LOOKAHEAD(3) <CONTINUE> [ <IDENTIFIER> ] [ <WHEN> Expression() ] ";" // 11G CONTINUE Statement  
 
 		| <CASE> ( Expression() )?
@@ -1350,7 +1353,7 @@ void Statement() throws SAXException :
 		( <ELSIF> Expression() <THEN> (Statement())+ )*
 		( <ELSE> (Statement())+ )*
 		<END> <IF> ";"
-	| <FOR> ID() <IN> ( ( "(" SqlSubquery() ")" ) | ( [<REVERSE>] Expression()[".."Expression()] ) ) <LOOP> (Statement())+ <END> <LOOP> [<IDENTIFIER>] ";"
+	| <FOR> ID() <IN> ( ( <LPAREN> SqlSubquery() <RPAREN> ) | ( [<REVERSE>] Expression()[".."Expression()] ) ) <LOOP> (Statement())+ <END> <LOOP> [<IDENTIFIER>] ";"
 	| <FORALL> ID() <IN> 
 			    (
 	                     ( <INDICES> | <VALUES> ) <OF> Expression() // Add support for sparse collections
@@ -1421,10 +1424,10 @@ void SubtypeDefinition(boolean isPackageLevel) throws SAXException :
 				returnType = baseType;
 			}
 			[
-			  ( "(" constraint=<IDENTIFIER> ")") // SRT 20110604 [<NOT> <NULL> ]
+			  ( <LPAREN> constraint=<IDENTIFIER> <RPAREN>) // SRT 20110604 [<NOT> <NULL> ]
 			  {
 				  if (constraint != null) {
-					  returnType += "(" + constraint + ")";
+					  returnType += "(" + constraint + ")" ;
 				  }
 			  }
 			  |
@@ -1459,19 +1462,19 @@ void SubtypeDefinition(boolean isPackageLevel) throws SAXException :
 				  { returnType = "NEW " + base_type.toString().toUpperCase() ; }
 				|
 				//SRT 20110606 SYS.STANDRD 
-				(<OBJECT> {baseType = "OBJECT";} "(" FieldDeclaration(isPackageLevel, tags) ("," FieldDeclaration(isPackageLevel, tags))* ")" )
+				(<OBJECT> {baseType = "OBJECT";} <LPAREN> FieldDeclaration(isPackageLevel, tags) ("," FieldDeclaration(isPackageLevel, tags))* <RPAREN> )
 					{
 						returnType = "OBJECT";
 						// end for
 					}
 				|
-				(<RECORD> {baseType = "RECORD";} "(" FieldDeclaration(isPackageLevel, tags) ("," FieldDeclaration(isPackageLevel, tags))* ")" )
+				(<RECORD> {baseType = "RECORD";} <LPAREN> FieldDeclaration(isPackageLevel, tags) ("," FieldDeclaration(isPackageLevel, tags))* <RPAREN> )
 				{
 					returnType = "RECORD";
 					// end for
 				}
 				|
-				((collection=<TABLE> | collection=<VARRAY> | collection=<VARYING> collection2=<ARRAY>)["(" constraint=NumericLiteral() ")"]
+				((collection=<TABLE> | collection=<VARRAY> | collection=<VARYING> collection2=<ARRAY>)[<LPAREN> constraint=NumericLiteral() <RPAREN>]
 				<OF> baseType=datatype() (notNullable = <NOT> <NULL>)? (<INDEX> <BY> indexBy=datatype())?)
 				{
 					returnType = collection.toString();
@@ -1479,7 +1482,7 @@ void SubtypeDefinition(boolean isPackageLevel) throws SAXException :
 						returnType += " " + collection2;
 					}
 					if (constraint != null) {
-						returnType += "(" + constraint + ")";
+						returnType += "(" + constraint + ")" ;
 					}
 					returnType += " OF " + baseType;
 
@@ -1500,10 +1503,10 @@ void SubtypeDefinition(boolean isPackageLevel) throws SAXException :
 					}
 				}
 				//Enumeration 
-				| ( "(" 
-				      string = Expression() {returnType ="(" +  string; } 
+				| ( <LPAREN> 
+				      string = Expression() {returnType = "(" +  string; } 
 				              ( "," string = Expression() {returnType += "," +  string; } )* 
-				    ")" {returnType += ")"; } 
+				    <RPAREN> {returnType += ")" ; } 
 			          )
 				//Alias for existing type  
 				| returnType = datatype() 
@@ -1575,7 +1578,7 @@ void CallSpecTail(boolean isPackageLevel) : {
 		  |
 		  ( <NAME> (<IDENTIFIER>  | <QUOTED_LITERAL> /* C */| StringLiteral() /* JAVA */ ) )
 		  //SRT 20110517  Need to cope with  CallSpecTails in ObjectTypes  // skip2NextTerminator(null,";") 
-		  //skipPastNextOccurrence(")") // Read until we have eaten the closing bracket ")" 
+		  //skipPastNextOccurrence(<RPAREN>) // Read until we have eaten the closing bracket <RPAREN> 
 		  |
 		  (
 		    <WITH> <CONTEXT>
@@ -1583,7 +1586,7 @@ void CallSpecTail(boolean isPackageLevel) : {
 		  |
 		  (
 		    <PARAMETERS>
-		    skipPastNextOccurrence(")") // Read until we have eaten the closing bracket ")" 
+		    skipPastNextOccurrence(")") // Read until we have eaten the closing bracket <RPAREN> 
 		  )
 		)*
 	)
@@ -1621,7 +1624,7 @@ void CallSpecTail(boolean isPackageLevel) : {
   <LIBRARY> <IDENTIFIER>
   [ <WITH> <CONTEXT> ]
   [<PARAMETERS> 
-    "("
+    <LPAREN>
      <CONTEXT> 
      ( ","
              (
@@ -1634,7 +1637,7 @@ void CallSpecTail(boolean isPackageLevel) : {
                )
 	     )
       )*
-     ")"
+     <RPAREN>
   ]
   )
   {
@@ -1666,7 +1669,7 @@ void CursorUnit(boolean isPackageLevel) throws SAXException :
 			tags = new Hashtable();
 		}
 	}
-	( "(" ParameterDeclaration(tags,isPackageLevel) ( "," ParameterDeclaration(tags,isPackageLevel) )* ")" )*
+	( <LPAREN> ParameterDeclaration(tags,isPackageLevel) ( "," ParameterDeclaration(tags,isPackageLevel) )* <RPAREN> )*
 	[<RETURN> type=datatype()
 	{
 		// element generated only on the package level
@@ -1836,9 +1839,9 @@ String LikeExpression() :
   (
         string = PrimaryExpression() { sb.append(" "); sb.append(string); }
 	(thisToken = <LIKE> ) { sb.append(thisToken.image);} 
-	//["(" { sb.append("(");} ]
+	//[<LPAREN> { sb.append( "(" ;} ]
 	( string = StringExpression() { sb.append(" "); sb.append(string); }  )
-	//[ ")" { sb.append(")");} ]
+	//[ <RPAREN> { sb.append( ")" );} ]
 	[
 	<ESCAPE> { sb.append(" ESCAPE ");} 
 	(  <CHARACTER_LITERAL>{ sb.append(" "); sb.append(token.toString()); }  
@@ -1857,12 +1860,12 @@ String TrimExpression() :
 {
   (
 	(thisToken = <TRIM> ) { sb.append(thisToken.image);} 
-	"(" { sb.append("(");} 
+	<LPAREN> { sb.append("(");} 
 	 [ ( <LEADING> | <TRAILING> | <BOTH> ){ sb.append(" "); sb.append(token.toString()); }  ]
 	 [ string = StringExpression() { sb.append(" "); sb.append(string); } ]
 	 ( <FROM>  )  { sb.append(thisToken.image);} 
 	 string = StringExpression() { sb.append(" "); sb.append(string); }  
-	")" { sb.append(")");} 
+	<RPAREN> { sb.append(")");} 
   )
  { 
  return sb.toString(); 
@@ -1879,14 +1882,14 @@ String ObjectExpression() :
 {
   (
 	(thisToken = <CAST> | thisToken = <TREAT> ) { sb.append(thisToken.image);} 
-	"(" { sb.append("(");} 
+	<LPAREN> { sb.append("(");} 
 	( string = Expression() { sb.append(" "); sb.append(string); }  )
 	[
 	 <AT> <TIME> <ZONE> string = PrimaryExpression() { sb.append(" AT TIME ZONE "); sb.append(string); }
 	]
 	<AS> { sb.append(" AS ");} 
 	( string = datatype() { sb.append(" "); sb.append(string); }  )
-	")" { sb.append(")");} 
+	<RPAREN> { sb.append(")");} 
   )
   ( "." Expression() )*
  { 
@@ -2062,12 +2065,12 @@ String MultiplicativeExpression() :
 { String string = null; StringBuffer sb = new StringBuffer() ; }
 {
 
-  //UnaryExpression() ( ( "*" | "/" | <MOD> ) UnaryExpression() )*
+  //UnaryExpression() ( ( <MULT> | "/" | <MOD> ) UnaryExpression() )*
  (
   (string = UnaryExpression(true) ) { sb.append(string); }
   ( 
     ( ("**"  ) { sb.append(" ** "); } //Exponentiation 
-    | ("*"  ) { sb.append(" * "); }
+    | (<MULT>  ) { sb.append(" * "); }
     | ("/"  ) { sb.append(" / "); }
     | (<MOD>  ) { sb.append(" MOD "); }
     ) 
@@ -2166,19 +2169,19 @@ String PrimaryPrefix() :
 | ( string =Name() ) { sb.append(string) ; } 
 //SQL
 | LOOKAHEAD(<SELECT>) (<SELECT>) {sb.append("SELECT ..."); }  skip2NextTerminator(null,";")  
-| LOOKAHEAD(("(")+ <SELECT>) ("(") {sb.append("(SELECT ..."); }  skip2NextTerminator("(",")") ")"   
+| LOOKAHEAD((<LPAREN>)+ <SELECT>) (<LPAREN>) {sb.append("(SELECT ..."); }  skip2NextTerminator("(",")") <RPAREN>   
 | LOOKAHEAD(<WITH>) (<WITH>) {sb.append("WITH ..."); }  skip2NextTerminator(null,";")  
-| LOOKAHEAD(("(")+ <WITH>) ("(") {sb.append("(WITH ..."); }  skip2NextTerminator("(",")") ")"   
-| ("(*)" ) {sb.append("(*)"); } //SQL @TODO make "(" and ")" Tokens    //SQL
-// | LOOKAHEAD( ["("] (<SELECT> | <WITH>) ) SqlSubquery() //SQL @TODO 
+| LOOKAHEAD((<LPAREN>)+ <WITH>) (<LPAREN>) {sb.append("(WITH ..."); }  skip2NextTerminator("(",")") <RPAREN>   
+| ("(*)" ) {sb.append("(*)"); } //SQL @TODO make <LPAREN> and <RPAREN> Tokens    //SQL
+// | LOOKAHEAD( [<LPAREN>] (<SELECT> | <WITH>) ) SqlSubquery() //SQL @TODO 
 |
-  ("(" ) {sb.append("("); } 
+  (<LPAREN> ) {sb.append("("); } 
   (string = Expression() ) {sb.append(string); } 
   (
     (",") {sb.append(", "); }  
     (string = Expression() ) {sb.append(string); } 
   )* 
-  (")") {sb.append(")"); } 
+  (<RPAREN>) {sb.append(")"); } 
 
 )
  { 
@@ -2220,20 +2223,20 @@ String PrimarySuffix() :
     //SQL Add Aggregate function  
     [
       <KEEP>
-      "("
+      <LPAREN>
 	      <DENSE_RANK> ( <FIRST> | <LAST> ) SqlOrderByClause()
-      ")"
+      <RPAREN>
 
       {sb.append(" KEEP ( ... ) ") ; }
     ]
 
     //SQL Add Analytic function  
     [
-      <OVER> "(" 
+      <OVER> <LPAREN> 
 	[ SqlQueryPartitionClause() ]
 	[ SqlOrderByClause() ]
 	[ SqlWindowingClause() ]
-      ")"
+      <RPAREN>
 
       {sb.append(" OVER ( ...  ) ") ; }
     ]
@@ -2436,10 +2439,13 @@ String Arguments() :
 {
   {System.err.println("Arguments: attempting Arguments() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
   {System.out.println("Arguments: attempting Arguments() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
-  //"(" [ ArgumentList() ] ")"
-  ("(") { sb.append("("); }  
-  [ (argumentList = ArgumentList()) { sb.append(argumentList); } ] 
-  (")") { sb.append(")"); }  
+  //<LPAREN> [ ArgumentList() ] <RPAREN>
+  (<LPAREN>) { sb.append("("); }  
+  [ LOOKAHEAD(2, <MULT> <RPAREN> ) <MULT> <RPAREN>  { sb.append("*)") ; } 
+   |
+   (argumentList = ArgumentList()) { sb.append(argumentList); } 
+  ] 
+  (<RPAREN>) { sb.append(")"); }  
  { 
   {System.err.println("Arguments: completed Arguments() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
   {System.out.println("Arguments: completed Arguments() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
@@ -2476,8 +2482,9 @@ String Argument() :
   {System.err.println("Argument: attempting Argument() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
   {System.out.println("Argument: attempting Argument() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 	//[LOOKAHEAD(2) UnqualifiedID() "=>"] Expression()
-	[LOOKAHEAD(2) ( thisToken="*" | thisToken=UnqualifiedID() ) {sb.append(thisToken); } ("=>" | <AS> ) { sb.append(" "); sb.append(token.image.toUpperCase()); sb.append(" "); } ] 
+	[LOOKAHEAD(2) ( thisToken=<MULT> | thisToken=UnqualifiedID() ) {sb.append(thisToken); } ("=>" | <AS> ) { sb.append(" "); sb.append(token.image.toUpperCase()); sb.append(" "); } ] 
         (string = ConditionalOrExpression() ) {sb.append(string); } 
+        //(string = parenthesesContents() ) {sb.append(string); } 
 	//Allow Using CharacterSet suffix clause  
 	[
 	   ( <USING>  )  { sb.append(" "); sb.append(token.image.toUpperCase()); } 
@@ -2545,16 +2552,16 @@ void Pragma(boolean isPackageLevel) throws org.xml.sax.SAXException :
 		|
 		name=<AUTONOMOUS_TRANSACTION>
 		|
-		name=<TIMESTAMP> "(" StringLiteral() ")"
+		name=<TIMESTAMP> <LPAREN> StringLiteral() <RPAREN>
 		|
-		name=<RESTRICT_REFERENCES> "(" (functionName=ID() /*| <_DEFAULT>*/)
-		("," (ID() | StringLiteral() /* 20110526 <STRING_LITERAL> */ ) )+	")"
+		name=<RESTRICT_REFERENCES> <LPAREN> (functionName=ID() /*| <_DEFAULT>*/)
+		("," (ID() | StringLiteral() /* 20110526 <STRING_LITERAL> */ ) )+	<RPAREN>
 		|
-		name=<EXCEPTION_INIT> "(" exceptionName=<IDENTIFIER> "," ["+"|"-"] errorNumber=NumericLiteral() ")"
+		name=<EXCEPTION_INIT> <LPAREN> exceptionName=<IDENTIFIER> "," ["+"|"-"] errorNumber=NumericLiteral() <RPAREN>
 		|
-		name=<INTERFACE> "(" <IDENTIFIER> "," ID() [ "," NumericLiteral() ] ")"
+		name=<INTERFACE> <LPAREN> <IDENTIFIER> "," ID() [ "," NumericLiteral() ] <RPAREN>
 		| //SRT 20110531 
-		string=QualifiedName() "(" readPastNextOccurrence(")") 
+		string=QualifiedName() <LPAREN> readPastNextOccurrence(")") 
 	)
 	";"
 	{
@@ -2588,15 +2595,15 @@ void ParallelClause() throws org.xml.sax.SAXException :
 }
 {
     (
-	    ( "(" <PARTITION> ID()  <BY> 
+	    ( <LPAREN> <PARTITION> ID()  <BY> 
 	       (<ANY> 
 	        |
-	        ( (<HASH> | <RANGE> ) "(" ID() ( "," ID() )* ")" )
+	        ( (<HASH> | <RANGE> ) <LPAREN> ID() ( "," ID() )* <RPAREN> )
                )
-	    ")"  
+	    <RPAREN>  
 	    )
     )
-    [ ( <ORDER> | <CLUSTER> ) <BY> "(" ID() ( "," ID() )*  ")" ] 
+    [ ( <ORDER> | <CLUSTER> ) <BY> <LPAREN> ID() ( "," ID() )*  <RPAREN> ] 
 
 }
 

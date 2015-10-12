@@ -25,7 +25,7 @@ void table() throws SAXException :
 //    processPackageComment(tokenCreate);
 //    processPackageComment(tokenPackage);
   }
-  "(" tableColumn() ("," tableColumn())* ")"
+  <LPAREN> tableColumn() ("," tableColumn())* <RPAREN>
   [LOOKAHEAD(2) <ON> <COMMIT> (<DELETE> | <PRESERVE>) <ROWS>]
   //### [physicalProperties()]
   //### [tableProperties()]
@@ -66,7 +66,7 @@ void view() throws SAXException :
     m_out.pushAttribute("SCHEMA", purifyIdentifier(schemaString.toString()));
     m_out.startElement("VIEW");
   }
-  ["(" viewColumn() ("," viewColumn())* ")"]
+  [<LPAREN> viewColumn() ("," viewColumn())* <RPAREN>]
   //### OF ... WITH OBJECT IDENTIFIER...
   <AS>
   Statement() //SRT select()
