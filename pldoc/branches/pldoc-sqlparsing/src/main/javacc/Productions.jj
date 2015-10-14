@@ -2214,16 +2214,19 @@ String PrimarySuffix() :
   ) 
   | 
   (
-    ("(*)") { sb.append( "(*)" ) ; }
-  )
-  |
-  ( 
-  {System.err.println("PrimarySuffix: attempting Arguments() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
-  //( arguments = Arguments() |  arguments = parenthesesContents() )
-  arguments = Arguments() 
-  //arguments = parenthesesContents() 
-  {System.err.println("PrimarySuffix: completed Arguments() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
-  ) {sb.append(arguments) ; }
+      (
+	  (
+	    ("(*)") { sb.append( "(*)" ) ; }
+	  )
+	  |
+	  ( 
+	  {System.err.println("PrimarySuffix: attempting Arguments() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+	  //( arguments = Arguments() |  arguments = parenthesesContents() )
+	  arguments = Arguments() 
+	  //arguments = parenthesesContents() 
+	  {System.err.println("PrimarySuffix: completed Arguments() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+	  ) {sb.append(arguments) ; }
+      )
     //SQL Add Aggregate function  
     [
   {System.err.println("PrimarySuffix: attempting KEEP Clause at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
@@ -2240,7 +2243,7 @@ String PrimarySuffix() :
 
     //SQL Add Analytic function  
     [
-  {System.err.println("PrimarySuffix: attempting OVER Clause at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+	  {System.err.println("PrimarySuffix: attempting OVER Clause at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
       <OVER> <LPAREN> 
 	[ SqlQueryPartitionClause() ]
 	[ SqlOrderByClause() ]
@@ -2252,6 +2255,7 @@ String PrimarySuffix() :
       }
     ]
   )
+ )
  { 
   {System.err.println("PrimarySuffix: completed PrimarySuffix() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
  {System.err.println("PrimarySuffix: \""+sb.toString() + "\""); }
