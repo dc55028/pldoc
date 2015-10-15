@@ -1960,13 +1960,33 @@ String RelationalExpression() :
 { String string = null; StringBuffer sb = new StringBuffer() ; }
 {
  (
-  {System.err.println("RelationalExpression: attempting RelationalExpression() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+  {System.err.println("RelationalExpression: attempting RelationalExpression() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\"  - this is just before token \""+ getToken(1).image +"\"" ); }
 
   //AdditiveExpression() ( ( "<" | ">" | "<=" | ">=" | [<NOT>] (<IN> | <BETWEEN> | <LIKE> | <FROM>) ) AdditiveExpression() )*
   ( 
-   //( LOOKAHEAD(2, [ <NOT> ] <EXISTS> ) ( [ <NOT> ] <EXISTS>  SqlSubquery() { string = "[NOT] EXISTS ... " ; } ) ) //SQL  
-   ( LOOKAHEAD(2, { getToken(1).image.equalsIgnoreCase("EXISTS") || ( getToken(1).image.equalsIgnoreCase("EXISTS")  && getToken(2).image.equalsIgnoreCase("EXISTS") )  } ) ( [ <NOT> ] <EXISTS>  SqlSubquery() { string = "[NOT] EXISTS ... " ; } ) 
+   LOOKAHEAD(2, [ <NOT> ] <EXISTS> ) [ <NOT> ] <EXISTS>  SqlSubquery() { string = "[NOT] EXISTS ... " ; }  //SQL  
+/*
+   ( 
+
+  {System.err.println("RelationalExpression: attempting SqlSubquery() LOOKAHEAD at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\"  - this is just before token \""+ getToken(1).image +"\" and token \""+ getToken(2).image +"\"" ); }
+     LOOKAHEAD(2, { getToken(1).image.equalsIgnoreCase("EXISTS") || ( getToken(1).image.equalsIgnoreCase("NOT")  && getToken(2).image.equalsIgnoreCase("EXISTS") )  } ) [ <NOT> { sb.append(  " NOT"  ) ; } ] <EXISTS>  { sb.append( " EXISTS " ) ; } 
+     try
+     {
+  {System.err.println("RelationalExpression: attempting SqlSubquery() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\"  - this is just before token \""+ getToken(1).image +"\"" ); }
+	     SqlSubquery() 
+  {System.err.println("RelationalExpression: completed SqlSubquery() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\"" ); }
+	 { string = " ( SubQuery ) " ; } 
+     }
+     catch (ParseException PE )
+     {
+	  System.err.println("RelationalExpression: failed to get SqlSubquery() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\"" ); 
+	  PE.printStackTrace(System.err); 
+
+	string = " ... " ;
+     }
+	
    ) //SQL  
+*/
    | 
     string = AdditiveExpression() 
   ) { sb.append(string); }
