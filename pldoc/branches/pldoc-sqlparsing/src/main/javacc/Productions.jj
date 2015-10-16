@@ -10,6 +10,7 @@
  */
 void input() throws org.xml.sax.SAXException : {}
 {
+  { System.err.println("input: attempting parsing of  \"" + inputPath + "\"" ); }
 	// SRT 2011-04-17 This syntax breaks the parser when fields of record.attach* are referenced (attachLibrary())*
 	(
         //    (LOOKAHEAD(6) PackageSpec() | LOOKAHEAD(6) PackageBody() | LOOKAHEAD(6) typeSpec() | LOOKAHEAD(6) typeBody() | LOOKAHEAD(6) ProgramUnit(true) | SqlPlusCommand())
@@ -30,11 +31,12 @@ void input() throws org.xml.sax.SAXException : {}
 	 | LOOKAHEAD(4) ProgramUnit(true,null) 
 	 | LOOKAHEAD(6) DDLCommand()   
 	 | LOOKAHEAD(6) SqlPlusCommand() 
-	 |(<SELECT>|<UPDATE>|<INSERT>|<DELETE>|<COMMIT>|<ROLLBACK>|<SAVEPOINT>|<LOCK><TABLE>|<MERGE>|<WITH>) skipPastNextTokenOccurrence(SQLPLUS_TERMINATOR) //Ignore Sql Statements in scripts
+	 |(<SELECT>|<UPDATE>|<INSERT>|<DELETE>|<COMMIT>|<ROLLBACK>|<SAVEPOINT>|<LOCK><TABLE>|<MERGE>|<WITH>|<DECLARE>|<BEGIN>) skipPastNextTokenOccurrence(SQLPLUS_TERMINATOR) //Ignore Sql Statements in scripts
 	 )	
 	 ("/")*
 	)*
 	<EOF>
+  { System.err.println("input: completed parsing of  \"" + inputPath + "\"" ); }
 }
 
 JAVACODE
@@ -157,6 +159,7 @@ void Global() throws SAXException :
 	Token name = null; 
 }
 {
+  {System.err.println("Global: attempting Global() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\"  - this is just before token \""+ getToken(1).image +"\"" ); }
 	{
 		if (m_out != null)
 		{
@@ -175,8 +178,10 @@ void Global() throws SAXException :
 	  defaulting to the GlobalPackageName if it cannot be found 
 	*/
 	(
+  {System.err.println("Global: attempting GlobalBlock() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\"  - this is just before token \""+ getToken(1).image +"\"" ); }
 	GlobalBlock(token) 
 	//LOOKAHEAD ( ( Label() )* [<DECLARE> DeclarativeSection(false,token)] <BEGIN>) GlobalBlock(token) // | LOOKAHEAD (4) ProgramUnit(true,token) 
+  {System.err.println("Global: completed GlobalBlock() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\"  - this is just before token \""+ getToken(1).image +"\"" ); }
 	)
 
 	{
@@ -1965,28 +1970,6 @@ String RelationalExpression() :
   //AdditiveExpression() ( ( "<" | ">" | "<=" | ">=" | [<NOT>] (<IN> | <BETWEEN> | <LIKE> | <FROM>) ) AdditiveExpression() )*
   ( 
    LOOKAHEAD(2, [ <NOT> ] <EXISTS> ) [ <NOT> ] <EXISTS>  SqlSubquery() { string = "[NOT] EXISTS ... " ; }  //SQL  
-/*
-   ( 
-
-  {System.err.println("RelationalExpression: attempting SqlSubquery() LOOKAHEAD at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\"  - this is just before token \""+ getToken(1).image +"\" and token \""+ getToken(2).image +"\"" ); }
-     LOOKAHEAD(2, { getToken(1).image.equalsIgnoreCase("EXISTS") || ( getToken(1).image.equalsIgnoreCase("NOT")  && getToken(2).image.equalsIgnoreCase("EXISTS") )  } ) [ <NOT> { sb.append(  " NOT"  ) ; } ] <EXISTS>  { sb.append( " EXISTS " ) ; } 
-     try
-     {
-  {System.err.println("RelationalExpression: attempting SqlSubquery() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\"  - this is just before token \""+ getToken(1).image +"\"" ); }
-	     SqlSubquery() 
-  {System.err.println("RelationalExpression: completed SqlSubquery() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\"" ); }
-	 { string = " ( SubQuery ) " ; } 
-     }
-     catch (ParseException PE )
-     {
-	  System.err.println("RelationalExpression: failed to get SqlSubquery() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\"" ); 
-	  PE.printStackTrace(System.err); 
-
-	string = " ... " ;
-     }
-	
-   ) //SQL  
-*/
    | 
     string = AdditiveExpression() 
   ) { sb.append(string); }
