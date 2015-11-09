@@ -15,8 +15,8 @@ void input() throws org.xml.sax.SAXException : {}
 	(
         //    (LOOKAHEAD(6) PackageSpec() | LOOKAHEAD(6) PackageBody() | LOOKAHEAD(6) typeSpec() | LOOKAHEAD(6) typeBody() | LOOKAHEAD(6) ProgramUnit(true) | SqlPlusCommand())
 	 // SRT 20110514 before (LOOKAHEAD(6) PackageSpec() | LOOKAHEAD(6) PackageBody() | LOOKAHEAD(6) typeSpec() | LOOKAHEAD(6) typeBody() | LOOKAHEAD(6) table() | LOOKAHEAD(6) view()  | Global() | SqlPlusCommand())	("/")*
-	 (LOOKAHEAD(8) JavaSpec()  
-	 |LOOKAHEAD(7) PackageSpec()  
+	 ( LOOKAHEAD(8) JavaSpec()  
+	 | LOOKAHEAD(7) PackageSpec()  
 	 | LOOKAHEAD(7) PackageBody()  
 	 | LOOKAHEAD(6) typeSpec()  
 	 //| LOOKAHEAD(6) typeBody()  {system.err.println("typeSpec"); }
@@ -40,9 +40,11 @@ void input() throws org.xml.sax.SAXException : {}
 }
 
 JAVACODE
-/** Return teh contents of paired parantheses.
+/** Return the contents of paired parantheses.
  *<p>This does not consume the parantheses. 
-*/
+ *
+ *@return string contents
+ */
 String parenthesesContents() 
 {
 	Token t;
@@ -1903,6 +1905,39 @@ String ObjectExpression() :
  }
 }
 
+/*
+EXTRACT ( Time Component FROM Expression)
+*/
+String ExtractExpression() :
+{ Token thisToken;  String string = null; StringBuffer sb = new StringBuffer() ; }
+{
+  (
+	(thisToken = <EXTRACT> ) { sb.append(thisToken.image);} 
+	<LPAREN> { sb.append("(");} 
+        (  thisToken = <YEAR>  
+         | thisToken = <MONTH>
+         | thisToken = <DAY>
+         | thisToken = <HOUR>
+         | thisToken = <MINUTE>
+         | thisToken = <SECOND>
+        )?
+        { 
+	      if (thisToken != null) 
+              {
+		sb.append(" "); sb.append(thisToken.toString()) ;
+	      }
+           
+        }
+	( <FROM> ) { sb.append(" FROM "); }
+	( string = Expression() { sb.append(" "); sb.append(string); }  )
+	<RPAREN> { sb.append(")");} 
+  )
+ { 
+ {System.err.println("ExtractExpression: \""+sb.toString() + "\""); }
+ return sb.toString(); 
+ }
+}
+
 String ConditionalOrExpression() :
 { String string = null; StringBuffer sb = new StringBuffer() ; }
 {
@@ -2168,6 +2203,7 @@ String PrimaryPrefix() :
 | LOOKAHEAD(TrimExpression()) string = TrimExpression() //SRT 20110613.3
 | LOOKAHEAD(CaseExpression()) ( string =CaseExpression() ) { sb.append(string) ; } //SRT 20110520
 | LOOKAHEAD(ObjectExpression() ) ( string = ObjectExpression() ) { sb.append(string) ; } //SRT 20110604
+| LOOKAHEAD(ExtractExpression() ) ( string = ExtractExpression() ) { sb.append(string) ; } 
 //| LOOKAHEAD(LikeExpression()) ( string = LikeExpression() ) { sb.append(string) ; } //SRT 20110604 
 | ( string =Name() ) { sb.append(string) ; } 
 //SQL
