@@ -1988,6 +1988,9 @@ Token KEYWORD_UNRESERVED (): {}
 | <VAR_SAMP>
 | <VARIANCE>
 | <XMLAGG>
+| <NEXTVAL>
+| <SUM>
+| <AVG>
 )
 
 { return token; }
@@ -2018,7 +2021,7 @@ Token ID(): {}
 		| <AS>  //SYNTAX  //RESERVED WORD 
 		| <ASC>  //RESERVED WORD 
 		//20120429 | <AT> | <AUTHID> 
-		| <AVG> 
+		//| <AVG> 
 		//	<BEGIN> |
 		| <BETWEEN>  //RESERVED WORD
 		| <BINARY_INTEGER> 
@@ -2094,7 +2097,9 @@ Token ID(): {}
 		| <MOD> 
 		| <MODE> //RESERVED WORD   
 		//20120501 | <NATURAL> 
-		| <NATURALN> | <NEXTVAL> | <NOCOPY> 
+		| <NATURALN> 
+                //| <NEXTVAL> 
+                | <NOCOPY> 
 		| <NOT> //SYNTAX  //RESERVED WORD  
 		| <NOWAIT>  //RESERVED WORD  
 		| <NULL>  //RESERVED WORD  
@@ -2146,7 +2151,7 @@ Token ID(): {}
 		| <START>  //RESERVED WORD  
 		| <STDDEV> // <SUBTYPE> |
 		//20120501 | <SUCCESSFUL> 
-		| <SUM> 
+		//| <SUM> 
 		| <SYNONYM>  //RESERVED WORD  
 		| <SYSDATE> 
 		| <TABLE>  //RESERVED WORD  
@@ -2266,7 +2271,7 @@ Token QualifiedID(): {}
 		//<ASC>
 		//<AT>
 		//20120429 | <AUTHID>
-		| <AVG>
+		//| <AVG>
 		//<BEGIN>
 		//<BETWEEN>
 		| <BINARY_INTEGER>
@@ -2349,7 +2354,7 @@ Token QualifiedID(): {}
 		//20120501 | <NATURAL>
 		| <NATURALN>
 		//| <NEW>
-		| <NEXTVAL>
+		//| <NEXTVAL>
 		| <NOCOPY>
 		//<NOT>
 		//<NOWAIT>
@@ -2414,7 +2419,6 @@ Token QualifiedID(): {}
 		| <STDDEV>
 		//| <SUBTYPE>
 		//20120501 | <SUCCESSFUL>
-		| <SUM>
 		| <SYNONYM>
 		| <SYSDATE>
 		//<TABLE>
