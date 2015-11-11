@@ -303,7 +303,7 @@
 				    <include name="xe-problems/*.*" />
 				    <include name="11g-source/*.*" />
 				    <include name="bugs/*.sql" />
-				    <!--include name="12c-source/*.*" /-->
+				    <include name="12c-source/*.*" />
 				    <include name="sqlparsing/*.*" />
 				    <exclude name="11g-source/test_fully_reserved.pks" />
 				</fileset>
