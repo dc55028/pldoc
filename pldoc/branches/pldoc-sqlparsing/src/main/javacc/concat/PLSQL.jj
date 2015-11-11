@@ -701,7 +701,6 @@ public class PLSQLParser {
           return cu;
   }
 
-
   /** Is this string valid for an alias name  
    *
    *<p>Assume that if the string is one of the keywords associated with SQL statements ( e.g. WHERE, JOIN, GROUP),
@@ -727,6 +726,7 @@ public class PLSQLParser {
 	  || "START".equals(alias) 
 	  || "CONNECT".equals(alias) 
 	  || "GROUP".equals(alias) 
+	  || "HAVING".equals(alias) 
 	  || "ORDER".equals(alias) 
 	  || "UNION".equals(alias) 
 	  || "MINUS".equals(alias) 
@@ -745,6 +745,7 @@ public class PLSQLParser {
 
 
 PARSER_END(PLSQLParser)
+
 /**
  * 2006-05-22 - Matthias Hendler - Added parsing of triggers and Global functions/procedures
  *                                 Refactored printing of custom tags into the XML/DOM.
@@ -757,12 +758,13 @@ PARSER_END(PLSQLParser)
  */
 void input() throws org.xml.sax.SAXException : {}
 {
+  { System.err.println("input: attempting parsing of  \"" + inputPath + "\"" ); }
 	// SRT 2011-04-17 This syntax breaks the parser when fields of record.attach* are referenced (attachLibrary())*
 	(
         //    (LOOKAHEAD(6) PackageSpec() | LOOKAHEAD(6) PackageBody() | LOOKAHEAD(6) typeSpec() | LOOKAHEAD(6) typeBody() | LOOKAHEAD(6) ProgramUnit(true) | SqlPlusCommand())
 	 // SRT 20110514 before (LOOKAHEAD(6) PackageSpec() | LOOKAHEAD(6) PackageBody() | LOOKAHEAD(6) typeSpec() | LOOKAHEAD(6) typeBody() | LOOKAHEAD(6) table() | LOOKAHEAD(6) view()  | Global() | SqlPlusCommand())	("/")*
-	 (LOOKAHEAD(8) JavaSpec()  
-	 |LOOKAHEAD(7) PackageSpec()  
+	 ( LOOKAHEAD(8) JavaSpec()  
+	 | LOOKAHEAD(7) PackageSpec()  
 	 | LOOKAHEAD(7) PackageBody()  
 	 | LOOKAHEAD(6) typeSpec()  
 	 //| LOOKAHEAD(6) typeBody()  {system.err.println("typeSpec"); }
@@ -777,11 +779,54 @@ void input() throws org.xml.sax.SAXException : {}
 	 | LOOKAHEAD(4) ProgramUnit(true,null) 
 	 | LOOKAHEAD(6) DDLCommand()   
 	 | LOOKAHEAD(6) SqlPlusCommand() 
-	 |(<SELECT>|<UPDATE>|<INSERT>|<DELETE>|<COMMIT>|<ROLLBACK>|<SAVEPOINT>|<LOCK><TABLE>|<MERGE>|<WITH>) skipPastNextTokenOccurrence(SQLPLUS_TERMINATOR) //Ignore Sql Statements in scripts
+	 |(<SELECT>|<UPDATE>|<INSERT>|<DELETE>|<COMMIT>|<ROLLBACK>|<SAVEPOINT>|<LOCK><TABLE>|<MERGE>|<WITH>|<DECLARE>|<BEGIN>) skipPastNextTokenOccurrence(SQLPLUS_TERMINATOR) //Ignore Sql Statements in scripts
 	 )	
 	 ("/")*
 	)*
 	<EOF>
+  { System.err.println("input: completed parsing of  \"" + inputPath + "\"" ); }
+}
+
+JAVACODE
+/** Return the contents of paired parantheses.
+ *<p>This does not consume the parantheses. 
+ *
+ *@return string contents
+ */
+String parenthesesContents() 
+{
+	Token t;
+	StringBuffer sb = new StringBuffer() ;
+	int nesting = 1;
+	while (true)
+	{
+		t = getToken(1);
+		if (t.kind == 0)
+		{
+			throw new ParseException();
+		}
+
+		sb.append(t.image); 
+		if (t.image.equals(LPAREN) )
+		{
+			nesting++;
+  {System.err.println("parenthesesContents: incremented nesting to " + nesting + " at line "+t.beginLine+", column "+t.beginColumn+" - \""+t.image+"\" "); }
+		}
+
+		if (t.image.equals(RPAREN) ) 
+		{
+			nesting--;
+  {System.err.println("parenthesesContents: decremented " + nesting + " at line "+t.beginLine+", column "+t.beginColumn+" - \""+t.image+"\" "); }
+			if ( 0 == nesting )
+			{
+				break;
+			}
+		}
+		t = getNextToken();
+	}
+	
+  {System.err.println("parenthesesContents: completed at line "+t.beginLine+", column "+t.beginColumn+" - \""+t.image+"\" "); }
+  return sb.toString(); 
 }
 
 
@@ -864,6 +909,7 @@ void Global() throws SAXException :
 	Token name = null; 
 }
 {
+  {System.err.println("Global: attempting Global() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\"  - this is just before token \""+ getToken(1).image +"\"" ); }
 	{
 		if (m_out != null)
 		{
@@ -882,8 +928,10 @@ void Global() throws SAXException :
 	  defaulting to the GlobalPackageName if it cannot be found 
 	*/
 	(
+  {System.err.println("Global: attempting GlobalBlock() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\"  - this is just before token \""+ getToken(1).image +"\"" ); }
 	GlobalBlock(token) 
 	//LOOKAHEAD ( ( Label() )* [<DECLARE> DeclarativeSection(false,token)] <BEGIN>) GlobalBlock(token) // | LOOKAHEAD (4) ProgramUnit(true,token) 
+  {System.err.println("Global: completed GlobalBlock() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\"  - this is just before token \""+ getToken(1).image +"\"" ); }
 	)
 
 	{
@@ -962,16 +1010,16 @@ void JavaSpec() throws SAXException :
 		processPackageComment(tokenIsAs);
 	}
 
-	(tokenIsAs=<ACCESSIBLE> <BY>  "(" [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] QualifiedName()  
+	(tokenIsAs=<ACCESSIBLE> <BY>  <LPAREN> [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] QualifiedName()  
                                           ("," [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] QualifiedName() )*  
-                                      ")" 
+                                      <RPAREN> 
         )
 	{
 		// possibly, package comment is here
 		processPackageComment(tokenIsAs);
 	}
 
-	(tokenIsAs=<RESOLVER> "("  ( "("  ( "*" | <QUOTED_LITERAL> )  [","] ( "-" | UnqualifiedID()  )  ")"  )+    ")"    )?
+	(tokenIsAs=<RESOLVER> <LPAREN>  ( <LPAREN>  ( <MULT> | <QUOTED_LITERAL> )  [","] ( "-" | UnqualifiedID()  )  <RPAREN>  )+    <RPAREN>    )?
 	{
 		// possibly, package comment is here
 		processPackageComment(tokenIsAs);
@@ -987,7 +1035,7 @@ void JavaSpec() throws SAXException :
 
 
         (
-           LOOKAHEAD(<BFILE> "(")  ( <BFILE>  "(" UnqualifiedID() "," StringLiteral()  ")" )
+           LOOKAHEAD(<BFILE> <LPAREN>)  ( <BFILE>  <LPAREN> UnqualifiedID() "," StringLiteral()  <RPAREN> )
           | LOOKAHEAD( ( <CLOB> | <BLOB> | <BFILE> ) <SELECT> ) ( ( <CLOB> | <BLOB> | <BFILE> ) SqlStatement(null,";") [";"] )
           | StringLiteral()
         )
@@ -1047,9 +1095,9 @@ void PackageSpec() throws SAXException :
 	}
 
         [
-	(tokenIsAs=<ACCESSIBLE> <BY>  "(" [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] QualifiedName()  
+	(tokenIsAs=<ACCESSIBLE> <BY>  <LPAREN> [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] QualifiedName()  
                                          ("," [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] QualifiedName() )*  
-                                      ")" 
+                                      <RPAREN> 
         )
 	{
 		// possibly, package comment is here
@@ -1284,7 +1332,7 @@ void ProgramUnit(boolean isPackageLevel, Token objectStart) throws SAXException 
 	( 
 	( WrappedObject() ) 
 	|//UnwrappedCode
-	( ("(") {
+	( (<LPAREN>) {
 	          /*
 	           Last chance to collect member comment before hitting the parameters
 		   Using DBMS_METADATA.GET_DDL here (between the name and the parameter start is the only 
@@ -1296,7 +1344,7 @@ void ProgramUnit(boolean isPackageLevel, Token objectStart) throws SAXException 
 		 */
 	          tags.putAll(processMemberComment(token, null, null));
 	        } 
-	  ParameterDeclaration(tags,isPackageLevel) ( "," ParameterDeclaration(tags,isPackageLevel) )* ")" )*
+	  ParameterDeclaration(tags,isPackageLevel) ( "," ParameterDeclaration(tags,isPackageLevel) )* <RPAREN> )*
 	{
 		//SRT 20110422 System.err.println("ProgramUnit: found ParameterDeclaration" );
 	}
@@ -1398,19 +1446,19 @@ void ProgramUnit(boolean isPackageLevel, Token objectStart) throws SAXException 
 	*/
 
 	( (<AUTHID> ( <CURRENT_USER> | <DEFINER> ) ) 
-	    | (<ACCESSIBLE> <BY>  "(" 
+	    | (<ACCESSIBLE> <BY>  <LPAREN> 
                                     [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] QualifiedName()  
                                    ("," [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] QualifiedName() )*  
-                                  ")" 
+                                  <RPAREN> 
               )
 
             | <DETERMINISTIC> 
 	    | <PARALLEL_ENABLE>  [ ParallelClause() ] [ <USING> ID() ["." ID()] ] 
 	   | <PIPELINED> [ ( <USING> ID() ["." ID()] ) 
 	                   |  //20110531
-			   (( <ORDER> | <CLUSTER> ) [ID()] <BY> "(" ID() ( "," ID() )*  ")" ) 
+			   (( <ORDER> | <CLUSTER> ) [ID()] <BY> <LPAREN> ID() ( "," ID() )*  <RPAREN> ) 
 			 ] //  drvparx.IndexMapDocuments
-	   | <RESULT_CACHE> [ <RELIES_ON> "(" ID() ["." ID()] ( "," ID() ["." ID()])*  ")" ]
+	   | <RESULT_CACHE> [ <RELIES_ON> <LPAREN> ID() ["." ID()] ( "," ID() ["." ID()])*  <RPAREN> ]
            | CompilationExpression() // Allow Conditional PRAGMA
 	) *
 	
@@ -1582,11 +1630,11 @@ String collection_type_name() :
         name = token.toString();
       }
     }
-	(LOOKAHEAD(2) "(" size=NumericLiteral() {name += "(" + size;}
+	(LOOKAHEAD(2) <LPAREN> size=NumericLiteral() {name += "(" + size;}
 		["," precision=NumericLiteral() {name += "," + precision;}]
 		[ <CHAR> {name += " CHAR" ;}]
 		[ <BYTE> {name += " BYTE" ;}]
-	")" {name += ")";})?
+	<RPAREN> {name += ")" ;})?
 
       { return name; }
 }
@@ -1655,11 +1703,11 @@ String scalar_datatype_name() :
         name = token.toString();
       }
     }
-	(LOOKAHEAD(2) "(" size=NumericLiteral() {name += "(" + size;}
+	(LOOKAHEAD(2) <LPAREN> size=NumericLiteral() {name += "(" + size;}
 		["," precisionString=UnaryExpression(true) {name += "," + precisionString;}] //NUMBERS may have negative precision
 		[ <CHAR> {name += " CHAR" ;}]
 		[ <BYTE> {name += " BYTE" ;}]
-	")" {name += ")";})?
+	<RPAREN> {name += ")" ;})?
 
         /*
 	    LOOKAHEAD(3) (<DAY><TO><SECOND> {name += " DAY TO SECOND";}) |
@@ -1692,8 +1740,8 @@ String scalar_datatype_name() :
     LOOKAHEAD(2) (<TO><MONTH> {name += " TO MONTH";}) |
     LOOKAHEAD(2) (<TO><SECOND> {name += " TO SECOND";} 
 			(
-			  LOOKAHEAD(2) "(" precision=NumericLiteral() {name += "(" + precision;}
-					")" {name += ")";}
+			  LOOKAHEAD(2) <LPAREN> precision=NumericLiteral() {name += "(" + precision;}
+					<RPAREN> {name += ")" ;}
 			)?
                  )
    ]
@@ -1747,8 +1795,8 @@ String DateTimeLiteral() :
         }
         
 
-	(LOOKAHEAD(2) "(" size=NumericLiteral() {sb.append("("); sb.append(size); } 
-	")" {sb.append(")"); } 
+	(LOOKAHEAD(2) <LPAREN> size=NumericLiteral() {sb.append("("); sb.append(size); } 
+	<RPAREN> {sb.append(")"); } 
         )?
 
 
@@ -1766,8 +1814,8 @@ String DateTimeLiteral() :
          | type2 = <SECOND>
         )
         {sb.append(" "); sb.append(type2.toString()) ;} 
-	(LOOKAHEAD(2) "(" size=NumericLiteral() {sb.append("("); sb.append(size);} 
-	")" {sb.append(")"); } 
+	(LOOKAHEAD(2) <LPAREN> size=NumericLiteral() {sb.append("("); sb.append(size);} 
+	<RPAREN> {sb.append(")"); } 
         )?
     )
    ]
@@ -2049,7 +2097,7 @@ void WrappedObject() throws SAXException :
 void Statement() throws SAXException :
 {}
 {
-	LOOKAHEAD(["("] <SELECT>|<UPDATE>|<INSERT>|<DELETE>|<COMMIT>|<ROLLBACK>|<SAVEPOINT>|<EXECUTE>|<SET><TRANSACTION>|<LOCK><TABLE>|<MERGE>|<WITH>) SqlStatement(null,";") [";"] 
+	LOOKAHEAD([<LPAREN>] <SELECT>|<UPDATE>|<INSERT>|<DELETE>|<COMMIT>|<ROLLBACK>|<SAVEPOINT>|<EXECUTE>|<SET><TRANSACTION>|<LOCK><TABLE>|<MERGE>|<WITH>) SqlStatement(null,";") [";"] 
 		| LOOKAHEAD(3) <CONTINUE> [ <IDENTIFIER> ] [ <WHEN> Expression() ] ";" // 11G CONTINUE Statement  
 
 		| <CASE> ( Expression() )?
@@ -2060,7 +2108,7 @@ void Statement() throws SAXException :
 		( <ELSIF> Expression() <THEN> (Statement())+ )*
 		( <ELSE> (Statement())+ )*
 		<END> <IF> ";"
-	| <FOR> ID() <IN> ( ( "(" SqlSubquery() ")" ) | ( [<REVERSE>] Expression()[".."Expression()] ) ) <LOOP> (Statement())+ <END> <LOOP> [<IDENTIFIER>] ";"
+	| <FOR> ID() <IN> ( ( <LPAREN> SqlSubquery() <RPAREN> ) | ( [<REVERSE>] Expression()[".."Expression()] ) ) <LOOP> (Statement())+ <END> <LOOP> [<IDENTIFIER>] ";"
 	| <FORALL> ID() <IN> 
 			    (
 	                     ( <INDICES> | <VALUES> ) <OF> Expression() // Add support for sparse collections
@@ -2131,10 +2179,10 @@ void SubtypeDefinition(boolean isPackageLevel) throws SAXException :
 				returnType = baseType;
 			}
 			[
-			  ( "(" constraint=<IDENTIFIER> ")") // SRT 20110604 [<NOT> <NULL> ]
+			  ( <LPAREN> constraint=<IDENTIFIER> <RPAREN>) // SRT 20110604 [<NOT> <NULL> ]
 			  {
 				  if (constraint != null) {
-					  returnType += "(" + constraint + ")";
+					  returnType += "(" + constraint + ")" ;
 				  }
 			  }
 			  |
@@ -2169,19 +2217,19 @@ void SubtypeDefinition(boolean isPackageLevel) throws SAXException :
 				  { returnType = "NEW " + base_type.toString().toUpperCase() ; }
 				|
 				//SRT 20110606 SYS.STANDRD 
-				(<OBJECT> {baseType = "OBJECT";} "(" FieldDeclaration(isPackageLevel, tags) ("," FieldDeclaration(isPackageLevel, tags))* ")" )
+				(<OBJECT> {baseType = "OBJECT";} <LPAREN> FieldDeclaration(isPackageLevel, tags) ("," FieldDeclaration(isPackageLevel, tags))* <RPAREN> )
 					{
 						returnType = "OBJECT";
 						// end for
 					}
 				|
-				(<RECORD> {baseType = "RECORD";} "(" FieldDeclaration(isPackageLevel, tags) ("," FieldDeclaration(isPackageLevel, tags))* ")" )
+				(<RECORD> {baseType = "RECORD";} <LPAREN> FieldDeclaration(isPackageLevel, tags) ("," FieldDeclaration(isPackageLevel, tags))* <RPAREN> )
 				{
 					returnType = "RECORD";
 					// end for
 				}
 				|
-				((collection=<TABLE> | collection=<VARRAY> | collection=<VARYING> collection2=<ARRAY>)["(" constraint=NumericLiteral() ")"]
+				((collection=<TABLE> | collection=<VARRAY> | collection=<VARYING> collection2=<ARRAY>)[<LPAREN> constraint=NumericLiteral() <RPAREN>]
 				<OF> baseType=datatype() (notNullable = <NOT> <NULL>)? (<INDEX> <BY> indexBy=datatype())?)
 				{
 					returnType = collection.toString();
@@ -2189,7 +2237,7 @@ void SubtypeDefinition(boolean isPackageLevel) throws SAXException :
 						returnType += " " + collection2;
 					}
 					if (constraint != null) {
-						returnType += "(" + constraint + ")";
+						returnType += "(" + constraint + ")" ;
 					}
 					returnType += " OF " + baseType;
 
@@ -2210,10 +2258,10 @@ void SubtypeDefinition(boolean isPackageLevel) throws SAXException :
 					}
 				}
 				//Enumeration 
-				| ( "(" 
-				      string = Expression() {returnType ="(" +  string; } 
+				| ( <LPAREN> 
+				      string = Expression() {returnType = "(" +  string; } 
 				              ( "," string = Expression() {returnType += "," +  string; } )* 
-				    ")" {returnType += ")"; } 
+				    <RPAREN> {returnType += ")" ; } 
 			          )
 				//Alias for existing type  
 				| returnType = datatype() 
@@ -2285,7 +2333,7 @@ void CallSpecTail(boolean isPackageLevel) : {
 		  |
 		  ( <NAME> (<IDENTIFIER>  | <QUOTED_LITERAL> /* C */| StringLiteral() /* JAVA */ ) )
 		  //SRT 20110517  Need to cope with  CallSpecTails in ObjectTypes  // skip2NextTerminator(null,";") 
-		  //skipPastNextOccurrence(")") // Read until we have eaten the closing bracket ")" 
+		  //skipPastNextOccurrence(<RPAREN>) // Read until we have eaten the closing bracket <RPAREN> 
 		  |
 		  (
 		    <WITH> <CONTEXT>
@@ -2293,7 +2341,7 @@ void CallSpecTail(boolean isPackageLevel) : {
 		  |
 		  (
 		    <PARAMETERS>
-		    skipPastNextOccurrence(")") // Read until we have eaten the closing bracket ")" 
+		    skipPastNextOccurrence(")") // Read until we have eaten the closing bracket <RPAREN> 
 		  )
 		)*
 	)
@@ -2331,7 +2379,7 @@ void CallSpecTail(boolean isPackageLevel) : {
   <LIBRARY> <IDENTIFIER>
   [ <WITH> <CONTEXT> ]
   [<PARAMETERS> 
-    "("
+    <LPAREN>
      <CONTEXT> 
      ( ","
              (
@@ -2344,7 +2392,7 @@ void CallSpecTail(boolean isPackageLevel) : {
                )
 	     )
       )*
-     ")"
+     <RPAREN>
   ]
   )
   {
@@ -2376,7 +2424,7 @@ void CursorUnit(boolean isPackageLevel) throws SAXException :
 			tags = new Hashtable();
 		}
 	}
-	( "(" ParameterDeclaration(tags,isPackageLevel) ( "," ParameterDeclaration(tags,isPackageLevel) )* ")" )*
+	( <LPAREN> ParameterDeclaration(tags,isPackageLevel) ( "," ParameterDeclaration(tags,isPackageLevel) )* <RPAREN> )*
 	[<RETURN> type=datatype()
 	{
 		// element generated only on the package level
@@ -2546,9 +2594,9 @@ String LikeExpression() :
   (
         string = PrimaryExpression() { sb.append(" "); sb.append(string); }
 	(thisToken = <LIKE> ) { sb.append(thisToken.image);} 
-	//["(" { sb.append("(");} ]
+	//[<LPAREN> { sb.append( "(" ;} ]
 	( string = StringExpression() { sb.append(" "); sb.append(string); }  )
-	//[ ")" { sb.append(")");} ]
+	//[ <RPAREN> { sb.append( ")" );} ]
 	[
 	<ESCAPE> { sb.append(" ESCAPE ");} 
 	(  <CHARACTER_LITERAL>{ sb.append(" "); sb.append(token.toString()); }  
@@ -2567,12 +2615,12 @@ String TrimExpression() :
 {
   (
 	(thisToken = <TRIM> ) { sb.append(thisToken.image);} 
-	"(" { sb.append("(");} 
+	<LPAREN> { sb.append("(");} 
 	 [ ( <LEADING> | <TRAILING> | <BOTH> ){ sb.append(" "); sb.append(token.toString()); }  ]
 	 [ string = StringExpression() { sb.append(" "); sb.append(string); } ]
 	 ( <FROM>  )  { sb.append(thisToken.image);} 
 	 string = StringExpression() { sb.append(" "); sb.append(string); }  
-	")" { sb.append(")");} 
+	<RPAREN> { sb.append(")");} 
   )
  { 
  return sb.toString(); 
@@ -2589,17 +2637,51 @@ String ObjectExpression() :
 {
   (
 	(thisToken = <CAST> | thisToken = <TREAT> ) { sb.append(thisToken.image);} 
-	"(" { sb.append("(");} 
+	<LPAREN> { sb.append("(");} 
 	( string = Expression() { sb.append(" "); sb.append(string); }  )
 	[
 	 <AT> <TIME> <ZONE> string = PrimaryExpression() { sb.append(" AT TIME ZONE "); sb.append(string); }
 	]
 	<AS> { sb.append(" AS ");} 
 	( string = datatype() { sb.append(" "); sb.append(string); }  )
-	")" { sb.append(")");} 
+	<RPAREN> { sb.append(")");} 
   )
   ( "." Expression() )*
  { 
+ {System.err.println("ObjectExpression: \""+sb.toString() + "\""); }
+ return sb.toString(); 
+ }
+}
+
+/*
+EXTRACT ( Time Component FROM Expression)
+*/
+String ExtractExpression() :
+{ Token thisToken;  String string = null; StringBuffer sb = new StringBuffer() ; }
+{
+  (
+	(thisToken = <EXTRACT> ) { sb.append(thisToken.image);} 
+	<LPAREN> { sb.append("(");} 
+        (  thisToken = <YEAR>  
+         | thisToken = <MONTH>
+         | thisToken = <DAY>
+         | thisToken = <HOUR>
+         | thisToken = <MINUTE>
+         | thisToken = <SECOND>
+        )?
+        { 
+	      if (thisToken != null) 
+              {
+		sb.append(" "); sb.append(thisToken.toString()) ;
+	      }
+           
+        }
+	( <FROM> ) { sb.append(" FROM "); }
+	( string = Expression() { sb.append(" "); sb.append(string); }  )
+	<RPAREN> { sb.append(")");} 
+  )
+ { 
+ {System.err.println("ExtractExpression: \""+sb.toString() + "\""); }
  return sb.toString(); 
  }
 }
@@ -2614,6 +2696,7 @@ String ConditionalOrExpression() :
   )*
   )
  { 
+ {System.err.println("ConditionalOrExpression: \""+sb.toString() + "\""); }
  return sb.toString(); 
  }
 }
@@ -2628,6 +2711,7 @@ String ConditionalAndExpression() :
    )*
   )
  { 
+ {System.err.println("ConditionalAndExpression: \""+sb.toString() + "\""); }
  return sb.toString(); 
  }
 }
@@ -2652,6 +2736,7 @@ String EqualityExpression() :
 	  )*
   )
  { 
+ {System.err.println("EqualityExpression: \""+sb.toString() + "\""); }
  return sb.toString(); 
  }
 }
@@ -2663,8 +2748,14 @@ String RelationalExpression() :
 { String string = null; StringBuffer sb = new StringBuffer() ; }
 {
  (
+  {System.err.println("RelationalExpression: attempting RelationalExpression() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\"  - this is just before token \""+ getToken(1).image +"\"" ); }
+
   //AdditiveExpression() ( ( "<" | ">" | "<=" | ">=" | [<NOT>] (<IN> | <BETWEEN> | <LIKE> | <FROM>) ) AdditiveExpression() )*
-  (string = AdditiveExpression() ) { sb.append(string); }
+  ( 
+   LOOKAHEAD(2, [ <NOT> ] <EXISTS> ) [ <NOT> ] <EXISTS>  SqlSubquery() { string = "[NOT] EXISTS ... " ; }  //SQL  
+   | 
+    string = AdditiveExpression() 
+  ) { sb.append(string); }
   ( 
    ( 
       (
@@ -2678,19 +2769,21 @@ String RelationalExpression() :
     
       )
       { sb.append(" "); } 
-   | [(<NOT>) { sb.append(" NOT "); }] 
-     ((<IN>) { sb.append(" IN "); } 
-     | (<BETWEEN> ) { sb.append(" BETWEEN "); }
-     | (<LIKE> ) { sb.append(" LIKE "); }
-     | (<FROM>) { sb.append(" FROM "); }
-     | (
-	 (
-	   (<MEMBER>) { sb.append(" MEMBER "); }
-	   |
-	   (<SUBMULTISET>) { sb.append(" SUBMULTISET "); }
-	 )
-         [ <OF> { sb.append(" OF "); } ]
-       )
+     | [(<NOT>) { sb.append(" NOT "); }] 
+     (
+	       (<IN>) { sb.append(" IN "); } 
+	     | (<EXISTS> ) { sb.append(" EXISTS "); } //SQL 
+	     | (<BETWEEN> ) { sb.append(" BETWEEN "); }
+	     | (<LIKE> ) { sb.append(" LIKE "); }
+	//@TODO SQL Breaks SqlSelectItem - is <FROM> valid here?      | (<FROM>) { sb.append(" FROM "); }
+	     | (
+		 (
+		   (<MEMBER>) { sb.append(" MEMBER "); }
+		   |
+		   (<SUBMULTISET>) { sb.append(" SUBMULTISET "); }
+		 )
+		 [ <OF> { sb.append(" OF "); } ]
+	       )
      ) 
     // MULTISET Operators 
     | ( 
@@ -2714,6 +2807,8 @@ String RelationalExpression() :
   )*
  )
  { 
+  {System.err.println("RelationalExpression: completed RelationalExpression() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+ {System.err.println("RelationalExpression: \""+sb.toString() + "\""); }
  return sb.toString(); 
  }
 }
@@ -2732,6 +2827,7 @@ String AdditiveExpression() :
   )*
  )
  { 
+ {System.err.println("AdditiveExpression: \""+sb.toString() + "\""); }
  return sb.toString(); 
  }
 }
@@ -2755,12 +2851,12 @@ String MultiplicativeExpression() :
 { String string = null; StringBuffer sb = new StringBuffer() ; }
 {
 
-  //UnaryExpression() ( ( "*" | "/" | <MOD> ) UnaryExpression() )*
+  //UnaryExpression() ( ( <MULT> | "/" | <MOD> ) UnaryExpression() )*
  (
   (string = UnaryExpression(true) ) { sb.append(string); }
   ( 
     ( ("**"  ) { sb.append(" ** "); } //Exponentiation 
-    | ("*"  ) { sb.append(" * "); }
+    | (<MULT>  ) { sb.append(" * "); }
     | ("/"  ) { sb.append(" / "); }
     | (<MOD>  ) { sb.append(" MOD "); }
     ) 
@@ -2768,6 +2864,7 @@ String MultiplicativeExpression() :
   )*
  )
  { 
+ {System.err.println("MultiplicativeExpression: \""+sb.toString() + "\""); }
  return sb.toString(); 
  }
 }
@@ -2775,6 +2872,7 @@ String MultiplicativeExpression() :
 String UnaryExpression(boolean isUnarySign) :
 { String string = null; StringBuffer sb = new StringBuffer() ; }
 {
+  {System.err.println("UnaryExpression: attempting UnaryExpression() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
  (
    ( ("+" ) { sb.append(isUnarySign ? " +" : " + "); }
    | ("-" ) { sb.append(isUnarySign ? " -" : " - "); }
@@ -2784,6 +2882,8 @@ String UnaryExpression(boolean isUnarySign) :
    (string = UnaryExpressionNotPlusMinus() ) { sb.append(string); }
  )
  { 
+  {System.err.println("UnaryExpression: completed UnaryExpression() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+ {System.err.println("UnaryExpression: \""+sb.toString() + "\""); }
  return sb.toString(); 
  }
 }
@@ -2791,6 +2891,7 @@ String UnaryExpression(boolean isUnarySign) :
 String UnaryExpressionNotPlusMinus() :
 { String string = null; StringBuffer sb = new StringBuffer() ; }
 {
+  {System.err.println("UnaryExpressionNotPlusMinus: attempting UnaryExpressionNotPlusMinus() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
   (
   (<NOT>) {sb.append(" NOT "); } 
   (string = UnaryExpression(false) ) { sb.append(string); }
@@ -2798,6 +2899,8 @@ String UnaryExpressionNotPlusMinus() :
    (string = PrimaryExpression() ) { sb.append(string); }
   )
  { 
+  {System.err.println("UnaryExpressionNotPlusMinus: completed UnaryExpressionNotPlusMinus() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+ {System.err.println("UnaryExpressionNotPlusMinus: \""+sb.toString() + "\""); }
  return sb.toString(); 
  }
 }
@@ -2811,6 +2914,7 @@ String PrimaryExpression() :
 { Token thisToken ; String string = null; StringBuffer sb = new StringBuffer() ;
 }
 {
+  {System.err.println("PrimaryExpression: attempting PrimaryExpression() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
   ( 
     ( // Explicitly cope with case where "NEW" is a Primary Prefix, such as in a Trigger WHEN clause  
 	    (<NEW_DOT> thisToken = QualifiedID()  ) { sb.append(" NEW."); sb.append(thisToken.toString()); }  
@@ -2821,11 +2925,15 @@ String PrimaryExpression() :
         <NEW> { sb.append(" NEW "); } (string = PrimaryPrefix() ) {sb.append(string);}  
       |       (string = PrimaryPrefix() ) {sb.append(string);}  
 	  
-	  )
-	  ( LOOKAHEAD(2) (string = PrimarySuffix() ) { sb.append(string); }  )*
+    )
+  {System.err.println("PrimaryExpression: attempting PrimarySuffix() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+    ( LOOKAHEAD(2) (string = PrimarySuffix() ) { sb.append(string); }  )*
+  {System.err.println("PrimaryExpression: completed PrimarySuffix() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
   )
 
  { 
+  {System.err.println("PrimaryExpression: completed PrimaryExpression() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+ {System.err.println("PrimaryExpression: \""+sb.toString() + "\""); }
  return sb.toString(); 
  }
 }
@@ -2835,6 +2943,7 @@ String PrimaryPrefix() :
 
 }
 {
+  {System.err.println("PrimaryPrefix: attempting PrimaryPrefix() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 (
   ( string = Literal() ) { sb.append(string) ; } 
 | LOOKAHEAD(MultiSetCondition()) string = MultiSetCondition()
@@ -2842,23 +2951,29 @@ String PrimaryPrefix() :
 | LOOKAHEAD(TrimExpression()) string = TrimExpression() //SRT 20110613.3
 | LOOKAHEAD(CaseExpression()) ( string =CaseExpression() ) { sb.append(string) ; } //SRT 20110520
 | LOOKAHEAD(ObjectExpression() ) ( string = ObjectExpression() ) { sb.append(string) ; } //SRT 20110604
+| LOOKAHEAD(ExtractExpression() ) ( string = ExtractExpression() ) { sb.append(string) ; } 
 //| LOOKAHEAD(LikeExpression()) ( string = LikeExpression() ) { sb.append(string) ; } //SRT 20110604 
 | ( string =Name() ) { sb.append(string) ; } 
-//SRT @TODO | LOOKAHEAD(<SELECT>) (<SELECT>) {sb.append("SELECT ..."); }  skip2NextTerminator(null,";")  
-//SRT @TODO | LOOKAHEAD(("(")+ <SELECT>) ("(") {sb.append("(SELECT ..."); }  skip2NextTerminator("(",")") ")"   
-//SRT @TODO | LOOKAHEAD(<WITH>) (<WITH>) {sb.append("WITH ..."); }  skip2NextTerminator(null,";")  
-//SRT @TODO | LOOKAHEAD(("(")+ <WITH>) ("(") {sb.append("(WITH ..."); }  skip2NextTerminator("(",")") ")"   
+//SQL
+| LOOKAHEAD(<SELECT>) (<SELECT>) {sb.append("SELECT ..."); }  skip2NextTerminator(null,";")  
+| LOOKAHEAD((<LPAREN>)+ <SELECT>) (<LPAREN>) {sb.append("(SELECT ..."); }  skip2NextTerminator("(",")") <RPAREN>   
+| LOOKAHEAD(<WITH>) (<WITH>) {sb.append("WITH ..."); }  skip2NextTerminator(null,";")  
+| LOOKAHEAD((<LPAREN>)+ <WITH>) (<LPAREN>) {sb.append("(WITH ..."); }  skip2NextTerminator("(",")") <RPAREN>   
+| ("(*)" ) {sb.append("(*)"); } //SQL @TODO make <LPAREN> and <RPAREN> Tokens    //SQL
+// | LOOKAHEAD( [<LPAREN>] (<SELECT> | <WITH>) ) SqlSubquery() //SQL @TODO 
 |
-  ("(" ) {sb.append("("); } 
+  (<LPAREN> ) {sb.append("("); } 
   (string = Expression() ) {sb.append(string); } 
   (
     (",") {sb.append(", "); }  
     (string = Expression() ) {sb.append(string); } 
   )* 
-  (")") {sb.append(")"); } 
+  (<RPAREN>) {sb.append(")"); } 
 
 )
  { 
+  {System.err.println("PrimaryPrefix: completed PrimaryPrefix() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+ {System.err.println("PrimaryPrefix: \""+sb.toString() + "\""); }
  return sb.toString(); 
  }
 }
@@ -2866,6 +2981,7 @@ String PrimaryPrefix() :
 String PrimarySuffix() :
 { Token suffixToken = null ; String timeZoneExpression = null ; String arguments = null; StringBuffer sb = new StringBuffer() ; }
 {
+  {System.err.println("PrimarySuffix: attempting PrimarySuffix() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
   (
   (".") {sb.append(".");}  (suffixToken = QualifiedID() ) { sb.append(suffixToken.toString()) ; }
   //Bug 3535118 - Method call may include dblink 
@@ -2883,10 +2999,53 @@ String PrimarySuffix() :
 	      )
          )   
   ) 
-  |
-  ( arguments = Arguments() ) {sb.append(arguments) ; }
+  | 
+  (
+      (
+	  (
+	    ("(*)") { sb.append( "(*)" ) ; }
+	  )
+	  |
+	  ( 
+	  {System.err.println("PrimarySuffix: attempting Arguments() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+	  //( arguments = Arguments() |  arguments = parenthesesContents() )
+	  arguments = Arguments() 
+	  //arguments = parenthesesContents() 
+	  {System.err.println("PrimarySuffix: completed Arguments() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+	  ) {sb.append(arguments) ; }
+      )
+    //SQL Add Aggregate function  
+    [
+  {System.err.println("PrimarySuffix: attempting KEEP Clause at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+      <KEEP>
+      <LPAREN>
+	      <DENSE_RANK> ( <FIRST> | <LAST> ) SqlOrderByClause()
+      <RPAREN>
+
+      {
+       System.err.println("PrimarySuffix: completed KEEP Clause at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); 
+       sb.append(" KEEP ( ... ) ") ; 
+      }
+    ]
+
+    //SQL Add Analytic function  
+    [
+	  {System.err.println("PrimarySuffix: attempting OVER Clause at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+      <OVER> <LPAREN> 
+	[ SqlQueryPartitionClause() ]
+	[ SqlOrderByClause() ]
+	[ SqlWindowingClause() ]
+      <RPAREN>
+
+      {sb.append(" OVER ( ...  ) ") ; 
+       System.err.println("PrimarySuffix: completed OVER Clause at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); 
+      }
+    ]
   )
+ )
  { 
+  {System.err.println("PrimarySuffix: completed PrimarySuffix() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+ {System.err.println("PrimarySuffix: \""+sb.toString() + "\""); }
  return sb.toString(); 
  }
 }
@@ -3076,15 +3235,35 @@ String QualifiedName() :
 
 String Arguments() :
 {
+	Token t = null ;
 	String argumentList = null;
 	StringBuffer sb = new StringBuffer();
 }
 {
-  //"(" [ ArgumentList() ] ")"
-  ("(") { sb.append("("); }  
-  [ (argumentList = ArgumentList()) { sb.append(argumentList); } ] 
-  (")") { sb.append(")"); }  
+  {System.err.println("Arguments: attempting Arguments() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); 
+  }
+  //"(*)" { sb.append( token.image ) ; }  
+  //|
+  (
+	  //<LPAREN> [ ArgumentList() ] <RPAREN>
+	  (<LPAREN>) { sb.append("("); 
+	  System.err.println("Arguments: found LPAREN at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); 
+	  System.out.println("Arguments: found LPAREN at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); 
+	  }  
+	  [ 
+
+	  LOOKAHEAD(2, <MULT> <RPAREN> ) <MULT> { sb.append("*") ; 
+	  System.err.println("Arguments: found MULT RPAREN  at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); 
+	  System.out.println("Arguments: found MULT RPAREN  at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); 
+	   } 
+	   |
+	   (argumentList = ArgumentList()) { sb.append(argumentList); } 
+	  ] 
+	  (<RPAREN>) { sb.append(")"); }  
+  )
  { 
+  System.err.println("Arguments: completed Arguments() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); 
+  System.out.println("Arguments: completed Arguments() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); 
  return sb.toString(); 
  }
 }
@@ -3096,10 +3275,14 @@ String ArgumentList() :
 	StringBuffer sb = new StringBuffer();
 }
 {
+  {System.err.println("ArgumentList: attempting ArgumentList() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+  {System.out.println("ArgumentList: attempting ArgumentList() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
   //Argument() ("," token=Argument())*
   (argument = Argument()) { sb.append(argument); } 
   (("," ) { sb.append(", "); }  (argument = Argument()) {sb.append(argument); } )*
  { 
+  {System.err.println("ArgumentList: completed ArgumentList() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+  {System.out.println("ArgumentList: completed ArgumentList() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
  return sb.toString(); 
  }
 }
@@ -3111,15 +3294,21 @@ String Argument() :
 	StringBuffer sb = new StringBuffer();
 }
 {
+  {System.err.println("Argument: attempting Argument() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+  {System.out.println("Argument: attempting Argument() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 	//[LOOKAHEAD(2) UnqualifiedID() "=>"] Expression()
-	[LOOKAHEAD(2) (thisToken=UnqualifiedID()) {sb.append(thisToken); } ("=>" | <AS> ) { sb.append(" "); sb.append(token.image.toUpperCase()); sb.append(" "); } ] 
-        (string = Expression() ) {sb.append(string); } 
+	[LOOKAHEAD(2) ( thisToken=<MULT> | thisToken=UnqualifiedID() ) {sb.append(thisToken); } ("=>" | <AS> ) { sb.append(" "); sb.append(token.image.toUpperCase()); sb.append(" "); } ] 
+        (string = ConditionalOrExpression() ) {sb.append(string); } 
+        //(string = parenthesesContents() ) {sb.append(string); } 
 	//Allow Using CharacterSet suffix clause  
 	[
 	   ( <USING>  )  { sb.append(" "); sb.append(token.image.toUpperCase()); } 
 	   ( <CHAR_CS> | <NCHAR_CS>  )  { sb.append(" "); sb.append(token.image.toUpperCase()); } 
 	]
  { 
+ {System.err.println("Argument: \""+sb.toString() + "\""); }
+ {System.out.println("Argument: \""+sb.toString() + "\""); }
+  {System.err.println("Argument: completed Argument() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
  return sb.toString(); 
  }
 }
@@ -3178,16 +3367,16 @@ void Pragma(boolean isPackageLevel) throws org.xml.sax.SAXException :
 		|
 		name=<AUTONOMOUS_TRANSACTION>
 		|
-		name=<TIMESTAMP> "(" StringLiteral() ")"
+		name=<TIMESTAMP> <LPAREN> StringLiteral() <RPAREN>
 		|
-		name=<RESTRICT_REFERENCES> "(" (functionName=ID() /*| <_DEFAULT>*/)
-		("," (ID() | StringLiteral() /* 20110526 <STRING_LITERAL> */ ) )+	")"
+		name=<RESTRICT_REFERENCES> <LPAREN> (functionName=ID() /*| <_DEFAULT>*/)
+		("," (ID() | StringLiteral() /* 20110526 <STRING_LITERAL> */ ) )+	<RPAREN>
 		|
-		name=<EXCEPTION_INIT> "(" exceptionName=<IDENTIFIER> "," ["+"|"-"] errorNumber=NumericLiteral() ")"
+		name=<EXCEPTION_INIT> <LPAREN> exceptionName=<IDENTIFIER> "," ["+"|"-"] errorNumber=NumericLiteral() <RPAREN>
 		|
-		name=<INTERFACE> "(" <IDENTIFIER> "," ID() [ "," NumericLiteral() ] ")"
+		name=<INTERFACE> <LPAREN> <IDENTIFIER> "," ID() [ "," NumericLiteral() ] <RPAREN>
 		| //SRT 20110531 
-		string=QualifiedName() "(" readPastNextOccurrence(")") 
+		string=QualifiedName() <LPAREN> readPastNextOccurrence(")") 
 	)
 	";"
 	{
@@ -3221,15 +3410,15 @@ void ParallelClause() throws org.xml.sax.SAXException :
 }
 {
     (
-	    ( "(" <PARTITION> ID()  <BY> 
+	    ( <LPAREN> <PARTITION> ID()  <BY> 
 	       (<ANY> 
 	        |
-	        ( (<HASH> | <RANGE> ) "(" ID() ( "," ID() )* ")" )
+	        ( (<HASH> | <RANGE> ) <LPAREN> ID() ( "," ID() )* <RPAREN> )
                )
-	    ")"  
+	    <RPAREN>  
 	    )
     )
-    [ ( <ORDER> | <CLUSTER> ) <BY> "(" ID() ( "," ID() )*  ")" ] 
+    [ ( <ORDER> | <CLUSTER> ) <BY> <LPAREN> ID() ( "," ID() )*  <RPAREN> ] 
 
 }
 
@@ -3260,7 +3449,7 @@ void table() throws SAXException :
 //    processPackageComment(tokenCreate);
 //    processPackageComment(tokenPackage);
   }
-  "(" tableColumn() ("," tableColumn())* ")"
+  <LPAREN> tableColumn() ("," tableColumn())* <RPAREN>
   [LOOKAHEAD(2) <ON> <COMMIT> (<DELETE> | <PRESERVE>) <ROWS>]
   //### [physicalProperties()]
   //### [tableProperties()]
@@ -3301,7 +3490,7 @@ void view() throws SAXException :
     m_out.pushAttribute("SCHEMA", purifyIdentifier(schemaString.toString()));
     m_out.startElement("VIEW");
   }
-  ["(" viewColumn() ("," viewColumn())* ")"]
+  [<LPAREN> viewColumn() ("," viewColumn())* <RPAREN>]
   //### OF ... WITH OBJECT IDENTIFIER...
   <AS>
   Statement() //SRT select()
@@ -3550,7 +3739,7 @@ void TypeMethod(boolean isPackageLevel,int typeVersion, String alterTypeAction, 
 
 			/*
 			System.err.print( "\nEnd of List Walk (Inheritance,Mapping,Scope,Type)=" 
-			                  + "(" + methodInheritance
+			                  + <LPAREN> + methodInheritance
 			                  + "," + methodOrdering
 			                  + "," + methodScope
 			                  + "," + methodType
@@ -3576,7 +3765,7 @@ void TypeMethod(boolean isPackageLevel,int typeVersion, String alterTypeAction, 
 	}
 
 		       
-	( "(" ParameterDeclaration(tags,isPackageLevel) ( "," ParameterDeclaration(tags,isPackageLevel) )* ")" )*
+	( <LPAREN> ParameterDeclaration(tags,isPackageLevel) ( "," ParameterDeclaration(tags,isPackageLevel) )* <RPAREN> )*
 //	[<RETURN> ( <SELF> <AS> <RESULT> | type=datatype() )
 	[<RETURN> ( type=datatype() ) //datatype changed to include <SELF> <AS> <RESULT> 
 	{
@@ -3771,7 +3960,7 @@ void MethodDeclarator(boolean isPackageLevel,int typeVersion, Token scope) throw
 
 			/*
 			System.err.print( "\nEnd of List Walk (Inheritance,Mapping,Scope,Type)=" 
-			                  + "(" + methodInheritance
+			                  + <LPAREN> + methodInheritance
 			                  + "," + methodOrdering
 			                  + "," + methodScope
 			                  + "," + methodType
@@ -3797,7 +3986,7 @@ void MethodDeclarator(boolean isPackageLevel,int typeVersion, Token scope) throw
 	}
 
 		       
-	( "(" ParameterDeclaration(tags,isPackageLevel) ( "," ParameterDeclaration(tags,isPackageLevel) )* ")" )*
+	( <LPAREN> ParameterDeclaration(tags,isPackageLevel) ( "," ParameterDeclaration(tags,isPackageLevel) )* <RPAREN> )*
 //	[<RETURN> ( <SELF> <AS> <RESULT> | type=datatype() )
 	[<RETURN> ( type=datatype() ) //datatype changed to include <SELF> <AS> <RESULT> 
 	{
@@ -3954,7 +4143,7 @@ void typeSpec() throws SAXException :
 	]
 
         [
-	        LOOKAHEAD(3) (tokenIsAsUnder= <ACCESSIBLE> <BY>  "(" [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] QualifiedName()  ("," QualifiedName() )*  ")" )
+	        LOOKAHEAD(3) (tokenIsAsUnder= <ACCESSIBLE> <BY>  <LPAREN> [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] QualifiedName()  ("," QualifiedName() )*  <RPAREN> )
 		{
 			// possibly, package comment is here
 			processPackageComment(tokenIsAsUnder);
@@ -4061,7 +4250,7 @@ void typeSpec() throws SAXException :
 
         // //incomplete OBJECT TYPE and COLLECTION TYPEs will not have this 
         [
-		(tokenIsAsUnder= "(" )
+		(tokenIsAsUnder= <LPAREN> )
 		{
 			// possibly, package comment is here
 			processPackageComment(tokenIsAsUnder);
@@ -4075,7 +4264,7 @@ void typeSpec() throws SAXException :
 		      ) 
 		)*
 
-		")" 
+		<RPAREN> 
 	]        
         
 	( [ <NOT> ] 
@@ -4152,10 +4341,10 @@ void alterTypeSpec(int typeVersion, Token objectStart) throws SAXException :
             |
             (
                   <ATTRIBUTE>
-		   ( "("  )*
+		   ( <LPAREN>  )*
 		    (AttributeDeclaration(typeVersion, tokenAlterTypeString ) ) 
 		    ( "," ( AttributeDeclaration(typeVersion, tokenAlterTypeString) ) )*
-		   ( ")"  )*
+		   ( <RPAREN>  )*
             )
             |
             (<LIMIT> tokenCollectionSize = NumericLiteral() )
@@ -4170,10 +4359,10 @@ void alterTypeSpec(int typeVersion, Token objectStart) throws SAXException :
         (
             (
                   <ATTRIBUTE>
-		   ( "("  )*
+		   ( <LPAREN>  )*
 		    (attribute(typeVersion, tokenAlterTypeString) ) 
 		    ( "," ( attribute(typeVersion, tokenAlterTypeString) ) )*
-		   ( ")"  )*
+		   ( <RPAREN>  )*
             )
             |
              ( 
@@ -4197,10 +4386,10 @@ void alterTypeSpec(int typeVersion, Token objectStart) throws SAXException :
                  |
                  (
                   <ATTRIBUTE>
-		   [ "("  ]
+		   [ <LPAREN>  ]
 		    (QualifiedName() ) 
 		    ( "," ( QualifiedName() ) )*
-		   [ ")"  ]
+		   [ <RPAREN>  ]
                  )
           
           )
@@ -4227,7 +4416,7 @@ void alterTypeSpec(int typeVersion, Token objectStart) throws SAXException :
                 ]
 
                 [
-		LOOKAHEAD(3) (tokenIsAsUnder= <ACCESSIBLE> <BY>  "(" [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] QualifiedName()  ("," QualifiedName() )*  ")" )
+		LOOKAHEAD(3) (tokenIsAsUnder= <ACCESSIBLE> <BY>  <LPAREN> [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] QualifiedName()  ("," QualifiedName() )*  <RPAREN> )
 		{
 			// possibly, package comment is here
 			processPackageComment(tokenIsAsUnder);
@@ -4287,7 +4476,7 @@ void alterTypeSpec(int typeVersion, Token objectStart) throws SAXException :
 			}
 		}
 
-		(tokenIsAsUnder= "(" )
+		(tokenIsAsUnder= <LPAREN> )
 		{
 			// possibly, package comment is here
 			processPackageComment(tokenIsAsUnder);
@@ -4296,7 +4485,7 @@ void alterTypeSpec(int typeVersion, Token objectStart) throws SAXException :
 		(LOOKAHEAD(2) TypeMethod(isPackageLevel,typeVersion, tokenAlterTypeString, objectStart) | AttributeDeclaration(typeVersion, tokenAlterTypeString) ) 
 		( "," ( LOOKAHEAD(2) TypeMethod(isPackageLevel,typeVersion, tokenAlterTypeString, objectStart) | AttributeDeclaration(typeVersion, tokenAlterTypeString) ) )*
 
-		")" 
+		<RPAREN> 
 	]        
         
 /* */
@@ -4441,12 +4630,12 @@ void PragmaClause() throws org.xml.sax.SAXException :
 		|
 		name=<AUTONOMOUS_TRANSACTION>
 		|
-		name=<RESTRICT_REFERENCES> "(" (functionName=ID() /*| <_DEFAULT>*/)
-		("," (ID() | StringLiteral() /* 20110526 <STRING_LITERAL> */) )+	")"
+		name=<RESTRICT_REFERENCES> <LPAREN> (functionName=ID() /*| <_DEFAULT>*/)
+		("," (ID() | StringLiteral() /* 20110526 <STRING_LITERAL> */) )+	<RPAREN>
 		|
-		name=<EXCEPTION_INIT> "(" exceptionName=<IDENTIFIER> "," ["+"|"-"] errorNumber=NumericLiteral() ")"
+		name=<EXCEPTION_INIT> <LPAREN> exceptionName=<IDENTIFIER> "," ["+"|"-"] errorNumber=NumericLiteral() <RPAREN>
 		|
-		name=<INTERFACE> "(" <IDENTIFIER> "," <IDENTIFIER> "," NumericLiteral() ")"
+		name=<INTERFACE> <LPAREN> <IDENTIFIER> "," <IDENTIFIER> "," NumericLiteral() <RPAREN>
 	)
 }
 
@@ -4457,7 +4646,7 @@ void PragmaClause() throws org.xml.sax.SAXException :
 
 //http://docs.oracle.com/cd/B19306_01/server.102/b14200/Statements_4010.htm
 //http://docs.oracle.com/database/121/PLSQLRF/Statements_4011.htm#PLSQLRF01110
-void CommitStatement()   throws SAXException :
+void CommitStatement()    :
 {}
 {
 	<COMMIT> [<WORK>]
@@ -4474,7 +4663,7 @@ void CommitStatement()   throws SAXException :
 
 //http://docs.oracle.com/cd/B19306_01/server.102/b14200/Statements_9021.htm#PLSQLRF01610
 //http://docs.oracle.com/database/121/PLSQLRF/Statements_9022.htm#PLSQLRF01610
-void RollbackStatement()   throws SAXException :
+void RollbackStatement()    :
 {}
 {
 	<ROLLBACK> [ <WORK> ]
@@ -4487,7 +4676,7 @@ void RollbackStatement()   throws SAXException :
 
 //http://docs.oracle.com/cd/B19306_01/server.102/b14200/Statements_10001.htm#BABFIJGC
 //http://docs.oracle.com/database/121/PLSQLRF/Statements_10001.htm#PLSQLRF01701
-void SavepointStatement()   throws SAXException :
+void SavepointStatement()    :
 {}
 {
 	 <SAVEPOINT> ID() 
@@ -4495,7 +4684,7 @@ void SavepointStatement()   throws SAXException :
 
 //http://docs.oracle.com/cd/B19306_01/server.102/b14200/Statements_9021.htm#PLSQLRF01610
 //http://docs.oracle.com/database/121/PLSQLRF/Statements_10005.htm#PLSQLRF01705
-void SetTransactionStatement()   throws SAXException :
+void SetTransactionStatement()    :
 {}
 {
 	<SET> <TRANSACTION> 
@@ -4510,7 +4699,7 @@ void SetTransactionStatement()   throws SAXException :
 }
 
 //http://docs.oracle.com/cd/B12037_01/appdev.101/b10807/13_elems027.htm
-void LockTableStatement()   throws SAXException :
+void LockTableStatement()    :
 {}
 {
 	//ROW SHARE, ROW EXCLUSIVE, SHARE UPDATE, SHARE, SHARE ROW EXCLUSIVE, or EXCLUSIVE.
@@ -4524,7 +4713,7 @@ void LockTableStatement()   throws SAXException :
 }
 
 //http://docs.oracle.com/database/121/PLSQLRF/Statements_10002.htm#i2065706
-void SqlSelectStatement()   throws SAXException :
+void SqlSelectStatement()    :
 {}
 {
 {System.err.println("SqlSelectStatement: attempting SqlSelectStatement()"); }
@@ -4540,13 +4729,13 @@ void SqlSelectStatement()   throws SAXException :
 
 //http://docs.oracle.com/cd/B19306_01/appdev.102/b14261/delete_Statement.htm#i33716
 //http://docs.oracle.com/database/121/PLSQLRF/Statements_8005.htm#i2112830
-void SqlDeleteStatement()   throws SAXException :
+void SqlDeleteStatement()    :
 {}
 {
 {System.err.println("SqlDeleteStatement: attempting SqlDeleteStatement()"); }
 	<DELETE> [ <FROM> ] 
 	(
-		<ONLY> "(" SqlDmlTableExpression() ")"
+		<ONLY> <LPAREN> SqlDmlTableExpression() <RPAREN>
 		| SqlDmlTableExpression() 
 	) 
 	[ UnqualifiedID() ] // alias	
@@ -4565,24 +4754,24 @@ void SqlDeleteStatement()   throws SAXException :
 
 
 
-void SqlDmlTableExpression()   throws SAXException :
+void SqlDmlTableExpression()    :
 {}
 {
 {System.err.println("SqlDMlTableExpression: attempting SqlDMlTableExpression()"); }
-		<TABLE> "(" SqlSubquery() ")"   
+		<TABLE> <LPAREN> SqlSubquery() <RPAREN>   
 		| QualifiedName() [ "@" QualifiedName() /* DBLink Name */ ]  
-		| "(" SqlSubquery() ")"
+		| <LPAREN> SqlSubquery() <RPAREN>
 
 }
 
 //http://docs.oracle.com/cd/B28359_01/server.111/b28286/Statements_9016.htm
-void SqlMergeStatement()   throws SAXException :
+void SqlMergeStatement()    :
 {}
 {
 {System.err.println("SqlMergeStatement: attempting SqlMergeStatement()"); }
 	<MERGE> <INTO> QualifiedName() //Table Name
 	<USING>
-	<ON> "(" SqlCondition() ")"
+	<ON> <LPAREN> SqlCondition() <RPAREN>
 	// Matched Clause
 	<WHEN> <MATCHED> <THEN> 
 	<UPDATE> <SET> 
@@ -4608,12 +4797,12 @@ void SqlMergeStatement()   throws SAXException :
 	
 	<WHEN> <NOT> <MATCHED> <THEN> 
 	<INSERT> 
-	"("
+	<LPAREN>
 		//Column Alias List 
 		QualifiedID() ( "," QualifiedID() )* 
-	")"
+	<RPAREN>
 	<VALUES> 
-	"("
+	<LPAREN>
 		(
 			<_DEFAULT>
 			|
@@ -4628,7 +4817,7 @@ void SqlMergeStatement()   throws SAXException :
 			  SqlExpression() 
 			)
 		)*
-	")"
+	<RPAREN>
 	[ SqlWhereClause() ]
 
 	[ SqlErrorLoggingClause() ]
@@ -4638,15 +4827,15 @@ void SqlMergeStatement()   throws SAXException :
 
 
 
-void SqlErrorLoggingClause()   throws SAXException :
+void SqlErrorLoggingClause()    :
 {}
 {
 	<LOG> <ERRORS> 
 	[
 		<INTO> QualifiedName() 
-		"("
+		<LPAREN>
 			SqlExpression() 
-		")"
+		<RPAREN>
 	]
 
 	[
@@ -4657,7 +4846,7 @@ void SqlErrorLoggingClause()   throws SAXException :
 
 //http://docs.oracle.com/database/121/PLSQLRF/Statements_9014.htm#sthref7054
 //http://docs.oracle.com/database/121/PLSQLRF/Statements_9014.htm#i2111652
-void SqlInsertStatement()   throws SAXException :
+void SqlInsertStatement()    :
 {}
 {
 {System.err.println("SqlInsertStatement: attempting SqlInsertStatement()"); }
@@ -4665,7 +4854,9 @@ void SqlInsertStatement()   throws SAXException :
 	<INSERT> 
 	(
 		//Single-Table INSERT 
+		LOOKAHEAD(1,<INTO>)
 		(
+{System.err.println("SqlInsertStatement: attempting Single Table Insert()"); }
 			//INSERT INTO Clause 
 			SqlInsertIntoClause() 
 			(
@@ -4685,8 +4876,10 @@ void SqlInsertStatement()   throws SAXException :
 		//Multi-Table INSERT 
 		|
 		(
+			LOOKAHEAD(2,<ALL> <INTO>)
 			(
 				(
+{System.err.println("SqlInsertStatement: attempting Multi-Table Insert"); }
 					<ALL> 
 					
 					(
@@ -4700,9 +4893,10 @@ void SqlInsertStatement()   throws SAXException :
 					)+
 				)
 			)
-			| //Multi-table INSERT 
+			| //Conditional Multi-table INSERT 
 			(
-				[ <ALL> | <FIRST> ]
+{System.err.println("SqlInsertStatement: attempting Conditional Multi-Table Insert"); }
+				[ <FIRST> | <ALL> ]
 				
 				( 
 				    <WHEN> SqlCondition() <THEN> 
@@ -4745,7 +4939,7 @@ void SqlInsertStatement()   throws SAXException :
 
 
 
-void SqlInsertIntoClause()   throws SAXException :
+void SqlInsertIntoClause()    :
 {}
 {
 {System.err.println("SqlInsertClause: attempting SqlInsertClause()"); }
@@ -4757,22 +4951,22 @@ void SqlInsertIntoClause()   throws SAXException :
 	[ UnqualifiedID() ] //Alias   
 
 	[
-		"("
+		<LPAREN>
 			//Column Alias List 
 			UnqualifiedID() ( "," UnqualifiedID() )* 
-		")"
+		<RPAREN>
 	]
 
 }
 
 
 
-void SqlValuesClause()   throws SAXException :
+void SqlValuesClause()    :
 {}
 {
 {System.err.println("SqlValuesClause: attempting SqlValuesClause()"); }
 	<VALUES> 
-	"("
+	<LPAREN>
 		(
 			<_DEFAULT>
 			|
@@ -4786,22 +4980,22 @@ void SqlValuesClause()   throws SAXException :
 			  SqlExpression() 
 			)
 		)*
-	")"
+	<RPAREN>
 	
 
 }
 
 
 //http://docs.oracle.com/cd/B19306_01/appdev.102/b14261/update_Statement.htm#i36431
-void SqlUpdateStatement()   throws SAXException :
+void SqlUpdateStatement()    :
 {}
 {
 {System.err.println("SqlUpdateStatement: attempting SqlUpdateStatement()"); }
 	<UPDATE> 
 	(
 		QualifiedName()  [ "@" QualifiedName() /* DBLink Name */ ]  
-		| "(" SqlSubquery() ")"
-		| <TABLE> "(" SqlSubquery() ")"   
+		| <LPAREN> SqlSubquery() <RPAREN>
+		| <TABLE> <LPAREN> SqlSubquery() <RPAREN>   
 	) 
         (
 	   <SET> 
@@ -4833,26 +5027,26 @@ void SqlUpdateStatement()   throws SAXException :
 }
 
 
-void SqlColumnAssignment()   throws SAXException :
+void SqlColumnAssignment()    :
 {}
 {
 {System.err.println("SqlColumnAssignment: attempting SqlColumnAssignment()"); }
 
 	// Multi-column assigment 
 	(
-		"("
+		<LPAREN>
 			//Column Alias List 
 			QualifiedID() ( "," QualifiedID() )* 
-		")"
+		<RPAREN>
 		"="
-		 "(" SqlSubquery() ")" 
+		 <LPAREN> SqlSubquery() <RPAREN> 
 	)
 	|
 	// Single-column assignment 
 	(
 		QualifiedName() "=" 
 		(
-			( "(" SqlSubquery() ")" )
+			( <LPAREN> SqlSubquery() <RPAREN> )
 			| 
 			SqlExpression() 
 		)
@@ -4861,7 +5055,7 @@ void SqlColumnAssignment()   throws SAXException :
 
 
 //http://docs.oracle.com/cd/B19306_01/appdev.102/b14261/returninginto_clause.htm#CJAGFGDE
-void SqlReturningClause()   throws SAXException :
+void SqlReturningClause()    :
 {}
 {
  {System.err.println("SqlReturningClause: attempting SqlReturningClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
@@ -4871,7 +5065,7 @@ void SqlReturningClause()   throws SAXException :
 }
 
 //http://docs.oracle.com/database/121/PLSQLRF/Statements_10002.htm#i2126016
-void SqlForUpdateClause()   throws SAXException :
+void SqlForUpdateClause()    :
 {}
 {
 	
@@ -4888,7 +5082,7 @@ void SqlForUpdateClause()   throws SAXException :
 }
 
 //http://docs.oracle.com/database/121/PLSQLRF/Statements_10002.htm#i2126435
-void SqlSubquery()   throws SAXException :
+void SqlSubquery()    :
 { Token start = token ; }
 {
  {System.err.println("SqlSubquery: attempting SqlSubQuery() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
@@ -4913,10 +5107,10 @@ void SqlSubquery()   throws SAXException :
 	SqlQueryBlock()
 	| 
 	  ( 
-		"(" 
+		<LPAREN> 
 		// Left recursion SqlSubquery() //@TODO
 		(
- 			"(" SqlQueryBlock() ")"
+ 			<LPAREN> SqlQueryBlock() <RPAREN>
  			| SqlQueryBlock()
 		)
 		(
@@ -4924,17 +5118,17 @@ void SqlSubquery()   throws SAXException :
 			| <INTERSECT>
 			| <MINUS>
 		(
-		  "(" SqlSubquery() ")"
+		  <LPAREN> SqlSubquery() <RPAREN>
 		  | SqlSubquery()
 		)
 		)*
-		")" 
+		<RPAREN> 
 	  )
 	  |
 	  ( 
 		// Left recursion SqlSubquery() //@TODO
 		(
- 			"(" SqlQueryBlock() ")"
+ 			<LPAREN> SqlQueryBlock() <RPAREN>
  			| SqlQueryBlock()
 		)
 		(
@@ -4942,7 +5136,7 @@ void SqlSubquery()   throws SAXException :
 			| <INTERSECT>
 			| <MINUS>
 		(
-		  "(" SqlSubquery() ")"
+		  <LPAREN> SqlSubquery() <RPAREN>
 		  | SqlSubquery()
 		)
 		)*
@@ -4959,7 +5153,7 @@ void SqlSubquery()   throws SAXException :
 
 	Where SubqueryClause() is
 	QueryBlock()
-	| "(" Subquery() ")"
+	| <LPAREN> Subquery() <RPAREN>
         */
 
 
@@ -5004,18 +5198,18 @@ void SqlSubquery()   throws SAXException :
 }
 
 
-void SqlSubqueryClause()   throws SAXException :
+void SqlSubqueryClause()    :
 {Token start = token ; }
 {
 {System.err.println("SqlSubqueryClause: "); }
 
-        ( "(" SqlSubquery() ")" )
+        ( <LPAREN> SqlSubquery() <RPAREN> )
 	| 
 	SqlQueryBlock()
  {System.err.println("SqlSubqueryClause: completed SqlSubQueryClause() starting at at line "+start.beginLine+", column "+start.beginColumn+" - \""+start.image+"\" " + " and ending at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 }
 
-void SqlQueryBlock()   throws SAXException :
+void SqlQueryBlock()    :
 {Token start = token ; }
 {
 {System.err.println("SqlQueryBlock: attempting WITH "); }
@@ -5025,7 +5219,7 @@ void SqlQueryBlock()   throws SAXException :
 	  (
 	    ( 
 	       {System.err.println("SqlQueryBlock: attempting Bracketed SqlSubquery() after WITH clause starting at at line "+start.beginLine+", column "+start.beginColumn+" - \""+start.image+"\" " + " and ending at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
-               "(" SqlSubquery() ")" 
+               <LPAREN> SqlSubquery() <RPAREN> 
 	       {System.err.println("SqlQueryBlock: completed Bracketed SqlSubquery() after WITH clause starting at at line "+start.beginLine+", column "+start.beginColumn+" - \""+start.image+"\" " + " and ending at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
             )
 	    |
@@ -5047,7 +5241,7 @@ void SqlQueryBlock()   throws SAXException :
 }
 
 
-void SqlSelectClause()   throws SAXException :
+void SqlSelectClause()    :
 {Token start = token ; }
 {
   {System.err.println("SqlSelectClause: attempting <SELECT> ... at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
@@ -5071,6 +5265,8 @@ void SqlSelectClause()   throws SAXException :
   {System.err.println("SqlSelectClause: after SqlHierachicalQueryClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 	[ SqlGroupByClause() ]
   {System.err.println("SqlSelectClause: after SqlGroupByClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+	[ <HAVING> SqlCondition() ]
+  {System.err.println("SqlSelectClause: after SqlHavingClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 	[ SqlModelClause() ]
   {System.err.println("SqlSelectClause: after SqlModelClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 
@@ -5080,25 +5276,38 @@ void SqlSelectClause()   throws SAXException :
 
 
 
-void SqlTableClause()   throws SAXException :
-{}
+void SqlTableClause()    :
 {
-{System.err.println("SqlTableClause: attempting SqlTableClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+  Token start = token ;
+  Token alias = null;
+}
+{
+{System.err.println("SqlTableClause: attempting SqlTableClause() at line "+start.beginLine+", column "+start.beginColumn+" - \""+start.image+"\" "); }
 	/*
-	"(" SqlJoinClause() ")"
+	<LPAREN> SqlJoinClause() <RPAREN>
 	|  SqlTableReference()
 	| SqlJoinClause()
         
 	Refactored out leading  SqlTableReference() to remove grammar ambiguity
 	*/
 	
-	"(" SqlTableReference() /* [ UnqualifiedID() ] Table Alias*/ SqlJoinClause() ")"
-	|  SqlTableReference() /* [ UnqualifiedID() ] Table Alias*/ [ SqlJoinClause() ]
+	(
+	<LPAREN> SqlTableReference() /* [ UnqualifiedID() ] Table Alias*/ [ SqlJoinClause() ] <RPAREN>
+		{ 
+		 System.err.println("SqlTableClause: paranthesised SqlTableReference starting at line "+start.beginLine+", column "+start.beginColumn+" and ending at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); 
+		  alias = SqlTableAlias() ; 
+		}
 
-{System.err.println("SqlTableClause: completed SqlTableClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+	)
+	|  
+	(
+	   SqlTableReference() /* [ UnqualifiedID() ] Table Alias*/ [ SqlJoinClause() ]
+	)
+
+{System.err.println("SqlTableClause: completed SqlTableClause() starting at line " +start.beginLine+", column "+start.beginColumn+" -  \""+start.image+"\" and finishing at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 }
 
-void SqlWithClause()   throws SAXException :
+void SqlWithClause()    :
 {
 	Token start = token ;
 }
@@ -5116,9 +5325,11 @@ void SqlWithClause()   throws SAXException :
 }
 
 
-void SqlPLSQLDeclarations(Token queryStart)   throws SAXException :
-{}
+void SqlPLSQLDeclarations(Token queryStart)    :
+{ Token start = token ; }
 {
+	try
+	{
 	  ProgramUnit(false, queryStart)  
 	/*
 	  MethodDeclarator(false, 1, queryStart)  
@@ -5127,25 +5338,30 @@ void SqlPLSQLDeclarations(Token queryStart)   throws SAXException :
 		 <BEGIN> (Statement())* (ExceptionHandler())?  <END> [ID()] 
 	  ) 
 	*/
+	}
+	catch (SAXException ex)
+	{ 
+	  System.err.println("SqlPLSQLDeclaration: completed SqlPLSQLDeclaration() starting at at line "+start.beginLine+", column "+start.beginColumn+" - \""+start.image+"\" " + " and ending at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); 
+	} 
 
 }
 
 
-void SqlSubqueryFactoringClause()   throws SAXException :
+void SqlSubqueryFactoringClause()    :
 {}
 {
 {System.err.println("SqlSubqueryFactoringClause: attempting SqlQueryRefactoringClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
       UnqualifiedID() //Query name) 
 	[
-	  "("
+	  <LPAREN>
 		  //Column Alias List 
 		  UnqualifiedID() ( "," UnqualifiedID() )* 
-	  ")"
+	  <RPAREN>
 	]
 	<AS>
-	"("
+	<LPAREN>
 		SqlSubquery()
-	")"
+	<RPAREN>
 	[ SqlSearchClause() ]
 	[ SqlCycleClause() ]
 	
@@ -5155,7 +5371,7 @@ void SqlSubqueryFactoringClause()   throws SAXException :
 }
 
 
-void SqlSearchClause()   throws SAXException :
+void SqlSearchClause()    :
 {}
 {
 	<SEARCH> 
@@ -5166,7 +5382,7 @@ void SqlSearchClause()   throws SAXException :
 }
 
 
-void SqlCycleClause()   throws SAXException :
+void SqlCycleClause()    :
 {}
 {
 	<CYCLE> 
@@ -5179,7 +5395,7 @@ void SqlCycleClause()   throws SAXException :
 
 
 
-void SqlTargetList()   throws SAXException :
+void SqlTargetList()    :
 {}
 {
 {System.err.println("SqlTargetList: attempting SqlTargetList()"); }
@@ -5195,12 +5411,13 @@ void SqlTargetList()   throws SAXException :
 }
 
 
-void SqlSelectList()   throws SAXException :
-{}
+void SqlSelectList()    :
+{Token start = token; 
+}
 {
 {System.err.println("SqlSelectList: attempting SqlSelectList()"); }
 	({System.err.println("SqlSelectList: attempting first SqlItem"); }
-	  "*"
+	  <MULT> /* SQL WIldcard */
            | SqlSelectItem() 
 	)
 	(
@@ -5209,26 +5426,37 @@ void SqlSelectList()   throws SAXException :
 	  )
 	)*
 
-{System.err.println("SqlSelectList: completed SqlSelectList() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+ {System.err.println("SqlSelectList: completed SqlSelectList() starting at at line "+start.beginLine+", column "+start.beginColumn+" - \""+start.image+"\" " + " and ending at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 }
 
 
-void SqlSelectItem() throws SAXException :
-{}
+void SqlSelectItem()  :
+{
+Token start = token ;
+}
 {
 {System.err.println("SqlSelectItem: attempting SqlSelectItem()"); }
-  ({System.err.println("SqlSelectItem: attempting SqlSelectItem(QualifiedID())"); } 
-    QualifiedName() [ "." "*" ] 
+/*
+  ( {System.err.println("SqlSelectItem: attempting SqlSelectItem(QualifiedID())"); } 
+    QualifiedName()  "." <MULT> /* SQL Wildcard * / 
   )
-  |  ({System.err.println("SqlSelectItem: attempting SqlSelectItem(SqlExpression())"); }  
-       SqlExpression() [ [ <AS> ] UnqualifiedID() ] //ColumnAlias )
-     )
+  |  
+  SqlAggregateFunction() 
+  |
+  SqlAnalyticeFunction() 
+  |
+*/
+  ({System.err.println("SqlSelectItem: attempting SqlSelectItem(SqlExpression())"); }  
+    SqlExpression() [ [ <AS> ] UnqualifiedID() ] //ColumnAlias )
+  )
+ {System.err.println("SqlSelectItem: completed SqlSelectItem() starting at at line "+start.beginLine+", column "+start.beginColumn+" - \""+start.image+"\" " + " and ending at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 }
 
 
 
-void SqlTableReference()   throws SAXException :
+void SqlTableReference()    :
 {
+  Token start = token ;
   Token alias = null;
 }
 {
@@ -5239,9 +5467,12 @@ void SqlTableReference()   throws SAXException :
 		| 
 		(
 			(
-				<ONLY> "(" SqlQueryTableExpression() ")"
+				<ONLY> <LPAREN> SqlQueryTableExpression() <RPAREN>
 				|
 				SqlQueryTableExpression()
+				|  ( SqlSubquery() //@TODO Found   
+ {System.err.println("SqlTableReference: Subquery() [EXTRA] after  at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+                                   )
 			)
 			[ SqlFlashbackQueryClause() ]
 			[
@@ -5254,7 +5485,7 @@ void SqlTableReference()   throws SAXException :
 	
  {System.err.println("SqlTableReference: potential Table Alias at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 /*
-	LOOKAHEAD( { !( ")".equalsIgnoreCase(getToken(1).image) || "INNER".equalsIgnoreCase(getToken(1).image) || "OUTER".equalsIgnoreCase(getToken(1).image) || "JOIN".equalsIgnoreCase(getToken(1).image) || "FULL".equalsIgnoreCase(getToken(1).image) || "CROSS".equalsIgnoreCase(getToken(1).image) || "NATURAL".equalsIgnoreCase(getToken(1).image) || "WHERE".equalsIgnoreCase(getToken(1).image) || "START".equalsIgnoreCase(getToken(1).image) || "CONNECT".equalsIgnoreCase(getToken(1).image) || "GROUP".equalsIgnoreCase(getToken(1).image) || "ORDER".equalsIgnoreCase(getToken(1).image) || "UNION".equalsIgnoreCase(getToken(1).image) || "MINUS".equalsIgnoreCase(getToken(1).image) || "INTERSECT".equalsIgnoreCase(getToken(1).image) ) } ) 
+	LOOKAHEAD( { !( <RPAREN>.equalsIgnoreCase(getToken(1).image) || "INNER".equalsIgnoreCase(getToken(1).image) || "OUTER".equalsIgnoreCase(getToken(1).image) || "JOIN".equalsIgnoreCase(getToken(1).image) || "FULL".equalsIgnoreCase(getToken(1).image) || "CROSS".equalsIgnoreCase(getToken(1).image) || "NATURAL".equalsIgnoreCase(getToken(1).image) || "WHERE".equalsIgnoreCase(getToken(1).image) || "START".equalsIgnoreCase(getToken(1).image) || "CONNECT".equalsIgnoreCase(getToken(1).image) || "GROUP".equalsIgnoreCase(getToken(1).image) || "ORDER".equalsIgnoreCase(getToken(1).image) || "UNION".equalsIgnoreCase(getToken(1).image) || "MINUS".equalsIgnoreCase(getToken(1).image) || "INTERSECT".equalsIgnoreCase(getToken(1).image) ) } ) 
    (
 	UnqualifiedID() 
        {System.err.println("SqlTableReference: found Table Alias() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
@@ -5262,9 +5493,12 @@ void SqlTableReference()   throws SAXException :
 */
 	//LOOKAHEAD( { isValidAlias(getToken(1).image) } ) UnqualifiedID() 
 	//[ UnqualifiedID() ] //Table Alias
-	{ alias = SqlTableAlias() ; }
+	{ 
+	 System.err.println("SqlTableReference: starting at line "+start.beginLine+", column "+start.beginColumn+" and ending at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); 
+          alias = SqlTableAlias() ; 
+        }
 
- {System.err.println("SqlTableReference: completed SqlTableReference() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+ {System.err.println("SqlTableReference: completed SqlTableReference() starting at line "+start.beginLine+", column "+start.beginColumn +" - \""+start.image+"\" " +" and ending at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 }
 
 JAVACODE
@@ -5279,7 +5513,7 @@ Token SqlTableAlias ()
 }
 
 
-void SqlFlashbackQueryClause()   throws SAXException :
+void SqlFlashbackQueryClause()    :
 {}
 {
  {System.err.println("SqlFlashbackQueryClause: attempting SqlFlashbackQueryClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
@@ -5314,12 +5548,18 @@ void SqlFlashbackQueryClause()   throws SAXException :
 }
 
 
-void SqlQueryTableExpression()   throws SAXException :
-{}
+void SqlQueryTableExpression()    :
+{Token start = token ;}
 {
  {System.err.println("SqlQueryTableExpression: attempting SqlQueryTableExpression() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
-	( [ <LATERAL> ] "(" SqlSubquery() [ SqlSubqueryRestrictionClause() ] ")"  )
+	( [ <LATERAL> ] <LPAREN> SqlSubquery() [ SqlSubqueryRestrictionClause() ] <RPAREN>  
+ {System.err.println("SqlQueryTableExpression: found LATEREAL ... at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+	 //| ( SqlSubquery() [ SqlSubqueryRestrictionClause() ] 
+	 //{System.err.println("SqlQueryTableExpression: (Extra) at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+         //  )
+        )
 	|  SqlTableCollectionExpression()
+ {System.err.println("SqlQueryTableExpression: found SqlTableExpression() .. at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 	|  ( QualifiedName() 
 		[ 
 			( "@" QualifiedName() /* DBLink Name */ )
@@ -5327,6 +5567,7 @@ void SqlQueryTableExpression()   throws SAXException :
 			SqlPartitionExtensionClause() 
 		] 
 		[ SqlSampleClause() ]
+ {System.err.println("SqlQueryTableExpression: found QualifiedName() .. at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 	   )
 	//|  UnqualifiedID() //Query Name 
 
@@ -5334,50 +5575,50 @@ void SqlQueryTableExpression()   throws SAXException :
 }
 
 
-void SqlPivotClause()   throws SAXException :
+void SqlPivotClause()    :
 {}
 {
  {System.err.println("SqlPivotClause: attempting SqlPivotClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 	<PIVOT> [ <XML> ]
 
-	"("
+	<LPAREN>
 		(
-			SqlAggregateFunction() "(" SqlExpression() "}" 
+			SqlAggregateFunction() <LPAREN> SqlExpression() "}" 
 			[ <AS> ]
 			 UnqualifiedID() //Alias 
 		)
 		( 
 			"," 
 			(
-				SqlAggregateFunction() "(" SqlExpression() "}" 
+				SqlAggregateFunction() <LPAREN> SqlExpression() "}" 
 				[ <AS> ]
 				 UnqualifiedID() //Alias 
 			)
 		)
 		SqlPivotForClause()
 		SqlPivotInClause()
-	")"
+	<RPAREN>
 
  {System.err.println("SqlPivotClause: completed SqlPivotClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 }
 
 
-void SqlReferencedColumns()   throws SAXException :
+void SqlReferencedColumns()    :
 {}
 {
 		QualifiedID() //Column Name 
 		|
 		//Column List 
 		(
-			"("
+			<LPAREN>
 				QualifiedID() ( "," QualifiedID() )*
-			")"
+			<RPAREN>
 		)
 
 }
 
 
-void SqlPivotForClause()   throws SAXException :
+void SqlPivotForClause()    :
 {}
 {
 	<FOR> SqlReferencedColumns() 
@@ -5386,10 +5627,10 @@ void SqlPivotForClause()   throws SAXException :
 }
 
 
-void SqlPivotInClause()   throws SAXException :
+void SqlPivotInClause()    :
 {}
 {
-	<IN> "("
+	<IN> <LPAREN>
 		(
 
 			<ANY> ( "," <ANY> )*
@@ -5397,77 +5638,87 @@ void SqlPivotInClause()   throws SAXException :
 			| SqlColumnExpression() ( ","  SqlColumnExpression() )
 		)
 		
-	")"
+	<RPAREN>
 
 }
 
 
-void SqlUnpivotClause()   throws SAXException :
+void SqlUnpivotClause()    :
 {}
 {
 	<UNPIVOT> 
 	[ [ <INCLUDE> | <EXCLUDE> ] <NULLS> ]
-	"("
+	<LPAREN>
 		SqlReferencedColumns() 
 		SqlPivotForClause() 
 		SqlUnpivotInClause()
-	")"
+	<RPAREN>
 
 }
 
 
-void SqlUnpivotInClause()   throws SAXException :
+void SqlUnpivotInClause()    :
 {}
 {
-	<IN> "("
+	<IN> <LPAREN>
 		SqlReferencedColumns()
 		<AS>
 		(
 			Literal()
 			|
-			"(" Literal() ( "," Literal() )* ")" 
+			<LPAREN> Literal() ( "," Literal() )* <RPAREN> 
 		)
 		
-	")"
+	<RPAREN>
 
 }
 
 
 
-void SqlSampleClause()   throws SAXException :
+void SqlSampleClause()    :
 {}
 {
+ {System.err.println("SqlSampleClause: attempting SqlSampleClause()  at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 	<SAMPLE> [ <BLOCK> ]
-	"("
+	<LPAREN>
 		NumericLiteral() //Sample Percentage 
-	")"
+                /*@TODO
+			Disagreement between syntax 
+                        SAMPLE [ BLOCK] ( number ) [ SEED (number) ] http://docs.oracle.com/database/121/SQLRF/statements_10002.htm#SQLRF01702 
+                        SAMPLE BLOCK ( number, number ) https://blogs.oracle.com/datamining/entry/to_sample_or_not_to_sample_part_2 
+		*/
+		[
+		  "," NumericLiteral() 
+		]
+	<RPAREN>
 	[
 		<SEED>
-		"("
+		<LPAREN>
 			Literal() //Seed Value NumericLiteral() ?
-		")"
+		<RPAREN>
 	]
 
+ {System.err.println("SqlSampleClause: found SqlSampleClause()  at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 
 }
 
 
-void SqlPartitionExtensionClause()   throws SAXException :
+void SqlPartitionExtensionClause()    :
 {}
 {
 
 	( <PARTITION> | <SUBPARTITION> )
 	(
-		"(" QualifiedID() ( "," QualifiedID() )*  ")" 
+		<LPAREN> QualifiedID() ( "," QualifiedID() )*  <RPAREN> 
 		|
-		<FOR> "("  QualifiedID() ( "," QualifiedID() )* ")" 
+		<FOR> <LPAREN>  QualifiedID() ( "," QualifiedID() )* <RPAREN> 
 	)
 
 
 }
 
 
-void SqlSubqueryRestrictionClause()   throws SAXException :
+void SqlSubqueryRestrictionClause()    :
 {}
 {
 
@@ -5485,12 +5736,12 @@ void SqlSubqueryRestrictionClause()   throws SAXException :
 }
 
 
-void SqlTableCollectionExpression()   throws SAXException :
+void SqlTableCollectionExpression()    :
 {}
 {
 
-	<TABLE> "(" SqlCollectionExpression() ")" [ "(" "+" ")" ]
-	//Possibly @TODO <CAST> "(" <MULTISET> "(" SqlCollectionExpression() ")" ")" 
+	<TABLE> <LPAREN> SqlCollectionExpression() <RPAREN> [ <LPAREN> "+" <RPAREN> ]
+	//Possibly @TODO <CAST> <LPAREN> <MULTISET> <LPAREN> SqlCollectionExpression() <RPAREN> <RPAREN> 
 
 }
 
@@ -5498,7 +5749,7 @@ void SqlTableCollectionExpression()   throws SAXException :
 
 //http://docs.oracle.com/database/121/PLSQLRF/Statements_8005.htm#i2112830
 //The collection_expression can be a subquery, a column, a function, or a collection constructor. Regardless of its form, it must return a collection value¿that is, a value whose type is nested table or varray. This process of extracting the elements of a collection is called collection unnesting.
-void SqlCollectionExpression()   throws SAXException :
+void SqlCollectionExpression()    :
 {}
 {
 	SqlSubquery()
@@ -5506,20 +5757,20 @@ void SqlCollectionExpression()   throws SAXException :
 
 }
 
-void SqlContainersClause()   throws SAXException :
+void SqlContainersClause()    :
 {}
 {
 
 	<CONTAINERS>
-	"(" 
+	<LPAREN> 
 		QualifiedID() ( "," QualifiedID() )*
-	")"
+	<RPAREN>
 
 }
 
 
 //http://docs.oracle.com/database/121/PLSQLRF/Statements_10002.htm#CHDIJFDJ
-void SqlJoinClause()   throws SAXException :
+void SqlJoinClause()    :
 {}
 {
  {System.err.println("SqlJoinClause: attempting SqlJoinClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
@@ -5535,9 +5786,9 @@ void SqlJoinClause()   throws SAXException :
 					( <ON> SqlCondition() )
 					( <USING> 
 						//Column List 
-						"(" 
+						<LPAREN> 
 							QualifiedID() ( "," QualifiedID() )*
-						")"
+						<RPAREN>
 					)
 				)
 			)
@@ -5549,7 +5800,7 @@ void SqlJoinClause()   throws SAXException :
 					( <NATURAL> [ <INNER> ] )
 				)
 				<JOIN> SqlTableReference() 
-				//LOOKAHEAD( { !")".equalsIgnoreCase(getToken(1).image) && !"WHERE".equalsIgnoreCase(getToken(1).image) && !"START".equalsIgnoreCase(getToken(1).image) && !"CONNECT".equalsIgnoreCase(getToken(1).image) && !"GROUP".equalsIgnoreCase(getToken(1).image) && !"ORDER".equalsIgnoreCase(getToken(1).image) && !"UNION".equalsIgnoreCase(getToken(1).image) && !"MINUS".equalsIgnoreCase(getToken(1).image) && !"INTERSECT".equalsIgnoreCase(getToken(1).image) } ) ( UnqualifiedID() ) /*Table Alias*/
+				//LOOKAHEAD( { !<RPAREN>.equalsIgnoreCase(getToken(1).image) && !"WHERE".equalsIgnoreCase(getToken(1).image) && !"START".equalsIgnoreCase(getToken(1).image) && !"CONNECT".equalsIgnoreCase(getToken(1).image) && !"GROUP".equalsIgnoreCase(getToken(1).image) && !"ORDER".equalsIgnoreCase(getToken(1).image) && !"UNION".equalsIgnoreCase(getToken(1).image) && !"MINUS".equalsIgnoreCase(getToken(1).image) && !"INTERSECT".equalsIgnoreCase(getToken(1).image) } ) ( UnqualifiedID() ) /*Table Alias*/
 				//[ UnqualifiedID() ]
 {System.err.println("Completed CROSS/NATURAL JOIN : "); }
 			)
@@ -5567,9 +5818,9 @@ void SqlJoinClause()   throws SAXException :
 				( <ON> SqlExpression() )
 				( <USING> 
 					//Column List 
-					"(" 
+					<LPAREN> 
 						QualifiedID() ( "," QualifiedID() )*
-					")"
+					<RPAREN>
 				)
 			)
 		)
@@ -5584,23 +5835,23 @@ void SqlJoinClause()   throws SAXException :
 }
 
 
-void SqlQueryPartitionClause()   throws SAXException :
+void SqlQueryPartitionClause()    :
 {}
 {
 	<PARTITION> <BY> 
 	(
-		"(" SqlExpression() ( ","  SqlExpression() )*  ")"
+		<LPAREN> SqlExpression() ( ","  SqlExpression() )*  <RPAREN>
 		| 
 		SqlExpression() 
 	)
 
 }
 
-void SqlColumnExpression()   throws SAXException :
+void SqlColumnExpression()    :
 {}
 {
 	(
-		"(" SqlExpression() ( ","  SqlExpression() )*  ")"
+		<LPAREN> SqlExpression() ( ","  SqlExpression() )*  <RPAREN>
 		| 
 		SqlExpression() 
 	)
@@ -5609,7 +5860,7 @@ void SqlColumnExpression()   throws SAXException :
 }
 
 
-void SqlOuterJoinType()   throws SAXException :
+void SqlOuterJoinType()    :
 {}
 {
 	( <FULL> | <LEFT> | <RIGHT> )
@@ -5617,7 +5868,7 @@ void SqlOuterJoinType()   throws SAXException :
 
 }
 
-void SqlCrossOuterApplyClause()   throws SAXException :
+void SqlCrossOuterApplyClause()    :
 {}
 {
 	( <CROSS> | <OUTER> )
@@ -5632,7 +5883,7 @@ void SqlCrossOuterApplyClause()   throws SAXException :
 }
 
 
-void SqlWhereClause()   throws SAXException :
+void SqlWhereClause()    :
 {}
 {
   {System.err.println("SqlWhereClause: attempting SqlWhereClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
@@ -5646,7 +5897,7 @@ void SqlWhereClause()   throws SAXException :
 }
 
 
-void SqlHierarchicalQueryClause()   throws SAXException :
+void SqlHierarchicalQueryClause()    :
 {}
 {
   {System.err.println("SqlHierarchicalQueryClause: attempting SqlHierarchicalQueryClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
@@ -5664,7 +5915,7 @@ void SqlHierarchicalQueryClause()   throws SAXException :
 }
 
 
-void SqlGroupByClause()   throws SAXException :
+void SqlGroupByClause()    :
 {}
 {
   {System.err.println("SqlGroupByClause: attempting SqlGroupByClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
@@ -5683,28 +5934,38 @@ void SqlGroupByClause()   throws SAXException :
 		)
 	)*
 
-	[ <HAVING> SqlCondition() ]
+	//[ <HAVING> SqlCondition() ]
 
   {System.err.println("SqlGroupByClause: after SqlGroupByClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 }
 
 
-void SqlRollupCubeClause()   throws SAXException :
+void SqlHavingClause()    :
+{}
+{
+  {System.err.println("SqlHavingClause: attempting SqlHavingClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+	<HAVING> SqlCondition() 
+
+  {System.err.println("SqlHavingClause: after SqlHavingClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+}
+
+
+void SqlRollupCubeClause()    :
 {}
 {
 	( <ROLLUP> | <CUBE> )
-	"("
+	<LPAREN>
 		SqlGroupingExpressionList()
-	")"
+	<RPAREN>
 
 }
 
 
-void SqlGroupingSetsClause()   throws SAXException :
+void SqlGroupingSetsClause()    :
 {}
 {
 	<GROUPING> <SETS> 
-	"("
+	<LPAREN>
 	(
 		SqlRollupCubeClause()
 		|SqlGroupingExpressionList()
@@ -5716,12 +5977,12 @@ void SqlGroupingSetsClause()   throws SAXException :
 		|SqlGroupingExpressionList()
 		)
 	)*
-	")"
+	<RPAREN>
 
 }
 
 
-void SqlGroupingExpressionList()   throws SAXException :
+void SqlGroupingExpressionList()    :
 {}
 {
 	SqlExpressionList() ( "," SqlExpressionList() )*
@@ -5729,18 +5990,18 @@ void SqlGroupingExpressionList()   throws SAXException :
 }
 
 
-void SqlExpressionList()   throws SAXException :
+void SqlExpressionList()    :
 {}
 {
 	(
-		"(" SqlExpression() ( ","  SqlExpression() )*  ")"
+		<LPAREN> SqlExpression() ( ","  SqlExpression() )*  <RPAREN>
 		| SqlExpression() ( ","  SqlExpression() )*  
 	)
 
 }
 
 
-void SqlModelClause()   throws SAXException :
+void SqlModelClause()    :
 {}
 {
   {System.err.println("SqlModelClause: attempting SqlModelClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
@@ -5754,7 +6015,7 @@ void SqlModelClause()   throws SAXException :
 }
 
 
-void SqlCellReferenceOptions()   throws SAXException :
+void SqlCellReferenceOptions()    :
 {}
 {
 	[
@@ -5769,7 +6030,7 @@ void SqlCellReferenceOptions()   throws SAXException :
 }
 
 
-void SqlReturnRowsClause()   throws SAXException :
+void SqlReturnRowsClause()    :
 {}
 {
 	<RETURN>
@@ -5779,20 +6040,20 @@ void SqlReturnRowsClause()   throws SAXException :
 }
 
 
-void SqlReferenceModel()   throws SAXException :
+void SqlReferenceModel()    :
 {}
 {
 	<REFERENCE>
 	UnqualifiedID() //Reference Model Name 
 	<ON> 
-	"(" SqlSubquery() ")" 
+	<LPAREN> SqlSubquery() <RPAREN> 
 	SqlModelColumnClauses()
 	SqlCellReferenceOptions() 
 
 }
 
 
-void SqlMainModel()   throws SAXException :
+void SqlMainModel()    :
 {}
 {
 	[
@@ -5805,37 +6066,37 @@ void SqlMainModel()   throws SAXException :
 
 }
 
-void SqlModelColumnClauses()   throws SAXException :
+void SqlModelColumnClauses()    :
 {}
 {
 	<PARTITION> <BY> 
-	"("
+	<LPAREN>
 		( SqlExpression() [ QualifiedID() ]  )
 		( ","  SqlExpression() [ QualifiedID() ] )*
-	")"
+	<RPAREN>
 
 	<DIMENSION> <BY> 
-	"("
+	<LPAREN>
 		( SqlExpression() [ QualifiedID() ]  )
 		( ","  SqlExpression() [ QualifiedID() ] )*
-	")"
+	<RPAREN>
 
 	<MEASURES> 
-	"("
+	<LPAREN>
 		( SqlExpression() [ QualifiedID() ]  )
 		( ","  SqlExpression() [ QualifiedID() ] )*
-	")"
+	<RPAREN>
 
 }
 
-void SqlModelColumn()   throws SAXException :
+void SqlModelColumn()    :
 {}
 {
 	SqlExpression() [ [ <AS> ] UnqualifiedID() ]
 
 }
 
-void SqlModelRulesClause()   throws SAXException :
+void SqlModelRulesClause()    :
 {}
 {
 	<RULES>
@@ -5844,7 +6105,7 @@ void SqlModelRulesClause()   throws SAXException :
 		[ ( <AUTOMATIC> | <SEQUENTIAL> ) <ORDER> ]
 		SqlModelIterateClause() 
 	]	
-	"("
+	<LPAREN>
 		(
 			[ <UPDATE> | <UPSERT> [ <ALL> ] ]
 			SqlCellAssignment()
@@ -5862,22 +6123,22 @@ void SqlModelRulesClause()   throws SAXException :
 		)*
 		
 		
-	")"
+	<RPAREN>
 
 }
 
 
-void SqlModelIterateClause()   throws SAXException :
+void SqlModelIterateClause()    :
 {}
 {
-	<ITERATE> "(" NumericLiteral() ")" 
-	<UNTIL> "(" SqlCondition() ")" 
+	<ITERATE> <LPAREN> NumericLiteral() <RPAREN> 
+	<UNTIL> <LPAREN> SqlCondition() <RPAREN> 
 
 }
 
 
 
-void SqlCellAssignment()   throws SAXException :
+void SqlCellAssignment()    :
 {}
 {
 
@@ -5903,7 +6164,7 @@ void SqlCellAssignment()   throws SAXException :
 
 
 
-void SqlCondition()   throws SAXException :
+void SqlCondition()    :
 {}
 {
   {System.err.println("SqlCondition: attempting SqlCondition() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
@@ -5912,7 +6173,7 @@ void SqlCondition()   throws SAXException :
 
 }
 
-void SqlSingleColumnForLoop()   throws SAXException :
+void SqlSingleColumnForLoop()    :
 {}
 {
 	<FOR> 
@@ -5920,10 +6181,10 @@ void SqlSingleColumnForLoop()   throws SAXException :
 	(
 		(
 			<IN> 
-			"("
+			<LPAREN>
 				( Literal() | SqlSubquery() )
 				( "," Literal() | SqlSubquery() )*
-			")"
+			<RPAREN>
 		)
 		|
 		(
@@ -5937,20 +6198,20 @@ void SqlSingleColumnForLoop()   throws SAXException :
 }
 
 
-void SqlMultiColumnForLoop()   throws SAXException :
+void SqlMultiColumnForLoop()    :
 {}
 {
 	<FOR> 
-	"(" QualifiedID() //Dimension Column 
+	<LPAREN> QualifiedID() //Dimension Column 
 	  "," QualifiedID() //Dimension Column 
-	")"
+	<RPAREN>
 	(
 		(
 			<IN> 
-			"("
-				( "(" Literal() ( ","  Literal() )* ")" | SqlSubquery() )
-				( "," "(" Literal() ( ","  Literal() )* ")" | SqlSubquery() )*
-			")"
+			<LPAREN>
+				( <LPAREN> Literal() ( ","  Literal() )* <RPAREN> | SqlSubquery() )
+				( "," <LPAREN> Literal() ( ","  Literal() )* <RPAREN> | SqlSubquery() )*
+			<RPAREN>
 		)
 	)
 
@@ -5958,7 +6219,7 @@ void SqlMultiColumnForLoop()   throws SAXException :
 
 
 
-void SqlOrderByClause()   throws SAXException :
+void SqlOrderByClause()    :
 {}
 {
 	<ORDER> [ <SIBLINGS> ] <BY> 
@@ -5968,7 +6229,7 @@ void SqlOrderByClause()   throws SAXException :
 
 }
 
-void SqlColumnOrderingClause()   throws SAXException :
+void SqlColumnOrderingClause()    :
 {}
 {
 	Expression() // Column Alias 	
@@ -5978,7 +6239,7 @@ void SqlColumnOrderingClause()   throws SAXException :
 }
 
 
-void SqlRowLimitingClause()   throws SAXException :
+void SqlRowLimitingClause()    :
 {}
 {
 
@@ -5998,31 +6259,31 @@ void SqlRowLimitingClause()   throws SAXException :
 
 
 //http://docs.oracle.com/database/121/PLSQLRF/Statements_10002.htm#BABDACDD
-void SqlRowPatternClause()   throws SAXException :
+void SqlRowPatternClause()    :
 {}
 {
 
 	<MATCH> <RECOGNIZE>
-	"("
+	<LPAREN>
 		[ SqlRowPatternPartitionBy() ]
 		[ SqlRowPatternOrderBy() ]
 		[ SqlRowPatternMeasures() ]
 		[ SqlRowPatternRowsPerMatch() ]
 		[ SqlRowPatternSkipTo() ]
 		<PATTERN>
-		"("
+		<LPAREN>
 			SqlRowPattern()
-		")"
+		<RPAREN>
 		[ SqlRowPatternSubsetClause() ] 
 		<DEFINE>
 		SqlRowPatternDefinitionList()
-	")"
+	<RPAREN>
 
 
 }
 
 
-void SqlRowPatternPartitionBy()   throws SAXException :
+void SqlRowPatternPartitionBy()    :
 {}
 {
 	<PATTERN> <BY> 
@@ -6031,7 +6292,7 @@ void SqlRowPatternPartitionBy()   throws SAXException :
 
 }
 
-void SqlRowPatternOrderBy()   throws SAXException :
+void SqlRowPatternOrderBy()    :
 {}
 {
 
@@ -6042,7 +6303,7 @@ void SqlRowPatternOrderBy()   throws SAXException :
 }
 
 
-void SqlRowPatternMeasures()   throws SAXException :
+void SqlRowPatternMeasures()    :
 {}
 {
 	<MEASURES>
@@ -6051,7 +6312,7 @@ void SqlRowPatternMeasures()   throws SAXException :
 
 }
 
-void SqlRowPatternRowsPerMatch()   throws SAXException :
+void SqlRowPatternRowsPerMatch()    :
 {}
 {
 
@@ -6060,7 +6321,7 @@ void SqlRowPatternRowsPerMatch()   throws SAXException :
 
 }
 
-void SqlRowPatternSkipTo()   throws SAXException :
+void SqlRowPatternSkipTo()    :
 {}
 {
 
@@ -6089,7 +6350,7 @@ void SqlRowPatternSkipTo()   throws SAXException :
 }
 
 
-void SqlRowPattern()   throws SAXException :
+void SqlRowPattern()    :
 {}
 {
 
@@ -6098,7 +6359,7 @@ void SqlRowPattern()   throws SAXException :
 
 }
 
-void SqlRowPatternTerm()   throws SAXException :
+void SqlRowPatternTerm()    :
 {}
 {
 
@@ -6107,7 +6368,7 @@ void SqlRowPatternTerm()   throws SAXException :
 
 }
 
-void SqlRowPatternFactor()   throws SAXException :
+void SqlRowPatternFactor()    :
 {}
 {
 
@@ -6116,47 +6377,47 @@ void SqlRowPatternFactor()   throws SAXException :
 }
 
 
-void SqlRowPatternPrimary()   throws SAXException :
+void SqlRowPatternPrimary()    :
 {}
 {
 
 	"$"
 	| "^"
 	| SqlRowPatternPermute() 
-	//| "("  SqlRowPattern()  ")"
-	| "(" 
+	//| <LPAREN>  SqlRowPattern()  <RPAREN>
+	| <LPAREN> 
 		(
 			( "-" SqlRowPattern() "-" )
 			|  SqlRowPattern() 
 		)
-	  ")"
+	  <RPAREN>
 	| Name() 
 
 }
 
-void SqlRowPatternPermute()   throws SAXException :
+void SqlRowPatternPermute()    :
 {}
 {
 	<PERMUTE>
-	"("
+	<LPAREN>
 		SqlRowPattern() ( "," SqlRowPattern() )
-	")"
+	<RPAREN>
 
 }
 
-void SqlRowPatternQuantifier()   throws SAXException :
+void SqlRowPatternQuantifier()    :
 {}
 {
 
 	(
-		("*" | "+" | "?" )  [ "?" ]
+		(<MULT> /* SQL Wildcard */ | "+" | "?" )  [ "?" ]
 	)
 	| ( "{" NumericLiteral()  [ "," [ NumericLiteral() ] ] "}" [ "?" ] )
 	//| ( "{" NumericLiteral()  "}" )
 
 }
 
-void SqlRowPatternSubsetClause()   throws SAXException :
+void SqlRowPatternSubsetClause()    :
 {}
 {
 	<SUBSET>
@@ -6166,52 +6427,52 @@ void SqlRowPatternSubsetClause()   throws SAXException :
 }
 
 
-void SqlRowPatternSubsetItem()   throws SAXException :
+void SqlRowPatternSubsetItem()    :
 {}
 {
 
 	Name() "=" 
-	"(" 
+	<LPAREN> 
 		Name() ( "," Name() )* 
-	")"
+	<RPAREN>
 
 }
 
 
-void SqlRowPatternDefinitionList()   throws SAXException :
+void SqlRowPatternDefinitionList()    :
 {}
 {
 	SqlRowPatternDefinition() 
 	
 }
 
-void SqlRowPatternDefinition()   throws SAXException :
+void SqlRowPatternDefinition()    :
 {}
 {
 	Name() <AS> SqlCondition() 
 	
 }
 
-void SqlRowPatternRecFunction()   throws SAXException :
+void SqlRowPatternRecFunction()    :
 {}
 {
 
-	( <CLASSIFIER> "(" ")" ) // Row Pattern Classifier Function   
-	| ( <MATCH_NUMBER> "(" ")" )   // Row Pattern Match Number Function   
+	( <CLASSIFIER> <LPAREN> <RPAREN> ) // Row Pattern Classifier Function   
+	| ( <MATCH_NUMBER> <LPAREN> <RPAREN> )   // Row Pattern Match Number Function   
 	|  SqlRowPatternNavigationFunction()  // Row Pattern Navigation Function   
 	|  SqlRowPatternAggregateFunction()  // Row Pattern Aggregate Function   
 
 }
 
 
-void SqlRowPatternNavigationFunction()   throws SAXException :
+void SqlRowPatternNavigationFunction()    :
 {}
 {
 	//Row Pattern Navigation Logical 
 	(
 		[  <RUNNING> | <FINAL> ]
 		( <FIRST> | <LAST> )
-		"(" SqlExpression() "," NumericLiteral() ")" 
+		<LPAREN> SqlExpression() "," NumericLiteral() <RPAREN> 
 	)
 
 	|
@@ -6220,19 +6481,19 @@ void SqlRowPatternNavigationFunction()   throws SAXException :
 		(
 			//Row Pattern Navigation Physical 
 			(
-				"(" SqlExpression() "," NumericLiteral() ")" 
+				<LPAREN> SqlExpression() "," NumericLiteral() <RPAREN> 
 			)
 			//Row Pattern Navigation Compound 
 			|
 			(
 				( <PREV> | <NEXT> )
-				"(" 
+				<LPAREN> 
 					[  <RUNNING> | <FINAL> ]
 					( <FIRST> | <LAST> )
-					"(" SqlExpression() "," NumericLiteral() ")"
+					<LPAREN> SqlExpression() "," NumericLiteral() <RPAREN>
 
 					"," NumericLiteral() 
-				")" 
+				<RPAREN> 
 			)
 		)
 	)
@@ -6242,7 +6503,7 @@ void SqlRowPatternNavigationFunction()   throws SAXException :
 }
 
 
-void SqlRowPatternAggregateFunction()   throws SAXException :
+void SqlRowPatternAggregateFunction()    :
 {}
 {
 
@@ -6261,23 +6522,23 @@ Aggregate Functions
 Analytic Function
 http://docs.oracle.com/database/121/SQLRF/functions004.htm#i81407
 http://docs.oracle.com/cd/E11882_01/server.112/e26088/functions004.htm#SQLRF06174
-AnalyticFunction "(" arguments ")" 
+AnalyticFunction <LPAREN> arguments <RPAREN> 
 */
 
-void SqlAnalyticFunction()   throws SAXException :
+void SqlAnalyticFunction()    :
 {}
 {
-  {System.err.println("SqlAnalyticFunctio: attempting SqlAnalyticFunctio()"); }
+  {System.err.println("SqlAnalyticFunction: attempting SqlAnalyticFunctio()"); }
 	PrimaryExpression() 
-	<OVER> "(" 
+	<OVER> <LPAREN> 
 			[ SqlQueryPartitionClause() ]
 			[ SqlOrderByClause() ]
 			[ SqlWindowingClause() ]
-		")"
+		<RPAREN>
 
 }
 
-void SqlWindowingClause()   throws SAXException :
+void SqlWindowingClause()    :
 {}
 {
   {System.err.println("SqlWindowingClause: attempting SqlWindowingClause()"); }
@@ -6311,19 +6572,25 @@ void SqlWindowingClause()   throws SAXException :
 }
 
 
-//@TODO
-void SqlAggregateFunction()   throws SAXException :
+void SqlAggregateFunction()    :
 {}
 {
   {System.err.println("SqlAggregateFunction: attempting SqlAggregateFunction()"); }
 	PrimaryExpression() 
+	(
+	<KEEP>
+	<LPAREN>
+		<DENSE_RANK> ( <FIRST> | <LAST> ) SqlOrderByClause()
+	<RPAREN>
+	)
 
+  {System.err.println("SqlAggregateFunction: completede SqlAggregateFunction()"); }
 }
 
 
 //http://docs.oracle.com/database/121/SQLRF/expressions001.htm#i1002626
 //http://docs.oracle.com/database/121/SQLRF/expressions.htm#g1057115
-void SqlExpression()   throws SAXException :
+void SqlExpression()    :
 { 
 }
 {
@@ -6563,7 +6830,7 @@ void triggerUnit() throws SAXException :
 	[ [<FORWARD> | <REVERSE>] <CROSSEDITION>  ] // 11G Syntax to specify CrossEdition trigger  if not specified direction is FORWARD 
 	[ (<FOLLOWS> | <PRECEDES>) ( [LOOKAHEAD(2) ID() "."] ID() )  ( ","  ( [ LOOKAHEAD(2) ID() "."] ID() ) )* ] // 11G Syntax to specify trigger firing order 
 	[ <ENABLE> | <DISABLE> ] // 11G Syntax can create the trigger enabled or disabled explcitly 
-	[ <WHEN> "(" ConditionalOrExpression() ")" ]
+	[ <WHEN> <LPAREN> ConditionalOrExpression() <RPAREN> ]
 
 	//Trigger Body follows :
 	//plsql_block  | compound_trigger_block | <CALL> routine 
@@ -7390,6 +7657,13 @@ Aggregate Functions
  */
 TOKEN :
 {
+  <LPAREN:    "(" >
+|
+  <RPAREN:    ")" >
+|
+  <MULT:      "*" >
+//| <WILDCARD_ARGS:      "\(\*\)" >
+|
 < #GERMAN_SPECIAL_CHARACTERS: "�" | "�" | "�" | "�" | "�" | "�" | "�" >
 |
 < #LETTER: ["A"-"Z"] | ["a"-"z"] | <GERMAN_SPECIAL_CHARACTERS> >
@@ -7398,14 +7672,14 @@ TOKEN :
 |
 < #_CHARACTER: <_CHARACTER_WO_ASTERISK> | "'" >
 |
-< #_CHARACTER_WO_ASTERISK: <LETTER> | <DIGIT> | "(" | ")" | "+" | "-" | "*" | "/" | "<" | ">"
+< #_CHARACTER_WO_ASTERISK: <LETTER> | <DIGIT> | <LPAREN> | <RPAREN> | "+" | "-" | <MULT> | "/" | "<" | ">"
  | "=" | "!" | "~" | "^" | ";" | ":" | "." | "@" | "%" | "," | "\"" | "#"
  | "$" | "&" | "_" | "|" | "{" | "}" | "?" | "[" | "]"
  | " " | "\t" >
 |
 < #SPECIAL_CHARACTERS: "�" | "�" | "�" | "�" | "�" | "�" | "�" | "�" | "�" | "�" | "�">
 |
-< #DELIMITER: "+" | "%" | "'" | "\"" | "." | "/" | "(" | ")" | ":" | "," | "*" | "=" | "<" | ">" | "@" | ";" | "-">
+< #DELIMITER: "+" | "%" | "'" | "\"" | "." | "/" | <LPAREN> | <RPAREN> | ":" | "," | <MULT> | "=" | "<" | ">" | "@" | ";" | "-">
 |
 < IDENTIFIER:
 	( ("$" | ":" | <LETTER>) ( <LETTER> | <DIGIT> | "$" | "_" | "#" )* ) // 2006-05-17 - Matthias Hendler - Bind variablen werden nun als Identifier akzeptiert.

@@ -68,24 +68,24 @@ INSERT FIRST
 --INSERT ALL
 
 INSERT ALL
-     WHEN 1 = 1 
+     WHEN 1 = 1  THEN
      --<>--
      INTO object_owners (owner, object_name, object_id)
      VALUES  (owner, object_name, multi_table_seq.NEXTVAL)
      --<>--
-     WHEN object_type = 'TABLE'
+     WHEN object_type = 'TABLE' THEN
      INTO table_owners (owner, table_name, object_id)
      VALUES  (owner, object_name, multi_table_seq.NEXTVAL)
      --<>--
-     WHEN object_type = 'INDEX'
+     WHEN object_type = 'INDEX' THEN
      INTO index_owners (owner, index_name, object_id)
      VALUES  (owner, object_name, multi_table_seq.NEXTVAL)
      --<>--
-     WHEN object_type = 'VIEW'
+     WHEN object_type = 'VIEW' THEN
      INTO view_type (owner, view_name, object_id)
      VALUES  (owner, object_name, multi_table_seq.NEXTVAL)
      --<>--
-     WHEN object_type = 'MATERIALIZED VIEW'
+     WHEN object_type = 'MATERIALIZED VIEW' THEN
      INTO mview_type (owner, mview_type, object_id)
      VALUES  (owner, object_name, multi_table_seq.NEXTVAL)
      --<>--
@@ -106,23 +106,23 @@ INSERT ALL
 
 INSERT FIRST
      --<>--
-     WHEN 1 = 1
+     WHEN 1 = 1 THEN
      INTO object_owners (owner, object_name, object_id)
      VALUES  (owner, object_name, multi_table_seq.NEXTVAL)
      --<>--
-     WHEN object_type = 'TABLE'
+     WHEN object_type = 'TABLE' THEN
      INTO table_owners (owner, table_name, object_id)
      VALUES  (owner, object_name, multi_table_seq.NEXTVAL)
      --<>--
-     WHEN object_type = 'INDEX'
+     WHEN object_type = 'INDEX' THEN
      INTO index_owners (owner, index_name, object_id)
      VALUES  (owner, object_name, multi_table_seq.NEXTVAL)
      --<>--
-     WHEN object_type = 'VIEW'
+     WHEN object_type = 'VIEW' THEN
      INTO view_type (owner, view_name, object_id)
      VALUES  (owner, object_name, multi_table_seq.NEXTVAL)
      --<>--
-     WHEN object_type = 'MATERIALIZED VIEW'
+     WHEN object_type = 'MATERIALIZED VIEW' THEN
      INTO mview_type (owner, mview_type, object_id)
      VALUES  (owner, object_name, multi_table_seq.NEXTVAL)
      --<>--

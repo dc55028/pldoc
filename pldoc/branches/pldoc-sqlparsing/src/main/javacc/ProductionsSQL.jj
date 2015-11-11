@@ -636,9 +636,12 @@ void SqlSelectClause()    :
 
 
 void SqlTableClause()    :
-{}
 {
-{System.err.println("SqlTableClause: attempting SqlTableClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+  Token start = token ;
+  Token alias = null;
+}
+{
+{System.err.println("SqlTableClause: attempting SqlTableClause() at line "+start.beginLine+", column "+start.beginColumn+" - \""+start.image+"\" "); }
 	/*
 	<LPAREN> SqlJoinClause() <RPAREN>
 	|  SqlTableReference()
@@ -647,10 +650,20 @@ void SqlTableClause()    :
 	Refactored out leading  SqlTableReference() to remove grammar ambiguity
 	*/
 	
-	<LPAREN> SqlTableReference() /* [ UnqualifiedID() ] Table Alias*/ SqlJoinClause() <RPAREN>
-	|  SqlTableReference() /* [ UnqualifiedID() ] Table Alias*/ [ SqlJoinClause() ]
+	(
+	<LPAREN> SqlTableReference() /* [ UnqualifiedID() ] Table Alias*/ [ SqlJoinClause() ] <RPAREN>
+		{ 
+		 System.err.println("SqlTableClause: paranthesised SqlTableReference starting at line "+start.beginLine+", column "+start.beginColumn+" and ending at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); 
+		  alias = SqlTableAlias() ; 
+		}
 
-{System.err.println("SqlTableClause: completed SqlTableClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+	)
+	|  
+	(
+	   SqlTableReference() /* [ UnqualifiedID() ] Table Alias*/ [ SqlJoinClause() ]
+	)
+
+{System.err.println("SqlTableClause: completed SqlTableClause() starting at line " +start.beginLine+", column "+start.beginColumn+" -  \""+start.image+"\" and finishing at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 }
 
 void SqlWithClause()    :
@@ -777,7 +790,8 @@ void SqlSelectList()    :
 
 
 void SqlSelectItem()  :
-{Token start = token ;
+{
+Token start = token ;
 }
 {
 {System.err.println("SqlSelectItem: attempting SqlSelectItem()"); }
@@ -801,6 +815,7 @@ void SqlSelectItem()  :
 
 void SqlTableReference()    :
 {
+  Token start = token ;
   Token alias = null;
 }
 {
@@ -814,6 +829,9 @@ void SqlTableReference()    :
 				<ONLY> <LPAREN> SqlQueryTableExpression() <RPAREN>
 				|
 				SqlQueryTableExpression()
+				|  ( SqlSubquery() //@TODO Found   
+ {System.err.println("SqlTableReference: Subquery() [EXTRA] after  at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+                                   )
 			)
 			[ SqlFlashbackQueryClause() ]
 			[
@@ -834,9 +852,12 @@ void SqlTableReference()    :
 */
 	//LOOKAHEAD( { isValidAlias(getToken(1).image) } ) UnqualifiedID() 
 	//[ UnqualifiedID() ] //Table Alias
-	{ alias = SqlTableAlias() ; }
+	{ 
+	 System.err.println("SqlTableReference: starting at line "+start.beginLine+", column "+start.beginColumn+" and ending at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); 
+          alias = SqlTableAlias() ; 
+        }
 
- {System.err.println("SqlTableReference: completed SqlTableReference() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+ {System.err.println("SqlTableReference: completed SqlTableReference() starting at line "+start.beginLine+", column "+start.beginColumn +" - \""+start.image+"\" " +" and ending at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 }
 
 JAVACODE
@@ -892,6 +913,9 @@ void SqlQueryTableExpression()    :
  {System.err.println("SqlQueryTableExpression: attempting SqlQueryTableExpression() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 	( [ <LATERAL> ] <LPAREN> SqlSubquery() [ SqlSubqueryRestrictionClause() ] <RPAREN>  
  {System.err.println("SqlQueryTableExpression: found LATEREAL ... at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+	 //| ( SqlSubquery() [ SqlSubqueryRestrictionClause() ] 
+	 //{System.err.println("SqlQueryTableExpression: (Extra) at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+         //  )
         )
 	|  SqlTableCollectionExpression()
  {System.err.println("SqlQueryTableExpression: found SqlTableExpression() .. at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }

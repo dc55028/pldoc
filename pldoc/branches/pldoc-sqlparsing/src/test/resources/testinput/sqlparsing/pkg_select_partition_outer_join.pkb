@@ -2,15 +2,19 @@
 
 DECLARE 
 	ty_customer_name_tab IS TABLE OF VARCHAR2(1);
+/*
 	ty_year_month_tab IS TABLE OF VARCHAR2(6);
 	ty_amount_tab IS TABLE OF NUMBER;
 
 	l_customer_name ty_customer_name_tab ;
 	l_year_month ty_year_month_tab ;
 	l_amount ty_amount_tab;
+*/
 BEGIN
 
 
+NULL;
+/*
 --SELECT 
 WITH year_months AS 
 (
@@ -34,6 +38,7 @@ FROM   year_months ym
 GROUP  BY co.name ,      ym.year_month
 ORDER  BY co.name ,      ym.year_month
 ;
+*/
 
 END;
 /
