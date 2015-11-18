@@ -701,7 +701,7 @@ public class PLSQLParser {
           return cu;
   }
 
-  /** Is this string valid for an alias name  
+  /** Is this string valid for a table alias name  
    *
    *<p>Assume that if the string is one of the keywords associated with SQL statements ( e.g. WHERE, JOIN, GROUP),
    * then the string is not a valid alias.    
@@ -736,6 +736,29 @@ public class PLSQLParser {
 	    );
 
     System.err.println("isValidAlias: valid Alias candidate " + aliasCandidate + "/" + alias + " ? = " + !isInvalid );
+	  
+    return ! isInvalid ;
+   
+  } 
+
+  /** Is this string valid for a column alias name  
+   *
+   *<p>Assume that if the string is one of the keywords associated with SQL statements ( e.g. AS, BULK),
+   * then the string is not a valid alias.    
+   *
+   *@param aliasCandidate 
+   */
+  private boolean isValidColumnAlias (String aliasCandidate )
+  {
+	  String alias = aliasCandidate.toUpperCase() ;
+	  boolean isInvalid = 
+	  (
+	     ",".equals(alias) 
+	  || "BULK".equals(alias) 
+	  || "FROM".equals(alias) 
+	  );
+
+    System.err.println("isValidAlias: valid Column Alias candidate " + aliasCandidate + "/" + alias + " ? = " + !isInvalid );
 	  
     return ! isInvalid ;
    
