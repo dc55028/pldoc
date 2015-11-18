@@ -612,7 +612,7 @@ void SqlSelectClause()    :
 		)
 	]
 	SqlSelectList()
-	[ <INTO> SqlTargetList() ]
+	[ [ <BULK> <COLLECT> ] <INTO> SqlTargetList() ]
   {System.err.println("SqlSelectClause: attempting <FROM>  at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 	<FROM>
   {System.err.println("SqlSelectClause: found <FROM>  at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
@@ -710,6 +710,16 @@ void SqlSubqueryFactoringClause()    :
 {}
 {
 {System.err.println("SqlSubqueryFactoringClause: attempting SqlQueryRefactoringClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+	SqlSubqueryFactoringSubclause()    [ ","  SqlSubqueryFactoringSubclause()  ] 
+{System.err.println("SqlSubqueryFactoringClause: completed SqlQueryRefactoringClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+
+}
+
+
+void SqlSubqueryFactoringSubclause()    :
+{}
+{
+{System.err.println("SqlSubqueryFactoringSubclause: attempting SqlQueryRefactoringSubclause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
       UnqualifiedID() //Query name) 
 	[
 	  <LPAREN>
@@ -725,7 +735,7 @@ void SqlSubqueryFactoringClause()    :
 	[ SqlCycleClause() ]
 	
 	
-{System.err.println("SqlSubqueryFactoringClause: completed SqlQueryRefactoringClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+{System.err.println("SqlSubqueryFactoringSubclause: completed SqlQueryRefactoringSubclause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 
 }
 
@@ -792,6 +802,7 @@ void SqlSelectList()    :
 void SqlSelectItem()  :
 {
 Token start = token ;
+Token alias = null ;
 }
 {
 {System.err.println("SqlSelectItem: attempting SqlSelectItem()"); }
@@ -806,7 +817,15 @@ Token start = token ;
   |
 */
   ({System.err.println("SqlSelectItem: attempting SqlSelectItem(SqlExpression())"); }  
-    SqlExpression() [ [ <AS> ] UnqualifiedID() ] //ColumnAlias )
+    SqlExpression() 
+    [ 
+	[ <AS> ]  UnqualifiedID() 
+	{ 
+	 // System.err.println("SqlSelectItem: starting at line "+start.beginLine+", column "+start.beginColumn+" and ending at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); 
+          alias = SqlColumnAlias() ; 
+        }
+
+    ] //ColumnAlias )
   )
  {System.err.println("SqlSelectItem: completed SqlSelectItem() starting at at line "+start.beginLine+", column "+start.beginColumn+" - \""+start.image+"\" " + " and ending at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 }
@@ -865,6 +884,17 @@ Token SqlTableAlias ()
 {
   Token alias = null;
 	if (isValidAlias(getToken(1).image))
+	{
+		alias = getNextToken() ;
+	}
+  return alias; 
+}
+
+JAVACODE
+Token SqlColumnAlias ()
+{
+  Token alias = null;
+	if (isValidColumnAlias(getToken(1).image))
 	{
 		alias = getNextToken() ;
 	}
@@ -1960,6 +1990,11 @@ void SqlExpression()    :
   {System.err.println("SqlExpression: attempting SqlColumnAssignment()"); }
               SqlColumnAssignment() 
                )   
+	| ( <LPAREN>
+  {System.err.println("SqlExpression: attempting Paranthesed ConditionalOrExpression()"); }
+            ConditionalOrExpression()  
+            <RPAREN>
+          )    
 	| (
   {System.err.println("SqlExpression: attempting ConditionalOrExpression()"); }
             ConditionalOrExpression() 

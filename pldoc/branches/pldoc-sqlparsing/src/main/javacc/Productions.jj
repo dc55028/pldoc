@@ -1974,8 +1974,10 @@ String EqualityExpression() :
   //RelationalExpression() ( ( "=" | "!=" | "<>" | <IS>) RelationalExpression() )*
   (
 	  (
-	   string = RelationalExpression() 
-	  ) {sb.append(string);} 
+	    (
+	      string = RelationalExpression() 
+	    ) {sb.append(string);} 
+	  ) 
 	  ( 
 	   ( ("=" ) {sb.append(" = ");}
 	   | ("!" "=" ) {sb.append(" != ");}
@@ -1983,8 +1985,10 @@ String EqualityExpression() :
 	   | (<IS>) {sb.append(" IS ");}  
            )
 	   (
-	   string = RelationalExpression() 
-	   ) {sb.append(string);} 
+	     (
+	       string = RelationalExpression() 
+	     ) {sb.append(string);} 
+	   ) 
 	  )*
   )
  { 
@@ -2254,6 +2258,10 @@ String PrimarySuffix() :
   | 
   (
       (
+	  (
+	    ("(+)") { sb.append( "(+)" ) ; }
+	  )
+	  |
 	  (
 	    ("(*)") { sb.append( "(*)" ) ; }
 	  )
