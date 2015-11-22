@@ -1978,7 +1978,7 @@ Token KEYWORD_UNRESERVED (): {}
 | <STATS_T_TEST_INDEP>
 | <STATS_T_TEST_INDEPU>
 | <STATS_WSR_TEST>
-//| <STDDEV>
+| <STDDEV>
 | <STDDEV_POP>
 | <STDDEV_SAMP>
 //| <SUM>
@@ -2149,7 +2149,7 @@ Token ID(): {}
 		| <SQL>  
 		| <SQLCODE> | <SQLERRM> 
 		| <START>  //RESERVED WORD  
-		| <STDDEV> // <SUBTYPE> |
+		//| <STDDEV> // <SUBTYPE> |
 		//20120501 | <SUCCESSFUL> 
 		//| <SUM> 
 		| <SYNONYM>  //RESERVED WORD  
@@ -2416,7 +2416,7 @@ Token QualifiedID(): {}
 		| <SQLCODE>
 		| <SQLERRM>
 		//<START>
-		| <STDDEV>
+		//| <STDDEV>
 		//| <SUBTYPE>
 		//20120501 | <SUCCESSFUL>
 		| <SYNONYM>
