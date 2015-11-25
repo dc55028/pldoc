@@ -754,7 +754,8 @@ public class PLSQLParser {
 	  boolean isInvalid = 
 	  (
 	     ",".equals(alias) 
-	  || "BULK".equals(alias) 
+	  || "INTO".equals(alias)  // INTO SqlTargetList()  
+	  || "BULK".equals(alias)  // BULK COLLECT INTO SqlTargetList()   
 	  || "FROM".equals(alias) 
 	  );
 
