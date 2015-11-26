@@ -1991,6 +1991,7 @@ Token KEYWORD_UNRESERVED (): {}
 | <NEXTVAL>
 | <SUM>
 | <AVG>
+| <PERIOD>  
 )
 
 { return token; }
