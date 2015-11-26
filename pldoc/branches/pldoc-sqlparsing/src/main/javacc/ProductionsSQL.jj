@@ -611,8 +611,10 @@ void SqlSelectClause()    :
 			| <ALL>
 		)
 	]
-	SqlSelectList()
-	[ [ <BULK> <COLLECT> ] <INTO> SqlTargetList() ]
+	(
+		SqlSelectList()
+		[ [ <BULK> <COLLECT> ] <INTO> SqlTargetList() ]
+	)
   {System.err.println("SqlSelectClause: attempting <FROM>  at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 	<FROM>
   {System.err.println("SqlSelectClause: found <FROM>  at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
