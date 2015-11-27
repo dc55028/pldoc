@@ -1992,6 +1992,7 @@ Token KEYWORD_UNRESERVED (): {}
 | <SUM>
 | <AVG>
 | <PERIOD>  
+| <PROMPT>  
 )
 
 { return token; }
