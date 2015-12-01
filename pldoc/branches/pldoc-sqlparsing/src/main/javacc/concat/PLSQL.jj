@@ -754,7 +754,8 @@ public class PLSQLParser {
 	  boolean isInvalid = 
 	  (
 	     ",".equals(alias) 
-	  || "BULK".equals(alias) 
+	  || "INTO".equals(alias)  // INTO SqlTargetList()  
+	  || "BULK".equals(alias)  // BULK COLLECT INTO SqlTargetList()   
 	  || "FROM".equals(alias) 
 	  );
 
@@ -2131,7 +2132,7 @@ void Statement() throws SAXException :
 		( <ELSIF> Expression() <THEN> (Statement())+ )*
 		( <ELSE> (Statement())+ )*
 		<END> <IF> ";"
-	| <FOR> ID() <IN> ( ( <LPAREN> SqlSubquery() <RPAREN> ) | ( [<REVERSE>] Expression()[".."Expression()] ) ) <LOOP> (Statement())+ <END> <LOOP> [<IDENTIFIER>] ";"
+	| <FOR> ID() <IN> ( ( <LPAREN> SqlSubquery() [ SqlForUpdateClause() ] <RPAREN> ) | ( [<REVERSE>] Expression()[".."Expression()] ) ) <LOOP> (Statement())+ <END> <LOOP> [<IDENTIFIER>] ";"
 	| <FORALL> ID() <IN> 
 			    (
 	                     ( <INDICES> | <VALUES> ) <OF> Expression() // Add support for sparse collections
@@ -2709,6 +2710,71 @@ String ExtractExpression() :
  }
 }
 
+/*
+xmlAttributes ( Expression AS StringLiteral ( , Expression AS StringLiteral )* )
+*/
+/*
+String XMLAttributes() :
+{ Token thisToken;  String string = null; StringBuffer sb = new StringBuffer() ; }
+{
+  (
+	(thisToken = "xmlAttributes" ) { sb.append(thisToken.image);} 
+	<LPAREN> { sb.append("(");} 
+
+	( string = Expression() { sb.append(" "); sb.append(string); }  )
+	<AS> { sb.append(" AS ");} 
+	( thisToken = <QUOTED_LITERAL> { sb.append(" "); sb.append(thisToken.image); }  )
+
+        (
+	  ","
+	  ( string = Expression() { sb.append(" "); sb.append(string); }  )
+	  <AS> { sb.append(" AS ");} 
+	  ( thisToken = <QUOTED_LITERAL> { sb.append(" "); sb.append(thisToken.image); }  )
+        )*
+
+	<RPAREN> { sb.append(")");} 
+  )
+  ( "." Expression() )*
+ { 
+ {System.err.println("xmlAttributes: \""+sb.toString() + "\""); }
+ return sb.toString(); 
+ }
+}
+*/
+
+/*
+xmlExists ( XQueryString XMLPassingClause  )
+http://docs.oracle.com/cd/B28359_01/server.111/b28286/functions231.htm
+*/
+/*
+String XMLExists() :
+{ Token thisToken;  String string = null; StringBuffer sb = new StringBuffer() ; }
+{
+  (
+	(thisToken = "xmlExists" ) { sb.append(thisToken.image);} 
+	<LPAREN> { sb.append("(");} 
+
+	( string = Expression() { sb.append(" "); sb.append(string); }  )
+	<AS> { sb.append(" AS ");} 
+	( thisToken = <QUOTED_LITERAL> { sb.append(" "); sb.append(thisToken.image); }  )
+
+        (
+	  ","
+	  ( string = Expression() { sb.append(" "); sb.append(string); }  )
+	  <AS> { sb.append(" AS ");} 
+	  ( thisToken = <QUOTED_LITERAL> { sb.append(" "); sb.append(thisToken.image); }  )
+        )*
+
+	<RPAREN> { sb.append(")");} 
+  )
+  ( "." Expression() )*
+ { 
+ {System.err.println("xmlExists: \""+sb.toString() + "\""); }
+ return sb.toString(); 
+ }
+}
+*/
+
 String ConditionalOrExpression() :
 { String string = null; StringBuffer sb = new StringBuffer() ; }
 {
@@ -2752,6 +2818,7 @@ String EqualityExpression() :
 	  ( 
 	   ( ("=" ) {sb.append(" = ");}
 	   | ("!" "=" ) {sb.append(" != ");}
+	   | ("^" "=" ) {sb.append(" ^= ");}
 	   // Now unde RelationalExpression | ("<" ">" ) {sb.append(" <> ");}
 	   | (<IS>) {sb.append(" IS ");}  
            )
@@ -2920,7 +2987,11 @@ String UnaryExpressionNotPlusMinus() :
 {
   {System.err.println("UnaryExpressionNotPlusMinus: attempting UnaryExpressionNotPlusMinus() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
   (
-  (<NOT>) {sb.append(" NOT "); } 
+  (
+    (<NOT>) {sb.append(" NOT "); } 
+    |
+    (<PRIOR>) {sb.append(" PRIOR "); } 
+  )
   (string = UnaryExpression(false) ) { sb.append(string); }
   |
    (string = PrimaryExpression() ) { sb.append(string); }
@@ -2979,8 +3050,11 @@ String PrimaryPrefix() :
 | LOOKAHEAD(CaseExpression()) ( string =CaseExpression() ) { sb.append(string) ; } //SRT 20110520
 | LOOKAHEAD(ObjectExpression() ) ( string = ObjectExpression() ) { sb.append(string) ; } //SRT 20110604
 | LOOKAHEAD(ExtractExpression() ) ( string = ExtractExpression() ) { sb.append(string) ; } 
+//| LOOKAHEAD(XMLAttributes() ) ( string = XMLAttributes() ) { sb.append(string) ; } 
 //| LOOKAHEAD(LikeExpression()) ( string = LikeExpression() ) { sb.append(string) ; } //SRT 20110604 
-| ( string =Name() ) { sb.append(string) ; } 
+| ( string =Name() ) { sb.append(string) ; 
+                      System.err.println("PrimaryPrefix: matched Name() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); 
+                     } 
 //SQL
 | LOOKAHEAD(<SELECT>) (<SELECT>) {sb.append("SELECT ..."); }  skip2NextTerminator(null,";")  
 | LOOKAHEAD((<LPAREN>)+ <SELECT>) (<LPAREN>) {sb.append("(SELECT ..."); }  skip2NextTerminator("(",")") <RPAREN>   
@@ -3006,44 +3080,61 @@ String PrimaryPrefix() :
 }
 
 String PrimarySuffix() :
-{ Token suffixToken = null ; String timeZoneExpression = null ; String arguments = null; StringBuffer sb = new StringBuffer() ; }
+{ Token suffixToken = null ; String string = null ; String arguments = null; StringBuffer sb = new StringBuffer() ; }
 {
-  {System.err.println("PrimarySuffix: attempting PrimarySuffix() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+  {System.err.println("PrimarySuffix: attempting PrimarySuffix() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "
+                     +"  just before \"" + getToken(1).image +"\"" 
+                     ); }
   (
-  (".") {sb.append(".");}  (suffixToken = QualifiedID() ) { sb.append(suffixToken.toString()) ; }
+  (
+   {System.err.println("PrimarySuffix: attempting \".\" suffixToken at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+   "." suffixToken = QualifiedID()  { sb.append(".");  sb.append(suffixToken.toString()) ; } 
+  )
   //Bug 3535118 - Method call may include dblink 
   //String dblink = null;
   //["@" dblink = QualifiedName() {sb.append("@"); sb.append(dblink); } ]
   | //Possible dblink 
-  ("@") {sb.append("@");}  (suffixToken = QualifiedID() ) { sb.append(suffixToken.toString()) ; }
+  (
+   "@" suffixToken = QualifiedID() 
+  ) {sb.append("@"); sb.append(suffixToken.toString()) ; }
   | //Possible Date Time Expression - Bug 3553725  
   ( <AT> {sb.append(" "); sb.append(token.image.toUpperCase());}  
           (  <LOCAL> {sb.append(" "); sb.append(token.image.toUpperCase());}
             | ( <TIME> <ZONE> {sb.append(" TIME ZONE");} ( <DBTIMEZONE> {sb.append(" "); sb.append(token.image.toUpperCase());}
 	        | <SESSIONTIMEZONE> {sb.append(" "); sb.append(token.image.toUpperCase());}
-	        | timeZoneExpression = StringLiteral() {sb.append(" "); sb.append(timeZoneExpression);}
-		| timeZoneExpression = Expression() ) {sb.append(" "); sb.append(timeZoneExpression);}
+	        | string = StringLiteral() {sb.append(" "); sb.append(string);}
+		| string = Expression() ) {sb.append(" "); sb.append(string);}
 	      )
          )   
   ) 
+/*
+  | //Possible XMLExists  XMLPassing Clause http://docs.oracle.com/cd/B28359_01/server.111/b28286/functions231.htm
+  ( <PASSING> {sb.append(" "); sb.append(token.image.toUpperCase());}  
+          //[ <BY> <VALUE> {sb.append(" BY VALUE"); } ]
+	  //( string = Expression() {sb.append(" "); sb.append(string);} )
+          //( <AS> {sb.append(" "); sb.append(" AS");} )
+	  //( string = StringLiteral() {sb.append(" "); sb.append(string);} )
+  ) 
+*/
   | 
   (
+      {System.err.println("PrimarySuffix: past <AT> line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
       (
 	  (
+      {System.err.println("PrimarySuffix: attempting (+) line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 	    ("(+)") { sb.append( "(+)" ) ; }
 	  )
 	  |
 	  (
+      {System.err.println("PrimarySuffix: attempting (*) line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 	    ("(*)") { sb.append( "(*)" ) ; }
 	  )
 	  |
 	  ( 
-	  {System.err.println("PrimarySuffix: attempting Arguments() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
-	  //( arguments = Arguments() |  arguments = parenthesesContents() )
-	  arguments = Arguments() 
-	  //arguments = parenthesesContents() 
-	  {System.err.println("PrimarySuffix: completed Arguments() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
-	  ) {sb.append(arguments) ; }
+	    {System.err.println("PrimarySuffix: attempting Arguments() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+            arguments = Arguments() {sb.append(arguments) ; } 
+	    {System.err.println("PrimarySuffix: completed Arguments() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+          )
       )
     //SQL Add Aggregate function  
     [
@@ -3331,6 +3422,11 @@ String Argument() :
 	[LOOKAHEAD(2) ( thisToken=<MULT> | thisToken=UnqualifiedID() ) {sb.append(thisToken); } ("=>" | <AS> ) { sb.append(" "); sb.append(token.image.toUpperCase()); sb.append(" "); } ] 
         (string = ConditionalOrExpression() ) {sb.append(string); } 
         //(string = parenthesesContents() ) {sb.append(string); } 
+	// Cope with XMLATTRIBUTES and XMLNAMESPACES arguments (Expression AS QuotedLiteral)
+	[
+	 <AS> (<IDENTIFIER> | <QUOTED_LITERAL>) { sb.append(" AS "); sb.append(token.image); sb.append(" "); }
+        ]
+
 	//Allow Using CharacterSet suffix clause  
 	[
 	   ( <USING>  )  { sb.append(" "); sb.append(token.image.toUpperCase()); } 
@@ -5283,8 +5379,10 @@ void SqlSelectClause()    :
 			| <ALL>
 		)
 	]
-	SqlSelectList()
-	[ [ <BULK> <COLLECT> ] <INTO> SqlTargetList() ]
+	(
+		SqlSelectList()
+		[ [ <BULK> <COLLECT> ] <INTO> SqlTargetList() ]
+	)
   {System.err.println("SqlSelectClause: attempting <FROM>  at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 	<FROM>
   {System.err.println("SqlSelectClause: found <FROM>  at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
@@ -7715,6 +7813,7 @@ Aggregate Functions
 |<NAMED: "NAMED"> 
 |<SOURCE: "SOURCE"> 
 |<CLASS: "CLASS"> 
+|<PASSING: "PASSING"> 
 }
 
 /**
@@ -8581,7 +8680,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <PARTITION_LIST>
 //| <PARTITION_RANGE>
 //| <PARTITIONS>
-//| <PASSING>
+| <PASSING>
 //| <PASSWORD>
 //| <PASSWORD_GRACE_TIME>
 //| <PASSWORD_LIFE_TIME>
@@ -9069,7 +9168,7 @@ Token KEYWORD_UNRESERVED (): {}
 | <STATS_T_TEST_INDEP>
 | <STATS_T_TEST_INDEPU>
 | <STATS_WSR_TEST>
-//| <STDDEV>
+| <STDDEV>
 | <STDDEV_POP>
 | <STDDEV_SAMP>
 //| <SUM>
@@ -9082,6 +9181,9 @@ Token KEYWORD_UNRESERVED (): {}
 | <NEXTVAL>
 | <SUM>
 | <AVG>
+| <PERIOD>  
+| <PROMPT>  
+//| <PASSING>  
 )
 
 { return token; }
@@ -9218,7 +9320,7 @@ Token ID(): {}
 		// <PRAGMA> |<PARTITION> | <RANGE> | <NEW> | <OLD> | 
 		| <PRIOR>  //RESERVED WORD  
 		| <PRIVATE> 
-		| <PROMPT> //SYNTAX 
+		//| <PROMPT> //SYNTAX 
 		
 		//	<PROCEDURE> | // this causes bug 643043 Procedure w/o params appears as variable
 		| <PUBLIC>  //RESERVED WORD  
@@ -9240,7 +9342,7 @@ Token ID(): {}
 		| <SQL>  
 		| <SQLCODE> | <SQLERRM> 
 		| <START>  //RESERVED WORD  
-		| <STDDEV> // <SUBTYPE> |
+		//| <STDDEV> // <SUBTYPE> |
 		//20120501 | <SUCCESSFUL> 
 		//| <SUM> 
 		| <SYNONYM>  //RESERVED WORD  
@@ -9479,7 +9581,7 @@ Token QualifiedID(): {}
 		| <PRAGMA>
 		| <PRIOR>
 		| <PRIVATE>
-		| <PROMPT>
+		//| <PROMPT>
 		//<PROCEDURE>
 		//<PUBLIC>
 		| <RAISE>
@@ -9507,7 +9609,7 @@ Token QualifiedID(): {}
 		| <SQLCODE>
 		| <SQLERRM>
 		//<START>
-		| <STDDEV>
+		//| <STDDEV>
 		//| <SUBTYPE>
 		//20120501 | <SUCCESSFUL>
 		| <SYNONYM>

@@ -1360,7 +1360,7 @@ void Statement() throws SAXException :
 		( <ELSIF> Expression() <THEN> (Statement())+ )*
 		( <ELSE> (Statement())+ )*
 		<END> <IF> ";"
-	| <FOR> ID() <IN> ( ( <LPAREN> SqlSubquery() <RPAREN> ) | ( [<REVERSE>] Expression()[".."Expression()] ) ) <LOOP> (Statement())+ <END> <LOOP> [<IDENTIFIER>] ";"
+	| <FOR> ID() <IN> ( ( <LPAREN> SqlSubquery() [ SqlForUpdateClause() ] <RPAREN> ) | ( [<REVERSE>] Expression()[".."Expression()] ) ) <LOOP> (Statement())+ <END> <LOOP> [<IDENTIFIER>] ";"
 	| <FORALL> ID() <IN> 
 			    (
 	                     ( <INDICES> | <VALUES> ) <OF> Expression() // Add support for sparse collections
@@ -1939,7 +1939,7 @@ String ExtractExpression() :
 }
 
 /*
-xmlAttributes ( Expression AExpression AS StringLiteral )* )
+xmlAttributes ( Expression AS StringLiteral ( , Expression AS StringLiteral )* )
 */
 /*
 String XMLAttributes() :
@@ -1964,7 +1964,40 @@ String XMLAttributes() :
   )
   ( "." Expression() )*
  { 
- {System.err.println("ObjectExpression: \""+sb.toString() + "\""); }
+ {System.err.println("xmlAttributes: \""+sb.toString() + "\""); }
+ return sb.toString(); 
+ }
+}
+*/
+
+/*
+xmlExists ( XQueryString XMLPassingClause  )
+http://docs.oracle.com/cd/B28359_01/server.111/b28286/functions231.htm
+*/
+/*
+String XMLExists() :
+{ Token thisToken;  String string = null; StringBuffer sb = new StringBuffer() ; }
+{
+  (
+	(thisToken = "xmlExists" ) { sb.append(thisToken.image);} 
+	<LPAREN> { sb.append("(");} 
+
+	( string = Expression() { sb.append(" "); sb.append(string); }  )
+	<AS> { sb.append(" AS ");} 
+	( thisToken = <QUOTED_LITERAL> { sb.append(" "); sb.append(thisToken.image); }  )
+
+        (
+	  ","
+	  ( string = Expression() { sb.append(" "); sb.append(string); }  )
+	  <AS> { sb.append(" AS ");} 
+	  ( thisToken = <QUOTED_LITERAL> { sb.append(" "); sb.append(thisToken.image); }  )
+        )*
+
+	<RPAREN> { sb.append(")");} 
+  )
+  ( "." Expression() )*
+ { 
+ {System.err.println("xmlExists: \""+sb.toString() + "\""); }
  return sb.toString(); 
  }
 }
@@ -2275,7 +2308,7 @@ String PrimaryPrefix() :
 }
 
 String PrimarySuffix() :
-{ Token suffixToken = null ; String timeZoneExpression = null ; String arguments = null; StringBuffer sb = new StringBuffer() ; }
+{ Token suffixToken = null ; String string = null ; String arguments = null; StringBuffer sb = new StringBuffer() ; }
 {
   {System.err.println("PrimarySuffix: attempting PrimarySuffix() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "
                      +"  just before \"" + getToken(1).image +"\"" 
@@ -2297,11 +2330,20 @@ String PrimarySuffix() :
           (  <LOCAL> {sb.append(" "); sb.append(token.image.toUpperCase());}
             | ( <TIME> <ZONE> {sb.append(" TIME ZONE");} ( <DBTIMEZONE> {sb.append(" "); sb.append(token.image.toUpperCase());}
 	        | <SESSIONTIMEZONE> {sb.append(" "); sb.append(token.image.toUpperCase());}
-	        | timeZoneExpression = StringLiteral() {sb.append(" "); sb.append(timeZoneExpression);}
-		| timeZoneExpression = Expression() ) {sb.append(" "); sb.append(timeZoneExpression);}
+	        | string = StringLiteral() {sb.append(" "); sb.append(string);}
+		| string = Expression() ) {sb.append(" "); sb.append(string);}
 	      )
          )   
   ) 
+/*
+  | //Possible XMLExists  XMLPassing Clause http://docs.oracle.com/cd/B28359_01/server.111/b28286/functions231.htm
+  ( <PASSING> {sb.append(" "); sb.append(token.image.toUpperCase());}  
+          //[ <BY> <VALUE> {sb.append(" BY VALUE"); } ]
+	  //( string = Expression() {sb.append(" "); sb.append(string);} )
+          //( <AS> {sb.append(" "); sb.append(" AS");} )
+	  //( string = StringLiteral() {sb.append(" "); sb.append(string);} )
+  ) 
+*/
   | 
   (
       {System.err.println("PrimarySuffix: past <AT> line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }

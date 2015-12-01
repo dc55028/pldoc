@@ -624,6 +624,7 @@ Aggregate Functions
 |<NAMED: "NAMED"> 
 |<SOURCE: "SOURCE"> 
 |<CLASS: "CLASS"> 
+|<PASSING: "PASSING"> 
 }
 
 /**
@@ -1490,7 +1491,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <PARTITION_LIST>
 //| <PARTITION_RANGE>
 //| <PARTITIONS>
-//| <PASSING>
+| <PASSING>
 //| <PASSWORD>
 //| <PASSWORD_GRACE_TIME>
 //| <PASSWORD_LIFE_TIME>
@@ -1993,6 +1994,7 @@ Token KEYWORD_UNRESERVED (): {}
 | <AVG>
 | <PERIOD>  
 | <PROMPT>  
+//| <PASSING>  
 )
 
 { return token; }
@@ -2129,7 +2131,7 @@ Token ID(): {}
 		// <PRAGMA> |<PARTITION> | <RANGE> | <NEW> | <OLD> | 
 		| <PRIOR>  //RESERVED WORD  
 		| <PRIVATE> 
-		| <PROMPT> //SYNTAX 
+		//| <PROMPT> //SYNTAX 
 		
 		//	<PROCEDURE> | // this causes bug 643043 Procedure w/o params appears as variable
 		| <PUBLIC>  //RESERVED WORD  
@@ -2390,7 +2392,7 @@ Token QualifiedID(): {}
 		| <PRAGMA>
 		| <PRIOR>
 		| <PRIVATE>
-		| <PROMPT>
+		//| <PROMPT>
 		//<PROCEDURE>
 		//<PUBLIC>
 		| <RAISE>
