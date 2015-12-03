@@ -5421,12 +5421,12 @@ void SqlTableClause()    :
 	*/
 	
 	(
-	<LPAREN> SqlTableReference() /* [ UnqualifiedID() ] Table Alias*/ [ SqlJoinClause() ] <RPAREN>
+	<LPAREN> SqlTableReference() /* [ UnqualifiedID() ] Table Alias*/ /*[ SqlJoinClause() ] */ <RPAREN>
 		{ 
 		 System.err.println("SqlTableClause: paranthesised SqlTableReference starting at line "+start.beginLine+", column "+start.beginColumn+" and ending at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); 
 		  alias = SqlTableAlias() ; 
 		}
-
+         [ SqlJoinClause() ]
 	)
 	|  
 	(
@@ -5973,15 +5973,16 @@ void SqlJoinClause()    :
 			SqlOuterJoinType() 
 			<JOIN> SqlTableReference() /* [ UnqualifiedID() ] Table Alias*/
 			[ SqlQueryPartitionClause() ]
-			(
+			[
 				( <ON> SqlExpression() )
+                                |
 				( <USING> 
 					//Column List 
 					<LPAREN> 
 						QualifiedID() ( "," QualifiedID() )*
 					<RPAREN>
 				)
-			)
+			]
 		)
 
 		//CROSS OUTER APPLY CLAUSE 
