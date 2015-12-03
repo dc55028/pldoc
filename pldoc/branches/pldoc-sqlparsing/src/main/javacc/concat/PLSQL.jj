@@ -3394,6 +3394,8 @@ String ArgumentList() :
 {
 	String argument = null;
 	Token thisToken = null;
+	String expression = null;
+	String literal = null;
 	StringBuffer sb = new StringBuffer();
 }
 {
@@ -3401,7 +3403,10 @@ String ArgumentList() :
   {System.out.println("ArgumentList: attempting ArgumentList() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
   //Argument() ("," token=Argument())*
   (argument = Argument()) { sb.append(argument); } 
-  (("," ) { sb.append(", "); }  (argument = Argument()) {sb.append(argument); } )*
+    [ <PASSING> expression = Expression() <AS> literal = Literal() { sb.append("PASSING "); sb.append(expression); sb.append(" AS "); sb.append(literal); } ]
+  (("," ) { sb.append(", "); }  (argument = Argument()) {sb.append(argument); } 
+    [ <AS> literal = Literal() { sb.append(" AS "); sb.append(literal); } ]
+  )*
  { 
   {System.err.println("ArgumentList: completed ArgumentList() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
   {System.out.println("ArgumentList: completed ArgumentList() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
@@ -5943,6 +5948,7 @@ void SqlJoinClause()    :
 				[ <INNER> ] <JOIN> SqlTableReference() /* [ UnqualifiedID() ] Table Alias*/
 				(
 					( <ON> SqlCondition() )
+                                        |
 					( <USING> 
 						//Column List 
 						<LPAREN> 
