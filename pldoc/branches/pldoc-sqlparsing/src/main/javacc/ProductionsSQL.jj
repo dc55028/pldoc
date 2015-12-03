@@ -1175,6 +1175,7 @@ void SqlJoinClause()    :
 				[ <INNER> ] <JOIN> SqlTableReference() /* [ UnqualifiedID() ] Table Alias*/
 				(
 					( <ON> SqlCondition() )
+                                        |
 					( <USING> 
 						//Column List 
 						<LPAREN> 
