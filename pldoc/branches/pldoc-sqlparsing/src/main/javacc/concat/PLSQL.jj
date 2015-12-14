@@ -3043,7 +3043,7 @@ String PrimaryPrefix() :
 {
   {System.err.println("PrimaryPrefix: attempting PrimaryPrefix() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 (
-  ( string = Literal() ) { sb.append(string) ; } 
+  LOOKAHEAD(Literal()) ( string = Literal() ) { sb.append(string) ; } 
 | LOOKAHEAD(MultiSetCondition()) string = MultiSetCondition()
 | LOOKAHEAD(CompilationExpression()) string = CompilationExpression() //SRT 
 | LOOKAHEAD(TrimExpression()) string = TrimExpression() //SRT 20110613.3
@@ -5083,10 +5083,13 @@ void SqlInsertIntoClause()    :
 	[ UnqualifiedID() ] //Alias   
 
 	[
+	  LOOKAHEAD( <LPAREN> UnqualifiedID() )
+		(
 		<LPAREN>
 			//Column Alias List 
 			UnqualifiedID() ( "," UnqualifiedID() )* 
 		<RPAREN>
+		)
 	]
 
 }
@@ -6002,22 +6005,25 @@ void SqlJoinClause()    :
 
 
 void SqlQueryPartitionClause()    :
-{}
 {
+Token start = token; 
+}
+{
+ {System.err.println("SqlQueryPartitionClause: attempting SqlQueryPartitionClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 	<PARTITION> <BY> 
 	(
-		<LPAREN> SqlExpression() ( ","  SqlExpression() )*  <RPAREN>
+		( <LPAREN> SqlExpression() ( ","  SqlExpression() )*  <RPAREN> )
 		| 
-		SqlExpression() 
+		( SqlExpression() ( ","  SqlExpression() )* )
 	)
-
+{System.err.println("SqlQueryPartitionClause: completed SqlQueryPartitionClause() starting at line " +start.beginLine+", column "+start.beginColumn+" -  \""+start.image+"\" and finishing at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 }
 
 void SqlColumnExpression()    :
 {}
 {
 	(
-		<LPAREN> SqlExpression() ( ","  SqlExpression() )*  <RPAREN>
+		( <LPAREN> SqlExpression() ( ","  SqlExpression() )*  <RPAREN> )
 		| 
 		SqlExpression() 
 	)
@@ -6786,6 +6792,272 @@ void SqlExpression()    :
  */
 
 
+
+/*
+ * SQL/XML Functions 
+ */
+
+/*
+xmlElement ( [ENTITYESCAPING|NOENTITYESCAPING] Expression AS StringLiteral ( , Expression AS StringLiteral )* )
+*/
+/*
+String XMLElement() :
+{ Token thisToken;  String string = null; StringBuffer sb = new StringBuffer() ; }
+{
+  (
+	( thisToken = XMLELEMENT { sb.append(thisToken.image); } )
+	<LPAREN> { sb.append("(");} 
+
+        [ ( <ENTITYESCAPING> | <NOENTITYESCAPING> ) { sb.append(thisToken.image); } ] 
+
+	(
+		( [ <NAME> ] ID() ) 
+		|
+		( [ <EVALNAME> ] Expression() ) 
+	)
+
+	[ "," string = XmlAttributes() { sb.append(", "); sb.append(string); }  ]
+
+        (
+	  ","
+	  ( string = Expression() { sb.append(" "); sb.append(string); }  )
+	  <AS> { sb.append(" AS ");} 
+	  ( thisToken = <QUOTED_LITERAL> { sb.append(" "); sb.append(thisToken.image); }  )
+        )*
+
+	<RPAREN> { sb.append(")");} 
+  )
+ { 
+ {System.err.println("xmlAttributes: \""+sb.toString() + "\""); }
+ return sb.toString(); 
+ }
+}
+*/
+
+/*
+String XMLAttributes() :
+{ Token thisToken;  String string = null; StringBuffer sb = new StringBuffer() ; }
+{
+  (
+	(thisToken = <XMLATTRIBUTES> ) { sb.append(thisToken.image);} 
+	<LPAREN> { sb.append("(");} 
+
+        [ ( <ENTITYESCAPING> | <NOENTITYESCAPING> ) { sb.append(thisToken.image); } ] 
+
+        [ ( <SCHEMACHECK> | <NOSCHEMACHECK> ) { sb.append(thisToken.image); } ] 
+
+	( string = Expression() { sb.append(" "); sb.append(string); }  )
+	<AS> { sb.append(" AS ");} 
+	( thisToken = <QUOTED_LITERAL> { sb.append(" "); sb.append(thisToken.image); }  )
+
+        (
+	  ","
+	  ( string = Expression() { sb.append(" "); sb.append(string); }  )
+	  <AS> { sb.append(" AS ");} 
+	  ( thisToken = <QUOTED_LITERAL> { sb.append(" "); sb.append(thisToken.image); }  )
+        )*
+
+	<RPAREN> { sb.append(")");} 
+  )
+ { 
+ {System.err.println("xmlAttributes: \""+sb.toString() + "\""); }
+ return sb.toString(); 
+ }
+}
+*/
+
+
+/*
+String XMLParse() :
+{ Token thisToken;  String string = null; StringBuffer sb = new StringBuffer() ; }
+{
+  (
+	(thisToken = <XMLPARSE> ) { sb.append(thisToken.image);} 
+	<LPAREN> { sb.append("(");} 
+
+        [ ( <DOCUMENT> | <CONTENT> ) { sb.append(thisToken.image); } ] 
+
+	( string = Expression() { sb.append(" "); sb.append(string); }  )
+
+        [ ( <WELLFORMED ) { sb.append(thisToken.image); } ] 
+
+	<RPAREN> { sb.append(")");} 
+  )
+ { 
+ {System.err.println("xmlAttributes: \""+sb.toString() + "\""); }
+ return sb.toString(); 
+ }
+}
+*/
+
+
+/*
+String XMLForest() :
+{ Token thisToken;  String string = null; StringBuffer sb = new StringBuffer() ; }
+{
+  (
+	(thisToken = <XMLFOREST> ) { sb.append(thisToken.image);} 
+	<LPAREN> { sb.append("(");} 
+
+	( string = Expression() { sb.append(" "); sb.append(string); }  )
+	<AS> { sb.append(" AS ");} 
+        (
+	  ( thisToken = <QUOTED_LITERAL> { sb.append(" "); sb.append(thisToken.image); }  )
+          |
+	  ( <EVALNAME> string = datatype() { sb.append("EVELNAME "); sb.append(string); }  )
+        )
+
+        (
+	  ","
+	  ( string = Expression() { sb.append(" "); sb.append(string); }  )
+	  <AS> { sb.append(" AS ");} 
+	  (
+	    ( thisToken = <QUOTED_LITERAL> { sb.append(" "); sb.append(thisToken.image); }  )
+	    |
+	    ( <EVALNAME> string = datatype() { sb.append("EVALNAME "); sb.append(string); }  )
+	  )
+        )*
+
+	<RPAREN> { sb.append(")");} 
+  )
+ { 
+ {System.err.println("xmlForest: \""+sb.toString() + "\""); }
+ return sb.toString(); 
+ }
+}
+*/
+
+
+/*
+String XMLSerialze() :
+{ Token thisToken;  String string = null; StringBuffer sb = new StringBuffer() ; }
+{
+  (
+	(thisToken = <XMLSERIALIZE> ) { sb.append(thisToken.image);} 
+	<LPAREN> { sb.append("(");} 
+
+        [ ( <DOCUMENT> | <CONTENT> ) { sb.append(thisToken.image); } ] 
+
+	( string = Expression() { sb.append(" "); sb.append(string); }  )
+
+        [  <AS> string = datatype()  { sb.append(" AS "); sb.append(string); } ] 
+
+        [  <ENCODING> string = Literal()  { sb.append(" ENCODING "); sb.append(string); } ] 
+
+        [  <VERSION> string = Literal()  { sb.append(" VERSION "); sb.append(string); } ] 
+
+        [  
+	 ( <NO> <INDENT> { sb.append(" NO INDENT "); })
+         |
+         ( <SIZE> string = NumericLiteral()  { sb.append(" SIZE "); sb.append(string); } 
+        ] 
+
+
+        [  
+	 ( (thisToken = <HIDE> |  thisToken = <SHOW>) <DEFAULTS>  { sb.append(" "); sb.append(thisToken.image);}  sb.append(" DEFAULTS"); })
+
+        ] 
+
+	<RPAREN> { sb.append(")");} 
+  )
+ { 
+ {System.err.println("xmlSerialize: \""+sb.toString() + "\""); }
+ return sb.toString(); 
+ }
+}
+*/
+
+
+/*
+String XMLAgg() :
+{ Token thisToken;  String string = null; StringBuffer sb = new StringBuffer() ; }
+{
+  (
+	(thisToken = <XMLAGG> ) { sb.append(thisToken.image);} 
+	<LPAREN> { sb.append("(");} 
+
+	( string = Expression() { sb.append(" "); sb.append(string); }  )
+
+        [ SqlOrderByClause() ]
+
+	<RPAREN> { sb.append(")");} 
+  )
+ { 
+ {System.err.println("xmlAgg: \""+sb.toString() + "\""); }
+ return sb.toString(); 
+ }
+}
+*/
+
+/*
+String XMLPI() :
+{ Token thisToken;  String string = null; StringBuffer sb = new StringBuffer() ; }
+{
+  (
+	(thisToken = <XMLPI> ) { sb.append(thisToken.image);} 
+	<LPAREN> { sb.append("(");} 
+
+        (
+	  ( thisToken = <QUOTED_LITERAL> { sb.append(" "); sb.append(thisToken.image); }  )
+          |
+	  ( <EVALNAME> string = datatype() { sb.append("EVELNAME "); sb.append(string); }  )
+        )
+
+        (
+	  ","
+	  ( string = Expression() { sb.append(" "); sb.append(string); }  )
+	  <AS> { sb.append(" AS ");} 
+	  (
+	    ( thisToken = <QUOTED_LITERAL> { sb.append(" "); sb.append(thisToken.image); }  )
+	    |
+	    ( <EVALNAME> string = datatype() { sb.append("EVALNAME "); sb.append(string); }  )
+	  )
+        )*
+
+	<RPAREN> { sb.append(")");} 
+  )
+ { 
+ {System.err.println("xmlForest: \""+sb.toString() + "\""); }
+ return sb.toString(); 
+ }
+}
+*/
+
+
+
+/*
+String XMLTABLE() :
+{ Token thisToken;  String string = null; StringBuffer sb = new StringBuffer() ; }
+{
+  (
+	(thisToken = <XMLTABLE> ) { sb.append(thisToken.image);} 
+	<LPAREN> { sb.append("(");} 
+
+        (
+	  ( thisToken = <QUOTED_LITERAL> { sb.append(" "); sb.append(thisToken.image); }  )
+          |
+	  ( <EVALNAME> string = datatype() { sb.append("EVELNAME "); sb.append(string); }  )
+        )
+
+        (
+	  ","
+	  ( string = Expression() { sb.append(" "); sb.append(string); }  )
+	  <AS> { sb.append(" AS ");} 
+	  (
+	    ( thisToken = <QUOTED_LITERAL> { sb.append(" "); sb.append(thisToken.image); }  )
+	    |
+	    ( <EVALNAME> string = datatype() { sb.append("EVALNAME "); sb.append(string); }  )
+	  )
+        )*
+
+	<RPAREN> { sb.append(")");} 
+  )
+ { 
+ {System.err.println("xmlForest: \""+sb.toString() + "\""); }
+ return sb.toString(); 
+ }
+}
+*/
 
 
 /** 
