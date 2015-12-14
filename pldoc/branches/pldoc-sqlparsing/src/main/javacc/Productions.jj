@@ -2271,7 +2271,7 @@ String PrimaryPrefix() :
 {
   {System.err.println("PrimaryPrefix: attempting PrimaryPrefix() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 (
-  ( string = Literal() ) { sb.append(string) ; } 
+  LOOKAHEAD(Literal()) ( string = Literal() ) { sb.append(string) ; } 
 | LOOKAHEAD(MultiSetCondition()) string = MultiSetCondition()
 | LOOKAHEAD(CompilationExpression()) string = CompilationExpression() //SRT 
 | LOOKAHEAD(TrimExpression()) string = TrimExpression() //SRT 20110613.3
