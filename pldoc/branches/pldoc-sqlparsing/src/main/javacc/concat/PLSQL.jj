@@ -2589,8 +2589,10 @@ String Assignment() :
 }
 
 String CaseExpression() :
-{ Token thisToken;  String string = null; StringBuffer sb = new StringBuffer() ; }
+{ Token start = token; Token thisToken;  String string = null; StringBuffer sb = new StringBuffer() ; }
 {
+ {System.err.println("CaseExpression: attempting CaseExpression() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+
   (
 	thisToken = <CASE> { sb.append(thisToken.image);} 
 	( string = Expression() { sb.append(" "); sb.append(string); }  )?
@@ -2603,6 +2605,8 @@ String CaseExpression() :
 	        Expression() { sb.append(" "); sb.append(string); }
 	  ]
 	  thisToken = <END> { sb.append(" "); sb.append(thisToken.image);}
+{System.err.println("CaseExpression: completed CaseExpression() starting at line " +start.beginLine+", column "+start.beginColumn+" -  \""+start.image+"\" and finishing at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+
   )
  { 
  return sb.toString(); 
@@ -2623,8 +2627,9 @@ String LikeExpression() :
 	//[ <RPAREN> { sb.append( ")" );} ]
 	[
 	<ESCAPE> { sb.append(" ESCAPE ");} 
-	(  <CHARACTER_LITERAL>{ sb.append(" "); sb.append(token.toString()); }  
+	(  <CHARACTER_LITERAL> { sb.append(" "); sb.append(token.toString()); }  
 	  | string = StringLiteral() { sb.append(" "); sb.append(string); }  
+	  | thisToken = UnqualifiedID() { sb.append(" "); sb.append(thisToken.image); }  
 	)
 	]
   )
@@ -2655,12 +2660,13 @@ String TrimExpression() :
 /*
 TREAT ( Expression AS datatype)
 CAST ( Expression AS datatype)
+XMLCAST ( Expression AS datatype)
 */
 String ObjectExpression() :
 { Token thisToken;  String string = null; StringBuffer sb = new StringBuffer() ; }
 {
   (
-	(thisToken = <CAST> | thisToken = <TREAT> ) { sb.append(thisToken.image);} 
+	(thisToken = <CAST> | thisToken = <TREAT> | thisToken = <XMLCAST> ) { sb.append(thisToken.image);} 
 	<LPAREN> { sb.append("(");} 
 	( string = Expression() { sb.append(" "); sb.append(string); }  )
 	[
@@ -2709,71 +2715,6 @@ String ExtractExpression() :
  return sb.toString(); 
  }
 }
-
-/*
-xmlAttributes ( Expression AS StringLiteral ( , Expression AS StringLiteral )* )
-*/
-/*
-String XMLAttributes() :
-{ Token thisToken;  String string = null; StringBuffer sb = new StringBuffer() ; }
-{
-  (
-	(thisToken = "xmlAttributes" ) { sb.append(thisToken.image);} 
-	<LPAREN> { sb.append("(");} 
-
-	( string = Expression() { sb.append(" "); sb.append(string); }  )
-	<AS> { sb.append(" AS ");} 
-	( thisToken = <QUOTED_LITERAL> { sb.append(" "); sb.append(thisToken.image); }  )
-
-        (
-	  ","
-	  ( string = Expression() { sb.append(" "); sb.append(string); }  )
-	  <AS> { sb.append(" AS ");} 
-	  ( thisToken = <QUOTED_LITERAL> { sb.append(" "); sb.append(thisToken.image); }  )
-        )*
-
-	<RPAREN> { sb.append(")");} 
-  )
-  ( "." Expression() )*
- { 
- {System.err.println("xmlAttributes: \""+sb.toString() + "\""); }
- return sb.toString(); 
- }
-}
-*/
-
-/*
-xmlExists ( XQueryString XMLPassingClause  )
-http://docs.oracle.com/cd/B28359_01/server.111/b28286/functions231.htm
-*/
-/*
-String XMLExists() :
-{ Token thisToken;  String string = null; StringBuffer sb = new StringBuffer() ; }
-{
-  (
-	(thisToken = "xmlExists" ) { sb.append(thisToken.image);} 
-	<LPAREN> { sb.append("(");} 
-
-	( string = Expression() { sb.append(" "); sb.append(string); }  )
-	<AS> { sb.append(" AS ");} 
-	( thisToken = <QUOTED_LITERAL> { sb.append(" "); sb.append(thisToken.image); }  )
-
-        (
-	  ","
-	  ( string = Expression() { sb.append(" "); sb.append(string); }  )
-	  <AS> { sb.append(" AS ");} 
-	  ( thisToken = <QUOTED_LITERAL> { sb.append(" "); sb.append(thisToken.image); }  )
-        )*
-
-	<RPAREN> { sb.append(")");} 
-  )
-  ( "." Expression() )*
- { 
- {System.err.println("xmlExists: \""+sb.toString() + "\""); }
- return sb.toString(); 
- }
-}
-*/
 
 String ConditionalOrExpression() :
 { String string = null; StringBuffer sb = new StringBuffer() ; }
@@ -2839,7 +2780,7 @@ String EqualityExpression() :
  * 2006-05-23 - Matthias Hendler - added FROM
  */
 String RelationalExpression() :
-{ String string = null; StringBuffer sb = new StringBuffer() ; }
+{ Token thisToken = null ; String string = null; StringBuffer sb = new StringBuffer() ; }
 {
  (
   {System.err.println("RelationalExpression: attempting RelationalExpression() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\"  - this is just before token \""+ getToken(1).image +"\"" ); }
@@ -2896,6 +2837,7 @@ String RelationalExpression() :
 	<ESCAPE> { sb.append(" ESCAPE ");} 
 	(  <CHARACTER_LITERAL>{ sb.append(" "); sb.append(token.toString()); }  
 	  | string = StringLiteral() { sb.append(" "); sb.append(string); }  
+	  | thisToken = UnqualifiedID() { sb.append(" "); sb.append(thisToken.image); }  
 	)
    ]
   )*
@@ -3044,10 +2986,26 @@ String PrimaryPrefix() :
   {System.err.println("PrimaryPrefix: attempting PrimaryPrefix() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 (
   LOOKAHEAD(Literal()) ( string = Literal() ) { sb.append(string) ; } 
-| LOOKAHEAD(MultiSetCondition()) string = MultiSetCondition()
+| LOOKAHEAD(MultiSetCondition()) string = MultiSetCondition() { sb.append(string) ; } 
 | LOOKAHEAD(CompilationExpression()) string = CompilationExpression() //SRT 
-| LOOKAHEAD(TrimExpression()) string = TrimExpression() //SRT 20110613.3
-| LOOKAHEAD(CaseExpression()) ( string =CaseExpression() ) { sb.append(string) ; } //SRT 20110520
+| LOOKAHEAD(TrimExpression()) string = TrimExpression()  { sb.append(string) ; } //SRT 20110613.3
+| ({System.err.println("PrimaryPrefix: attempting CaseExpression() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+ //LOOKAHEAD(CaseExpression()) string =CaseExpression()  { sb.append(string) ; }  //SRT 20110520
+ string =CaseExpression()  { sb.append(string) ; }  //SRT 20110520
+   {System.err.println("PrimaryPrefix: after CaseExpression() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+  )
+| ({System.err.println("PrimaryPrefix: attempting xmlQuery() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+ string =xmlQuery()  { sb.append(string) ; }  
+   {System.err.println("PrimaryPrefix: after xmlQuery() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+  )
+| ({System.err.println("PrimaryPrefix: attempting xmlExists() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+ string =xmlExists()  { sb.append(string) ; }  
+   {System.err.println("PrimaryPrefix: after xmlExists() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+  )
+| ({System.err.println("PrimaryPrefix: attempting xmSerialize() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+ string =xmlSerialize()  { sb.append(string) ; }  
+   {System.err.println("PrimaryPrefix: after xmlSerialize() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+  )
 | LOOKAHEAD(ObjectExpression() ) ( string = ObjectExpression() ) { sb.append(string) ; } //SRT 20110604
 | LOOKAHEAD(ExtractExpression() ) ( string = ExtractExpression() ) { sb.append(string) ; } 
 //| LOOKAHEAD(XMLAttributes() ) ( string = XMLAttributes() ) { sb.append(string) ; } 
@@ -3063,13 +3021,15 @@ String PrimaryPrefix() :
 | ("(*)" ) {sb.append("(*)"); } //SQL @TODO make <LPAREN> and <RPAREN> Tokens    //SQL
 // | LOOKAHEAD( [<LPAREN>] (<SELECT> | <WITH>) ) SqlSubquery() //SQL @TODO 
 |
-  (<LPAREN> ) {sb.append("("); } 
-  (string = Expression() ) {sb.append(string); } 
+  (
+  (<LPAREN>  {sb.append("("); } )
+  (string = Expression()  {sb.append(string); } )
   (
     (",") {sb.append(", "); }  
     (string = Expression() ) {sb.append(string); } 
   )* 
-  (<RPAREN>) {sb.append(")"); } 
+  (<RPAREN> {sb.append(")"); } )
+  )
 
 )
  { 
@@ -3504,7 +3464,7 @@ void Pragma(boolean isPackageLevel) throws org.xml.sax.SAXException :
 		name=<RESTRICT_REFERENCES> <LPAREN> (functionName=ID() /*| <_DEFAULT>*/)
 		("," (ID() | StringLiteral() /* 20110526 <STRING_LITERAL> */ ) )+	<RPAREN>
 		|
-		name=<EXCEPTION_INIT> <LPAREN> exceptionName=<IDENTIFIER> "," ["+"|"-"] errorNumber=NumericLiteral() <RPAREN>
+		name=<EXCEPTION_INIT> <LPAREN> exceptionName=UnqualifiedID()  "," ["+"|"-"] errorNumber=NumericLiteral() <RPAREN>
 		|
 		name=<INTERFACE> <LPAREN> <IDENTIFIER> "," ID() [ "," NumericLiteral() ] <RPAREN>
 		| //SRT 20110531 
@@ -4765,9 +4725,9 @@ void PragmaClause() throws org.xml.sax.SAXException :
 		name=<RESTRICT_REFERENCES> <LPAREN> (functionName=ID() /*| <_DEFAULT>*/)
 		("," (ID() | StringLiteral() /* 20110526 <STRING_LITERAL> */) )+	<RPAREN>
 		|
-		name=<EXCEPTION_INIT> <LPAREN> exceptionName=<IDENTIFIER> "," ["+"|"-"] errorNumber=NumericLiteral() <RPAREN>
+		name=<EXCEPTION_INIT> <LPAREN> exceptionName=UnqualifiedID() "," ["+"|"-"] errorNumber=NumericLiteral() <RPAREN>
 		|
-		name=<INTERFACE> <LPAREN> <IDENTIFIER> "," <IDENTIFIER> "," NumericLiteral() <RPAREN>
+		name=<INTERFACE> <LPAREN> UnqualifiedID() "," UnqualifiedID() "," NumericLiteral() <RPAREN>
 	)
 }
 
@@ -4862,7 +4822,7 @@ void SqlSelectStatement()    :
 //http://docs.oracle.com/cd/B19306_01/appdev.102/b14261/delete_Statement.htm#i33716
 //http://docs.oracle.com/database/121/PLSQLRF/Statements_8005.htm#i2112830
 void SqlDeleteStatement()    :
-{}
+{Token thisToken = null ; }
 {
 {System.err.println("SqlDeleteStatement: attempting SqlDeleteStatement()"); }
 	<DELETE> [ <FROM> ] 
@@ -4870,7 +4830,11 @@ void SqlDeleteStatement()    :
 		<ONLY> <LPAREN> SqlDmlTableExpression() <RPAREN>
 		| SqlDmlTableExpression() 
 	) 
+
+	//Table Alias 
 	[ UnqualifiedID() ] // alias	
+        //LOOKAHEAD( { !"WHERE".equalsIgnoreCase(getToken(1).image) } ) { thisToken = getNextToken() ; }
+
 	[
 		<WHERE> 
 		( <CURRENT> <OF> UnqualifiedID() //Cursor Name 
@@ -4898,10 +4862,14 @@ void SqlDmlTableExpression()    :
 
 //http://docs.oracle.com/cd/B28359_01/server.111/b28286/Statements_9016.htm
 void SqlMergeStatement()    :
-{}
+{ Token thisToken = null ; }
 {
 {System.err.println("SqlMergeStatement: attempting SqlMergeStatement()"); }
 	<MERGE> <INTO> QualifiedName() //Table Name
+
+	//Table Alias 
+        LOOKAHEAD( { !"USING".equalsIgnoreCase(getToken(1).image) } ) { thisToken = getNextToken() ; }
+
 	<USING>
 	<ON> <LPAREN> SqlCondition() <RPAREN>
 	// Matched Clause
@@ -5725,6 +5693,8 @@ void SqlQueryTableExpression()    :
 	 //{System.err.println("SqlQueryTableExpression: (Extra) at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
          //  )
         )
+	|  xmlTable()
+ {System.err.println("xmlTable: found xmlTable() .. at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 	|  SqlTableCollectionExpression()
  {System.err.println("SqlQueryTableExpression: found SqlTableExpression() .. at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 	|  ( QualifiedName() 
@@ -6775,12 +6745,20 @@ void SqlExpression()    :
                )   
 	| ( <LPAREN>
   {System.err.println("SqlExpression: attempting Paranthesed ConditionalOrExpression()"); }
-            ConditionalOrExpression()  
+            (
+	      CaseExpression()  
+	      |
+	      ConditionalOrExpression()  
+            )
             <RPAREN>
           )    
 	| (
   {System.err.println("SqlExpression: attempting ConditionalOrExpression()"); }
-            ConditionalOrExpression() 
+            (
+	      CaseExpression()  
+	      |
+	      ConditionalOrExpression()  
+            )
           )    
 	)
  
@@ -6805,7 +6783,7 @@ String XMLElement() :
 { Token thisToken;  String string = null; StringBuffer sb = new StringBuffer() ; }
 {
   (
-	( thisToken = XMLELEMENT { sb.append(thisToken.image); } )
+	( thisToken = <XMLELEMENT> { sb.append(thisToken.image); } )
 	<LPAREN> { sb.append("(");} 
 
         [ ( <ENTITYESCAPING> | <NOENTITYESCAPING> ) { sb.append(thisToken.image); } ] 
@@ -6828,14 +6806,14 @@ String XMLElement() :
 	<RPAREN> { sb.append(")");} 
   )
  { 
- {System.err.println("xmlAttributes: \""+sb.toString() + "\""); }
+ {System.err.println("xmlElement: \""+sb.toString() + "\""); }
  return sb.toString(); 
  }
 }
 */
 
 /*
-String XMLAttributes() :
+String xmlAttributes() :
 { Token thisToken;  String string = null; StringBuffer sb = new StringBuffer() ; }
 {
   (
@@ -6868,7 +6846,7 @@ String XMLAttributes() :
 
 
 /*
-String XMLParse() :
+String xmlParse() :
 { Token thisToken;  String string = null; StringBuffer sb = new StringBuffer() ; }
 {
   (
@@ -6892,7 +6870,7 @@ String XMLParse() :
 
 
 /*
-String XMLForest() :
+String xmlForest() :
 { Token thisToken;  String string = null; StringBuffer sb = new StringBuffer() ; }
 {
   (
@@ -6928,15 +6906,14 @@ String XMLForest() :
 */
 
 
-/*
-String XMLSerialze() :
+String xmlSerialize() :
 { Token thisToken;  String string = null; StringBuffer sb = new StringBuffer() ; }
 {
   (
-	(thisToken = <XMLSERIALIZE> ) { sb.append(thisToken.image);} 
+	(thisToken = <XMLSERIALIZE>  { sb.append(thisToken.image);} )
 	<LPAREN> { sb.append("(");} 
 
-        [ ( <DOCUMENT> | <CONTENT> ) { sb.append(thisToken.image); } ] 
+        [ ( <DOCUMENT> | <CONTENT> ) { sb.append(token.image); } ] 
 
 	( string = Expression() { sb.append(" "); sb.append(string); }  )
 
@@ -6947,14 +6924,14 @@ String XMLSerialze() :
         [  <VERSION> string = Literal()  { sb.append(" VERSION "); sb.append(string); } ] 
 
         [  
-	 ( <NO> <INDENT> { sb.append(" NO INDENT "); })
+	 ( <NO> <INDENT> { sb.append(" NO INDENT "); } )
          |
-         ( <SIZE> string = NumericLiteral()  { sb.append(" SIZE "); sb.append(string); } 
+         ( <INDENT> { sb.append(" INDENT"); } [ <SIZE> "=" thisToken = NumericLiteral()  { sb.append(" SIZE = "); sb.append(thisToken.image); } ] )
         ] 
 
 
         [  
-	 ( (thisToken = <HIDE> |  thisToken = <SHOW>) <DEFAULTS>  { sb.append(" "); sb.append(thisToken.image);}  sb.append(" DEFAULTS"); })
+	 ( (thisToken = <HIDE> |  thisToken = <SHOW>) <DEFAULTS>  { sb.append(" "); sb.append(thisToken.image);  sb.append(" DEFAULTS"); } )
 
         ] 
 
@@ -6965,11 +6942,10 @@ String XMLSerialze() :
  return sb.toString(); 
  }
 }
-*/
 
 
 /*
-String XMLAgg() :
+String xmlAgg() :
 { Token thisToken;  String string = null; StringBuffer sb = new StringBuffer() ; }
 {
   (
@@ -6990,7 +6966,7 @@ String XMLAgg() :
 */
 
 /*
-String XMLPI() :
+String xmlPI() :
 { Token thisToken;  String string = null; StringBuffer sb = new StringBuffer() ; }
 {
   (
@@ -6998,7 +6974,7 @@ String XMLPI() :
 	<LPAREN> { sb.append("(");} 
 
         (
-	  ( thisToken = <QUOTED_LITERAL> { sb.append(" "); sb.append(thisToken.image); }  )
+	  ( ( thisToken = <QUOTED_LITERAL> | thisToken = <LITERAL> ) { sb.append(" "); sb.append(thisToken.image); }  )
           |
 	  ( <EVALNAME> string = datatype() { sb.append("EVELNAME "); sb.append(string); }  )
         )
@@ -7008,7 +6984,7 @@ String XMLPI() :
 	  ( string = Expression() { sb.append(" "); sb.append(string); }  )
 	  <AS> { sb.append(" AS ");} 
 	  (
-	    ( thisToken = <QUOTED_LITERAL> { sb.append(" "); sb.append(thisToken.image); }  )
+	    ( ( thisToken = <QUOTED_LITERAL> | thisToken = <LITERAL> )  { sb.append(" "); sb.append(thisToken.image); }  )
 	    |
 	    ( <EVALNAME> string = datatype() { sb.append("EVALNAME "); sb.append(string); }  )
 	  )
@@ -7017,7 +6993,7 @@ String XMLPI() :
 	<RPAREN> { sb.append(")");} 
   )
  { 
- {System.err.println("xmlForest: \""+sb.toString() + "\""); }
+ {System.err.println("xmlPI: \""+sb.toString() + "\""); }
  return sb.toString(); 
  }
 }
@@ -7025,18 +7001,61 @@ String XMLPI() :
 
 
 
-/*
-String XMLTABLE() :
+String xmlTable() :
 { Token thisToken;  String string = null; StringBuffer sb = new StringBuffer() ; }
 {
   (
 	(thisToken = <XMLTABLE> ) { sb.append(thisToken.image);} 
 	<LPAREN> { sb.append("(");} 
 
+	  [
+	    string = xmlNamespaces() { sb.append(string);} 
+	    "," { sb.append( ",");} 
+	  ]
+
+	  // XQuery String 
+	  string = StringLiteral() { sb.append(string);} 
+
+	  //XMLTable options
+		
+	  //XML Passing Clause 
+	  [
+	    string = xmlPassingClause() { sb.append(string); }  
+	/*
+	    ( <PASSING> { sb.append(" PASSING "); }  )
+	    [ <BY> <VALUE> { sb.append("BY VALUE "); }  ]
+
+	    (
+              string = Expression() { sb.append(string); }  
+
+              [ <AS> ( thisToken = <QUOTED_LITERAL> | thisToken = <IDENTIFIER> )  { sb.append(" AS "); sb.append(thisToken.image); }  ]
+            )
+
+	    (
+	      "," { sb.append(", "); }
+	      (
+		string = Expression() { sb.append(string); }  
+
+		[ <AS> ( thisToken = <QUOTED_LITERAL> | thisToken = <IDENTIFIER> ) { sb.append(" AS "); sb.append(thisToken.image); }  ]
+	      )
+            )*
+	*/
+	  ]
+
+
+	  //XML COLUMNS XMLTABLE_COLUMN ( , XMLTABLE_COLUMN  )* 
+
         (
-	  ( thisToken = <QUOTED_LITERAL> { sb.append(" "); sb.append(thisToken.image); }  )
-          |
-	  ( <EVALNAME> string = datatype() { sb.append("EVELNAME "); sb.append(string); }  )
+	  <COLUMNS> 
+	    { sb.append("COLUMNS "); }
+
+	    string = xmlTableColumn() { sb.append(" "); sb.append(string); }
+
+	    (
+	      "," { sb.append(", "); }
+	      string = xmlTableColumn() { sb.append(" "); sb.append(string); }
+	    )*
+  
         )
 
         (
@@ -7044,21 +7063,167 @@ String XMLTABLE() :
 	  ( string = Expression() { sb.append(" "); sb.append(string); }  )
 	  <AS> { sb.append(" AS ");} 
 	  (
-	    ( thisToken = <QUOTED_LITERAL> { sb.append(" "); sb.append(thisToken.image); }  )
+	    ( ( thisToken = <QUOTED_LITERAL> | thisToken = <IDENTIFIER> )  { sb.append(" "); sb.append(thisToken.image); }  )
 	    |
-	    ( <EVALNAME> string = datatype() { sb.append("EVALNAME "); sb.append(string); }  )
+	    ( <EVALNAME> string = datatype() { sb.append(" EVALNAME "); sb.append(string); }  )
 	  )
         )*
 
 	<RPAREN> { sb.append(")");} 
   )
  { 
- {System.err.println("xmlForest: \""+sb.toString() + "\""); }
+ {System.err.println("xmlTable: \""+sb.toString() + "\""); }
  return sb.toString(); 
  }
 }
-*/
 
+
+
+String xmlQuery() :
+{ Token thisToken;  String string = null; StringBuffer sb = new StringBuffer() ; }
+{
+  (
+	(thisToken = <XMLQUERY> ) { sb.append(thisToken.image);} 
+	<LPAREN> { sb.append("(");} 
+
+	  // XQuery String 
+	  string = StringLiteral() { sb.append(string);} 
+
+	  //XML Passing Clause 
+	  [
+	    string = xmlPassingClause() { sb.append(string); }  
+	  ]
+
+
+	  (
+	    <RETURNING> <CONTENT> { sb.append(" RETURNING CONTENT"); }
+	  )
+
+	<RPAREN> { sb.append(")");} 
+  )
+ { 
+ {System.err.println("xmlQuery: \""+sb.toString() + "\""); }
+ return sb.toString(); 
+ }
+}
+
+String xmlExists() :
+{ Token thisToken;  String string = null; StringBuffer sb = new StringBuffer() ; }
+{
+  (
+	(thisToken = <XMLEXISTS> ) { sb.append(thisToken.image);} 
+	<LPAREN> { sb.append("(");} 
+
+	  // XQuery String 
+	  string = StringLiteral() { sb.append(string);} 
+
+	  //XML Passing Clause 
+	  [
+	    string = xmlPassingClause() { sb.append(string); }  
+	  ]
+
+	<RPAREN> { sb.append(")");} 
+  )
+ { 
+ {System.err.println("xmlExists: \""+sb.toString() + "\""); }
+ return sb.toString(); 
+ }
+}
+
+
+String xmlPassingClause() :
+{ Token thisToken;  String string = null; StringBuffer sb = new StringBuffer() ; }
+{
+  (
+    ( <PASSING> { sb.append(" PASSING "); }  )
+    [ <BY> <VALUE> { sb.append("BY VALUE "); }  ]
+
+    (
+      string = Expression() { sb.append(string); }  
+
+      [ <AS> ( thisToken = <QUOTED_LITERAL> | thisToken = <IDENTIFIER> )  { sb.append(" AS "); sb.append(thisToken.image); }  ]
+    )
+
+    (
+      "," { sb.append(", "); }
+      (
+	string = Expression() { sb.append(string); }  
+
+	[ <AS> ( thisToken = <QUOTED_LITERAL> | thisToken = <IDENTIFIER> ) { sb.append(" AS "); sb.append(thisToken.image); }  ]
+      )
+    )*
+  )
+ { 
+ {System.err.println("xmlPassingClause: \""+sb.toString() + "\""); }
+ return sb.toString(); 
+ }
+}
+
+
+String xmlNamespaces() :
+{ Token thisToken;  String string = null; StringBuffer sb = new StringBuffer() ; }
+{
+  (
+	(thisToken = <XMLNAMESPACES> ) { sb.append(thisToken.image);} 
+	<LPAREN> { sb.append("(");} 
+
+        [
+	  ( <_DEFAULT> string = StringLiteral() { sb.append(" DEFAULT "); sb.append(string); } )
+          |
+          (
+	    string = StringLiteral() { sb.append(" "); sb.append(string); } 
+	    <AS> ( thisToken = <IDENTIFIER> | thisToken = <QUOTED_LITERAL> ) { sb.append(" AS "); sb.append(thisToken.image); }  
+          )
+        ]
+
+        (
+	  ","
+	  (
+	    string = StringLiteral() { sb.append(" "); sb.append(string); }  
+	    <AS> ( thisToken = <IDENTIFIER> | token = <QUOTED_LITERAL> ) { sb.append(" AS "); sb.append(thisToken.image); }  
+	  )
+
+        )*
+
+        [
+	  <_DEFAULT> string = StringLiteral() { sb.append(" DEFAULT "); sb.append(string); } 
+        ]
+
+	<RPAREN> { sb.append(")");} 
+  )
+ { 
+ {System.err.println("xmlNamespaces: \""+sb.toString() + "\""); }
+ return sb.toString(); 
+ }
+}
+
+
+
+String xmlTableColumn() :
+{ Token thisToken;  String string = null; StringBuffer sb = new StringBuffer() ; }
+{
+  (
+    string = Name() //column name 
+    { sb.append(string); }
+
+    (
+      string = datatype() { sb.append(" "); sb.append(string); }  
+      [
+	<PATH> string = Literal() { sb.append(" PATH "); sb.append(string); }  
+      ]
+
+      [
+	<_DEFAULT> string = Expression() { sb.append(" DEFAULT "); sb.append(string); }  
+      ]
+    )
+    |
+    ( <FOR> <ORDINALITY> { sb.append(" FOR ORDINALITY "); }  )
+  )
+ { 
+ {System.err.println("xmlTableColumn: \""+sb.toString() + "\""); }
+ return sb.toString(); 
+ }
+}
 
 /** 
  * Trigger
@@ -7587,6 +7752,8 @@ TOKEN [IGNORE_CASE]:
 <CONNECT: "CONNECT"> |
 <CONSTANT: "CONSTANT"> |
 <CONSTRUCTOR: "CONSTRUCTOR"> |
+<CONTAINER: "CONTAINER"> |
+<CONTENT: "CONTENT"> |
 <CONTINUE: "CONTINUE"> |
 <CONVERT: "CONVERT"> |
 <CREATE: "CREATE"> |
@@ -7600,18 +7767,21 @@ TOKEN [IGNORE_CASE]:
 <DECLARE: "DECLARE"> |
 <DECIMAL: "DECIMAL"> |
 <_DEFAULT: "DEFAULT"> |
+<DEFAULTS: "DEFAULTS"> |
 <DELETE: "DELETE"> |
 <DESC: "DESC"> |
 <DETERMINISTIC: "DETERMINISTIC"> |
 <DISABLE: "DISABLE"> | // Needed for 11G Trigger Syntax 
 <DISTINCT: "DISTINCT"> |
 <DO: "DO"> |
+<DOCUMENT: "DOCUMENT"> |
 <DROP: "DROP"> |
 <EDITIONABLE: "EDITIONABLE"> |
 <ELEMENT: "ELEMENT"> |
 <ELSE: "ELSE"> |
 <ELSIF: "ELSIF"> |
 <ENABLE: "ENABLE"> | // Needed for 11G Trigger Syntax 
+<ENCODING: "ENCODING"> | 
 <END: "END"> |
 <ERRORS: "ERRORS"> |
 <ESCAPE: "ESCAPE"> |
@@ -7644,11 +7814,13 @@ TOKEN [IGNORE_CASE]:
 <HASH: "HASH"> |
 <HAVING: "HAVING"> |
 <HEAP: "HEAP"> |
+<HIDE: "HIDE"> |
 <HOUR: "HOUR"> |
 <IDENTIFIED: "IDENTIFIED"> | //SRT 2011-04-17
 <IF: "IF"> |
 <IMMEDIATE: "IMMEDIATE"> |
 <IN: "IN"> |
+<INDENT: "INDENT"> |
 <INDEX: "INDEX"> |
 <INDICES: "INDICES"> |
 <INCLUDING: "INCLUDING"> |
@@ -7951,6 +8123,7 @@ TOKEN [IGNORE_CASE]:
 | <BREADTH: "BREADTH">  
 | <CYCLE: "CYCLE">  
 | <NOCYCLE: "NOCYCLE">  
+| <VERSION: "VERSION">  
 | <VERSIONS: "VERSIONS">  
 | <PERIOD: "PERIOD">  
 | <SCN: "SCN">  
@@ -8092,7 +8265,19 @@ Aggregate Functions
 |<NAMED: "NAMED"> 
 |<SOURCE: "SOURCE"> 
 |<CLASS: "CLASS"> 
+//XML 
 |<PASSING: "PASSING"> 
+|<XMLSERIALIZE: "XMLSERIALIZE">
+|<XMLTABLE: "XMLTABLE">
+|<VALUE: "VALUE">
+|<COLUMNS: "COLUMNS">
+|<EVALNAME: "EVALNAME">
+|<XMLNAMESPACES: "XMLNAMESPACES">
+|<PATH: "PATH">
+|<ORDINALITY: "ORDINALITY">
+|<XMLQUERY: "XMLQUERY">
+|<XMLCAST: "XMLCAST">
+|<XMLEXISTS: "XMLEXISTS">
 }
 
 /**
@@ -8396,7 +8581,7 @@ Token KEYWORD_UNRESERVED (): {}
 | <COLUMN>
 //| <COLUMN_STATS>
 //| <COLUMN_VALUE>
-//| <COLUMNS>
+| <COLUMNS>
 | <COMMENT>
 | <COMMIT>
 //| <COMMITTED>
@@ -8419,8 +8604,8 @@ Token KEYWORD_UNRESERVED (): {}
 //| <CONSTRAINT>
 //| <CONSTRAINTS>
 | <CONSTRUCTOR> 
-//| <CONTAINER>
-//| <CONTENT>
+| <CONTAINER>
+| <CONTENT>
 //| <CONTENTS>
 | <CONTEXT>
 | <CONTINUE> 
@@ -8495,7 +8680,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <DISTRIBUTED>
 //| <DML>
 //| <DML_UPDATE>
-//| <DOCUMENT>
+| <DOCUMENT>
 //| <DOMAIN_INDEX_NO_SORT>
 //| <DOMAIN_INDEX_SORT>
 | <DOUBLE>
@@ -8527,7 +8712,7 @@ Token KEYWORD_UNRESERVED (): {}
 | <ERRORS>
 | <ESCAPE>
 //| <ESTIMATE>
-//| <EVALNAME>
+| <EVALNAME>
 //| <EVALUATION>
 //| <EVENTS>
 | <EXCEPT>
@@ -8932,7 +9117,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <ORA_ROWSCN>
 | <ORDERED>
 //| <ORDERED_PREDICATES>
-//| <ORDINALITY>
+| <ORDINALITY>
 | <ORGANIZATION>
 | <OTHERS>
 //| <OUT_OF_LINE>
@@ -8967,7 +9152,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <PASSWORD_REUSE_MAX>
 //| <PASSWORD_REUSE_TIME>
 //| <PASSWORD_VERIFY_FUNCTION>
-//| <PATH>
+| <PATH>
 //| <PATHS>
 //| <PCTINCREASE>
 //| <PCTTHRESHOLD>
@@ -9314,13 +9499,13 @@ Token KEYWORD_UNRESERVED (): {}
 | <USING>
 //| <VALIDATE>
 //| <VALIDATION>
-//| <VALUE>
+| <VALUE>
 | <VARRAY>
 | <VARIABLE>
 | <VARYING>
 //| <VECTOR_READ>
 //| <VECTOR_READ_TRACE>
-//| <VERSION>
+| <VERSION>
 | <VERSIONS>
 | <WAIT>
 //| <WALLET>
@@ -9337,17 +9522,19 @@ Token KEYWORD_UNRESERVED (): {}
 //| <XID>
 //| <XML_DML_RWT_STMT>
 //| <XMLATTRIBUTES>
+| <XMLCAST>
 //| <XMLCOLATTVAL>
 //| <XMLELEMENT>
+| <XMLEXISTS>
 //| <XMLFOREST>
-//| <XMLNAMESPACES>
+| <XMLNAMESPACES>
 //| <XMLPARSE>
 //| <XMLPI>
-//| <XMLQUERY>
+| <XMLQUERY>
 //| <XMLROOT>
 //| <XMLSCHEMA>
-//| <XMLSERIALIZE>
-//| <XMLTABLE>
+| <XMLSERIALIZE>
+| <XMLTABLE>
 //| <XMLTYPE>
 | <YEAR>
 | <YES>
@@ -9463,6 +9650,17 @@ Token KEYWORD_UNRESERVED (): {}
 | <PERIOD>  
 | <PROMPT>  
 //| <PASSING>  
+//|<XMLTABLE>
+//|<VALUE>
+//|<COLUMNS>
+//|<EVALNAME>
+//|<XMLNAMESPACES>
+//|<PATH>
+//|<ORDINALITY>
+|<DEFAULTS>
+|<ENCODING>
+|<HIDE>
+|<INDENT>
 )
 
 { return token; }
