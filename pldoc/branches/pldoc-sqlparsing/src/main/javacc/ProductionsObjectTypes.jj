@@ -969,9 +969,9 @@ void PragmaClause() throws org.xml.sax.SAXException :
 		name=<RESTRICT_REFERENCES> <LPAREN> (functionName=ID() /*| <_DEFAULT>*/)
 		("," (ID() | StringLiteral() /* 20110526 <STRING_LITERAL> */) )+	<RPAREN>
 		|
-		name=<EXCEPTION_INIT> <LPAREN> exceptionName=<IDENTIFIER> "," ["+"|"-"] errorNumber=NumericLiteral() <RPAREN>
+		name=<EXCEPTION_INIT> <LPAREN> exceptionName=UnqualifiedID() "," ["+"|"-"] errorNumber=NumericLiteral() <RPAREN>
 		|
-		name=<INTERFACE> <LPAREN> <IDENTIFIER> "," <IDENTIFIER> "," NumericLiteral() <RPAREN>
+		name=<INTERFACE> <LPAREN> UnqualifiedID() "," UnqualifiedID() "," NumericLiteral() <RPAREN>
 	)
 }
 
