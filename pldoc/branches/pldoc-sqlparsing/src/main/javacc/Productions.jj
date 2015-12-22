@@ -2275,8 +2275,13 @@ String PrimarySuffix() :
                      ); }
   (
   (
+   {System.err.println("PrimarySuffix: attempting \".*\" wildcard suffixToken at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+   suffixToken = ".*"  { sb.append(suffixToken.toString()) ; } 
+  )
+  |
+  (
    {System.err.println("PrimarySuffix: attempting \".\" suffixToken at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
-   "." suffixToken = QualifiedID()  { sb.append(".");  sb.append(suffixToken.toString()) ; } 
+   "." ( suffixToken = <MULT> | suffixToken = QualifiedID() )  { sb.append(".");  sb.append(suffixToken.toString()) ; } 
   )
   //Bug 3535118 - Method call may include dblink 
   //String dblink = null;

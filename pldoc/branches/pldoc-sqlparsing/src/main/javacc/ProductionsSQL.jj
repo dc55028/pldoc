@@ -414,12 +414,14 @@ void SqlColumnAssignment()    :
 	|
 	// Single-column assignment 
 	(
+{System.err.println("SqlColumnAssignment: attempting Single-ColumnAssignment()"); }
 		QualifiedName() "=" 
 		(
-			( <LPAREN> SqlSubquery() <RPAREN> )
+			LOOKAHEAD(2, <LPAREN> <SELECT> ) ( <LPAREN> SqlSubquery() <RPAREN> )
 			| 
 			SqlExpression() 
 		)
+{System.err.println("SqlColumnAssignment: after Single-ColumnAssignment()"); }
 	)
 }
 
@@ -2000,16 +2002,18 @@ void SqlAggregateFunction()    :
 //http://docs.oracle.com/database/121/SQLRF/expressions001.htm#i1002626
 //http://docs.oracle.com/database/121/SQLRF/expressions.htm#g1057115
 void SqlExpression()    :
-{ 
+{
+Token start = token ;  
 }
 {
-  {System.err.println("SqlExpression: attempting SqlExpression()"); }
+  {System.err.println("SqlExpression: attempting SqlExpression() at line "+start.beginLine+", column "+start.beginColumn+" - \""+start.image+"\" " ); }
 	// Need syntactic lookahead to discriminate between SqlColumnAssignment and a procedure call
 	(
   	LOOKAHEAD( PrimaryExpression() "=" ) ( 
   {System.err.println("SqlExpression: attempting SqlColumnAssignment()"); }
               SqlColumnAssignment() 
                )   
+/*
 	| ( <LPAREN>
   {System.err.println("SqlExpression: attempting Paranthesed ConditionalOrExpression()"); }
             (
@@ -2018,7 +2022,9 @@ void SqlExpression()    :
 	      ConditionalOrExpression()  
             )
             <RPAREN>
+  {System.err.println("SqlExpression: after Paranthesed ConditionalOrExpression()"); }
           )    
+*/
 	| (
   {System.err.println("SqlExpression: attempting ConditionalOrExpression()"); }
             (
@@ -2026,9 +2032,12 @@ void SqlExpression()    :
 	      |
 	      ConditionalOrExpression()  
             )
+  {System.err.println("SqlExpression: after ConditionalOrExpression()"); }
           )    
 	)
  
+  {System.err.println("SqlExpression: after SqlExpression()"); }
+  {System.err.println("SqlExpression: completed SqlExpression() starting at at line "+start.beginLine+", column "+start.beginColumn+" - \""+start.image+"\" " + " and ending at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 }
 
 
