@@ -1926,6 +1926,10 @@ String ExtractExpression() :
          | thisToken = <HOUR>
          | thisToken = <MINUTE>
          | thisToken = <SECOND>
+         | thisToken = <TIMEZONE_HOUR>
+         | thisToken = <TIMEZONE_MINUTE>
+         | thisToken = <TIMEZONE_REGION>
+         | thisToken = <TIMEZONE_ABBR>
         )?
         { 
 	      if (thisToken != null) 
