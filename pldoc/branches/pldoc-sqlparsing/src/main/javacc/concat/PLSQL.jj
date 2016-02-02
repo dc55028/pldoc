@@ -2698,6 +2698,10 @@ String ExtractExpression() :
          | thisToken = <HOUR>
          | thisToken = <MINUTE>
          | thisToken = <SECOND>
+         | thisToken = <TIMEZONE_HOUR>
+         | thisToken = <TIMEZONE_MINUTE>
+         | thisToken = <TIMEZONE_REGION>
+         | thisToken = <TIMEZONE_ABBR>
         )?
         { 
 	      if (thisToken != null) 
@@ -4875,7 +4879,16 @@ void SqlMergeStatement()    :
 	//Table Alias 
         LOOKAHEAD( { !"USING".equalsIgnoreCase(getToken(1).image) } ) { thisToken = getNextToken() ; }
 
-	<USING>
+	<USING> 
+        (
+          ( <LPAREN> SqlSubquery() <RPAREN> )
+          |
+          QualifiedName() 
+        )
+
+	//Target Alias 
+        LOOKAHEAD( { !"ON".equalsIgnoreCase(getToken(1).image) } ) { thisToken = getNextToken() ; }
+
 	<ON> <LPAREN> SqlCondition() <RPAREN>
 	// Matched Clause
 	<WHEN> <MATCHED> <THEN> 
@@ -4890,9 +4903,11 @@ void SqlMergeStatement()    :
 	)
 	(
 		","
-		<_DEFAULT>
-		|
-		SqlExpression() 
+                (
+		  <_DEFAULT>
+		  |
+		  SqlExpression() 
+                )
 	)*
 	//WHERE 
 	[ SqlWhereClause() ]
@@ -5074,21 +5089,26 @@ void SqlValuesClause()    :
 {
 {System.err.println("SqlValuesClause: attempting SqlValuesClause()"); }
 	<VALUES> 
-	<LPAREN>
-		(
-			<_DEFAULT>
-			|
-			SqlExpression() 
-		)
-		(
-			","
-			(
-			  <_DEFAULT>
-			  |
-			  SqlExpression() 
-			)
-		)*
-	<RPAREN>
+	(
+	  (
+	    <LPAREN>
+		    (
+			    <_DEFAULT>
+			    |
+			    SqlExpression() 
+		    )
+		    (
+			    ","
+			    (
+			      <_DEFAULT>
+			      |
+			      SqlExpression() 
+			    )
+		    )*
+	    <RPAREN>
+	  )
+	  | QualifiedName() //Record variable 
+	)
 	
 
 }
@@ -5884,7 +5904,7 @@ void SqlTableCollectionExpression()    :
 {}
 {
 
-	<TABLE> <LPAREN> SqlCollectionExpression() <RPAREN> [ <LPAREN> "+" <RPAREN> ]
+	(<TABLE>|<THE>) <LPAREN> SqlCollectionExpression() <RPAREN> [ <LPAREN> "+" <RPAREN> ]
 	//Possibly @TODO <CAST> <LPAREN> <MULTISET> <LPAREN> SqlCollectionExpression() <RPAREN> <RPAREN> 
 
 }
@@ -7982,6 +8002,7 @@ TOKEN [IGNORE_CASE]:
 <SYS_REFCURSOR: "SYS_REFCURSOR"> |
 <TABLE: "TABLE"> |
 <TEMPORARY: "TEMPORARY"> |
+<THE: "THE"> |
 <THEN: "THEN"> |
 <TIME: "TIME"> |
 <TIMESTAMP: "TIMESTAMP"> |
@@ -9431,7 +9452,7 @@ Token KEYWORD_UNRESERVED (): {}
 | <TEMPORARY>
 //| <TEST>
 //| <THAN>
-//| <THE>
+| <THE>
 //| <THREAD>
 //| <THROUGH>
 | <TIME>
