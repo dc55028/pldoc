@@ -1360,7 +1360,13 @@ void Statement() throws SAXException :
 		( <ELSIF> Expression() <THEN> (Statement())+ )*
 		( <ELSE> (Statement())+ )*
 		<END> <IF> ";"
-	| <FOR> ID() <IN> ( ( <LPAREN> SqlSubquery() [ SqlForUpdateClause() ] <RPAREN> ) | ( [<REVERSE>] Expression()[".."Expression()] ) ) <LOOP> (Statement())+ <END> <LOOP> [<IDENTIFIER>] ";"
+	| <FOR> ID() <IN> 
+          ( 
+	    LOOKAHEAD( <LPAREN> (<SELECT>|<WITH>)  ) ( <LPAREN> SqlSubquery() [ SqlForUpdateClause() ] <RPAREN> ) 
+            | 
+            ( [<REVERSE>] Expression()[".."Expression()] ) 
+          ) 
+          <LOOP> (Statement())+ <END> <LOOP> [<IDENTIFIER>] ";"
 	| <FORALL> ID() <IN> 
 			    (
 	                     ( <INDICES> | <VALUES> ) <OF> Expression() // Add support for sparse collections
@@ -2272,7 +2278,9 @@ String PrimaryPrefix() :
 }
 
 String PrimarySuffix() :
-{ Token suffixToken = null ; String string = null ; String arguments = null; StringBuffer sb = new StringBuffer() ; }
+{ Token suffixToken = null ; String string = null ; String arguments = null; StringBuffer sb = new StringBuffer() ; 
+System.err.println("PrimarySuffix: init ");
+}
 {
   {System.err.println("PrimarySuffix: attempting PrimarySuffix() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "
                      +"  just before \"" + getToken(1).image +"\"" 
