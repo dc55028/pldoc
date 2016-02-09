@@ -811,12 +811,13 @@ void input() throws org.xml.sax.SAXException : {}
   { System.err.println("input: completed parsing of  \"" + inputPath + "\"" ); }
 }
 
-JAVACODE
+//JAVACODE
 /** Return the contents of paired parantheses.
  *<p>This does not consume the parantheses. 
  *
  *@return string contents
  */
+/*
 String parenthesesContents() 
 {
 	Token t;
@@ -847,6 +848,81 @@ String parenthesesContents()
 			}
 		}
 		t = getNextToken();
+	}
+	
+  {System.err.println("parenthesesContents: completed at line "+t.beginLine+", column "+t.beginColumn+" - \""+t.image+"\" "); }
+  return sb.toString(); 
+}
+*/
+
+JAVACODE
+/** Return the contents of paired parantheses.
+ *<p>This does not consume the parantheses. 
+ *
+ *@param start location at or before the first parantheses. 
+ *
+ *@return string contents
+ */
+String parenthesesContents(Token start) 
+{
+	Token t = start;
+	StringBuffer sb = new StringBuffer() ;
+	int nesting = 0;
+	{System.err.println("parenthesesContents: checking paranthesed text \"(\" and \")\" "
+			    + " from "+start.beginLine+", column "+start.beginColumn+" - \""+start.image+"\" "
+			    + "at "+t.beginLine+", column "+t.beginColumn+" - \""+t.image+"\" "
+			    + "with current Token at "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "
+                           ); 
+        }
+	while (true)
+	{
+		if (t.kind == 0) //PLSQLParserConstants.EOF
+		{
+		  throw new ParseException("Parenthesed text error in " + inputPath 
+					    + " from "+start.beginLine+", column "+start.beginColumn+" - \""+start.image+"\" "
+					    + "to "+t.beginLine+", column "+t.beginColumn+" - \""+t.image+"\" "
+					  );
+		}
+
+		sb.append(t.image); 
+		if (LPAREN == t.kind )
+		{
+			nesting++;
+  {System.err.println("parenthesesContents: incremented nesting to " + nesting + " at line "+t.beginLine+", column "+t.beginColumn+" - \""+t.image+"\" "); }
+		}
+		else if (RPAREN == t.kind ) 
+		{
+			nesting--;
+  {System.err.println("parenthesesContents: decremented " + nesting + " at line "+t.beginLine+", column "+t.beginColumn+" - \""+t.image+"\" "); }
+			if ( 0 == nesting )
+			{
+  {System.err.println("parenthesesContents: finished " + nesting + " at line "+t.beginLine+", column "+t.beginColumn+" - \""+t.image+"\" "); }
+				t = getNextToken();
+				break;
+			}
+		}
+                /*
+		else
+		{
+  {System.err.println("parenthesesContents: nochange with nesting  " + nesting + " at line "+t.beginLine+", column "+t.beginColumn+" - \""+t.image+"\" "); }
+		}
+                */
+
+
+		if (t.beginLine < token.beginLine
+                    || (t.beginLine == token.beginLine 
+                        && t.beginColumn < token.beginColumn 
+                       ) 
+                   ) 
+                {
+		  t = t.next;
+                }
+		else
+                {
+		  t = getNextToken();
+		  t = getToken(1); //Next token 
+                }
+
 	}
 	
   {System.err.println("parenthesesContents: completed at line "+t.beginLine+", column "+t.beginColumn+" - \""+t.image+"\" "); }
@@ -1864,13 +1940,19 @@ void skip2NextTerminator(String initiator,String terminator) :
   Token t = getToken(1);
   int count = (initiator == null) ? 0 : 1;
   if(t.image.equals(initiator)) count++;
-  while (count > 0 || !t.image.equals(terminator))
+  System.err.println( "skip2NextTerminator("+initiator+","+terminator+") starting with count=="+count ); 
+  while (
+         (count > 0 || !t.image.equals(terminator))
+	 && t.kind!=EOF 
+        )
   {
     t = getNextToken();
     t = getToken(1);
-	  if(t.image.equals(initiator)) count++;
-	  if(t.image.equals(terminator)) count--;
+    if(t.image.equals(initiator)) count++;
+    if(t.image.equals(terminator)) count--;
+    System.err.println( "... \"" + t.image +"\""  ); 
   }
+  System.err.println( "skip2NextTerminator count=="+count+ " at line "+t.beginLine+", column "+t.beginColumn+" - \""+t.image+"\" "); 
 }
 {
 	{ return; }
@@ -2049,6 +2131,42 @@ void SqlStatement(String initiator, String terminator) throws SAXException :
 
 }
 
+/**
+ * Trap paranthesed SELECT query parsing problems, preventing SELECT parsing problems propagating.
+ */
+void SqlSafeSubquery() :
+{
+  Token start = token;
+  Token t = null;
+  String string = null ;
+}
+{
+     { start = getToken(1); }
+     {System.err.println("SqlSafeSubquery: attempting SqlSafeSubquery() at line "
+                         +token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); 
+     }
+      try {
+	   { System.err.println( "SQL Subquery parsing error in " + inputPath ); }
+	   ( <LPAREN> { start = token ; }  SqlSubquery() [ SqlForUpdateClause() ] <RPAREN> )
+	   {System.err.println("SqlSafeSubquery: "
+				  + "completed SqlSafeSubquery() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\";"
+				  + " started SqlSafeSubquery() at line "+start.beginLine+", column "+start.beginColumn+" - \""+start.image+"\" "
+				); 
+	   }
+	}
+	catch (ParseException e) {
+          System.err.println( "SQL Subquery parsing error in " + inputPath ); 
+	  e.printStackTrace(System.err);  // print the error message
+	  System.err.println("SqlSafeSubquery: recovery starting: "
+                             + "rewinding to line "+start.beginLine+", column "+start.beginColumn+" - \""+start.image+"\" "
+                             + "; currently at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "
+                            ); 
+	  string = parenthesesContents(start); 
+	  System.err.println("SqlSafeSubquery: recovery completed at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); 
+	}
+}
+
+
 
 /**
  * 2011-05-15 - SRT - Added to cope with wrapped objects
@@ -2134,7 +2252,8 @@ void Statement() throws SAXException :
 		<END> <IF> ";"
 	| <FOR> ID() <IN> 
           ( 
-	    LOOKAHEAD( <LPAREN> (<SELECT>|<WITH>)  ) ( <LPAREN> SqlSubquery() [ SqlForUpdateClause() ] <RPAREN> ) 
+	    //LOOKAHEAD( <LPAREN> (<SELECT>|<WITH>)  ) ( <LPAREN> SqlSafeSubquery() [ SqlForUpdateClause() ] <RPAREN> ) 
+	    LOOKAHEAD( <LPAREN> (<SELECT>|<WITH>)  ) ( SqlSafeSubquery() ) 
             | 
             ( [<REVERSE>] Expression()[".."Expression()] ) 
           ) 
@@ -2797,7 +2916,7 @@ String RelationalExpression() :
 
   //AdditiveExpression() ( ( "<" | ">" | "<=" | ">=" | [<NOT>] (<IN> | <BETWEEN> | <LIKE> | <FROM>) ) AdditiveExpression() )*
   ( 
-   LOOKAHEAD(2, [ <NOT> ] <EXISTS> ) [ <NOT> ] <EXISTS>  SqlSubquery() { string = "[NOT] EXISTS ... " ; }  //SQL  
+   LOOKAHEAD(2, [ <NOT> ] <EXISTS> ) [ <NOT> ] <EXISTS>  SqlSafeSubquery() { string = "[NOT] EXISTS ... " ; }  //SQL  
    | 
     string = AdditiveExpression() 
   ) { sb.append(string); }
@@ -3029,7 +3148,7 @@ String PrimaryPrefix() :
 | LOOKAHEAD(<WITH>) (<WITH>) {sb.append("WITH ..."); }  skip2NextTerminator(null,";")  
 | LOOKAHEAD((<LPAREN>)+ <WITH>) (<LPAREN>) {sb.append("(WITH ..."); }  skip2NextTerminator("(",")") <RPAREN>   
 | ("(*)" ) {sb.append("(*)"); } //SQL @TODO make <LPAREN> and <RPAREN> Tokens    //SQL
-// | LOOKAHEAD( [<LPAREN>] (<SELECT> | <WITH>) ) SqlSubquery() //SQL @TODO 
+// | LOOKAHEAD( [<LPAREN>] (<SELECT> | <WITH>) ) SqlSafeSubquery() //SQL @TODO 
 |
   (
   (<LPAREN>  {sb.append("("); } )
@@ -3106,6 +3225,14 @@ System.err.println("PrimarySuffix: init ");
       {System.err.println("PrimarySuffix: attempting (*) line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 	    ("(*)") { sb.append( "(*)" ) ; }
 	  )
+/*
+	  |
+	  ( 
+	    {System.err.println("PrimarySuffix: attempting Subquery() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+            LOOKAHEAD( <LPAREN> ( <SELECT> | <WITH> ) ) ( SafeSubquery()  ) 
+	    {System.err.println("PrimarySuffix: completed Subquery() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+          )
+*/
 	  |
 	  ( 
 	    {System.err.println("PrimarySuffix: attempting Arguments() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
@@ -5302,7 +5429,7 @@ void SqlSubquery()    :
 	(
 	{System.err.println("SqlSubquery: before SET SqlSubqueryClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 	  (
-	    <UNION> [ <ALL> ]
+	    ( <UNION> [ <ALL> ] )
 	    | <INTERSECT>
 	    | <MINUS>
 	  )
@@ -5723,7 +5850,7 @@ void SqlQueryTableExpression()    :
 {
  {System.err.println("SqlQueryTableExpression: attempting SqlQueryTableExpression() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 	( [ <LATERAL> ] <LPAREN> SqlSubquery() [ SqlSubqueryRestrictionClause() ] <RPAREN>  
- {System.err.println("SqlQueryTableExpression: found LATEREAL ... at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+ {System.err.println("SqlQueryTableExpression: found LATERAL ... at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 	 //| ( SqlSubquery() [ SqlSubqueryRestrictionClause() ] 
 	 //{System.err.println("SqlQueryTableExpression: (Extra) at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
          //  )
