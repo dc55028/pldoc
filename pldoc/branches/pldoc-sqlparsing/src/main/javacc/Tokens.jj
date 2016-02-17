@@ -2030,6 +2030,7 @@ Token KEYWORD_UNRESERVED (): {}
 |<HIDE>
 |<INDENT>
 |<DISTINCT>  //RESERVED WORD 
+|<UNIQUE>  //RESERVED WORD 
 )
 
 { return token; }

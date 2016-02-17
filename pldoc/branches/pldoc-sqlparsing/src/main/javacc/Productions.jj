@@ -85,17 +85,17 @@ String parenthesesContents(Token start)
 				break;
 			}
 		}
-                /*
+                //*
 		else
 		{
   {System.err.println("parenthesesContents: nochange with nesting  " + nesting + " at line "+t.beginLine+", column "+t.beginColumn+" - \""+t.image+"\" "); }
 		}
-                */
+                //*/
 
 
 		if (t.beginLine < token.beginLine
                     || (t.beginLine == token.beginLine 
-                        && t.beginColumn < token.beginColumn 
+                        && t.beginColumn <= token.beginColumn 
                        ) 
                    ) 
                 {
@@ -1330,7 +1330,7 @@ void SqlSafeSubquery() :
                          +token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); 
      }
       try {
-	   { System.err.println( "SQL Subquery parsing error in " + inputPath ); }
+	   { System.err.println( "SQL Subquery parsing attempt in " + inputPath ); }
 	   ( <LPAREN> { start = token ; }  SqlSubquery() [ SqlForUpdateClause() ] <RPAREN> )
 	   {System.err.println("SqlSafeSubquery: "
 				  + "completed SqlSafeSubquery() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\";"
@@ -2637,7 +2637,7 @@ String QualifiedName() :
 
 String Arguments() :
 {
-	Token t = null ;
+	Token t = token ;
 	String argumentList = null;
 	StringBuffer sb = new StringBuffer();
 }
@@ -2647,21 +2647,62 @@ String Arguments() :
   //"(*)" { sb.append( token.image ) ; }  
   //|
   (
+	  
+          //( LOOKAHEAD(2, <LPAREN> ( <SELECT> | <WITH> ) ) SqlSafeSubquery() )
+          (
 	  //<LPAREN> [ ArgumentList() ] <RPAREN>
 	  (<LPAREN>) { sb.append("("); 
 	  System.err.println("Arguments: found LPAREN at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); 
 	  System.out.println("Arguments: found LPAREN at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); 
 	  }  
+	  try { 
 	  [ 
+	    { System.err.println("Arguments: try ing ...  at line "
+			      +token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); 
+            }
 
-	  LOOKAHEAD(2, <MULT> <RPAREN> ) <MULT> { sb.append("*") ; 
-	  System.err.println("Arguments: found MULT RPAREN  at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); 
-	  System.out.println("Arguments: found MULT RPAREN  at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); 
-	   } 
+	    ( LOOKAHEAD(SqlSubquery()) //LOOKAHEAD(1, ( <SELECT> | <WITH> ) ) 
+		       { System.err.println( "Arguments: SqlSubquery parsing attempt in " + inputPath ); }
+		       ( SqlSubquery() )
+		       {System.err.println("Arguments: "
+					      + "completed SqlSubquery Argument at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\";"
+					      + " started SqlSubquery()  Argumentat line "+t.beginLine+", column "+t.beginColumn+" - \""+t.image+"\" "
+					    ); 
+		       }
+	    )
+	    |
+	    { System.err.println("Arguments: Looking for *) at line "
+			      +token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); 
+            }
+
+	    LOOKAHEAD(2, <MULT> <RPAREN> ) <MULT> { sb.append("*") ; 
+						    System.err.println("Arguments: found MULT RPAREN  at line "
+								      +token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); 
+						    System.out.println("Arguments: found MULT RPAREN  at line "
+								      +token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); 
+						   } 
 	   |
+	    { System.err.println("Arguments: looking for standard ArgumentList()  at line "
+			      +token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); 
+            }
 	   (argumentList = ArgumentList()) { sb.append(argumentList); } 
+	    { System.err.println("Arguments: found standard ArgumentList()  at line "
+			      +token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); 
+            }
 	  ] 
 	  (<RPAREN>) { sb.append(")"); }  
+	  }
+	  catch (ParseException e) {
+	    System.err.println( " Arguments parsing error in " + inputPath ); 
+	    e.printStackTrace(System.err);  // print the error message
+	    System.err.println("Arguments: recovery starting: "
+			       + "rewinding to line "+t.beginLine+", column "+t.beginColumn+" - \""+t.image+"\" "
+			       + "; currently at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "
+			      ); 
+	    argumentList = parenthesesContents(t); 
+	    System.err.println("Arguments: recovery completed at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); 
+	  }
+          )
   )
  { 
   System.err.println("Arguments: completed Arguments() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); 
