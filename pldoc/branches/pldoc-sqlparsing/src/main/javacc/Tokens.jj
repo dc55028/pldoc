@@ -348,7 +348,7 @@ TOKEN [IGNORE_CASE]:
 <TRIGGER: "TRIGGER"> |
 <TRUE: "TRUE"> |
 <TYPE: "TYPE"> |
-<UI: "UI"> |
+<UID: "UID"> |
 <UNDER: "UNDER"> |
 <UNIQUE: "UNIQUE"> | //SRT 2011-04-17
 <UNLIMITED: "UNLIMITED"> | 
@@ -1820,7 +1820,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <U>
 //| <UB2>
 //| <UBA>
-//| <UID>
+| <UID>
 //| <UNARCHIVED>
 //| <UNBOUND>
 | <UNBOUNDED>
@@ -2200,7 +2200,7 @@ Token ID(): {}
 		| <TO>  //RESERVED WORD  
 		| <TRIGGER>  //RESERVED WORD  
 		| <TYPE> 
-		| <UI> 
+		//| <UI> 
 		| <UPDATE> //SYNTAX 
 		| <VARCHAR>  //RESERVED WORD  
 		| <VARCHAR2>  //RESERVED WORD  
@@ -2472,7 +2472,7 @@ Token QualifiedID(): {}
 		//<TO>
 		| <TRIGGER>
 		| <TYPE>
-		| <UI>
+		//| <UI>
 		//<UPDATE>
 		| <VARCHAR>
 		| <VARCHAR2>
