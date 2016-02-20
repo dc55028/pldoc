@@ -118,11 +118,17 @@ void SqlDeleteStatement()    :
 
 
 void SqlDmlTableExpression()    :
-{}
+{
+Token thisToken;  
+String string = null; 
+StringBuffer sb = new StringBuffer() ;
+String objectReference = null; 
+}
 {
 {System.err.println("SqlDMlTableExpression: attempting SqlDMlTableExpression()"); }
 		<TABLE> <LPAREN> SqlSubquery() <RPAREN>   
-		| QualifiedName() [ "@" QualifiedName() /* DBLink Name */ ]  
+		| string = QualifiedName()  { sb.append(string); } [ "@" string = QualifiedName() /* DBLink Name */  { sb.append("@"); sb.append(string); } ]  { objectReference = sb.toString(); }
+ {System.err.println("SqlDmlTableExpression: found OBJECT REFERENCE " + objectReference + " at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 		| <LPAREN> SqlSubquery() <RPAREN>
 
 }
@@ -374,12 +380,18 @@ void SqlValuesClause()    :
 
 //http://docs.oracle.com/cd/B19306_01/appdev.102/b14261/update_Statement.htm#i36431
 void SqlUpdateStatement()    :
-{}
+{
+Token thisToken;  
+String string = null; 
+StringBuffer sb = new StringBuffer() ;
+String objectReference = null; 
+}
 {
 {System.err.println("SqlUpdateStatement: attempting SqlUpdateStatement()"); }
 	<UPDATE> 
 	(
-		QualifiedName()  [ "@" QualifiedName() /* DBLink Name */ ]  
+		string = QualifiedName() { sb.append(string); }  [ "@" string = QualifiedName() /* DBLink Name */  { sb.append("@"); sb.append(string); ;} ]   { objectReference = sb.toString(); }
+ {System.err.println("SqlUpdateStatement: found OBJECT REFERENCE " + objectReference + " at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 		| <LPAREN> SqlSubquery() <RPAREN>
 		| <TABLE> <LPAREN> SqlSubquery() <RPAREN>   
 	) 
@@ -867,6 +879,7 @@ void SqlTableReference()    :
 {
   Token start = token ;
   Token alias = null;
+  String string = null ;
 }
 {
  {System.err.println("SqlTableReference: attempting SqlTableReference() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
@@ -969,7 +982,12 @@ void SqlFlashbackQueryClause()    :
 
 
 void SqlQueryTableExpression()    :
-{Token start = token ;}
+{Token start = token ;
+ Token thisToken;  
+ String string = null; 
+ StringBuffer sb = new StringBuffer() ;
+ String objectReference = null; 
+}
 {
  {System.err.println("SqlQueryTableExpression: attempting SqlQueryTableExpression() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 	( [ <LATERAL> ] <LPAREN> SqlSubquery() [ SqlSubqueryRestrictionClause() ] <RPAREN>  
@@ -982,14 +1000,15 @@ void SqlQueryTableExpression()    :
  {System.err.println("xmlTable: found xmlTable() .. at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 	|  SqlTableCollectionExpression()
  {System.err.println("SqlQueryTableExpression: found SqlTableExpression() .. at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
-	|  ( QualifiedName() 
+	|  ( string = QualifiedName() { sb.append(string); }
 		[ 
-			( "@" QualifiedName() /* DBLink Name */ )
+			( "@" string = QualifiedName() /* DBLink Name */  { sb.append("@"); sb.append(string); }) 
 			| 
 			SqlPartitionExtensionClause() 
 		] 
 		[ SqlSampleClause() ]
- {System.err.println("SqlQueryTableExpression: found QualifiedName() .. at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+             { objectReference = sb.toString(); }
+ {System.err.println("SqlQueryTableExpression: found OBJECT REFERENCE " + objectReference + " at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 	   )
 	//|  UnqualifiedID() //Query Name 
 
@@ -1180,14 +1199,21 @@ void SqlCollectionExpression()    :
 }
 
 void SqlContainersClause()    :
-{}
+{
+Token thisToken;  
+String string = null; 
+StringBuffer sb = new StringBuffer() ;
+String objectReference = null; 
+}
 {
 
 	<CONTAINERS>
 	<LPAREN> 
-		QualifiedID() ( "," QualifiedID() )*
+		//QualifiedID() { sb.append(token.image); } ( "," QualifiedID() { sb.append("sb.append(token.image); })*
+                objectReference = QualifiedName()
 	<RPAREN>
 
+ {System.err.println("SqlContainersClause: completed SqlContainersClause() with OBJECT REFERENCE " + objectReference + " at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 }
 
 
