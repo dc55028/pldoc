@@ -74,11 +74,14 @@ void LockTableStatement()    :
 //http://docs.oracle.com/database/121/PLSQLRF/Statements_10002.htm#i2065706
 void SqlSelectStatement()    :
 {
-Token start = token.next;
+Token start = getToken(1);
 }
 {
 {System.err.println("SqlSelectStatement: attempting SqlSelectStatement()"); }
-{System.err.println("SqlSelectStatement: attempting SqlSubquery()"); }
+{System.err.println("SqlSelectStatement: attempting SqlSubquery() from line "+token.beginLine+", column "+token.beginColumn
+				+" - \""+token.image+"\" "
+				+" next -> "+token.next+"\" "
+		   ); }
 	
 	try {
 		SqlSubquery()
@@ -87,7 +90,7 @@ Token start = token.next;
 	{ printDML("SELECT", start, token, tableReferences, null ); }
 	}
 	catch (ParseException pe) {
-		{ printDML("SELECT", start, token, tableReferences, pe ); }
+		{ printDML("SELECT", start, token, tableReferences, pe ); throw pe; }
 	}
 
 {System.err.println("SqlSelectStatement: completed SqlSelectStatement()"); }
@@ -97,29 +100,35 @@ Token start = token.next;
 //http://docs.oracle.com/cd/B19306_01/appdev.102/b14261/delete_Statement.htm#i33716
 //http://docs.oracle.com/database/121/PLSQLRF/Statements_8005.htm#i2112830
 void SqlDeleteStatement()    :
-{Token thisToken = null ; }
+{Token start = getToken(1); }
 {
-{System.err.println("SqlDeleteStatement: attempting SqlDeleteStatement()"); }
-	<DELETE> [ <FROM> ] 
-	(
-		<ONLY> <LPAREN> SqlDmlTableExpression() <RPAREN>
-		| SqlDmlTableExpression() 
-	) 
+	try {
+	{System.err.println("SqlDeleteStatement: attempting SqlDeleteStatement()"); }
+		<DELETE> [ <FROM> ] 
+		(
+			<ONLY> <LPAREN> SqlDmlTableExpression() <RPAREN>
+			| SqlDmlTableExpression() 
+		) 
 
-	//Table Alias 
-	[ UnqualifiedID() ] // alias	
-        //LOOKAHEAD( { !"WHERE".equalsIgnoreCase(getToken(1).image) } ) { thisToken = getNextToken() ; }
+		//Table Alias 
+		[ UnqualifiedID() ] // alias	
+		//LOOKAHEAD( { !"WHERE".equalsIgnoreCase(getToken(1).image) } ) { thisToken = getNextToken() ; }
 
-	[
-		<WHERE> 
-		( <CURRENT> <OF> UnqualifiedID() //Cursor Name 
-		| SqlCondition()
-		)
-	]
+		[
+			<WHERE> 
+			( <CURRENT> <OF> UnqualifiedID() //Cursor Name 
+			| SqlCondition()
+			)
+		]
 
-	[ SqlReturningClause() ]
+		[ SqlReturningClause() ]
 
-	[ SqlErrorLoggingClause() ]
+		[ SqlErrorLoggingClause() ]
+		{ printDML("DELETE", start, token, tableReferences, null ); }
+	}
+	catch (ParseException pe) {
+		{ printDML("DELETE", start, token, tableReferences, pe ); throw pe; }
+	}
 
 }
 
@@ -143,58 +152,34 @@ String objectReference = null;
 
 //http://docs.oracle.com/cd/B28359_01/server.111/b28286/Statements_9016.htm
 void SqlMergeStatement()    :
-{ Token thisToken = null ; }
+{ 
+Token start = getToken(1);
+Token thisToken = null ; 
+}
 {
-{System.err.println("SqlMergeStatement: attempting SqlMergeStatement()"); }
-	<MERGE> <INTO> QualifiedName() //Table Name
+	try {
+	{System.err.println("SqlMergeStatement: attempting SqlMergeStatement()"); }
+		<MERGE> <INTO> QualifiedName() //Table Name
 
-	//Table Alias 
-        LOOKAHEAD( { !"USING".equalsIgnoreCase(getToken(1).image) } ) { thisToken = getNextToken() ; }
+		//Table Alias 
+		LOOKAHEAD( { !"USING".equalsIgnoreCase(getToken(1).image) } ) { thisToken = getNextToken() ; }
 
-	<USING> 
-        (
-          ( <LPAREN> SqlSubquery() <RPAREN> )
-          |
-          QualifiedName() 
-        )
-
-	//Target Alias 
-        LOOKAHEAD( { !"ON".equalsIgnoreCase(getToken(1).image) } ) { thisToken = getNextToken() ; }
-
-	<ON> <LPAREN> SqlCondition() <RPAREN>
-	// Matched Clause
-	<WHEN> <MATCHED> <THEN> 
-	<UPDATE> <SET> 
-	QualifiedName() 
-	"=" 
-	(
-		<_DEFAULT>
-		|
-		SqlExpression() 
-		
-	)
-	(
-		","
-                (
-		  <_DEFAULT>
+		<USING> 
+		(
+		  ( <LPAREN> SqlSubquery() <RPAREN> )
 		  |
-		  SqlExpression() 
-                )
-	)*
-	//WHERE 
-	[ SqlWhereClause() ]
+		  QualifiedName() 
+		)
 
-	[ <DELETE> SqlWhereClause() ]
-	
-	
-	<WHEN> <NOT> <MATCHED> <THEN> 
-	<INSERT> 
-	<LPAREN>
-		//Column Alias List 
-		QualifiedID() ( "," QualifiedID() )* 
-	<RPAREN>
-	<VALUES> 
-	<LPAREN>
+		//Target Alias 
+		LOOKAHEAD( { !"ON".equalsIgnoreCase(getToken(1).image) } ) { thisToken = getNextToken() ; }
+
+		<ON> <LPAREN> SqlCondition() <RPAREN>
+		// Matched Clause
+		<WHEN> <MATCHED> <THEN> 
+		<UPDATE> <SET> 
+		QualifiedName() 
+		"=" 
 		(
 			<_DEFAULT>
 			|
@@ -209,11 +194,44 @@ void SqlMergeStatement()    :
 			  SqlExpression() 
 			)
 		)*
-	<RPAREN>
-	[ SqlWhereClause() ]
+		//WHERE 
+		[ SqlWhereClause() ]
 
-	[ SqlErrorLoggingClause() ]
- 
+		[ <DELETE> SqlWhereClause() ]
+		
+		
+		<WHEN> <NOT> <MATCHED> <THEN> 
+		<INSERT> 
+		<LPAREN>
+			//Column Alias List 
+			QualifiedID() ( "," QualifiedID() )* 
+		<RPAREN>
+		<VALUES> 
+		<LPAREN>
+			(
+				<_DEFAULT>
+				|
+				SqlExpression() 
+				
+			)
+			(
+				","
+				(
+				  <_DEFAULT>
+				  |
+				  SqlExpression() 
+				)
+			)*
+		<RPAREN>
+		[ SqlWhereClause() ]
+
+		[ SqlErrorLoggingClause() ]
+	 
+		{ printDML("MERGE", start, token, tableReferences, null ); }
+	}
+	catch (ParseException pe) {
+		{ printDML("MERGE", start, token, tableReferences, pe ); throw pe ; }
+	}
 
 }
 
@@ -239,41 +257,75 @@ void SqlErrorLoggingClause()    :
 //http://docs.oracle.com/database/121/PLSQLRF/Statements_9014.htm#sthref7054
 //http://docs.oracle.com/database/121/PLSQLRF/Statements_9014.htm#i2111652
 void SqlInsertStatement()    :
-{}
 {
-{System.err.println("SqlInsertStatement: attempting SqlInsertStatement()"); }
+Token start = getToken(1);
+}
+{
+	try {
+	{System.err.println("SqlInsertStatement: attempting SqlInsertStatement()"); }
 
-	<INSERT> 
-	(
-		//Single-Table INSERT 
-		LOOKAHEAD(1,<INTO>)
+		<INSERT> 
 		(
-{System.err.println("SqlInsertStatement: attempting Single Table Insert()"); }
-			//INSERT INTO Clause 
-			SqlInsertIntoClause() 
+			//Single-Table INSERT 
+			LOOKAHEAD(1,<INTO>)
 			(
-				//Values Clause 
+	{System.err.println("SqlInsertStatement: attempting Single Table Insert()"); }
+				//INSERT INTO Clause 
+				SqlInsertIntoClause() 
 				(
-					SqlValuesClause() 
-					[ SqlReturningClause() ] 
+					//Values Clause 
+					(
+						SqlValuesClause() 
+						[ SqlReturningClause() ] 
+					)
+					| SqlSubquery() 
 				)
-				| SqlSubquery() 
+
+
+				[ SqlErrorLoggingClause() ]
+
+				
 			)
-
-
-			[ SqlErrorLoggingClause() ]
-
-			
-		)
-		//Multi-Table INSERT 
-		|
-		(
-			LOOKAHEAD(2,<ALL> <INTO>)
+			//Multi-Table INSERT 
+			|
 			(
+				LOOKAHEAD(2,<ALL> <INTO>)
 				(
-{System.err.println("SqlInsertStatement: attempting Multi-Table Insert"); }
-					<ALL> 
+					(
+	{System.err.println("SqlInsertStatement: attempting Multi-Table Insert"); }
+						<ALL> 
+						
+						(
+						  //INSERT INTO Clause 
+						  SqlInsertIntoClause() 
+						  
+						  //Values Clause 
+						  SqlValuesClause() 
+
+						  [ SqlErrorLoggingClause() ]
+						)+
+					)
+				)
+				| //Conditional Multi-table INSERT 
+				(
+	{System.err.println("SqlInsertStatement: attempting Conditional Multi-Table Insert"); }
+					[ <FIRST> | <ALL> ]
 					
+					( 
+					    <WHEN> SqlCondition() <THEN> 
+
+					    (
+					      //INSERT INTO Clause 
+					      SqlInsertIntoClause() 
+					      
+					      //Values Clause 
+					      SqlValuesClause() 
+
+					      [ SqlErrorLoggingClause() ]
+					    )+
+					)+
+
+					<ELSE> 
 					(
 					  //INSERT INTO Clause 
 					  SqlInsertIntoClause() 
@@ -284,48 +336,22 @@ void SqlInsertStatement()    :
 					  [ SqlErrorLoggingClause() ]
 					)+
 				)
+				SqlSubquery() 
 			)
-			| //Conditional Multi-table INSERT 
-			(
-{System.err.println("SqlInsertStatement: attempting Conditional Multi-Table Insert"); }
-				[ <FIRST> | <ALL> ]
-				
-				( 
-				    <WHEN> SqlCondition() <THEN> 
-
-                                    (
-				      //INSERT INTO Clause 
-				      SqlInsertIntoClause() 
-				      
-				      //Values Clause 
-				      SqlValuesClause() 
-
-				      [ SqlErrorLoggingClause() ]
-                                    )+
-				)+
-
-				<ELSE> 
-				(
-				  //INSERT INTO Clause 
-				  SqlInsertIntoClause() 
-				  
-				  //Values Clause 
-				  SqlValuesClause() 
-
-				  [ SqlErrorLoggingClause() ]
-				)+
-			)
-			SqlSubquery() 
 		)
-	)
-  {System.err.println("SqlInsertStatement: before SqlReturningClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+	  {System.err.println("SqlInsertStatement: before SqlReturningClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 
-	[ SqlReturningClause() ]
-  {System.err.println("SqlInsertStatement: after SqlReturningClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+		[ SqlReturningClause() ]
+	  {System.err.println("SqlInsertStatement: after SqlReturningClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 
-	[ SqlErrorLoggingClause() ]
+		[ SqlErrorLoggingClause() ]
 
-  {System.err.println("SqlInsertStatement: after SqlErrorLoggingingClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+	  {System.err.println("SqlInsertStatement: after SqlErrorLoggingingClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+	{ printDML("SELECT", start, token, tableReferences, null ); }
+	}
+	catch (ParseException pe) {
+		{ printDML("SELECT", start, token, tableReferences, pe ); throw pe ; }
+	}
 }
 
 
@@ -389,47 +415,54 @@ void SqlValuesClause()    :
 //http://docs.oracle.com/cd/B19306_01/appdev.102/b14261/update_Statement.htm#i36431
 void SqlUpdateStatement()    :
 {
+Token start = getToken(1);
 Token thisToken;  
 String string = null; 
 StringBuffer sb = new StringBuffer() ;
 String objectReference = null; 
 }
 {
-{System.err.println("SqlUpdateStatement: attempting SqlUpdateStatement()"); }
-	<UPDATE> 
-	(
-		string = QualifiedName() { sb.append(string); }  [ "@" string = QualifiedName() /* DBLink Name */  { sb.append("@"); sb.append(string); ;} ]   { objectReference = sb.toString(); }
- {System.err.println("SqlUpdateStatement: found OBJECT REFERENCE " + objectReference + " at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
-		| <LPAREN> SqlSubquery() <RPAREN>
-		| <TABLE> <LPAREN> SqlSubquery() <RPAREN>   
-	) 
-        (
-	   <SET> 
-         |
-	   (
-  {System.err.println("SqlUpdateStatement: attempting alias keyword"); }
-	      UnqualifiedID()  // alias	
-  {System.err.println("SqlUpdateStatement: attempting SET keyword"); }
-	      <SET> 
-  {System.err.println("SqlUpdateStatement: attempting GOT keyword"); }
-	   )
-        )
-	( 
-{System.err.println("SqlUpdateStatement: attempting column assignments"); }
-          SqlColumnAssignment() ( "," SqlColumnAssignment()  )*
-	)
-	[
-{System.err.println("SqlUpdateStatement: attempting WHERE clause"); }
-		<WHERE> 
-		( <CURRENT> <OF> UnqualifiedID() //Cursor Name 
-		| SqlCondition()
+	try {
+	{System.err.println("SqlUpdateStatement: attempting SqlUpdateStatement()"); }
+		<UPDATE> 
+		(
+			string = QualifiedName() { sb.append(string); }  [ "@" string = QualifiedName() /* DBLink Name */  { sb.append("@"); sb.append(string); ;} ]   { objectReference = sb.toString(); }
+	 {System.err.println("SqlUpdateStatement: found OBJECT REFERENCE " + objectReference + " at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+			| <LPAREN> SqlSubquery() <RPAREN>
+			| <TABLE> <LPAREN> SqlSubquery() <RPAREN>   
+		) 
+		(
+		   <SET> 
+		 |
+		   (
+	  {System.err.println("SqlUpdateStatement: attempting alias keyword"); }
+		      UnqualifiedID()  // alias	
+	  {System.err.println("SqlUpdateStatement: attempting SET keyword"); }
+		      <SET> 
+	  {System.err.println("SqlUpdateStatement: attempting GOT keyword"); }
+		   )
 		)
-	]
+		( 
+	{System.err.println("SqlUpdateStatement: attempting column assignments"); }
+		  SqlColumnAssignment() ( "," SqlColumnAssignment()  )*
+		)
+		[
+	{System.err.println("SqlUpdateStatement: attempting WHERE clause"); }
+			<WHERE> 
+			( <CURRENT> <OF> UnqualifiedID() //Cursor Name 
+			| SqlCondition()
+			)
+		]
 
-	[ SqlReturningClause() ]
+		[ SqlReturningClause() ]
 
-	[ SqlErrorLoggingClause() ]
+		[ SqlErrorLoggingClause() ]
 
+	{ printDML("SELECT", start, token, tableReferences, null ); }
+	}
+	catch (ParseException pe) {
+		{ printDML("SELECT", start, token, tableReferences, pe ); throw pe ; }
+	}
 }
 
 
@@ -820,11 +853,11 @@ void SqlTargetList()    :
 {
 {System.err.println("SqlTargetList: attempting SqlTargetList()"); }
 	({System.err.println("SqlTargetList: attempting first SqlExpression"); }
-          Name() 
+          SqlExpression() 
 	)
 	(
 	  ({System.err.println("SqlTargetList: attempting repeating SqlExpression"); }
-	    "," Name() 
+	    "," SqlExpression() 
 	  )
 	)*
 
