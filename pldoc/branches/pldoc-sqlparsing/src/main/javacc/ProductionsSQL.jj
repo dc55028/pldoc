@@ -73,14 +73,22 @@ void LockTableStatement()    :
 
 //http://docs.oracle.com/database/121/PLSQLRF/Statements_10002.htm#i2065706
 void SqlSelectStatement()    :
-{}
+{
+Token start = token.next;
+}
 {
 {System.err.println("SqlSelectStatement: attempting SqlSelectStatement()"); }
 {System.err.println("SqlSelectStatement: attempting SqlSubquery()"); }
 	
-	SqlSubquery()
-{System.err.println("SqlSelectStatement: completed SqlSubquery()"); }
-	[ SqlForUpdateClause() ]
+	try {
+		SqlSubquery()
+	{System.err.println("SqlSelectStatement: completed SqlSubquery()"); }
+		[ SqlForUpdateClause() ]
+	{ printDML("SELECT", start, token, tableReferences, null ); }
+	}
+	catch (ParseException pe) {
+		{ printDML("SELECT", start, token, tableReferences, pe ); }
+	}
 
 {System.err.println("SqlSelectStatement: completed SqlSelectStatement()"); }
 }
