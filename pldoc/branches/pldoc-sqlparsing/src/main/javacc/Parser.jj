@@ -460,6 +460,7 @@ public class PLSQLParser {
 			  System.err.println("dmlStart(beginline,beginColumn)=("+dmlStart.beginLine+"," +dmlStart.beginColumn+")" );
 			  System.err.println("dmlEnd(endline,endColumn)=("+dmlEnd.endLine+"," +dmlEnd.endColumn+")" );
 		          do {
+			    System.err.println("t(endline,endColumn)=("+t.endLine+"," +t.endColumn+")=\""+t.image+"\"" );
 			    if (t.beginLine != dmlStart.beginLine 
                                 || t.beginColumn != dmlStart.beginColumn 
                                ) {
@@ -467,15 +468,19 @@ public class PLSQLParser {
 			    }
 			    sb.append(t.image);
 			    t = t.next ;
-			    System.err.println("t(endline,endColumn)=("+t.endLine+"," +t.endColumn+")=\""+t.image+"\"" );
 			  } while  (
-				    dmlEnd.beginLine > t.beginLine 
-				    ||
-				    ( dmlEnd.beginLine == t.beginLine 
-				     && dmlEnd.beginColumn > t.beginColumn
-				    )
+                                    null != t && // not reached end of parsing  
+                                    //EOF  != t && // not reached end of FILE 
+                                    // not gone past end of the statement
+                                    (
+				      dmlEnd.beginLine > t.beginLine 
+				      ||
+				      ( dmlEnd.beginLine == t.beginLine 
+				       && dmlEnd.beginColumn >= t.beginColumn
+				      )
+                                    )
 				   ) ;
-			  System.err.println("After While"+t.image);
+			  //System.err.println("After While"+t.image);
 			  m_out.startElement("STATEMENT");
 			  m_out.cdata(sb.toString());
 			  m_out.endElement("STATEMENT");

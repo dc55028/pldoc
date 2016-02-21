@@ -1276,7 +1276,10 @@ String readPastNextOccurrence(String target) :
  * 2006-05-24 - Matthias Hendler - added MERGE
  */
 void SqlStatement(String initiator, String terminator) throws SAXException :
-{}
+{
+ Token start = getToken(1) ;
+ String dmlType = null;
+}
 {
 	//(<SELECT>|<UPDATE>|<INSERT>|<DELETE>|<COMMIT>|<ROLLBACK>|<SAVEPOINT>|<EXECUTE>|<SET><TRANSACTION>|<LOCK><TABLE>|<MERGE>|<WITH>)
 	//  skip2NextTerminator(initiator,terminator)
@@ -1284,33 +1287,55 @@ void SqlStatement(String initiator, String terminator) throws SAXException :
     
 	  (
 	   // <SELECT>|<WITH>
+           { dmlType = "SELECT" ; } 
 	    SqlSelectStatement() 
 	   |//<UPDATE>
+           { dmlType = "UPDATE" ; } 
 	    SqlUpdateStatement()
 	   |//<DELETE>
+           { dmlType = "DELETE" ; } 
 	    SqlDeleteStatement()
 	   |//<INSERT>
+           { dmlType = "INSERT" ; } 
 	    SqlInsertStatement()
 	   |//<MERGE>
+           { dmlType = "MERGE" ; } 
 	    SqlMergeStatement()
 	   |//<COMMIT>
+           { dmlType = null ; } 
 	   CommitStatement()
 	   |// <ROLLBACK>
+           { dmlType = null ; } 
 	    RollbackStatement()
 	   |// <SAVEPOINT>
+           { dmlType = null ; } 
 	    SavepointStatement()
 	   |// <EXECUTE>
+           { dmlType = null ; } 
 	    EmbeddedSqlStatement()  
 	   |// <SET><TRANSACTION>
+           { dmlType = null ; } 
 	    SetTransactionStatement()
 	   |// <LOCK><TABLE>
+           { dmlType = null ; } 
 	    LockTableStatement()
 	  )
+
+          {
+	    if (null != dmlType)
+	    {
+	      printDML(dmlType, start, token, tableReferences, null ); 
+	    }
+          }
 	}
 	catch (ParseException e) {
           System.err.println( "SQL parsing error in " + inputPath ); 
 	  e.printStackTrace(System.err);  // print the error message
 	  skip2NextTerminator(initiator,terminator);
+          if (null != dmlType)
+          {
+	    printDML(dmlType, start, token, tableReferences, e ); 
+          }
 	}
 
 }
