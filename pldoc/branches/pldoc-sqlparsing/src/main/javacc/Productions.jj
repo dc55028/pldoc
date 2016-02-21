@@ -1336,6 +1336,7 @@ void SqlSafeSubquery() :
 				  + "completed SqlSafeSubquery() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\";"
 				  + " started SqlSafeSubquery() at line "+start.beginLine+", column "+start.beginColumn+" - \""+start.image+"\" "
 				); 
+            printDML("SELECT", start, token, tableReferences, null );
 	   }
 	}
 	catch (ParseException e) {
@@ -1347,6 +1348,7 @@ void SqlSafeSubquery() :
                             ); 
 	  string = parenthesesContents(start); 
 	  System.err.println("SqlSafeSubquery: recovery completed at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); 
+	  printDML("SELECT", start, token, tableReferences, e );
 	}
 }
 
@@ -2657,7 +2659,7 @@ String Arguments() :
 	  }  
 	  try { 
 	  [ 
-	    { System.err.println("Arguments: try ing ...  at line "
+	    { System.err.println("Arguments: trying ...  at line "
 			      +token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); 
             }
 
