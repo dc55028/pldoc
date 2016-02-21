@@ -61,6 +61,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 package net.sourceforge.pldoc.parser;
 
 import java.io.*;
+import java.lang.StackTraceElement;
 import java.util.*;
 import org.xml.sax.SAXException;
 import org.w3c.dom.*;
@@ -89,6 +90,7 @@ public class PLSQLParser {
   	private String schemaName = ""; //SRT 20110418
   	private String GlobalPackageName = "_GLOBAL"; //SRT 20110418
   	private String inputPath = "input"; 
+  	private Hashtable tableReferences = new Hashtable();
   	
   
 	/** Sets the stream to receive output XML text.
@@ -433,6 +435,65 @@ public class PLSQLParser {
 			
 			printCustomTags(packageCommentTags);
       	}
+    }
+  
+
+	/** Print the DML details into the stream.
+	 *
+	 */
+      private void printDML(String dmlType, Token dmlStart, Token dmlEnd, Hashtable tableReferences, Exception exception)
+      //throws SAXException 
+      {
+	try 
+	{
+		if (dmlType != null) {
+			// print DML, 
+			m_out.pushAttribute("TYPE", dmlType );
+			m_out.pushAttribute("BEGINLINE", Integer.toString(dmlStart.beginLine) );
+			m_out.pushAttribute("BEGINCOLUMN", Integer.toString(dmlStart.beginColumn) );
+			m_out.pushAttribute("ENDLINE", Integer.toString(dmlStart.endLine) );
+			m_out.pushAttribute("ENDCOLUMN", Integer.toString(dmlStart.endColumn) );
+			m_out.startElement("DML");
+			if (dmlStart != null && dmlEnd != null ) {
+			  StringBuffer sb = new StringBuffer() ; 
+		          Token t = dmlStart; ; 
+			  System.err.println("dmlStart(beginline,beginColumn)=("+dmlStart.beginLine+"," +dmlStart.beginColumn+")" );
+			  System.err.println("dmlEnd(endline,endColumn)=("+dmlEnd.endLine+"," +dmlEnd.endColumn+")" );
+		          do {
+			    if (t.beginLine != dmlStart.beginLine 
+                                || t.beginColumn != dmlStart.beginColumn 
+                               ) {
+			      sb.append(" ");
+			    }
+			    sb.append(t.image);
+			    t = t.next ;
+			    System.err.println("t(endline,endColumn)=("+t.endLine+"," +t.endColumn+")=\""+t.image+"\"" );
+			  } while  (
+				    dmlEnd.beginLine > t.beginLine 
+				    ||
+				    ( dmlEnd.beginLine == t.beginLine 
+				     && dmlEnd.beginColumn > t.beginColumn
+				    )
+				   ) ;
+			  System.err.println("After While"+t.image);
+			  m_out.startElement("STATEMENT");
+			  m_out.cdata(sb.toString());
+			  m_out.endElement("STATEMENT");
+			}
+			if (exception != null) {
+			  StringWriter sw = new StringWriter();
+			  exception.printStackTrace(new PrintWriter(sw));
+			  String stackTraceString = sw.toString();
+			  m_out.startElement("PARSING_ERROR");
+			  m_out.cdata(stackTraceString);
+			  m_out.endElement("PARSING_ERROR");
+			}
+			m_out.endElement("DML");
+	  }
+	}
+	catch (org.xml.sax.SAXException saxE) {
+	  // Ignore output Exceptions
+	}
     }
   
 
