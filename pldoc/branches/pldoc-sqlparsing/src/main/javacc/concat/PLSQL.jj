@@ -3295,6 +3295,20 @@ System.err.println("PrimarySuffix: init ");
       }
     ]
 
+    //SQL Add WITHIN GROUP clause  
+    [
+  {System.err.println("PrimarySuffix: attempting WITHIN GROUP Clause at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+      <WITHIN> <GROUP>
+      <LPAREN>
+	      SqlOrderByClause()
+      <RPAREN>
+
+      {
+       System.err.println("PrimarySuffix: completed WITHIN GROUP Clause at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); 
+       sb.append(" WITHIN GROUP ( ... ) ") ; 
+      }
+    ]
+
     //SQL Add Analytic function  
     [
 	  {System.err.println("PrimarySuffix: attempting OVER Clause at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
@@ -8310,6 +8324,7 @@ TOKEN [IGNORE_CASE]:
 <YEAR: "YEAR"> |
 <LOCAL: "LOCAL"> |
 <WITH: "WITH"> |
+<WITHIN: "WITHIN"> |
 <ZONE: "ZONE"> |
 <CHARACTER: "CHARACTER"> | 
 <AFTER: "AFTER"> |   
@@ -9800,7 +9815,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <WHEN>
 | <WHENEVER>
 //| <WHITESPACE>
-//| <WITHIN>
+| <WITHIN>
 //| <WITHOUT>
 //| <WORK>
 //| <WRAPPED>
