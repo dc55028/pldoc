@@ -391,6 +391,7 @@ TOKEN [IGNORE_CASE]:
 <YEAR: "YEAR"> |
 <LOCAL: "LOCAL"> |
 <WITH: "WITH"> |
+<WITHIN: "WITHIN"> |
 <ZONE: "ZONE"> |
 <CHARACTER: "CHARACTER"> | 
 <AFTER: "AFTER"> |   
@@ -1881,7 +1882,7 @@ Token KEYWORD_UNRESERVED (): {}
 //| <WHEN>
 | <WHENEVER>
 //| <WHITESPACE>
-//| <WITHIN>
+| <WITHIN>
 //| <WITHOUT>
 //| <WORK>
 //| <WRAPPED>
