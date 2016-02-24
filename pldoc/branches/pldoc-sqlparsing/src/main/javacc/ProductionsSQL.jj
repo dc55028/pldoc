@@ -492,7 +492,7 @@ void SqlForUpdateClause()    :
 
 //http://docs.oracle.com/database/121/PLSQLRF/Statements_10002.htm#i2126435
 void SqlSubquery()    :
-{ Token start = token ; }
+{ Token start = getToken(1) ; }
 {
  {System.err.println("SqlSubquery: attempting SqlSubQuery() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 
@@ -566,9 +566,12 @@ void SqlSubquery()    :
         */
 
 
-	{ start = token ; }
+	{ start = getToken(1) ; }
         SqlSubqueryClause()
-	{System.err.println("SqlSubquery: after first SqlSubqueryClause() at line "+start.beginLine+", column "+start.beginColumn+" - \""+start.image+"\" "); }
+	{System.err.println("SqlSubquery: after first SqlSubqueryClause() from line "
+            +start.beginLine+", column "+start.beginColumn+" - \""+start.image+"\" to "
+            +token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "
+                           ); }
 
 	(
 	{System.err.println("SqlSubquery: before SET SqlSubqueryClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
@@ -578,7 +581,10 @@ void SqlSubquery()    :
 	    | <MINUS>
 	  )
 	  SqlSubqueryClause()
-	{System.err.println("SqlSubquery: after SET SqlSubqueryClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+	{System.err.println("SqlSubquery: after SET SqlSubqueryClause() from line "
+                             +start.beginLine+", column "+start.beginColumn+" - \""+start.image+"\" to "
+                             +token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "
+                           ); }
 	)*
 
 	//SRT @TODO {System.err.println("SqlSubquery: attempting optional SqlOrderByClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
@@ -608,20 +614,24 @@ void SqlSubquery()    :
 
 
 void SqlSubqueryClause()    :
-{Token start = token ; }
 {
-{System.err.println("SqlSubqueryClause: "); }
+ Token start = getToken(1) ; 
+ System.err.println("SqlSubqueryClause: attempting SqlSubQueryClause() starting at line "+start.beginLine+", column "+start.beginColumn+" - \""+start.image+"\" " ); 
+}
+{
 
         ( <LPAREN> SqlSubquery() <RPAREN> )
 	| 
 	SqlQueryBlock()
- {System.err.println("SqlSubqueryClause: completed SqlSubQueryClause() starting at at line "+start.beginLine+", column "+start.beginColumn+" - \""+start.image+"\" " + " and ending at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+ {System.err.println("SqlSubqueryClause: completed SqlSubQueryClause() starting at line "+start.beginLine+", column "+start.beginColumn+" - \""+start.image+"\" " + " and ending at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 }
 
 void SqlQueryBlock()    :
-{Token start = token ; }
 {
-{System.err.println("SqlQueryBlock: attempting WITH "); }
+ Token start = getToken(1) ; 
+ System.err.println("SqlQueryBlock: attempting SqlSubQueryClause() starting at line "+start.beginLine+", column "+start.beginColumn+" - \""+start.image+"\" " ); 
+}
+{
 	(
 	  SqlWithClause()
 
@@ -651,7 +661,7 @@ void SqlQueryBlock()    :
 
 
 void SqlSelectClause()    :
-{Token start = token ; }
+{Token start = getToken(1) ; }
 {
   {System.err.println("SqlSelectClause: attempting <SELECT> ... at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 	<SELECT>
@@ -689,7 +699,7 @@ void SqlSelectClause()    :
 
 void SqlTableClause()    :
 {
-  Token start = token ;
+  Token start = getToken(1) ;
   Token alias = null;
 }
 {
@@ -720,7 +730,7 @@ void SqlTableClause()    :
 
 void SqlWithClause()    :
 {
-	Token start = token ;
+	Token start = getToken(1) ;
 }
 {
 {System.err.println("SqlWithClause: attempting SqlWithClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
@@ -737,7 +747,7 @@ void SqlWithClause()    :
 
 
 void SqlPLSQLDeclarations(Token queryStart)    :
-{ Token start = token ; }
+{ Token start = getToken(1) ; }
 {
 	try
 	{
@@ -833,7 +843,7 @@ void SqlTargetList()    :
 
 
 void SqlSelectList()    :
-{Token start = token; 
+{Token start = getToken(1); 
 }
 {
 {System.err.println("SqlSelectList: attempting SqlSelectList()"); }
@@ -853,7 +863,7 @@ void SqlSelectList()    :
 
 void SqlSelectItem()  :
 {
-Token start = token ;
+Token start = getToken(1) ;
 Token alias = null ;
 }
 {
@@ -886,7 +896,7 @@ Token alias = null ;
 
 void SqlTableReference()    :
 {
-  Token start = token ;
+  Token start = getToken(1) ;
   Token alias = null;
   String string = null ;
 }
@@ -991,7 +1001,7 @@ void SqlFlashbackQueryClause()    :
 
 
 void SqlQueryTableExpression()    :
-{Token start = token ;
+{Token start = getToken(1) ;
  Token thisToken;  
  String string = null; 
  StringBuffer sb = new StringBuffer() ;
@@ -999,7 +1009,20 @@ void SqlQueryTableExpression()    :
 }
 {
  {System.err.println("SqlQueryTableExpression: attempting SqlQueryTableExpression() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
-	( [ <LATERAL> ] <LPAREN> SqlSubquery() [ SqlSubqueryRestrictionClause() ] <RPAREN>  
+	( [ <LATERAL> ] <LPAREN> SqlSubquery() [ 
+						 LOOKAHEAD(4)
+						 ( 
+                                                   <RPAREN> 
+                                                   (
+						      ( <UNION> [ <ALL> ] )
+						      | <INTERSECT>
+						      | <MINUS>
+                                                   )
+                                                    <LPAREN> SqlSubquery() 
+                                                 )
+						 |
+                                                 SqlSubqueryRestrictionClause() 
+                                               ] <RPAREN>  
  {System.err.println("SqlQueryTableExpression: found LATERAL ... at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 	 //| ( SqlSubquery() [ SqlSubqueryRestrictionClause() ] 
 	 //{System.err.println("SqlQueryTableExpression: (Extra) at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
@@ -1296,7 +1319,7 @@ void SqlJoinClause()    :
 
 void SqlQueryPartitionClause()    :
 {
-Token start = token; 
+Token start = getToken(1); 
 }
 {
  {System.err.println("SqlQueryPartitionClause: attempting SqlQueryPartitionClause() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
@@ -2046,7 +2069,7 @@ void SqlAggregateFunction()    :
 	<RPAREN>
 	)
 
-  {System.err.println("SqlAggregateFunction: completede SqlAggregateFunction()"); }
+  {System.err.println("SqlAggregateFunction: completed SqlAggregateFunction()"); }
 }
 
 
@@ -2054,7 +2077,7 @@ void SqlAggregateFunction()    :
 //http://docs.oracle.com/database/121/SQLRF/expressions.htm#g1057115
 void SqlExpression()    :
 {
-Token start = token ;  
+Token start = getToken(1) ;  
 }
 {
   {System.err.println("SqlExpression: attempting SqlExpression() at line "+start.beginLine+", column "+start.beginColumn+" - \""+start.image+"\" " ); }
