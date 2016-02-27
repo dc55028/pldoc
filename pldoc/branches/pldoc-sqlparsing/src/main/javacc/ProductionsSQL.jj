@@ -159,7 +159,11 @@ Token thisToken = null ;
 	)
 
 	//Target Alias 
-	LOOKAHEAD( { !"ON".equalsIgnoreCase(getToken(1).image) } ) { thisToken = getNextToken() ; }
+	 { if (!"ON".equalsIgnoreCase(getToken(1).image) ) thisToken = getNextToken() ; 
+	//LOOKAHEAD( { !"ON".equalsIgnoreCase(getToken(1).image) } ) { thisToken = getNextToken() ; 
+System.err.println("SqlMergeStatement: after potential target alias at Line " + thisToken.beginLine + ", column " + thisToken.beginColumn
+			+ " - looking past " + " \"" + thisToken.image + "\""); 
+                                                                   }
 
 	<ON> <LPAREN> SqlCondition() <RPAREN>
 	// Matched Clause
@@ -175,6 +179,8 @@ Token thisToken = null ;
 	)
 	(
 		","
+		QualifiedName() 
+		"=" 
 		(
 		  <_DEFAULT>
 		  |
