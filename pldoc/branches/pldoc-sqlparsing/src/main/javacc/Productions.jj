@@ -1495,7 +1495,7 @@ void Statement() throws SAXException :
 	| [<DECLARE> DeclarativeSection(false,token)] <BEGIN> (Statement())* (ExceptionHandler())? <END> [<IDENTIFIER>] ";"
 	//
         | <EXECUTE> <IMMEDIATE> Expression() /* <STRING_LITERAL> */ 
-	  [ [ <BULK> <COLLECT> ] <INTO> Name() ("," Name())* ] 
+	  [ [ <BULK> <COLLECT> ] <INTO> Expression() ("," Expression())* ] 
 	  [ <USING> [ <IN> [ <OUT> ] | <OUT> ]  Expression() ("," [ <IN> [ <OUT> ] | <OUT> ] Expression())* ] 
 	  [ ( <RETURN> | <RETURNING> ) [ <BULK> <COLLECT> ] <INTO> Expression() ("," Expression())* ] 
           ";"
@@ -1839,7 +1839,7 @@ void EmbeddedSqlStatement()  :
    <EXECUTE> <IMMEDIATE> Expression() // StringLiteral() /* <STRING_LITERAL> */ 
 	//SRT 20110429 | <EXECUTE> <IMMEDIATE> StringExpression()  [<USING> Expression() ("," Expression())*] ";"
 	//SRT 20121126 | <EXECUTE> <IMMEDIATE> StringExpression()  
-	[ [ <BULK> <COLLECT> ] <INTO> Name() ("," Name())* ] 
+	[ [ <BULK> <COLLECT> ] <INTO> Expression() ("," Expression())* ] 
 	[ <USING> [ <IN> [ <OUT> ] | <OUT> ]  Expression() ("," [ <IN> [ <OUT> ] | <OUT> ] Expression())* ] 
 	[ ( <RETURN> | <RETURNING> )  [ <BULK> <COLLECT> ] <INTO> Expression() ("," Expression())*] ";"
 	// PIPELINED FUNCTION OUTPUT
@@ -2764,6 +2764,7 @@ String ArgumentList() :
   {System.err.println("ArgumentList: attempting ArgumentList() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
   {System.out.println("ArgumentList: attempting ArgumentList() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
   //Argument() ("," token=Argument())*
+  [ <DISTINCT> { sb.append("DISTINCT "); } ]
   (argument = Argument()) { sb.append(argument); } 
     [ <PASSING> expression = Expression() <AS> literal = Literal() { sb.append("PASSING "); sb.append(expression); sb.append(" AS "); sb.append(literal); } ]
   (("," ) { sb.append(", "); }  (argument = Argument()) {sb.append(argument); } 
