@@ -3606,7 +3606,7 @@ String ArgumentList() :
   {System.err.println("ArgumentList: attempting ArgumentList() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
   {System.out.println("ArgumentList: attempting ArgumentList() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
   //Argument() ("," token=Argument())*
-  [ <DISTINCT> { sb.append("DISTINCT "); } ]
+  [ (<DISTINCT> | <UNIQUE>)  { sb.append(token.image) ;  sb.append(" "); } ]
   (argument = Argument()) { sb.append(argument); } 
     [ <PASSING> expression = Expression() <AS> literal = Literal() { sb.append("PASSING "); sb.append(expression); sb.append(" AS "); sb.append(literal); } ]
   (("," ) { sb.append(", "); }  (argument = Argument()) {sb.append(argument); } 
@@ -5992,21 +5992,23 @@ void SqlQueryTableExpression()    :
  String objectReference = null; 
 }
 {
+
  {System.err.println("SqlQueryTableExpression: attempting SqlQueryTableExpression() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
-	( [ <LATERAL> ] <LPAREN> SqlSubquery() [ 
+	( [ <LATERAL> ] <LPAREN> SqlSubqueryClause() 
+                                                 ( 
 						 LOOKAHEAD(4)
-						 ( 
-                                                   <RPAREN> 
-                                                   (
-						      ( <UNION> [ <ALL> ] )
-						      | <INTERSECT>
-						      | <MINUS>
-                                                   )
-                                                    <LPAREN> SqlSubquery() 
-                                                 )
-						 |
-                                                 SqlSubqueryRestrictionClause() 
-                                               ] <RPAREN>  
+							 ( 
+							   <RPAREN> 
+							   (
+							      ( <UNION> [ <ALL> ] )
+							      | <INTERSECT>
+							      | <MINUS>
+							   )
+							    <LPAREN> SqlSubquery() 
+							 )
+                                                 )*
+			       [ SqlSubqueryRestrictionClause() ] 
+                        <RPAREN>  
  {System.err.println("SqlQueryTableExpression: found LATERAL ... at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 	 //| ( SqlSubquery() [ SqlSubqueryRestrictionClause() ] 
 	 //{System.err.println("SqlQueryTableExpression: (Extra) at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }

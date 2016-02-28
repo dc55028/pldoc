@@ -2768,7 +2768,7 @@ String ArgumentList() :
   {System.err.println("ArgumentList: attempting ArgumentList() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
   {System.out.println("ArgumentList: attempting ArgumentList() at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
   //Argument() ("," token=Argument())*
-  [ <DISTINCT> { sb.append("DISTINCT "); } ]
+  [ (<DISTINCT> | <UNIQUE>)  { sb.append(token.image) ;  sb.append(" "); } ]
   (argument = Argument()) { sb.append(argument); } 
     [ <PASSING> expression = Expression() <AS> literal = Literal() { sb.append("PASSING "); sb.append(expression); sb.append(" AS "); sb.append(literal); } ]
   (("," ) { sb.append(", "); }  (argument = Argument()) {sb.append(argument); } 
