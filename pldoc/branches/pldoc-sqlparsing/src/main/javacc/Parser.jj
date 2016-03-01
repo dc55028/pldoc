@@ -464,7 +464,7 @@ public class PLSQLParser {
 	  final Iterator<ParsedTableReference> listIter = tableReferences.iterator();
 	  while (listIter.hasNext()) {
           final ParsedTableReference element = listIter.next();
-          final String tableReference = element.tableReference;
+          final String tableReference = purifyIdentifier(element.tableReference);
           final Token  start = element.start;
  		     m_out.pushAttribute("REFERENCE",tableReference);
 		     m_out.pushAttribute("BEGINLINE", Integer.toString(start.beginLine) );
