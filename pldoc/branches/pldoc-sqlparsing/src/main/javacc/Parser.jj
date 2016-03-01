@@ -90,7 +90,21 @@ public class PLSQLParser {
   	private String schemaName = ""; //SRT 20110418
   	private String GlobalPackageName = "_GLOBAL"; //SRT 20110418
   	private String inputPath = "input"; 
-  	private Hashtable tableReferences = new Hashtable();
+
+        class ParsedTableReference { 
+
+	  /** Table Reference - partial or fully qualified table reference parsed from SQL*/
+	  String tableReference;
+
+	  /** Location - first token pointing to table reference*/
+	  Token start;
+
+	  ParsedTableReference ( String _tableReference, Token _start ) {
+	    tableReference = _tableReference;
+	    start = _start ;
+	  }
+        }
+  	private ArrayList<ParsedTableReference> tableReferences = new ArrayList<ParsedTableReference>();
   	
   
 	/** Sets the stream to receive output XML text.
@@ -438,10 +452,34 @@ public class PLSQLParser {
     }
   
 
+
+	/**
+	 * Print all tableReferences
+	 *
+	 * @param tableReferences	all table references
+	 */
+	private void printTableReferences(List<ParsedTableReference>  tableReferences) throws SAXException {
+	  if (null != tableReferences)
+	  {
+	  final Iterator<ParsedTableReference> listIter = tableReferences.iterator();
+	  while (listIter.hasNext()) {
+          final ParsedTableReference element = listIter.next();
+          final String tableReference = element.tableReference;
+          final Token  start = element.start;
+ 		     m_out.pushAttribute("REFERENCE",tableReference);
+		     m_out.pushAttribute("BEGINLINE", Integer.toString(start.beginLine) );
+		     m_out.pushAttribute("BEGINCOLUMN", Integer.toString(start.beginColumn) );
+		     m_out.startElement("TABLE_REFERENCE");
+		     m_out.endElement("TABLE_REFERENCE");
+         }
+        }
+      }
+
+
 	/** Print the DML details into the stream.
 	 *
 	 */
-      private void printDML(String dmlType, Token dmlStart, Token dmlEnd, Hashtable tableReferences, Exception exception)
+      private void printDML(String dmlType, Token dmlStart, Token dmlEnd, List<ParsedTableReference> tableReferences, Exception exception)
       //throws SAXException 
       {
 	try 
@@ -451,9 +489,10 @@ public class PLSQLParser {
 			m_out.pushAttribute("TYPE", dmlType );
 			m_out.pushAttribute("BEGINLINE", Integer.toString(dmlStart.beginLine) );
 			m_out.pushAttribute("BEGINCOLUMN", Integer.toString(dmlStart.beginColumn) );
-			m_out.pushAttribute("ENDLINE", Integer.toString(dmlStart.endLine) );
-			m_out.pushAttribute("ENDCOLUMN", Integer.toString(dmlStart.endColumn) );
+			m_out.pushAttribute("ENDLINE", Integer.toString(dmlEnd.endLine) );
+			m_out.pushAttribute("ENDCOLUMN", Integer.toString(dmlEnd.endColumn) );
 			m_out.startElement("DML");
+			printTableReferences(tableReferences);
 			if (dmlStart != null && dmlEnd != null ) {
 			  StringBuffer sb = new StringBuffer() ; 
 		          Token t = dmlStart; ; 

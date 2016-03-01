@@ -90,7 +90,21 @@ public class PLSQLParser {
   	private String schemaName = ""; //SRT 20110418
   	private String GlobalPackageName = "_GLOBAL"; //SRT 20110418
   	private String inputPath = "input"; 
-  	private Hashtable tableReferences = new Hashtable();
+
+        class ParsedTableReference { 
+
+	  /** Table Reference - partial or fully qualified table reference parsed from SQL*/
+	  String tableReference;
+
+	  /** Location - first token pointing to table reference*/
+	  Token start;
+
+	  ParsedTableReference ( String _tableReference, Token _start ) {
+	    tableReference = _tableReference;
+	    start = _start ;
+	  }
+        }
+  	private ArrayList<ParsedTableReference> tableReferences = new ArrayList<ParsedTableReference>();
   	
   
 	/** Sets the stream to receive output XML text.
@@ -438,10 +452,34 @@ public class PLSQLParser {
     }
   
 
+
+	/**
+	 * Print all tableReferences
+	 *
+	 * @param tableReferences	all table references
+	 */
+	private void printTableReferences(List<ParsedTableReference>  tableReferences) throws SAXException {
+	  if (null != tableReferences)
+	  {
+	  final Iterator<ParsedTableReference> listIter = tableReferences.iterator();
+	  while (listIter.hasNext()) {
+          final ParsedTableReference element = listIter.next();
+          final String tableReference = element.tableReference;
+          final Token  start = element.start;
+ 		     m_out.pushAttribute("REFERENCE",tableReference);
+		     m_out.pushAttribute("BEGINLINE", Integer.toString(start.beginLine) );
+		     m_out.pushAttribute("BEGINCOLUMN", Integer.toString(start.beginColumn) );
+		     m_out.startElement("TABLE_REFERENCE");
+		     m_out.endElement("TABLE_REFERENCE");
+         }
+        }
+      }
+
+
 	/** Print the DML details into the stream.
 	 *
 	 */
-      private void printDML(String dmlType, Token dmlStart, Token dmlEnd, Hashtable tableReferences, Exception exception)
+      private void printDML(String dmlType, Token dmlStart, Token dmlEnd, List<ParsedTableReference> tableReferences, Exception exception)
       //throws SAXException 
       {
 	try 
@@ -451,9 +489,10 @@ public class PLSQLParser {
 			m_out.pushAttribute("TYPE", dmlType );
 			m_out.pushAttribute("BEGINLINE", Integer.toString(dmlStart.beginLine) );
 			m_out.pushAttribute("BEGINCOLUMN", Integer.toString(dmlStart.beginColumn) );
-			m_out.pushAttribute("ENDLINE", Integer.toString(dmlStart.endLine) );
-			m_out.pushAttribute("ENDCOLUMN", Integer.toString(dmlStart.endColumn) );
+			m_out.pushAttribute("ENDLINE", Integer.toString(dmlEnd.endLine) );
+			m_out.pushAttribute("ENDCOLUMN", Integer.toString(dmlEnd.endColumn) );
 			m_out.startElement("DML");
+			printTableReferences(tableReferences);
 			if (dmlStart != null && dmlEnd != null ) {
 			  StringBuffer sb = new StringBuffer() ; 
 		          Token t = dmlStart; ; 
@@ -2117,6 +2156,7 @@ void SqlStatement(String initiator, String terminator) throws SAXException :
 {
  Token start = getToken(1) ;
  String dmlType = null;
+ tableReferences.clear();
 }
 {
 	//(<SELECT>|<UPDATE>|<INSERT>|<DELETE>|<COMMIT>|<ROLLBACK>|<SAVEPOINT>|<EXECUTE>|<SET><TRANSACTION>|<LOCK><TABLE>|<MERGE>|<WITH>)
@@ -2186,6 +2226,7 @@ void SqlSafeSubquery() :
   Token start = token;
   Token t = null;
   String string = null ;
+  tableReferences.clear();
 }
 {
      { start = getToken(1); }
@@ -2610,6 +2651,7 @@ void CursorUnit(boolean isPackageLevel) throws SAXException :
 	Token start, name;
 	String type;
 	Hashtable tags = new Hashtable();
+	tableReferences.clear();
 }
 {
 	(
@@ -5106,12 +5148,14 @@ void SqlDmlTableExpression()    :
 Token thisToken;  
 String string = null; 
 StringBuffer sb = new StringBuffer() ;
+Token objectToken = null; 
 String objectReference = null; 
 }
 {
 {System.err.println("SqlDMlTableExpression: attempting SqlDMlTableExpression()"); }
 		<TABLE> <LPAREN> SqlSubquery() <RPAREN>   
-		| string = QualifiedName()  { sb.append(string); } [ "@" string = QualifiedName() /* DBLink Name */  { sb.append("@"); sb.append(string); } ]  { objectReference = sb.toString(); }
+		| { objectToken = getToken(1); } string = QualifiedName()  { sb.append(string); } [ "@" string = QualifiedName() /* DBLink Name */  { sb.append("@"); sb.append(string); } ]  { objectReference = sb.toString(); }
+                { tableReferences.add( new ParsedTableReference(objectReference,objectToken) ); }
  {System.err.println("SqlDmlTableExpression: found OBJECT REFERENCE " + objectReference + " at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 		| <LPAREN> SqlSubquery() <RPAREN>
 
@@ -5121,10 +5165,14 @@ String objectReference = null;
 void SqlMergeStatement()    :
 { 
 Token thisToken = null ; 
+String targetReference = null; 
+String sourceReference = null; 
+tableReferences.clear();
 }
 {
 {System.err.println("SqlMergeStatement: attempting SqlMergeStatement()"); }
-	<MERGE> <INTO> QualifiedName() //Table Name
+	<MERGE> <INTO> { thisToken = getToken(1); } targetReference = QualifiedName() //Table Name
+                { tableReferences.add( new ParsedTableReference(targetReference,thisToken) ); }
 
 	//Table Alias 
 	LOOKAHEAD( { !"USING".equalsIgnoreCase(getToken(1).image) } ) { thisToken = getNextToken() ; }
@@ -5133,7 +5181,8 @@ Token thisToken = null ;
 	(
 	  ( <LPAREN> SqlSubquery() <RPAREN> )
 	  |
-	  QualifiedName() 
+	   { thisToken = getToken(1); } 
+           sourceReference = QualifiedName() { tableReferences.add( new ParsedTableReference(sourceReference,thisToken) ); }
 	)
 
 	//Target Alias 
@@ -5204,11 +5253,17 @@ System.err.println("SqlMergeStatement: after potential target alias at Line " + 
 
 
 void SqlErrorLoggingClause()    :
-{}
+{
+Token objectToken = null ;
+String targetReference = null; 
+}
 {
 	<LOG> <ERRORS> 
 	[
-		<INTO> QualifiedName() 
+		<INTO> 
+                { objectToken = getToken(1); }
+                 targetReference = QualifiedName() 
+                { tableReferences.add( new ParsedTableReference(targetReference,objectToken) ); }
 		<LPAREN>
 			SqlExpression() 
 		<RPAREN>
@@ -5224,6 +5279,7 @@ void SqlErrorLoggingClause()    :
 //http://docs.oracle.com/database/121/PLSQLRF/Statements_9014.htm#i2111652
 void SqlInsertStatement()    :
 {
+String targetReference = null; 
 }
 {
 {System.err.println("SqlInsertStatement: attempting SqlInsertStatement()"); }
@@ -5317,7 +5373,9 @@ void SqlInsertStatement()    :
 
 
 void SqlInsertIntoClause()    :
-{}
+{
+String targetReference = null; 
+}
 {
 {System.err.println("SqlInsertClause: attempting SqlInsertClause()"); }
 
@@ -5383,7 +5441,7 @@ String objectReference = null;
 {System.err.println("SqlUpdateStatement: attempting SqlUpdateStatement()"); }
 	<UPDATE> 
 	(
-		string = QualifiedName() { sb.append(string); }  [ "@" string = QualifiedName() /* DBLink Name */  { sb.append("@"); sb.append(string); ;} ]   { objectReference = sb.toString(); }
+		{ thisToken = getToken(1); } string = QualifiedName() { sb.append(string); }  [ "@" string = QualifiedName() /* DBLink Name */  { sb.append("@"); sb.append(string); ;} ]   { objectReference = sb.toString(); tableReferences.add( new ParsedTableReference(objectReference,thisToken) ); }
  {System.err.println("SqlUpdateStatement: found OBJECT REFERENCE " + objectReference + " at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 		| <LPAREN> SqlSubquery() <RPAREN>
 		| <TABLE> <LPAREN> SqlSubquery() <RPAREN>   
@@ -6018,15 +6076,20 @@ void SqlQueryTableExpression()    :
  {System.err.println("xmlTable: found xmlTable() .. at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 	|  SqlTableCollectionExpression()
  {System.err.println("SqlQueryTableExpression: found SqlTableExpression() .. at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
-	|  ( string = QualifiedName() { sb.append(string); }
+	|  ( 
+		{ thisToken = getToken(1); }
+                string = QualifiedName() { sb.append(string); }
 		[ 
 			( "@" string = QualifiedName() /* DBLink Name */  { sb.append("@"); sb.append(string); }) 
 			| 
 			SqlPartitionExtensionClause() 
 		] 
+		{ objectReference = sb.toString(); }
+                
 		[ SqlSampleClause() ]
-             { objectReference = sb.toString(); }
- {System.err.println("SqlQueryTableExpression: found OBJECT REFERENCE " + objectReference + " at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+ {System.err.println("SqlQueryTableExpression: found OBJECT REFERENCE " + objectReference + " at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); 
+                tableReferences.add( new ParsedTableReference(objectReference,thisToken) );
+ }
 	   )
 	//|  UnqualifiedID() //Query Name 
 
@@ -6228,7 +6291,9 @@ String objectReference = null;
 	<CONTAINERS>
 	<LPAREN> 
 		//QualifiedID() { sb.append(token.image); } ( "," QualifiedID() { sb.append("sb.append(token.image); })*
+                { thisToken = getToken(1); }
                 objectReference = QualifiedName()
+                { tableReferences.add( new ParsedTableReference(objectReference,thisToken) ); }
 	<RPAREN>
 
  {System.err.println("SqlContainersClause: completed SqlContainersClause() with OBJECT REFERENCE " + objectReference + " at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
