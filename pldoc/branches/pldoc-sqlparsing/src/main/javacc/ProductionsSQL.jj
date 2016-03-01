@@ -128,12 +128,14 @@ void SqlDmlTableExpression()    :
 Token thisToken;  
 String string = null; 
 StringBuffer sb = new StringBuffer() ;
+Token objectToken = null; 
 String objectReference = null; 
 }
 {
 {System.err.println("SqlDMlTableExpression: attempting SqlDMlTableExpression()"); }
 		<TABLE> <LPAREN> SqlSubquery() <RPAREN>   
-		| string = QualifiedName()  { sb.append(string); } [ "@" string = QualifiedName() /* DBLink Name */  { sb.append("@"); sb.append(string); } ]  { objectReference = sb.toString(); }
+		| { objectToken = getToken(1); } string = QualifiedName()  { sb.append(string); } [ "@" string = QualifiedName() /* DBLink Name */  { sb.append("@"); sb.append(string); } ]  { objectReference = sb.toString(); }
+                { tableReferences.add( new ParsedTableReference(objectReference,objectToken) ); }
  {System.err.println("SqlDmlTableExpression: found OBJECT REFERENCE " + objectReference + " at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 		| <LPAREN> SqlSubquery() <RPAREN>
 
@@ -143,10 +145,14 @@ String objectReference = null;
 void SqlMergeStatement()    :
 { 
 Token thisToken = null ; 
+String targetReference = null; 
+String sourceReference = null; 
+tableReferences.clear();
 }
 {
 {System.err.println("SqlMergeStatement: attempting SqlMergeStatement()"); }
-	<MERGE> <INTO> QualifiedName() //Table Name
+	<MERGE> <INTO> { thisToken = getToken(1); } targetReference = QualifiedName() //Table Name
+                { tableReferences.add( new ParsedTableReference(targetReference,thisToken) ); }
 
 	//Table Alias 
 	LOOKAHEAD( { !"USING".equalsIgnoreCase(getToken(1).image) } ) { thisToken = getNextToken() ; }
@@ -155,7 +161,8 @@ Token thisToken = null ;
 	(
 	  ( <LPAREN> SqlSubquery() <RPAREN> )
 	  |
-	  QualifiedName() 
+	   { thisToken = getToken(1); } 
+           sourceReference = QualifiedName() { tableReferences.add( new ParsedTableReference(sourceReference,thisToken) ); }
 	)
 
 	//Target Alias 
@@ -226,11 +233,17 @@ System.err.println("SqlMergeStatement: after potential target alias at Line " + 
 
 
 void SqlErrorLoggingClause()    :
-{}
+{
+Token objectToken = null ;
+String targetReference = null; 
+}
 {
 	<LOG> <ERRORS> 
 	[
-		<INTO> QualifiedName() 
+		<INTO> 
+                { objectToken = getToken(1); }
+                 targetReference = QualifiedName() 
+                { tableReferences.add( new ParsedTableReference(targetReference,objectToken) ); }
 		<LPAREN>
 			SqlExpression() 
 		<RPAREN>
@@ -246,6 +259,7 @@ void SqlErrorLoggingClause()    :
 //http://docs.oracle.com/database/121/PLSQLRF/Statements_9014.htm#i2111652
 void SqlInsertStatement()    :
 {
+String targetReference = null; 
 }
 {
 {System.err.println("SqlInsertStatement: attempting SqlInsertStatement()"); }
@@ -339,7 +353,9 @@ void SqlInsertStatement()    :
 
 
 void SqlInsertIntoClause()    :
-{}
+{
+String targetReference = null; 
+}
 {
 {System.err.println("SqlInsertClause: attempting SqlInsertClause()"); }
 
@@ -405,7 +421,7 @@ String objectReference = null;
 {System.err.println("SqlUpdateStatement: attempting SqlUpdateStatement()"); }
 	<UPDATE> 
 	(
-		string = QualifiedName() { sb.append(string); }  [ "@" string = QualifiedName() /* DBLink Name */  { sb.append("@"); sb.append(string); ;} ]   { objectReference = sb.toString(); }
+		{ thisToken = getToken(1); } string = QualifiedName() { sb.append(string); }  [ "@" string = QualifiedName() /* DBLink Name */  { sb.append("@"); sb.append(string); ;} ]   { objectReference = sb.toString(); tableReferences.add( new ParsedTableReference(objectReference,thisToken) ); }
  {System.err.println("SqlUpdateStatement: found OBJECT REFERENCE " + objectReference + " at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 		| <LPAREN> SqlSubquery() <RPAREN>
 		| <TABLE> <LPAREN> SqlSubquery() <RPAREN>   
@@ -1040,15 +1056,20 @@ void SqlQueryTableExpression()    :
  {System.err.println("xmlTable: found xmlTable() .. at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
 	|  SqlTableCollectionExpression()
  {System.err.println("SqlQueryTableExpression: found SqlTableExpression() .. at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
-	|  ( string = QualifiedName() { sb.append(string); }
+	|  ( 
+		{ thisToken = getToken(1); }
+                string = QualifiedName() { sb.append(string); }
 		[ 
 			( "@" string = QualifiedName() /* DBLink Name */  { sb.append("@"); sb.append(string); }) 
 			| 
 			SqlPartitionExtensionClause() 
 		] 
+		{ objectReference = sb.toString(); }
+                
 		[ SqlSampleClause() ]
-             { objectReference = sb.toString(); }
- {System.err.println("SqlQueryTableExpression: found OBJECT REFERENCE " + objectReference + " at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }
+ {System.err.println("SqlQueryTableExpression: found OBJECT REFERENCE " + objectReference + " at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); 
+                tableReferences.add( new ParsedTableReference(objectReference,thisToken) );
+ }
 	   )
 	//|  UnqualifiedID() //Query Name 
 
@@ -1250,7 +1271,9 @@ String objectReference = null;
 	<CONTAINERS>
 	<LPAREN> 
 		//QualifiedID() { sb.append(token.image); } ( "," QualifiedID() { sb.append("sb.append(token.image); })*
+                { thisToken = getToken(1); }
                 objectReference = QualifiedName()
+                { tableReferences.add( new ParsedTableReference(objectReference,thisToken) ); }
 	<RPAREN>
 
  {System.err.println("SqlContainersClause: completed SqlContainersClause() with OBJECT REFERENCE " + objectReference + " at line "+token.beginLine+", column "+token.beginColumn+" - \""+token.image+"\" "); }

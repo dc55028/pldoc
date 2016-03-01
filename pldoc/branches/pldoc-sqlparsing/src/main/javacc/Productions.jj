@@ -1279,6 +1279,7 @@ void SqlStatement(String initiator, String terminator) throws SAXException :
 {
  Token start = getToken(1) ;
  String dmlType = null;
+ tableReferences.clear();
 }
 {
 	//(<SELECT>|<UPDATE>|<INSERT>|<DELETE>|<COMMIT>|<ROLLBACK>|<SAVEPOINT>|<EXECUTE>|<SET><TRANSACTION>|<LOCK><TABLE>|<MERGE>|<WITH>)
@@ -1348,6 +1349,7 @@ void SqlSafeSubquery() :
   Token start = token;
   Token t = null;
   String string = null ;
+  tableReferences.clear();
 }
 {
      { start = getToken(1); }
@@ -1772,6 +1774,7 @@ void CursorUnit(boolean isPackageLevel) throws SAXException :
 	Token start, name;
 	String type;
 	Hashtable tags = new Hashtable();
+	tableReferences.clear();
 }
 {
 	(
