@@ -1307,9 +1307,10 @@ void statement() throws SAXException :
 	| [<DECLARE> declarativeSection(false,token)] <BEGIN> (statement())* (exceptionHandler())? <END> [<IDENTIFIER>] ";"
 	//
         | <EXECUTE> <IMMEDIATE> Expression() /* <STRING_LITERAL> */ 
-	  [ <INTO> Name() ("," Name())* ] 
+	  [ [ <BULK> <COLLECT> ] <INTO> Name() ("," Name())* ] 
 	  [ <USING> [ <IN> [ <OUT> ] | <OUT> ]  Expression() ("," [ <IN> [ <OUT> ] | <OUT> ] Expression())* ] 
-	  [ ( <RETURN> | <RETURNING> )  <INTO> Expression() ("," Expression())*] ";"
+	  [ ( <RETURN> | <RETURNING> ) [ <BULK> <COLLECT> ] <INTO> Expression() ("," Expression())* ] 
+          ";"
 
 	//SRT 20110429 | <EXECUTE> <IMMEDIATE> StringExpression()  [<USING> Expression() ("," Expression())*] ";"
 	// PIPELINED FUNCTION OUTPUT
