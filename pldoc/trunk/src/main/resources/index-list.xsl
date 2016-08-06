@@ -22,11 +22,13 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 <!ENTITY nbsp "&#160;">
 ]>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"
-  xmlns:java="java"
   xmlns:exslt="http://exslt.org/common"
   xmlns:str="http://exslt.org/strings"
   xmlns:lxslt="http://xml.apache.org/xslt"
-  extension-element-prefixes="str java">
+  xmlns:java="http://xml.apache.org/xalan/java"
+  extension-element-prefixes="str java"
+  exclude-result-prefixes="java"
+  >
 
   <xsl:output method="html" indent="yes"/>
 
@@ -74,17 +76,21 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 			<xsl:for-each select="OBJECT_TYPE/child::*">
 		  	<xsl:sort select="translate(@NAME, $namesFromCase, $namesToCase)"/>
 	        <xsl:variable name="thisSchema"><xsl:choose> <xsl:when test="string-length(../@SCHEMA) &gt; 0 " ><xsl:value-of select="../@SCHEMA" /></xsl:when><xsl:otherwise><xsl:value-of select="$defaultSchema" /></xsl:otherwise></xsl:choose></xsl:variable>
+	       <xsl:variable name="hrefSchema"><xsl:value-of select="java:getRawFragment(java:java.net.URI.new( 'file' , 'localhost', null, $thisSchema ))"/></xsl:variable>
 				
 				<xsl:if test="starts-with(translate(substring(@NAME, 1,1), $lowercase, $uppercase), $indexChar)">
 				<DD>	
 					<xsl:variable name="packagename" select="translate(../@NAME, $namesFromCase, $namesToCase)"/>
+				        <xsl:variable name="hrefObject"><xsl:value-of select="java:getRawFragment(java:java.net.URI.new( 'file' , 'localhost', null, $packagename ))"/></xsl:variable>
+					<xsl:variable name="methodname" select="translate(@NAME, $namesFromCase, $namesToCase)"/>
+				        <xsl:variable name="hrefMethod"><xsl:value-of select="java:getRawFragment(java:java.net.URI.new( 'file' , 'localhost', null, $methodname ))"/></xsl:variable>
 					<!-- create link referrer -->
 					<xsl:variable name="referrer">
-			      <xsl:value-of select="concat($thisSchema, '/', $packagename)"/>
+					      <xsl:value-of select="concat($hrefSchema, '/', $hrefObject)"/>
    					      <xsl:value-of select="'.html#'"/>
-						<xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)" />
-               <xsl:if test="ARGUMENT">
-                <xsl:text>(</xsl:text>
+						<xsl:value-of select="$hrefMethod" />
+						       <xsl:if test="ARGUMENT">
+							<xsl:text>(</xsl:text>
 								<xsl:for-each select="ARGUMENT">
  									<xsl:value-of select="@TYPE"/>
  									<xsl:if test="not(position()=last())"><xsl:text>,</xsl:text></xsl:if>
@@ -95,11 +101,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 									
 			    <!-- create link -->
 			    <xsl:element name="A">
-	        <xsl:attribute name="HREF">
+			      <xsl:attribute name="HREF">
 			        <xsl:value-of select="translate($referrer,$uppercase,$lowercase)"/>
 			      </xsl:attribute>
 			    	<xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/>        
-					</xsl:element>
+			    </xsl:element>
 					
 					&nbsp; <FONT SIZE="-1">(<xsl:value-of select="$packagename"/>)</FONT>
 					
@@ -120,17 +126,21 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 			<xsl:for-each select="PACKAGE/child::*">
 				<xsl:sort select="translate(@NAME, $namesFromCase, $namesToCase)"/>
 		       <xsl:variable name="thisSchema"><xsl:choose> <xsl:when test="string-length(../@SCHEMA) &gt; 0 " ><xsl:value-of select="../@SCHEMA" /></xsl:when><xsl:otherwise><xsl:value-of select="$defaultSchema" /></xsl:otherwise></xsl:choose></xsl:variable>
+		       <xsl:variable name="hrefSchema"><xsl:value-of select="java:getRawFragment(java:java.net.URI.new( 'file' , 'localhost', null, $thisSchema ))"/></xsl:variable>
 				
 				<xsl:if test="starts-with(translate(substring(@NAME, 1,1), $lowercase, $uppercase), $indexChar)">
 				<DD>	
 					<xsl:variable name="packagename" select="translate(../@NAME, $namesFromCase, $namesToCase)"/>
+				        <xsl:variable name="hrefObject"><xsl:value-of select="java:getRawFragment(java:java.net.URI.new( 'file' , 'localhost', null, $packagename ))"/></xsl:variable>
+					<xsl:variable name="methodname" select="translate(@NAME, $namesFromCase, $namesToCase)"/>
+				        <xsl:variable name="hrefMethod"><xsl:value-of select="java:getRawFragment(java:java.net.URI.new( 'file' , 'localhost', null, $methodname ))"/></xsl:variable>
 					<!-- create link referrer -->
 					<xsl:variable name="referrer">
-			      <xsl:value-of select="concat($thisSchema, '/', $packagename) "/>
+					      <xsl:value-of select="concat($hrefSchema, '/', $hrefObject) "/>
    					      <xsl:value-of select="'.html#'"/>
-						<xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)" />
-               <xsl:if test="ARGUMENT">
-                <xsl:text>(</xsl:text>
+						<xsl:value-of select="$hrefMethod" />
+						       <xsl:if test="ARGUMENT">
+							<xsl:text>(</xsl:text>
 								<xsl:for-each select="ARGUMENT">
  									<xsl:value-of select="@TYPE"/>
  									<xsl:if test="not(position()=last())"><xsl:text>,</xsl:text></xsl:if>
@@ -141,7 +151,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 									
 			    <!-- create link -->
 			    <xsl:element name="A">
-	        <xsl:attribute name="HREF">
+				<xsl:attribute name="HREF">
 			        <xsl:value-of select="$referrer"/>
 			      </xsl:attribute>
 			    	<xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/>        
@@ -166,19 +176,23 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 <!-- Include Bodies in the index Start -->
 			<xsl:for-each select="OBJECT_BODY/child::*">
 				<xsl:sort select="translate(@NAME, $namesFromCase, $namesToCase)"/>
-		      <xsl:variable name="thisSchema"><xsl:choose> <xsl:when test="string-length(../@SCHEMA) &gt; 0 " ><xsl:value-of select="../@SCHEMA" /></xsl:when><xsl:otherwise><xsl:value-of select="$defaultSchema" /></xsl:otherwise></xsl:choose></xsl:variable>
+			        <xsl:variable name="thisSchema"><xsl:choose> <xsl:when test="string-length(../@SCHEMA) &gt; 0 " ><xsl:value-of select="../@SCHEMA" /></xsl:when><xsl:otherwise><xsl:value-of select="$defaultSchema" /></xsl:otherwise></xsl:choose></xsl:variable>
+			       <xsl:variable name="hrefSchema"><xsl:value-of select="java:getRawFragment(java:java.net.URI.new( 'file' , 'localhost', null, $thisSchema ))"/></xsl:variable>
 				
 				<xsl:if test="starts-with(translate(substring(@NAME, 1,1), $lowercase, $uppercase), $indexChar)">
 				<DD>	
 					<xsl:variable name="packagename" select="translate(../@NAME, $namesFromCase, $namesToCase)"/>
+				        <xsl:variable name="hrefObject"><xsl:value-of select="java:getRawFragment(java:java.net.URI.new( 'file' , 'localhost', null, $packagename ))"/></xsl:variable>
+					<xsl:variable name="methodname" select="translate(@NAME, $namesFromCase, $namesToCase)"/>
+				        <xsl:variable name="hrefMethod"><xsl:value-of select="java:getRawFragment(java:java.net.URI.new( 'file' , 'localhost', null, $methodname ))"/></xsl:variable>
 					<!-- create link referrer -->
 					<xsl:variable name="referrer">
-			      <xsl:value-of select="concat($thisSchema, '/', '_') "/>
-			      <xsl:value-of select="$packagename"/>
+					      <xsl:value-of select="concat($hrefSchema, '/', '_') "/>
+					      <xsl:value-of select="$hrefObject"/>
    					      <xsl:value-of select="'_body.html#'"/>
-						<xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)" />
-               <xsl:if test="ARGUMENT">
-                <xsl:text>(</xsl:text>
+					      <xsl:value-of select="$hrefMethod" />
+						       <xsl:if test="ARGUMENT">
+							<xsl:text>(</xsl:text>
 								<xsl:for-each select="ARGUMENT">
  									<xsl:value-of select="@TYPE"/>
  									<xsl:if test="not(position()=last())"><xsl:text>,</xsl:text></xsl:if>
@@ -189,7 +203,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 									
 			    <!-- create link -->
 			    <xsl:element name="A">
-	        <xsl:attribute name="HREF">
+				<xsl:attribute name="HREF">
 			        <xsl:value-of select="$referrer"/>
 			      </xsl:attribute>
 			    	<xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/>        
@@ -213,19 +227,23 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 			<xsl:for-each select="PACKAGE_BODY/child::*">
 				<xsl:sort select="translate(@NAME, $namesFromCase, $namesToCase)"/>
-		      <xsl:variable name="thisSchema"><xsl:choose> <xsl:when test="string-length(../@SCHEMA) &gt; 0 " ><xsl:value-of select="../@SCHEMA" /></xsl:when><xsl:otherwise><xsl:value-of select="$defaultSchema" /></xsl:otherwise></xsl:choose></xsl:variable>
+			        <xsl:variable name="thisSchema"><xsl:choose> <xsl:when test="string-length(../@SCHEMA) &gt; 0 " ><xsl:value-of select="../@SCHEMA" /></xsl:when><xsl:otherwise><xsl:value-of select="$defaultSchema" /></xsl:otherwise></xsl:choose></xsl:variable>
+				<xsl:variable name="hrefSchema"><xsl:value-of select="java:getRawFragment(java:java.net.URI.new( 'file' , 'localhost', null, $thisSchema ))"/></xsl:variable>
 				
 				<xsl:if test="starts-with(translate(substring(@NAME, 1,1), $lowercase, $uppercase), $indexChar)">
 				<DD>	
 					<xsl:variable name="packagename" select="translate(../@NAME, $namesFromCase, $namesToCase)"/>
+				        <xsl:variable name="hrefObject"><xsl:value-of select="java:getRawFragment(java:java.net.URI.new( 'file' , 'localhost', null, $packagename ))"/></xsl:variable>
+					<xsl:variable name="methodname" select="translate(@NAME, $namesFromCase, $namesToCase)"/>
+				        <xsl:variable name="hrefMethod"><xsl:value-of select="java:getRawFragment(java:java.net.URI.new( 'file' , 'localhost', null, $methodname ))"/></xsl:variable>
 					<!-- create link referrer -->
 					<xsl:variable name="referrer">
-   			      <xsl:value-of select="concat($thisSchema, '/','_') "/>
-			      <xsl:value-of select="$packagename"/>
+					      <xsl:value-of select="concat($hrefSchema, '/','_') "/>
+					      <xsl:value-of select="$hrefMethod"/>
    					      <xsl:value-of select="'_body.html#'"/>
-						<xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)" />
-               <xsl:if test="ARGUMENT">
-                <xsl:text>(</xsl:text>
+						<xsl:value-of select="$hrefMethod" />
+						       <xsl:if test="ARGUMENT">
+							<xsl:text>(</xsl:text>
 								<xsl:for-each select="ARGUMENT">
  									<xsl:value-of select="@TYPE"/>
  									<xsl:if test="not(position()=last())"><xsl:text>,</xsl:text></xsl:if>
@@ -236,7 +254,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 									
 			    <!-- create link -->
 			    <xsl:element name="A">
-	        <xsl:attribute name="HREF">
+				<xsl:attribute name="HREF">
 			        <xsl:value-of select="$referrer"/>
 			      </xsl:attribute>
 			    	<xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/>        

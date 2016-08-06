@@ -19,7 +19,12 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 -->
 <!--$Header: /cvsroot/pldoc/sources/src/resources/allpackages.xsl,v 1.3 2005/01/14 10:16:27 t_schaedler Exp $-->
 
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"
+  xmlns:str="http://exslt.org/strings"
+  xmlns:java="http://xml.apache.org/xalan/java"
+  extension-element-prefixes="str java"
+  exclude-result-prefixes="java"
+  >
 
   <xsl:output method="html" indent="yes"/>
   
@@ -56,8 +61,12 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     <xsl:for-each select="OBJECT_TYPE[COLLECTIONTYPE]">
       <xsl:sort select="translate(@NAME,$namesFromCase,$namesToCase)"/>
       <xsl:variable name="thisSchema"><xsl:choose> <xsl:when test="string-length(@SCHEMA) &gt; 0 " ><xsl:value-of select="@SCHEMA" /></xsl:when><xsl:otherwise><xsl:value-of select="$defaultSchema" /></xsl:otherwise></xsl:choose></xsl:variable>
-      <FONT CLASS="FrameItemFont"><A HREF="{concat($thisSchema, '/', translate(@NAME, $namesFromCase, $namesToCase))}.html" TARGET="packageFrame">
-        <xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/>
+      <xsl:variable name="hrefSchema"><xsl:value-of select="java:getRawFragment(java:java.net.URI.new( 'file' , 'localhost', null, $thisSchema ))"/></xsl:variable>
+      <xsl:variable name="thisObject"><xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase) "/></xsl:variable>
+      <xsl:variable name="hrefObject"><xsl:value-of select="java:getRawFragment(java:java.net.URI.new( 'file' , 'localhost', null, $thisObject  ))"/></xsl:variable>
+
+      <FONT CLASS="FrameItemFont"><A HREF="{concat($hrefSchema, '/', $hrefObject )}.html" TARGET="packageFrame">
+        <xsl:value-of select="$thisObject"/>
       </A></FONT><BR></BR>
     </xsl:for-each>
 
@@ -79,8 +88,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     <xsl:for-each select="OBJECT_TYPE[not(COLLECTIONTYPE)]">
       <xsl:sort select="translate(@NAME,$namesFromCase,$namesToCase)"/>
       <xsl:variable name="thisSchema"><xsl:choose> <xsl:when test="string-length(@SCHEMA) &gt; 0 " ><xsl:value-of select="@SCHEMA" /></xsl:when><xsl:otherwise><xsl:value-of select="$defaultSchema" /></xsl:otherwise></xsl:choose></xsl:variable>
-      <FONT CLASS="FrameItemFont"><A HREF="{concat($thisSchema, '/', translate(@NAME, $namesFromCase, $namesToCase))}.html" TARGET="packageFrame">
-        <xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/>
+      <xsl:variable name="thisObject"><xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase) "/></xsl:variable>
+      <xsl:variable name="hrefSchema"><xsl:value-of select="java:getRawFragment(java:java.net.URI.new( 'file' , 'localhost', null, $thisSchema ))"/></xsl:variable>
+      <xsl:variable name="hrefObject"><xsl:value-of select="java:getRawFragment(java:java.net.URI.new( 'file' , 'localhost', null, $thisObject  ))"/></xsl:variable>
+      <FONT CLASS="FrameItemFont"><A HREF="{concat($hrefSchema, '/', $hrefObject )}.html" TARGET="packageFrame">
+        <xsl:value-of select="$thisObject "/>
       </A></FONT><BR></BR>
     </xsl:for-each>
 
@@ -126,7 +138,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     <xsl:for-each select="PACKAGE">
       <xsl:sort select="translate(@NAME,$namesFromCase,$namesToCase)"/>
       <xsl:variable name="thisSchema"><xsl:choose> <xsl:when test="string-length(@SCHEMA) &gt; 0 " ><xsl:value-of select="@SCHEMA" /></xsl:when><xsl:otherwise><xsl:value-of select="$defaultSchema" /></xsl:otherwise></xsl:choose></xsl:variable>
-      <FONT CLASS="FrameItemFont"><A HREF="{concat($thisSchema, '/', translate(@NAME, $uppercase, $namesToCase))}.html" TARGET="packageFrame">
+      <xsl:variable name="hrefSchema"><xsl:value-of select="java:getRawFragment(java:java.net.URI.new( 'file' , 'localhost', null, $thisSchema ))"/></xsl:variable>
+      <xsl:variable name="thisObject"><xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase) "/></xsl:variable>
+      <xsl:variable name="hrefObject"><xsl:value-of select="java:getRawFragment(java:java.net.URI.new( 'file' , 'localhost', null, $thisObject  ))"/></xsl:variable>
+      <FONT CLASS="FrameItemFont"><A HREF="{concat($hrefSchema, '/', $hrefObject) }.html" TARGET="packageFrame">
         <xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/>
       </A></FONT><BR></BR>
     </xsl:for-each>
@@ -147,8 +162,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     <xsl:for-each select="JAVA[@TYPE='SOURCE' ]">
       <xsl:sort select="translate(@NAME,$namesFromCase,$namesToCase)"/>
       <xsl:variable name="thisSchema"><xsl:choose> <xsl:when test="string-length(@SCHEMA) &gt; 0 " ><xsl:value-of select="@SCHEMA" /></xsl:when><xsl:otherwise><xsl:value-of select="$defaultSchema" /></xsl:otherwise></xsl:choose></xsl:variable>
-      <FONT CLASS="FrameItemFont"><A HREF="{concat( $thisSchema, '/', translate(@NAME, $namesFromCase, $namesToCase) )}.html" TARGET="packageFrame">
-        <xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/>
+      <xsl:variable name="hrefSchema"><xsl:value-of select="java:getRawFragment(java:java.net.URI.new( 'file' , 'localhost', null, $thisSchema ))"/></xsl:variable>
+      <xsl:variable name="thisObject"><xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase) "/></xsl:variable>
+      <xsl:variable name="hrefObject"><xsl:value-of select="java:getRawFragment(java:java.net.URI.new( 'file' , 'localhost', null, $thisObject  ))"/></xsl:variable>
+      <FONT CLASS="FrameItemFont"><A HREF="{concat( $hrefSchema, '/', $hrefObject )}.html" TARGET="packageFrame">
+        <xsl:value-of select="$thisObject "/>
       </A></FONT><BR></BR>
     </xsl:for-each>
 
@@ -172,8 +190,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     <xsl:for-each select="PACKAGE_BODY|OBJECT_BODY">
       <xsl:sort select="translate(@NAME,$namesFromCase,$namesToCase)"/>
       <xsl:variable name="thisSchema"><xsl:choose> <xsl:when test="string-length(@SCHEMA) &gt; 0 " ><xsl:value-of select="@SCHEMA" /></xsl:when><xsl:otherwise><xsl:value-of select="$defaultSchema" /></xsl:otherwise></xsl:choose></xsl:variable>
-      <FONT CLASS="FrameItemFont"><A HREF="{concat( $thisSchema, '/_', translate(@NAME, $uppercase, $namesToCase))}_body.html" TARGET="packageFrame">
-        <xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/>
+      <xsl:variable name="hrefSchema"><xsl:value-of select="java:getRawFragment(java:java.net.URI.new( 'file' , 'localhost', null, $thisSchema ))"/></xsl:variable>
+      <xsl:variable name="thisObject"><xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase) "/></xsl:variable>
+      <xsl:variable name="hrefObject"><xsl:value-of select="java:getRawFragment(java:java.net.URI.new( 'file' , 'localhost', null, $thisObject  ))"/></xsl:variable>
+      <FONT CLASS="FrameItemFont"><A HREF="{concat( $hrefSchema, '/_', $hrefObject )}_body.html" TARGET="packageFrame">
+        <xsl:value-of select="$thisObject"/>
       </A></FONT><BR></BR>
     </xsl:for-each>
 
@@ -195,8 +216,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     <xsl:for-each select="*/TRIGGER[@TYPE='COMPOUND']">
       <xsl:sort select="translate(@NAME,$namesFromCase,$namesToCase)"/>
       <xsl:variable name="thisSchema"><xsl:choose> <xsl:when test="string-length(@SCHEMA) &gt; 0 " ><xsl:value-of select="@SCHEMA" /></xsl:when><xsl:otherwise><xsl:value-of select="$defaultSchema" /></xsl:otherwise></xsl:choose></xsl:variable>
-      <FONT CLASS="FrameItemFont"><A HREF="{concat( $thisSchema, '/_', translate(@NAME, $uppercase, $namesToCase))}_body.html" TARGET="packageFrame">
-        <xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/>
+      <xsl:variable name="hrefSchema"><xsl:value-of select="java:getRawFragment(java:java.net.URI.new( 'file' , 'localhost', null, $thisSchema ))"/></xsl:variable>
+      <xsl:variable name="thisObject"><xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase) "/></xsl:variable>
+      <xsl:variable name="hrefObject"><xsl:value-of select="java:getRawFragment(java:java.net.URI.new( 'file' , 'localhost', null, $thisObject  ))"/></xsl:variable>
+      <FONT CLASS="FrameItemFont"><A HREF="{concat( $thisSchema, '/_', $hrefObject )}_body.html" TARGET="packageFrame">
+        <xsl:value-of select="$thisObject"/>
       </A></FONT><BR></BR>
     </xsl:for-each>
 
@@ -217,8 +241,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     <xsl:for-each select="TABLE">
       <xsl:sort select="translate(@NAME,$namesFromCase,$namesToCase)"/>
       <xsl:variable name="thisSchema"><xsl:choose> <xsl:when test="string-length(@SCHEMA) &gt; 0 " ><xsl:value-of select="@SCHEMA" /></xsl:when><xsl:otherwise><xsl:value-of select="$defaultSchema" /></xsl:otherwise></xsl:choose></xsl:variable>
-      <FONT CLASS="FrameItemFont"><A HREF="{concat($thisSchema, '/', translate(@NAME, $uppercase, $namesToCase))}.html" TARGET="packageFrame">
-        <xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/>
+      <xsl:variable name="hrefSchema"><xsl:value-of select="java:getRawFragment(java:java.net.URI.new( 'file' , 'localhost', null, $thisSchema ))"/></xsl:variable>
+      <xsl:variable name="thisObject"><xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase) "/></xsl:variable>
+      <xsl:variable name="hrefObject"><xsl:value-of select="java:getRawFragment(java:java.net.URI.new( 'file' , 'localhost', null, $thisObject  ))"/></xsl:variable>
+      <FONT CLASS="FrameItemFont"><A HREF="{concat($hrefSchema, '/', $hrefObject )}.html" TARGET="packageFrame">
+        <xsl:value-of select="$thisObject"/>
       </A></FONT><BR></BR>
     </xsl:for-each>
 
@@ -237,8 +264,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     <xsl:for-each select="VIEW">
       <xsl:sort select="translate(@NAME,$namesFromCase,$namesToCase)"/>
       <xsl:variable name="thisSchema"><xsl:choose> <xsl:when test="string-length(@SCHEMA) &gt; 0 " ><xsl:value-of select="@SCHEMA" /></xsl:when><xsl:otherwise><xsl:value-of select="$defaultSchema" /></xsl:otherwise></xsl:choose></xsl:variable>
-      <FONT CLASS="FrameItemFont"><A HREF="{concat( $thisSchema, '/', translate(@NAME, $uppercase, $namesToCase))}.html" TARGET="packageFrame">
-        <xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase)"/>
+      <xsl:variable name="hrefSchema"><xsl:value-of select="java:getRawFragment(java:java.net.URI.new( 'file' , 'localhost', null, $thisSchema ))"/></xsl:variable>
+      <xsl:variable name="thisObject"><xsl:value-of select="translate(@NAME, $namesFromCase, $namesToCase) "/></xsl:variable>
+      <xsl:variable name="hrefObject"><xsl:value-of select="java:getRawFragment(java:java.net.URI.new( 'file' , 'localhost', null, $thisObject  ))"/></xsl:variable>
+      <FONT CLASS="FrameItemFont"><A HREF="{concat( $thisSchema, '/', $hrefObject )}.html" TARGET="packageFrame">
+        <xsl:value-of select="$thisObject"/>
       </A></FONT><BR></BR>
     </xsl:for-each>
 

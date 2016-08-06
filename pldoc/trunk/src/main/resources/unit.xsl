@@ -253,9 +253,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 	<xsl:when test=" $synonymsFile != '' and document($synonymsFile)/SYNONYMS/SYNONYM[@OWNER = $schema and @SYNONYM_NAME = $fieldType ] ">
 	    <xsl:comment>Object Type in other schema - use private synonym </xsl:comment>
 	    <xsl:variable name="referencedOwner" select="document($synonymsFile)/SYNONYMS/SYNONYM[@OWNER = $schema and @SYNONYM_NAME = $fieldType ]/@TABLE_OWNER " /> 
+	    <xsl:variable name="hrefReferencedOwner"><xsl:value-of select="java:getRawFragment(java:java.net.URI.new( 'file' , 'localhost', null, $referencedOwner ))"/></xsl:variable>
 	    <xsl:variable name="referencedObject" select="document($synonymsFile)/SYNONYMS/SYNONYM[@OWNER = $schema and @SYNONYM_NAME = $fieldType ]/@TABLE_NAME " /> 
 	    <A>
-	    <xsl:attribute name="href"><xsl:value-of select="concat( '../' , $referencedOwner, '/' , $referencedObject )" disable-output-escaping="yes"/>.html</xsl:attribute>
+	    <xsl:attribute name="href"><xsl:value-of select="concat( '../' , $hrefReferencedOwner,  '/' , $referencedObject )" disable-output-escaping="yes"/>.html</xsl:attribute>
 	      <xsl:value-of select="$typeName" disable-output-escaping="yes"/>
 	  </A>
 	</xsl:when>
@@ -299,9 +300,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
                     and $synonymsFile != '' and document($synonymsFile)/SYNONYMS/SYNONYM[@OWNER = $schema and @SYNONYM_NAME = substring-after($fieldType,'.') ] ">
 	    <xsl:comment>PLSQL Type in other schema - use private synonym </xsl:comment>
 	    <xsl:variable name="referencedOwner" select="document($synonymsFile)/SYNONYMS/SYNONYM[@OWNER = $schema and @SYNONYM_NAME = substring-after($fieldType,'.') ]/@TABLE_OWNER " /> 
+	    <xsl:variable name="hrefReferencedOwner"><xsl:value-of select="java:getRawFragment(java:java.net.URI.new( 'file' , 'localhost', null, $referencedOwner ))"/></xsl:variable>
 	    <xsl:variable name="referencedObject" select="document($synonymsFile)/SYNONYMS/SYNONYM[@OWNER = $schema and @SYNONYM_NAME = substring-after($fieldType,'.') ]/@TABLE_NAME " /> 
 	    <A>
-	    <xsl:attribute name="href"><xsl:value-of select="concat( '../' , $referencedOwner, '/' , $referencedObject )" disable-output-escaping="yes"/>.html</xsl:attribute>
+	    <xsl:attribute name="href"><xsl:value-of select="concat( '../' , $hrefReferencedOwner, '/' , $referencedObject )" disable-output-escaping="yes"/>.html</xsl:attribute>
 	      <xsl:value-of select="$typeName" disable-output-escaping="yes"/>
 	  </A>
 	</xsl:when>
@@ -310,8 +312,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
        <xsl:comment>Implicitly referenced Packaged PL/SQL Type in any schema </xsl:comment>
 
        <xsl:variable name="packageSchema" select="/APPLICATION/PACKAGE[ translate(@NAME, $namesFromCase, $namesToCase) = substring-before($fieldType,'.') ]/TYPE[ translate(@NAME, $namesFromCase, $namesToCase) = substring-after($fieldType,'.') ][1]/../@SCHEMA" />
+       <xsl:variable name="hrefPackageSchema"><xsl:value-of select="java:getRawFragment(java:java.net.URI.new( 'file' , 'localhost', null, translate($packageSchema, $namesFromCase, $namesToCase) ))"/></xsl:variable>
 	    <A>
-		<xsl:attribute name="href"><xsl:value-of select="concat('../', translate($packageSchema, $namesFromCase, $namesToCase) , '/',translate(substring-before($typeName,'.'), $namesFromCase, $namesToCase), '.html#', translate(substring-after(substring-after($typeName,'.'),'.'), $namesFromCase, $namesToCase) )" disable-output-escaping="yes"/></xsl:attribute>
+		<xsl:attribute name="href"><xsl:value-of select="concat('../', $hrefPackageSchema , '/',translate(substring-before($typeName,'.'), $namesFromCase, $namesToCase), '.html#', translate(substring-after(substring-after($typeName,'.'),'.'), $namesFromCase, $namesToCase) )" disable-output-escaping="yes"/></xsl:attribute>
 	      <xsl:value-of select="translate($typeName, $namesFromCase, $namesToCase)" disable-output-escaping="yes"/>
             </A>
      </xsl:when>
