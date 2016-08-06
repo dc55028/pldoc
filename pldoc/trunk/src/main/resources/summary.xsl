@@ -22,7 +22,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 <!DOCTYPE xsl:stylesheet [
 <!ENTITY nbsp "&#160;">
 ]>
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"
+	xmlns:str="http://exslt.org/strings"
+	extension-element-prefixes="str"
+>
   <xsl:output method="html" indent="yes"/>
 
   <xsl:variable name="uppercase">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
@@ -79,7 +82,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 			<xsl:for-each select="//*[count(. | key('schemaInit', @SCHEMA)[1]) = 1 and @SCHEMA != '']">
 			  <TR>
 	   		  <TD>
-	      	  <FONT CLASS="FrameItemFont"><A HREF="{translate(@SCHEMA, $uppercase, $lowercase)}-summary.html" TARGET="packageFrame">
+	      	  <FONT CLASS="FrameItemFont"><A HREF="{str:encode-uri(translate(@SCHEMA, $uppercase, $lowercase))}-summary.html" TARGET="packageFrame">
 	        	   <xsl:value-of select="translate(@SCHEMA, $lowercase, $uppercase)"/>
 		        </A></FONT>
 			    </TD>

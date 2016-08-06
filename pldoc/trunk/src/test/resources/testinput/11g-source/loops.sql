@@ -28,7 +28,7 @@ IS
 PROCEDURE function (function10 number)
 IS
   cursor function is 
-    select * from dual;
+    select * from dual ;
 BEGIN
   <<loop1>>
   for function in 1..100 loop

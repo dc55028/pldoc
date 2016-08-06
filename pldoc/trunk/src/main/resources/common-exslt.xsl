@@ -1,10 +1,12 @@
 	<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"
-		xmlns:java="java"
 		xmlns:exslt="http://exslt.org/common"
 		xmlns:str="http://exslt.org/strings"
 		xmlns:lxslt="http://xml.apache.org/xslt"
 		xmlns:redirect="http://xml.apache.org/xalan/redirect"
-		extension-element-prefixes="redirect str java exslt">
+		xmlns:java="http://xml.apache.org/xalan/java"
+		extension-element-prefixes="redirect str java exslt"
+		exclude-result-prefixes="java"
+		>
 
 	<!-- ***************** Link tag to TYPE LINK TEMPLATE ****************** -->
 	<!-- If possible, convert the plain-text LINK to a link to a matching PACKAGE or OBJECT TYPE link in the Application -->
@@ -33,6 +35,7 @@
 							</xsl:otherwise>  
 						</xsl:choose>
 					</xsl:variable>
+				        <xsl:variable name="hrefSchemaName"><xsl:value-of select="java:getRawFragment(java:java.net.URI.new( 'file' , 'localhost', null, $schemaName ))"/></xsl:variable>
 					<xsl:variable name="methodName">
 						<xsl:choose>
 							<xsl:when test="contains($link, '#')"> <!--  Link contains schema -->
@@ -69,6 +72,7 @@
           -->
                     <xsl:comment>What is the current SCHEMA?</xsl:comment>
                     <xsl:variable name="currentSchemaName" select="ancestor-or-self::*/@SCHEMA" />
+		    <xsl:variable name="hrefCurrentSchemaName"><xsl:value-of select="java:getRawFragment(java:java.net.URI.new( 'file' , 'localhost', null, $currentSchemaName ))"/></xsl:variable>
 					<xsl:choose>
 						
 						<xsl:when test="string-length($schemaName) &gt; 0 and string-length($objectName) &gt; 0 and string-length($methodName) &gt; 0 and /APPLICATION/*[ translate(@SCHEMA , $uppercase, $lowercase)= translate($schemaName, $uppercase, $lowercase) and translate(@NAME , $uppercase, $lowercase)= translate($objectName, $uppercase, $lowercase) ]/*[translate(@NAME , $uppercase, $lowercase) = translate($methodName , $uppercase, $lowercase)] ">
@@ -80,7 +84,7 @@
                   methodName=START<xsl:value-of select="$methodName" disable-output-escaping="yes"/>END
                 </xsl:comment>
                 -->
-							<xsl:attribute name="href"><xsl:value-of select="concat('../', translate($schemaName, $namesFromCase, $namesToCase), '/', translate(concat($objectName,'.html#',$methodName), $namesFromCase, $namesToCase) )" disable-output-escaping="yes"/></xsl:attribute>
+							<xsl:attribute name="href"><xsl:value-of select="concat('../', translate($hrefSchemaName, $namesFromCase, $namesToCase), '/', translate(concat($objectName,'.html#',$methodName), $namesFromCase, $namesToCase) )" disable-output-escaping="yes"/></xsl:attribute>
 							<xsl:value-of select="$label" disable-output-escaping="yes"/>
 						</xsl:when>
 
@@ -109,7 +113,7 @@
                 methodName=START<xsl:value-of select="$methodName" disable-output-escaping="yes"/>END
                 </xsl:comment>
               -->
-							<xsl:attribute name="href"><xsl:value-of select="translate(concat($schemaName,'.html#',$objectName), $namesFromCase, $namesToCase)" disable-output-escaping="yes"/></xsl:attribute>
+							<xsl:attribute name="href"><xsl:value-of select="translate(concat($hrefSchemaName,'.html#',$objectName), $namesFromCase, $namesToCase)" disable-output-escaping="yes"/></xsl:attribute>
 							<xsl:value-of select="$label" disable-output-escaping="yes"/>
 						</xsl:when>
 
@@ -137,7 +141,8 @@
                 </xsl:comment>
                 -->
                             <xsl:variable name="otherSchemaName" select="/APPLICATION/*[ translate(@NAME , $uppercase, $lowercase)= translate($objectName, $uppercase, $lowercase) ]/*[translate(@NAME , $uppercase, $lowercase) = translate($methodName , $uppercase, $lowercase)][1]/@SCHEMA " />
-							<xsl:attribute name="href"><xsl:value-of select="concat('../', $otherSchemaName, '/', translate(concat($objectName,'.html#',$methodName), $namesFromCase, $namesToCase))" disable-output-escaping="yes"/></xsl:attribute>
+			    <xsl:variable name="hrefOtherSchemaName"><xsl:value-of select="java:getRawFragment(java:java.net.URI.new( 'file' , 'localhost', null, $otherSchemaName ))"/></xsl:variable>
+							<xsl:attribute name="href"><xsl:value-of select="concat('../', $hrefOtherSchemaName, '/', translate(concat($objectName,'.html#',$methodName), $namesFromCase, $namesToCase))" disable-output-escaping="yes"/></xsl:attribute>
 							<xsl:value-of select="$label" disable-output-escaping="yes"/>
 						</xsl:when>
 						
@@ -154,7 +159,8 @@
                 </xsl:comment>
               -->
                             <xsl:variable name="otherSchemaName" select="/APPLICATION/*[ translate(@NAME , $uppercase, $lowercase)= translate($schemaName, $uppercase, $lowercase) ]/*[translate(@NAME , $uppercase, $lowercase)= translate($objectName, $uppercase, $lowercase)][1]/@SCHEMA " />
-							<xsl:attribute name="href"><xsl:value-of select="concat('../', $otherSchemaName, '/', translate(concat($schemaName,'.html#',$objectName), $namesFromCase, $namesToCase))" disable-output-escaping="yes"/></xsl:attribute>
+			    <xsl:variable name="hrefOtherSchemaName"><xsl:value-of select="java:getRawFragment(java:java.net.URI.new( 'file' , 'localhost', null, $otherSchemaName ))"/></xsl:variable>
+							<xsl:attribute name="href"><xsl:value-of select="concat('../', $hrefOtherSchemaName, '/', translate(concat($schemaName,'.html#',$objectName), $namesFromCase, $namesToCase))" disable-output-escaping="yes"/></xsl:attribute>
 							<xsl:value-of select="$label" disable-output-escaping="yes"/>
 						</xsl:when>
 
@@ -168,7 +174,8 @@
                 </xsl:comment>
                 -->
                             <xsl:variable name="otherSchemaName" select=" /APPLICATION/*[ translate(@NAME , $uppercase, $lowercase)= translate($objectName, $uppercase, $lowercase) ] [1]/@SCHEMA " />
-							<xsl:attribute name="href"><xsl:value-of select="concat('../', $otherSchemaName, '/', translate($objectName, $namesFromCase, $namesToCase))" disable-output-escaping="yes"/>.html</xsl:attribute>
+			    <xsl:variable name="hrefOtherSchemaName"><xsl:value-of select="java:getRawFragment(java:java.net.URI.new( 'file' , 'localhost', null, $otherSchemaName ))"/></xsl:variable>
+							<xsl:attribute name="href"><xsl:value-of select="concat('../', $hrefOtherSchemaName, '/', translate($objectName, $namesFromCase, $namesToCase))" disable-output-escaping="yes"/>.html</xsl:attribute>
 							<xsl:value-of select="$label" disable-output-escaping="yes"/>
 						</xsl:when>						
 						<xsl:otherwise>

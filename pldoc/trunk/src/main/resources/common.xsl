@@ -1,5 +1,10 @@
 <!-- Start of common.xsl -->
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"
+  xmlns:str="http://exslt.org/strings"
+  xmlns:java="http://xml.apache.org/xalan/java"
+  extension-element-prefixes="str java"
+  exclude-result-prefixes="java"
+  >
 
   <xsl:variable name="uppercase">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
   <xsl:variable name="lowercase">abcdefghijklmnopqrstuvwxyz</xsl:variable>
@@ -97,7 +102,8 @@
 		  <xsl:value-of select="concat('#',$lineNumber)" />
 		</xsl:if>
 		</xsl:variable>
-	<xsl:element name="A"><xsl:attribute name="HREF"><xsl:value-of select="concat( $sourceRootPath,'/../', $schema,'/', translate($objectType, ' ','_') ,'/', $objectName, '.', $fileSuffix, '.xml' ,$internalLink )" /></xsl:attribute><xsl:copy-of select="$linkContents" /></xsl:element>
+	      <xsl:variable name="hrefSchema"><xsl:value-of select="java:getRawFragment(java:java.net.URI.new( 'file' , 'localhost', null, $schema ))"/></xsl:variable>
+	<xsl:element name="A"><xsl:attribute name="HREF"><xsl:value-of select="concat( $sourceRootPath,'/../', $hrefSchema ,'/', translate($objectType, ' ','_') ,'/', $objectName, '.', $fileSuffix, '.xml' ,$internalLink )" /></xsl:attribute><xsl:copy-of select="$linkContents" /></xsl:element>
 	</xsl:template>
 	
 	<!-- End of String Replace -->	

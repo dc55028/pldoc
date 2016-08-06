@@ -53,7 +53,7 @@ current_date 	DATE := '24-feb-02';
 
 --cursors
 cursor cur1(a varchar2, b number, c date, d boolean) return customer%rowtype;
-cursor cur2(a varchar2, b number, c date, d boolean) is select * from customer where id = '1';
+--cursor cur2(a varchar2, b number, c date, d boolean) is select * from customer where id = '1';
 CURSOR something ( id NUMBER, selector VARCHAR2 DEFAULT '0' ) IS
     (
      select id, selector from tableX
