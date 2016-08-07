@@ -7,6 +7,8 @@
         <author email="altumano at users.sourceforge.net">Albert Tumanov</author>
     </properties>
     <body>
+        <release version="1.5.18" date="2016-08-06"  description="Minor Fixes" >
+		<action type="fix" dev="sturton" >URIencode schema names - cope with Oracle 12c Common Users (C## prefi)</action>
         <release version="1.5.17" date="2015-01-15"  description="Minor Fixes" >
 		<action type="fix" dev="sturton" >Allow more flexible conditional compilation code; exclude objects in the recycle bin</action>
         </release>
