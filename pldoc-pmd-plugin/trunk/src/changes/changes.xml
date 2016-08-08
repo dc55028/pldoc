@@ -8,6 +8,10 @@
     </properties>
     <body>
 
+        <release version="3.2.6" date="2016-08-08"  description="Minor change" >
+            <action type="fix" dev="sturton" >URIencode schemas</action>
+        </release>
+
         <release version="3.2.5" date="2015-02-17"  description="Minor change" >
             <action type="update" dev="sturton" >Use later modular version of PMD</action>
         </release>
