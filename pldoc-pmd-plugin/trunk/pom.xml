@@ -109,7 +109,7 @@ under the License.
   <properties>
     <mavenVersion>2.2.1</mavenVersion>
     <doxiaVersion>1.4</doxiaVersion>
-    <pmdVersion>5.2.3</pmdVersion>
+    <pmdVersion>[5.4.0,)</pmdVersion>
     <sitePluginVersion>3.3</sitePluginVersion>
     <mavenPluginVersion>3.2</mavenPluginVersion>
     <projectInfoReportsPluginVersion>2.7</projectInfoReportsPluginVersion>
