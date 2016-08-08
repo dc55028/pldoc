@@ -21,13 +21,15 @@ package net.sourceforge.pldoc.maven.plugin.pmd;
  */
 
 import net.sourceforge.pmd.cpd.Match;
-import net.sourceforge.pmd.cpd.TokenEntry;
+import net.sourceforge.pmd.cpd.Mark;
 import org.apache.maven.doxia.sink.Sink;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.StringUtils;
 
 import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -144,12 +146,12 @@ public class CpdReportGenerator
     }
 
     /**
-     * Method that generates a line of CPD report according to a TokenEntry.
+     * Method that generates a line of CPD report according to a Mark.
      */
-    private void generateFileLine( TokenEntry tokenEntry )
+    private void generateFileLine( Mark mark )
     {
         // Get information for report generation
-        String filename = tokenEntry.getTokenSrcID();
+        String filename = mark.getFilename();
         File file = new File( filename );
         PmdFileInfo fileInfo = fileMap.get( file );
         File sourceDirectory = fileInfo.getSourceDirectory();
@@ -169,7 +171,7 @@ public class CpdReportGenerator
 
         String xrefLocation = fileInfo.getXrefLocation();
         MavenProject projectFile = fileInfo.getProject();
-        int line = tokenEntry.getBeginLine();
+        int line = mark.getBeginLine();
 
         sink.tableRow();
         sink.tableCell();
@@ -192,6 +194,17 @@ public class CpdReportGenerator
                             + "\", searchPattern=\""+searchPattern
                             + "\", result =\"" + filename.replaceAll(searchPattern, replacePattern ).replace( '\\', '/' ) 
                             );
+
+	    //URIEncode any unsafe characters in the filename
+	    try
+	    {
+		    URI uri = new URI( "file" , "localhost", null,  filename );
+		    filename = uri.getRawFragment();
+	    }
+	    catch (URISyntaxException ex)
+	    {
+		    //Ignore syntax problems: we are no worse off than before we tried to make filename URI safe
+	    }
 
             sink.link(
 
@@ -260,10 +273,10 @@ public class CpdReportGenerator
             sink.tableRow_();
 
             // Iterating on every token entry
-            for ( Iterator<TokenEntry> occurrences = match.iterator(); occurrences.hasNext(); )
+            for ( Iterator<Mark> occurrences = match.iterator(); occurrences.hasNext(); )
             {
 
-                TokenEntry mark = occurrences.next();
+                Mark mark = occurrences.next();
                 generateFileLine( mark );
             }
 
