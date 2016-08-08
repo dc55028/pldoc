@@ -22,6 +22,8 @@ package net.sourceforge.pldoc.maven.plugin.pmd;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -287,6 +289,19 @@ public class PmdReportGenerator
             log.debug("PmdGenerator: currentFilename=="+currentFilename);
             log.debug("PmdGenerator: searchPattern=="+searchPattern);
             log.debug("PmdGenerator: replacePattern=="+replacePattern);
+	    //
+	    //URIEncode any unsafe characters in the filename
+	    try
+	    {
+		    URI uri = new URI( "file" , "localhost", null,  currentFilename );
+		    currentFilename = uri.getRawFragment();
+	    }
+	    catch (URISyntaxException ex)
+	    {
+		    //Ignore syntax problems: we are no worse off than before we tried to make filename URI safe
+	    }
+            log.debug("PmdGenerator: encoded currentFilename=="+currentFilename);
+
             sink.link( 
 			/* Transformations 
 			 * ---------------

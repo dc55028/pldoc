@@ -23,6 +23,7 @@ package net.sourceforge.pldoc.maven.plugin.pmd;
 import net.sourceforge.pmd.cpd.CPD;
 import net.sourceforge.pmd.cpd.CPDConfiguration;
 import net.sourceforge.pmd.cpd.JavaLanguage;
+import net.sourceforge.pmd.cpd.Mark;
 import net.sourceforge.pmd.cpd.Match;
 import net.sourceforge.pmd.cpd.TokenEntry;
 import org.codehaus.plexus.util.FileUtils;
@@ -189,11 +190,11 @@ public class CpdReportTest
         CpdReport mojo = (CpdReport) lookupMojo( "cpd", testPom );
         assertNotNull( mojo );
 
-        TokenEntry tFirstEntry = new TokenEntry( "public java", "MyClass.java", 34 );
-        TokenEntry tSecondEntry = new TokenEntry( "public java", "MyClass3.java", 55 );
+        Mark tFirstEntry = new Mark( new TokenEntry( "public java", "MyClass.java", 34 ) );
+        Mark tSecondEntry = new Mark( new TokenEntry( "public java", "MyClass3.java", 55 ) );
+        tFirstEntry.setSoureCodeSlice( "// ----- ACCESSEURS  avec �l�ments -----" );
         List<Match> tList = new ArrayList<Match>();
         Match tMatch = new Match( 2, tFirstEntry, tSecondEntry );
-        tMatch.setSourceCodeSlice( "// ----- ACCESSEURS  avec �l�ments -----" );
         tList.add( tMatch );
 
         CPDConfiguration cpdConfiguration = new CPDConfiguration( 100, new JavaLanguage(), "UTF-8" );
