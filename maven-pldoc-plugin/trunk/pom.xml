@@ -108,7 +108,7 @@
             <groupId>net.sourceforge.pldoc</groupId>
             <artifactId>pldoc</artifactId>
 	    <!-- Require greater than or equal to PLDoc 1.5.16 -->
-            <version>[1.5.18,)</version>
+            <version>[1.5.19,)</version>
             <!--version>1.5.18-SQL-PARSING-SNAPSHOT</version-->
         </dependency>
         <dependency>
