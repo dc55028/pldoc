@@ -193,11 +193,24 @@ void typeMethod(boolean isPackageLevel,int typeVersion, String alterTypeAction, 
 		}
 	}
 
-	[<DETERMINISTIC>]
-	[<PARALLEL_ENABLE>]
-	[<PIPELINED>]
-	[<RESULT_CACHE>]
-	[CompilationExpression()]
+	/* Bug-109 */
+	( (<AUTHID> ( <CURRENT_USER> | <DEFINER> ) ) 
+	    | (<ACCESSIBLE> <BY>  "(" 
+                                    [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] qualifiedName()  
+                                   ("," [ <FUNCTION> | <PROCEDURE> | <PACKAGE> | <TRIGGER> | <TYPE> ] qualifiedName() )*  
+                                  ")" 
+              )
+
+            | <DETERMINISTIC> 
+	    | <PARALLEL_ENABLE>  [ parallel_clause() ] [ <USING> ID() ["." ID()] ] 
+	   | <PIPELINED> [ ( <USING> ID() ["." ID()] ) 
+	                   |  
+			   (( <ORDER> | <CLUSTER> ) [ID()] <BY> "(" ID() ( "," ID() )*  ")" ) 
+			 ] //  drvparx.IndexMapDocuments
+	   | <RESULT_CACHE> [ <RELIES_ON> "(" ID() ["." ID()] ( "," ID() ["." ID()])*  ")" ]
+           | CompilationExpression() // Allow Conditional PRAGMA
+	) *
+	
 
 	// Java or C function wrapped with PL/SQL wrapper declaration 
 	[
