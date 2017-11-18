@@ -111,6 +111,8 @@ public class PLDoc
 
   }
 
+  private boolean dictionaryViewsHaveReverted = false ; // 
+
   private static HashMap<String,HashMap<String,String>> plscopeQueriesMap = new HashMap<String,HashMap<String,String>>();
   static {
    //DEFAULT to using the DBA_* dictionary views, available if the connected user has been granted SELECT_CATALOG_ROLE  
@@ -390,7 +392,7 @@ public class PLDoc
 		   if (settings.isVerbose() ) System.out.println("Connected");
 
 
-    boolean dictionaryViewsHaveReverted = false ; // 
+    System.out.println("Using \"" + sqlStatement + "\"" );
     //Initially attempt to use DBA_OBJECTS, reverting to ALL_OBJECTS on any error
     pstmt = conn.prepareStatement(sqlStatement);
 
@@ -425,12 +427,16 @@ public class PLDoc
     { 
       if (dictionaryViewsHaveReverted )
       {
-        throw e; //Pass problem up 
+        throw new Exception ("Failed to retrieve database objects using  \"" + sqlStatement + "\""  
+                             ,e ); //Pass problem up 
       }
       else//Revert to ALL_OBJECTS  
       {
         dictionaryViewsHaveReverted = true ; 
         sqlStatement = sqlStatement.replaceFirst(" dba_", " all_");
+	
+        //Adjust the SYNONYMS query also
+	      synonymStatement = synonymStatement.replaceFirst(" dba_", " all_");
         //Adjust plscope settings to use ALL_* dictionary views 
         plscopeQueries = plscopeQueriesMap.get("ALL_");  
         if (settings.isVerbose() ) System.out.println("Reverting to \"" + sqlStatement + "\"" );
@@ -453,7 +459,7 @@ public class PLDoc
 		    }
 		    else
 		    {
-                      int schemaReferences = objectSchemas.get(inputSchemaName)  ;
+          int schemaReferences = objectSchemas.get(inputSchemaName)  ;
 		      objectSchemas.put(inputSchemaName,schemaReferences++)  ;
 		    }
 		    do {
@@ -686,17 +692,35 @@ public class PLDoc
     //If we are connected to the database and want PLScope , extract PLSCOPE 
     if ( conn != null  && settings.isPlscope() ) {
         
+      try {
+  	    File mergedFile = new File (settings.getOutputDirectory(), "application-plscope.xml" ) ;
         try {
-	    File mergedFile = new File (settings.getOutputDirectory(), "application-plscope.xml" ) ;
-	    extractPLscope(conn, plscopeQueries, applicationFile, mergedFile); 
+            extractPLscope(conn, plscopeQueries, applicationFile, mergedFile); 
+        }
+        catch (Exception e)
+        {
+          if (dictionaryViewsHaveReverted )
+          {
+            throw new Exception ("Failed to extract PLScope" ,e ); //Pass problem up 
+          }
+          else//Revert to ALL_OBJECTS  
+          {
+            dictionaryViewsHaveReverted = true ; 
 
-	   //Use the merged file rather than the originally generated application.xml
-	   applicationFile = mergedFile ;
-	}
-	finally { //Close Any remaining output 
-	    if( pstmt != null ) pstmt.close();
-	    if ( conn != null ) conn.close();
-	} 
+            //Adjust plscope settings to use ALL_* dictionary views 
+            plscopeQueries = plscopeQueriesMap.get("ALL_");  
+            extractPLscope(conn, plscopeQueries, applicationFile, mergedFile); 
+          }
+      }
+
+
+  	   //Use the merged file rather than the originally generated application.xml
+  	   applicationFile = mergedFile ;
+    	}
+    	finally { //Close Any remaining output 
+    	    if( pstmt != null ) pstmt.close();
+    	    if ( conn != null ) conn.close();
+    	} 
     }
 
 
