@@ -312,7 +312,17 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
        <xsl:comment>Implicitly referenced Packaged PL/SQL Type in any schema </xsl:comment>
 
        <xsl:variable name="packageSchema" select="/APPLICATION/PACKAGE[ translate(@NAME, $namesFromCase, $namesToCase) = substring-before($fieldType,'.') ]/TYPE[ translate(@NAME, $namesFromCase, $namesToCase) = substring-after($fieldType,'.') ][1]/../@SCHEMA" />
-       <xsl:variable name="hrefPackageSchema"><xsl:value-of select="java:getRawFragment(java:java.net.URI.new( 'file' , 'localhost', null, translate($packageSchema, $namesFromCase, $namesToCase) ))"/></xsl:variable>
+<!-- <xsl:variable name="hrefPackageSchema"><xsl:value-of select="java:getRawFragment(java:java.net.URI.new( 'file' , 'localhost', null, translate($packageSchema, $namesFromCase, $namesToCase) ))"/></xsl:variable>
+
+       This variable derivation fails with an NPE and ClassNotFoundException - revert until solution found 
+
+       All input was "sys"
+
+       SystemId Unknown; Line #0; Column #0; javax.xml.transform.TransformerException: java.lang.ClassNotFoundException: java.java.net.URI
+       SystemId Unknown; Line #315; Column #47; java.lang.NullPointerException
+-->
+       <xsl:variable name="hrefPackageSchema"><xsl:value-of select="translate($packageSchema, $namesFromCase, $namesToCase)"/></xsl:variable>
+
 	    <A>
 		<xsl:attribute name="href"><xsl:value-of select="concat('../', $hrefPackageSchema , '/',translate(substring-before($typeName,'.'), $namesFromCase, $namesToCase), '.html#', translate(substring-after(substring-after($typeName,'.'),'.'), $namesFromCase, $namesToCase) )" disable-output-escaping="yes"/></xsl:attribute>
 	      <xsl:value-of select="translate($typeName, $namesFromCase, $namesToCase)" disable-output-escaping="yes"/>
