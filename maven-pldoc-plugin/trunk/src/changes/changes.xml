@@ -7,6 +7,9 @@
         <author email="altumano at users.sourceforge.net">Albert Tumanov</author>
     </properties>
     <body>
+        <release version="3.0.16" date="2017-11-23"  description="Upissue to require PLDoc 1.5.20" >
+            <action type="fix" dev="sturton" >Project POM file - require version 1.5.20</action>
+        </release>
         <release version="3.0.15" date="2016-11-23"  description="Upissue to require PLDoc 1.5.19" >
             <action type="fix" dev="sturton" >Project POM file - require version 1.5.19</action>
         </release>
