@@ -27,6 +27,10 @@
 					
 					<xsl:variable name="schemaName">
 						<xsl:choose>
+							<!-- two dots means that link is written in PL/SQL way as schema.object.method -->
+							<xsl:when test="contains($link, '.') and contains(substring-after($link, '.'),'.')">
+								<xsl:value-of select="substring-before($link, '.')" />
+							</xsl:when>
 							<xsl:when test="contains($link, '.')"> <!--  Link contains schema -->
 								<xsl:value-of select="substring-before($link, '.')" />
 							</xsl:when>
@@ -38,7 +42,11 @@
 				        <xsl:variable name="hrefSchemaName"><xsl:value-of select="java:getRawFragment(java:java.net.URI.new( 'file' , 'localhost', null, $schemaName ))"/></xsl:variable>
 					<xsl:variable name="methodName">
 						<xsl:choose>
-							<xsl:when test="contains($link, '#')"> <!--  Link contains schema -->
+							<!-- two dots means that link is written in PL/SQL way as schema.object.method -->
+							<xsl:when test="contains($link, '.') and contains(substring-after($link, '.'),'.')">
+								<xsl:value-of select="substring-after(substring-after($link, '.'), '.')" />
+							</xsl:when>
+							<xsl:when test="contains($link, '#')"> <!--  Link contains method -->
 								<xsl:value-of select="substring-after($link, '#')" />
 							</xsl:when>
 							<xsl:otherwise>  
@@ -47,8 +55,12 @@
 						</xsl:choose>
 					</xsl:variable>
 					<xsl:variable name="objectName">
-						<xsl:value-of select="substring-before(substring-after($link, '.'),'#')" />
+						<!--xsl:value-of select="substring-before(substring-after($link, '.'),'#')" /-->
 						<xsl:choose>
+							<!-- two dots means that link is written in PL/SQL way as schema.object.method -->
+							<xsl:when test="contains($link, '.') and contains(substring-after($link, '.'),'.')">
+								<xsl:value-of select="substring-before(substring-after($link, '.'), '.')" />
+							</xsl:when>
 							<xsl:when test="contains($link, '.') and contains($link, '#')"> <!--  Link contains schema, object and method -->
 								<xsl:value-of select="substring-after(substring-before($link, '#'),'.')" />
 							</xsl:when>
@@ -70,7 +82,9 @@
             methodName=START<xsl:value-of select="$methodName" disable-output-escaping="yes"/>END
           </xsl:comment>
           -->
+	  <!-- 
                     <xsl:comment>What is the current SCHEMA?</xsl:comment>
+	  -->
                     <xsl:variable name="currentSchemaName" select="ancestor-or-self::*/@SCHEMA" />
 		    <xsl:variable name="hrefCurrentSchemaName"><xsl:value-of select="java:getRawFragment(java:java.net.URI.new( 'file' , 'localhost', null, $currentSchemaName ))"/></xsl:variable>
 					<xsl:choose>
@@ -140,7 +154,7 @@
                   methodName=START<xsl:value-of select="$methodName" disable-output-escaping="yes"/>END
                 </xsl:comment>
                 -->
-                            <xsl:variable name="otherSchemaName" select="/APPLICATION/*[ translate(@NAME , $uppercase, $lowercase)= translate($objectName, $uppercase, $lowercase) ]/*[translate(@NAME , $uppercase, $lowercase) = translate($methodName , $uppercase, $lowercase)][1]/@SCHEMA " />
+			    <xsl:variable name="otherSchemaName" select="/APPLICATION/*[ translate(@NAME , $uppercase, $lowercase)= translate($objectName, $uppercase, $lowercase) ]/*[translate(@NAME , $uppercase, $lowercase) = translate($methodName , $uppercase, $lowercase)][1]/../@SCHEMA " />
 			    <xsl:variable name="hrefOtherSchemaName"><xsl:value-of select="java:getRawFragment(java:java.net.URI.new( 'file' , 'localhost', null, $otherSchemaName ))"/></xsl:variable>
 							<xsl:attribute name="href"><xsl:value-of select="concat('../', $hrefOtherSchemaName, '/', translate(concat($objectName,'.html#',$methodName), $namesFromCase, $namesToCase))" disable-output-escaping="yes"/></xsl:attribute>
 							<xsl:value-of select="$label" disable-output-escaping="yes"/>
@@ -158,7 +172,7 @@
                 methodName=START<xsl:value-of select="$methodName" disable-output-escaping="yes"/>END
                 </xsl:comment>
               -->
-                            <xsl:variable name="otherSchemaName" select="/APPLICATION/*[ translate(@NAME , $uppercase, $lowercase)= translate($schemaName, $uppercase, $lowercase) ]/*[translate(@NAME , $uppercase, $lowercase)= translate($objectName, $uppercase, $lowercase)][1]/@SCHEMA " />
+			    <xsl:variable name="otherSchemaName" select="/APPLICATION/*[ translate(@NAME , $uppercase, $lowercase)= translate($schemaName, $uppercase, $lowercase) ]/*[translate(@NAME , $uppercase, $lowercase)= translate($objectName, $uppercase, $lowercase)][1]/../@SCHEMA " />
 			    <xsl:variable name="hrefOtherSchemaName"><xsl:value-of select="java:getRawFragment(java:java.net.URI.new( 'file' , 'localhost', null, $otherSchemaName ))"/></xsl:variable>
 							<xsl:attribute name="href"><xsl:value-of select="concat('../', $hrefOtherSchemaName, '/', translate(concat($schemaName,'.html#',$objectName), $namesFromCase, $namesToCase))" disable-output-escaping="yes"/></xsl:attribute>
 							<xsl:value-of select="$label" disable-output-escaping="yes"/>
