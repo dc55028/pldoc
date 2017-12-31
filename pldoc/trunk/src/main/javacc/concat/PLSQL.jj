@@ -5065,9 +5065,13 @@ TOKEN [IGNORE_CASE]:
  */
 TOKEN :
 {
-< #GERMAN_SPECIAL_CHARACTERS: "�" | "�" | "�" | "�" | "�" | "�" | "�" >
+< #EXTENDED_LATIN_CHARACTERS:  [ "\u0192", "\u0160", "\u0152", "\u017D", "\u0161", "\u0153", "\u017E", "\u0178", "\u00AA", "\u00BA", "\u00B2","\u00B3", "\u00B9", "\u00C0" - "\u00CF" ,"\u00D0" - "\u00D6" ,"\u00D8" - "\u00DF" ,"\u00E0" - "\u00EF" ,"\u00F0" - "\u00F6" ,"\u00F8" - "\u00FF" ,"\u0100" - "\u017F" ,"\u0180" - "\u024F" ]  >
 |
-< #LETTER: ["A"-"Z"] | ["a"-"z"] | <GERMAN_SPECIAL_CHARACTERS> >
+< #EXTENDED_WINDOWS_CHARACTERS:  [ "\u20AC", "\u201A", "\u201E", "\u2026", "\u2020", "\u02C6", "\u2030", "\u2039", "\u2018", "\u2019", "\u201C", "\u201D", "\u2022", "\u2013", "\u2014", "\u20DC", "\u2122", "\u203A", "\u00A0" - "\u00A9", "\u00AB" - "\u00AF", "\u00B0", "\u00B1", "\u00B4" - "\u00B8", "\u00BB" - "\u00BF", "\u00D7", "\u00F7" ]  >
+|
+< #GERMAN_SPECIAL_CHARACTERS: "Ä" | "Ö" | "Ü" | "ä" | "ü" | "ö" | "ß" >
+|
+< #LETTER: ["A"-"Z"] | ["a"-"z"] | <EXTENDED_LATIN_CHARACTERS> >
 |
 < #DIGIT: ["0"-"9"]>
 |
@@ -5078,7 +5082,7 @@ TOKEN :
  | "$" | "&" | "_" | "|" | "{" | "}" | "?" | "[" | "]"
  | " " | "\t" >
 |
-< #SPECIAL_CHARACTERS: "�" | "�" | "�" | "�" | "�" | "�" | "�" | "�" | "�" | "�" | "�">
+< #SPECIAL_CHARACTERS: "á" | "" | "" | "" | "" | "" | "ý" | "²" | "" | "³" | "µ">
 |
 < #DELIMITER: "+" | "%" | "'" | "\"" | "." | "/" | "(" | ")" | ":" | "," | "*" | "=" | "<" | ">" | "@" | ";" | "-">
 |
@@ -5105,15 +5109,15 @@ TOKEN :
 
 < #_WHATEVER_CHARACTER_WO_ASTERISK: (~["'"]) >
 |
-< CHARACTER_LITERAL: "'" (<_WHATEVER_CHARACTER_WO_ASTERISK> | <SPECIAL_CHARACTERS>)? "'" >
+< CHARACTER_LITERAL: "'" (<_WHATEVER_CHARACTER_WO_ASTERISK> | <SPECIAL_CHARACTERS> | <EXTENDED_WINDOWS_CHARACTERS> )? "'" >
 //|< STRING_LITERAL: 
 //  (["q","Q"])* "'" (<_WHATEVER_CHARACTER_WO_ASTERISK> | <SPECIAL_CHARACTERS> | "''")* "'" 
 //> //Cope with Q-quoted stringswithout single quotes in them 
 |< STRING_LITERAL: 
 // Hard-code the most likely q-quote strings 
-             "'" (<_WHATEVER_CHARACTER_WO_ASTERISK> | <SPECIAL_CHARACTERS> | "''")* "'" 
-|(["n","N"]) "'" (<_WHATEVER_CHARACTER_WO_ASTERISK> | <SPECIAL_CHARACTERS> | "''")* "'" //National Character Set String 
-|(["q","Q"]) "'" (<_WHATEVER_CHARACTER_WO_ASTERISK> | <SPECIAL_CHARACTERS> | "''")* "'" // Bug 160632
+             "'" (<_WHATEVER_CHARACTER_WO_ASTERISK> | <SPECIAL_CHARACTERS> | <EXTENDED_WINDOWS_CHARACTERS> | "''")* "'" 
+|(["n","N"]) "'" (<_WHATEVER_CHARACTER_WO_ASTERISK> | <SPECIAL_CHARACTERS> | <EXTENDED_WINDOWS_CHARACTERS> | "''")* "'" //National Character Set String 
+|(["q","Q"]) "'" (<_WHATEVER_CHARACTER_WO_ASTERISK> | <SPECIAL_CHARACTERS> | <EXTENDED_WINDOWS_CHARACTERS> | "''")* "'" // Bug 160632
 |(["q","Q"]) "'[" (~["[","]"])* "]'" 
 |(["q","Q"]) "'{" (~["{","}"])* "}'" 
 |(["q","Q"]) "'<" (~["<",">"])* ">'" 
@@ -5125,7 +5129,7 @@ TOKEN :
 |
 < #_WHATEVER_CHARACTER_WO_QUOTE: (~["\""]) >
 |
-< QUOTED_LITERAL: "\"" (<_WHATEVER_CHARACTER_WO_QUOTE> | <SPECIAL_CHARACTERS> | "\\\"")* "\"" >
+< QUOTED_LITERAL: "\"" (<_WHATEVER_CHARACTER_WO_QUOTE> | <SPECIAL_CHARACTERS> | <EXTENDED_WINDOWS_CHARACTERS> | "\\\"")* "\"" >
 | 
 < SQLDATA_CLASS: "SQLData" >
 | 

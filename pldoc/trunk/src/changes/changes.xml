@@ -7,6 +7,9 @@
         <author email="altumano at users.sourceforge.net">Albert Tumanov</author>
     </properties>
     <body>
+        <release version="1.5.21" date="2018-01-01"  description="Minor Fixes" >
+		<action type="fix" dev="sturton" issue="111" due-to="Torsten Kleiber" due-to-email="tkleiber@sourceforge.net" >PLDoc 1.5.19 cannot work with german umlauts and ß (esszet) characters</action>
+        </release>
         <release version="1.5.20" date="2017-11-23"  description="Minor Fixes" >
 		<action type="fix" dev="sturton" issue="108" due-to="Lorenzo Snidero" due-to-email="lsnidero@sourceforge.net" >Parse OBJECT TYPE functions as PACKAGES</action>
 		<action type="fix" dev="sturton" issue="110" due-to="Vaclav Votipka" due-to-email="enca@sourceforge.net" >@link keyword bugs and improvement</action>
