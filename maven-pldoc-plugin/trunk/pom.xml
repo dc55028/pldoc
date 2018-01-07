@@ -117,6 +117,11 @@
             <artifactId>maven-reporting-api</artifactId>
             <version>2.0</version>
         </dependency>
+	<dependency>
+	    <groupId>org.apache.maven</groupId>
+	    <artifactId>maven-core</artifactId>
+	    <version>2.0</version>
+	</dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-project</artifactId>
@@ -126,6 +131,21 @@
 	    <groupId>org.apache.maven.shared</groupId>
 	    <artifactId>file-management</artifactId>
 	    <version>1.2.1</version>
+	</dependency>
+	<dependency>
+	  <groupId>org.sonatype.plexus</groupId>
+	  <artifactId>plexus-sec-dispatcher</artifactId>
+	  <version>1.4</version>
+	</dependency>
+	<dependency>
+	  <groupId>org.sonatype.plexus</groupId>
+	  <artifactId>plexus-cipher</artifactId>
+	  <version>1.5</version>
+	</dependency>
+	<dependency>
+	  <groupId>org.codehaus.plexus</groupId>
+	  <artifactId>plexus-utils</artifactId>
+	  <version>2.1</version>
 	</dependency>
     </dependencies>
 
