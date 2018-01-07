@@ -398,11 +398,9 @@ implements MavenReport{
 	    task.init();
 	    task.setDestdir(outputDirectory);
 	    task.setDoctitle(applicationTitle);
-	    System.err.println("dbUser="+dbUser);
-	    System.err.println("dbPassword="+dbPassword);
 	    if (null == dbUser || "".equals(dbUser) || null == dbPassword || "".equals(dbPassword) )
 	    {
-		System.err.println("Some credntials are missing: setting credentials from Server credentials" );
+		getLog().debug("Some credentials are missing: setting credentials from Server credentials" );
 		setServerCredentials(dbUrl);
 	    }
 	    task.setDbUrl(dbUrl); 
@@ -606,7 +604,7 @@ implements MavenReport{
 	final DefaultSecDispatcher securityDispatcher = new DefaultSecDispatcher();
 
 	String configurationFilePath = securityDispatcher.getConfigurationFile();
-	System.err.println("configurationFilePath \""+ configurationFilePath + "\"");
+	getLog().debug("configurationFilePath \""+ configurationFilePath + "\"");
 
 	try
 	{
@@ -618,7 +616,7 @@ implements MavenReport{
 		configurationFilePath = System.getProperty( "user.home" ) + configurationFilePath.substring( 1 );
 		configurationFile =  new File ( configurationFilePath) ;
 
-		System.err.println(" Amended configurationFilePath \""+ configurationFilePath + "\"");
+		getLog().debug(" Amended configurationFilePath \""+ configurationFilePath + "\"");
 
 	    }
 	    
@@ -627,13 +625,13 @@ implements MavenReport{
 	    {
 		
 		configurationFile =  new File ( System.getProperty( "user.home" ) + "/.m2/settings-security.xml" ) ;
-		System.err.println("configurationFilePath \""+ configurationFilePath + "\"");
+		getLog().debug("configurationFilePath \""+ configurationFilePath + "\"");
 
 		if ( configurationFile.exists() && configurationFile.canRead() ) 
 		{
 		    //Set configurationFilePath, replacing any Windows style directory separators
 		    configurationFilePath = configurationFile.getCanonicalPath().replace("\\", "\\\\" ) ;   
-		    System.err.println(" Fallback Maven configurationFilePath \""+ configurationFilePath + "\"");
+		    getLog().debug(" Fallback Maven configurationFilePath \""+ configurationFilePath + "\"");
 		    securityDispatcher.setConfigurationFile(configurationFilePath);
 		}
 	    }
@@ -656,8 +654,8 @@ implements MavenReport{
 	    /* If the provided DB password is not encrypted - use it directly*/
 	    if (!cipher.isEncryptedString(password))
 	    {
-	        System.err.println("Unencrypted password \""+ password  + "\"");
-	        System.out.println("Unencrypted password \""+ password  + "\"");
+	        getLog().debug("Unencrypted password \""+ password  + "\"");
+	        getLog().debug("Unencrypted password \""+ password  + "\"");
 		return password ;
 	    }
 
@@ -665,8 +663,8 @@ implements MavenReport{
 	    if ( sec != null )
 	    {
 		master = sec.getMaster();
-	        System.err.println("SettingsSecurity exists ");
-	        System.out.println("SettingsSecurity exists ");
+	        getLog().debug("SettingsSecurity exists ");
+	        getLog().debug("SettingsSecurity exists ");
 	    }
 
 	    if ( master == null )
@@ -674,20 +672,20 @@ implements MavenReport{
 		throw new IllegalStateException( "Master password is not set in the setting security file: " + file );
 	    }
 
-	    System.err.println("Master exists ");
-	    System.out.println("Master exists ");
+	    getLog().debug("Master exists ");
+	    getLog().debug("Master exists ");
 
 	    final String masterPassword =
 		cipher.decryptDecorated( master, DefaultSecDispatcher.SYSTEM_PROPERTY_SEC_LOCATION );
 
-	    System.err.println("Master password \""+ masterPassword  + "\"");
-	    System.out.println("Master password \""+ masterPassword  + "\"");
+	    getLog().debug("Master password \""+ masterPassword  + "\"");
+	    getLog().debug("Master password \""+ masterPassword  + "\"");
 
 	    final String result = cipher.decryptDecorated( password, masterPassword );
 	    //logger.info( result );
 
-	    System.err.println("Decrypted password \""+ result  + "\"");
-	    System.out.println("Decrypted password \""+ result  + "\"");
+	    getLog().debug("Decrypted password \""+ result  + "\"");
+	    getLog().debug("Decrypted password \""+ result  + "\"");
 	    return result;
 	}
 	catch ( final PlexusCipherException ex )
@@ -728,12 +726,12 @@ implements MavenReport{
 	    // Full URL
 	    //
 	    //
-	    System.err.println("dbUrl \"" + dbUrl + "\" ..." );
-	    System.err.println("Protocol \"" + uri.getScheme() + "\" " );
-	    System.err.println("Authority \"" + uri.getAuthority() + "\" " );
-	    System.err.println("UserInfo \"" + uri.getUserInfo() + "\" " );
-	    System.err.println("Host \"" + uri.getHost() + "\" " );
-	    System.err.println("Port \"" + uri.getPort() + "\" " );
+	    getLog().debug("dbUrl \"" + dbUrl + "\" ..." );
+	    getLog().debug("Scheme \"" + uri.getScheme() + "\" " );
+	    getLog().debug("Authority \"" + uri.getAuthority() + "\" " );
+	    getLog().debug("UserInfo \"" + uri.getUserInfo() + "\" " );
+	    getLog().debug("Host \"" + uri.getHost() + "\" " );
+	    getLog().debug("Port \"" + uri.getPort() + "\" " );
 
 	    /*
 	     * Create a list of ID candidates for server credentials from the dbUrl string
@@ -758,13 +756,13 @@ implements MavenReport{
 
 		if ( null == server )
 		{
-		    System.err.println("Server (" + id +"/"+ idCandidates[id] +") is null"); 
+		    getLog().debug("Server (" + id +"/"+ idCandidates[id] +") is null"); 
 		}
 		else
 		{
 		    final String serverUser = server.getUsername();
 		    final String serverPassword = server.getPassword();
-		    System.err.println("Server credentials for " + dbUrl + " from Server (" + id +"/"+ idCandidates[id] + ") : username=" + serverUser + "; password=" + serverPassword ); 
+		    getLog().debug("Server credentials for " + dbUrl + " from Server (" + id +"/"+ idCandidates[id] + ") : username=" + serverUser + "; password=" + serverPassword ); 
 
 
 		    if (!"".equals(serverUser) && !"".equals(serverPassword) )
@@ -779,7 +777,7 @@ implements MavenReport{
 			}
 			else
 			{
-			    System.err.println("Assigning plugin credentials from Server (" + id +"/"+ idCandidates[id] + ")" ); 
+			    getLog().debug("Assigning plugin credentials from Server (" + id +"/"+ idCandidates[id] + ")" ); 
 			    dbUser = serverUser;
 			    dbPassword = serverPassword;
 			}
@@ -818,12 +816,12 @@ implements MavenReport{
 	     *
 	    */
 
-            System.err.println( "setFields - URL=" + url );
+            getLog().debug( "setFields - URL=" + url );
             dump("jdbcURL", jdbcURI);
 
             jdbcURI = new URI(url.substring(5));
 
-            System.err.println( "setFields - substr(jdbcURL,5)=" + url.substring(5) );
+            getLog().debug( "setFields - substr(jdbcURL,5)=" + url.substring(5) );
             dump("substr(jdbcURL,5)", jdbcURI);
 
             jdbcURI = new URI(jdbcURI.getSchemeSpecificPart().replace("@//","@") );
@@ -837,7 +835,7 @@ implements MavenReport{
             // jdbc:subprotocol:subname
             String[] uriParts = url.split(":");
             for (String part : uriParts) {
-                System.err.println( "JDBCpart=" + part );
+                getLog().debug( "JDBCpart=" + part );
             }
 
             /*
@@ -849,13 +847,13 @@ implements MavenReport{
              * of the subname
              */
             if (3 == uriParts.length) {
-                System.err.println( "subprotocol = " + uriParts[1] );
+                getLog().debug( "subprotocol = " + uriParts[1] );
 		//jdbcURI = new URI( uriParts[0] +":"+ uriParts[1] , 
 		//	jdbcURI.getUserInfo(), jdbcURI.getHost(), jdbcURI.getPort(), jdbcURI.getPath(), jdbcURI.getQuery(), jdbcURI.getFragment()) ;
 		//dump("Scheme with Subprotocol", jdbcURI);
             } else if (4 <= uriParts.length) {
-                System.err.println( "subprotocol =" + uriParts[1] );
-                System.err.println( "subnamePrefix =" +  uriParts[2] );
+                getLog().debug( "subprotocol =" + uriParts[1] );
+                getLog().debug( "subnamePrefix =" +  uriParts[2] );
 		//jdbcURI = new URI( uriParts[0] +":"+ uriParts[1] +":"+ uriParts[2], 
 		//	jdbcURI.getUserInfo(), jdbcURI.getHost(), jdbcURI.getPort(), jdbcURI.getPath(), jdbcURI.getQuery(), jdbcURI.getFragment()) ;
 		//dump("Scheme with Subprotocol and subnamePrefix", jdbcURI);
@@ -879,14 +877,14 @@ implements MavenReport{
      * @param description
      * @param dburi
      */
-    static void dump(String description, URI dburi) {
+    void dump(String description, URI dburi) {
 
         String dumpString = String.format(
                 "dump (%s)\n: isOpaque=%s, isAbsolute=%s Scheme=%s,\n SchemeSpecificPart=%s,\n Authority=%s,\n UserInfo=%s,\n Host=%s,\n Port=%s,\n Path=%s,\n Fragment=%s,\n Query=%s\n",
                 description, dburi.isOpaque(), dburi.isAbsolute(), dburi.getScheme(), dburi.getSchemeSpecificPart(),
                 dburi.getAuthority(), dburi.getUserInfo(), dburi.getHost(), dburi.getPort(), dburi.getPath(), dburi.getFragment(), dburi.getQuery());
 
-        System.err.println(dumpString);
+        getLog().debug(dumpString);
 
         String query = dburi.getQuery();
         if (null != query && !"".equals(query)) {
@@ -898,7 +896,7 @@ implements MavenReport{
                 if (splits.length > 1) {
                     value = splits[1];
                 }
-                System.err.println(String.format("name=%s,value=%s\n", name, value));
+                getLog().debug(String.format("name=%s,value=%s\n", name, value));
             }
         }
     }
