@@ -18,7 +18,12 @@ package net.sourceforge.pldoc.mojo;
 import java.util.Locale;
 import org.apache.maven.plugin.MojoExecutionException;
 
+import java.io.IOException;
 import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.MalformedURLException;
 import java.util.List;
 import java.util.ResourceBundle;
 import net.sourceforge.pldoc.Settings;
@@ -26,16 +31,31 @@ import net.sourceforge.pldoc.ant.PLDocTask;
 
 import org.apache.tools.ant.BuildException;
 
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.reporting.MavenReport;
 import org.apache.maven.reporting.MavenReportException;
+//Maven3 import org.apache.maven.settings.building.SettingsBuilder; 
+import org.apache.maven.settings.Server; 
+//..pldoc.Settings is already defined import org.apache.maven.settings.Settings; 
 import org.apache.maven.shared.model.fileset.FileSet;
 import org.apache.maven.shared.model.fileset.util.FileSetManager;
 import org.apache.tools.ant.Project;
+
 //import org.apache.tools.ant.types.FileSet;
 import org.codehaus.doxia.sink.Sink;
 import org.codehaus.plexus.util.StringUtils;
+
+/* Support Maven encoded passwords */
+import org.sonatype.plexus.components.cipher.DefaultPlexusCipher; 
+import org.sonatype.plexus.components.cipher.PlexusCipher; 
+import org.sonatype.plexus.components.cipher.PlexusCipherException; 
+import org.sonatype.plexus.components.sec.dispatcher.DefaultSecDispatcher; 
+import org.sonatype.plexus.components.sec.dispatcher.SecDispatcher; 
+import org.sonatype.plexus.components.sec.dispatcher.SecDispatcherException; 
+import org.sonatype.plexus.components.sec.dispatcher.SecUtil; 
+import org.sonatype.plexus.components.sec.dispatcher.model.SettingsSecurity;
 
 /**
  * Goal which touches a timestamp file.
@@ -294,6 +314,24 @@ implements MavenReport{
      */
     private List<FileSet> fileSets;
 
+    /**
+     * Executing Maven Session
+     *
+     * @since 3.0.17
+     *
+     * @required
+     * @readonly
+     * @parameter
+     * expression="${session}"
+     */
+    private MavenSession mavenSession;
+
+    /* Support Maven Encoded Passwords */
+    private PlexusCipher cipher; 
+ 
+    private SettingsSecurity securitySettings; 
+ 
+    private File securitySettingsPath; 
 
     /** {@inheritDoc} */
 
@@ -360,9 +398,17 @@ implements MavenReport{
 	    task.init();
 	    task.setDestdir(outputDirectory);
 	    task.setDoctitle(applicationTitle);
+	    System.err.println("dbUser="+dbUser);
+	    System.err.println("dbPassword="+dbPassword);
+	    if (null == dbUser || "".equals(dbUser) || null == dbPassword || "".equals(dbPassword) )
+	    {
+		System.err.println("Some credntials are missing: setting credentials from Server credentials" );
+		setServerCredentials(dbUrl);
+	    }
 	    task.setDbUrl(dbUrl); 
 	    task.setDbUser(dbUser);
 	    task.setDbPassword(dbPassword);
+	    task.setDbPassword(getDecryptedPassword(dbPassword));
 	    task.setInputObjects(inputObjects);
 	    task.setInputTypes(inputTypes);
 	    task.setInputEncoding(inputEncoding);
@@ -541,6 +587,320 @@ implements MavenReport{
     private ResourceBundle getBundle( Locale locale )
     {
         return ResourceBundle.getBundle( "pldoc-report", locale, getClass().getClassLoader() );
+    }
+
+    /**
+     * get DBPassword
+     *
+     * Specified
+     *  Not Encrypted - use as given
+     *  Encrypted - decrypt using standard Maven mechanism
+     *
+     * Not Specified - fall back using DBURL 
+     *  
+     */
+    private String getDecryptedPassword ( String password )
+    throws MavenReportException //MojoExecutionException
+    {
+
+	final DefaultSecDispatcher securityDispatcher = new DefaultSecDispatcher();
+
+	String configurationFilePath = securityDispatcher.getConfigurationFile();
+	System.err.println("configurationFilePath \""+ configurationFilePath + "\"");
+
+	try
+	{
+
+	    File configurationFile =  new File ( configurationFilePath) ;
+
+	    if ( configurationFilePath.startsWith( "~" ) )
+	    {
+		configurationFilePath = System.getProperty( "user.home" ) + configurationFilePath.substring( 1 );
+		configurationFile =  new File ( configurationFilePath) ;
+
+		System.err.println(" Amended configurationFilePath \""+ configurationFilePath + "\"");
+
+	    }
+	    
+	    //Fallback to Maven default file location if the Plexus default file location does not exist or is unreadable
+	    if ( ! ( configurationFile.exists() && configurationFile.canRead() ) )
+	    {
+		
+		configurationFile =  new File ( System.getProperty( "user.home" ) + "/.m2/settings-security.xml" ) ;
+		System.err.println("configurationFilePath \""+ configurationFilePath + "\"");
+
+		if ( configurationFile.exists() && configurationFile.canRead() ) 
+		{
+		    //Set configurationFilePath, replacing any Windows style directory separators
+		    configurationFilePath = configurationFile.getCanonicalPath().replace("\\", "\\\\" ) ;   
+		    System.err.println(" Fallback Maven configurationFilePath \""+ configurationFilePath + "\"");
+		    securityDispatcher.setConfigurationFile(configurationFilePath);
+		}
+	    }
+
+	}
+	catch ( final IOException ex )
+	{
+	    throw new MavenReportException( "Failed to decrypt password: "+ password, ex );
+	}
+
+	final String file = System.getProperty( DefaultSecDispatcher.SYSTEM_PROPERTY_SEC_LOCATION, configurationFilePath );
+
+	String master = null;
+
+	try
+	{
+
+	    final DefaultPlexusCipher cipher = new DefaultPlexusCipher();
+
+	    /* If the provided DB password is not encrypted - use it directly*/
+	    if (!cipher.isEncryptedString(password))
+	    {
+	        System.err.println("Unencrypted password \""+ password  + "\"");
+	        System.out.println("Unencrypted password \""+ password  + "\"");
+		return password ;
+	    }
+
+	    final SettingsSecurity sec = SecUtil.read( file, true );
+	    if ( sec != null )
+	    {
+		master = sec.getMaster();
+	        System.err.println("SettingsSecurity exists ");
+	        System.out.println("SettingsSecurity exists ");
+	    }
+
+	    if ( master == null )
+	    {
+		throw new IllegalStateException( "Master password is not set in the setting security file: " + file );
+	    }
+
+	    System.err.println("Master exists ");
+	    System.out.println("Master exists ");
+
+	    final String masterPassword =
+		cipher.decryptDecorated( master, DefaultSecDispatcher.SYSTEM_PROPERTY_SEC_LOCATION );
+
+	    System.err.println("Master password \""+ masterPassword  + "\"");
+	    System.out.println("Master password \""+ masterPassword  + "\"");
+
+	    final String result = cipher.decryptDecorated( password, masterPassword );
+	    //logger.info( result );
+
+	    System.err.println("Decrypted password \""+ result  + "\"");
+	    System.out.println("Decrypted password \""+ result  + "\"");
+	    return result;
+	}
+	catch ( final PlexusCipherException ex )
+	{
+	    //throw new MojoExecutionException( "Failed to decrypt password: "+ password, ex );
+	    throw new MavenReportException( "Failed to decrypt password: "+ password, ex );
+	}
+	catch ( final SecDispatcherException ex )
+	{
+	    //throw new MojoExecutionException( "Failed to decrypt password: "+ password, ex );
+	    throw new MavenReportException( "Failed to decrypt password: "+ password, ex );
+	}
+    }
+    
+    /**
+     * Get Server Credentials Username and Password
+     *
+     * Not Specified - fall back using DBURL 
+     *  
+     */
+    private void setServerCredentials ( String dbUrl )
+    throws MavenReportException //MojoExecutionException
+    {
+
+	try
+	{
+
+	    //Maven3 Settings mavenSettings = new SettingsBuilder().buildDefaultSettings(); 
+	    
+	    org.apache.maven.settings.Settings mavenSettings = mavenSession.getSettings();
+
+	    final URI uri = getURI(dbUrl);
+	    uri.parseServerAuthority();
+	    dump("After parseServerAuthority", uri);
+
+
+	    //Create a list of ID search
+	    // Full URL
+	    //
+	    //
+	    System.err.println("dbUrl \"" + dbUrl + "\" ..." );
+	    System.err.println("Protocol \"" + uri.getScheme() + "\" " );
+	    System.err.println("Authority \"" + uri.getAuthority() + "\" " );
+	    System.err.println("UserInfo \"" + uri.getUserInfo() + "\" " );
+	    System.err.println("Host \"" + uri.getHost() + "\" " );
+	    System.err.println("Port \"" + uri.getPort() + "\" " );
+
+	    /*
+	     * Create a list of ID candidates for server credentials from the dbUrl string
+	     * The list runs in decreasing detail
+	     */
+	    String [] idCandidates = { 
+					dbUrl //  Full dbUrl
+					 // JDBC specific 
+					,"jdbc:"+ uri.getSchemeSpecificPart() // 
+					,"jdbc:"+ uri.getAuthority() // UserInfo + Host + Port 
+					,"jdbc:"+ uri.getUserInfo() +"@"+ uri.getHost() +":"+ Integer.toString(uri.getPort() ) 
+					,"jdbc:"+ uri.getHost() +":"+ Integer.toString(uri.getPort() ) 
+					,"jdbc:"+ uri.getHost() 
+					//Host specific 
+					,uri.getHost() +":"+ Integer.toString(uri.getPort() ) 
+					,uri.getHost() 
+	                             };
+
+	    for ( int id = 0 ; id < idCandidates.length ; id++ )
+	    {	
+		Server server = mavenSettings.getServer(idCandidates[id]); 
+
+		if ( null == server )
+		{
+		    System.err.println("Server (" + id +"/"+ idCandidates[id] +") is null"); 
+		}
+		else
+		{
+		    final String serverUser = server.getUsername();
+		    final String serverPassword = server.getPassword();
+		    System.err.println("Server credentials for " + dbUrl + " from Server (" + id +"/"+ idCandidates[id] + ") : username=" + serverUser + "; password=" + serverPassword ); 
+
+
+		    if (!"".equals(serverUser) && !"".equals(serverPassword) )
+		    {
+			if (!"".equals(serverUser) && !"".equals(dbUser) && !serverUser.equals(dbUser) )
+			{
+			    throw new MavenReportException( "Mismatched Server credentials for dbUrl: "+ dbUrl 
+				                            + " - usernames do not match (project DBUser=\"" 
+							    + dbUser + "\" != Server.username =\"" 
+							    + serverUser  + "\""
+							  );
+			}
+			else
+			{
+			    System.err.println("Assigning plugin credentials from Server (" + id +"/"+ idCandidates[id] + ")" ); 
+			    dbUser = serverUser;
+			    dbPassword = serverPassword;
+			}
+		    }
+
+		    //Stop search
+		    return; 
+
+		}
+	    }	
+
+	}
+	catch ( final URISyntaxException ex )
+	{
+	    ex.printStackTrace();
+	    throw new MavenReportException( "Failed to identify credentials for dbUrl: "+ dbUrl, ex );
+	}
+	
+    }
+    
+    /**
+     * Populate the URI from the original string
+     *
+     * @throws URISyntaxException
+     */
+    private URI getURI(String url) throws URISyntaxException {
+        if (url.startsWith("jdbc:")) {
+            // java.net.URI is intended for "normal" URLs
+            URI jdbcURI = new URI(url);
+	    /*
+	     * scheme:[//[user[:password]@]host[:port]][/path][?query][#fragment]
+	     *
+	     * jdbc:oracle:thin:[<user>/<password>]@//<host>[:<port>]/<service>
+	     * jdbc:oracle:oci:[<user>/<password>]@//<host>[:<port>]/<service>
+	     *
+	     *
+	    */
+
+            System.err.println( "setFields - URL=" + url );
+            dump("jdbcURL", jdbcURI);
+
+            jdbcURI = new URI(url.substring(5));
+
+            System.err.println( "setFields - substr(jdbcURL,5)=" + url.substring(5) );
+            dump("substr(jdbcURL,5)", jdbcURI);
+
+            jdbcURI = new URI(jdbcURI.getSchemeSpecificPart().replace("@//","@") );
+
+            dump("jdbcURI.getSchemeSpecificPart.replace(1)", jdbcURI);
+
+            jdbcURI = new URI("http://"+jdbcURI.getSchemeSpecificPart().replace("@//","@") );
+
+            dump("jdbcURI.getSchemeSpecificPart.replace(2)", jdbcURI);
+
+            // jdbc:subprotocol:subname
+            String[] uriParts = url.split(":");
+            for (String part : uriParts) {
+                System.err.println( "JDBCpart=" + part );
+            }
+
+            /*
+             * Expect jdbc : subprotocol [ : subname ] : connection details
+             * uriParts.length < 3 Error 
+	     * uriParts.length = 3 Driver information may be inferred from part[1] 
+	     * - the subprotocol 
+	     * uriParts.length >= 4 Driver information may be inferred from part[2]- the first part
+             * of the subname
+             */
+            if (3 == uriParts.length) {
+                System.err.println( "subprotocol = " + uriParts[1] );
+		//jdbcURI = new URI( uriParts[0] +":"+ uriParts[1] , 
+		//	jdbcURI.getUserInfo(), jdbcURI.getHost(), jdbcURI.getPort(), jdbcURI.getPath(), jdbcURI.getQuery(), jdbcURI.getFragment()) ;
+		//dump("Scheme with Subprotocol", jdbcURI);
+            } else if (4 <= uriParts.length) {
+                System.err.println( "subprotocol =" + uriParts[1] );
+                System.err.println( "subnamePrefix =" +  uriParts[2] );
+		//jdbcURI = new URI( uriParts[0] +":"+ uriParts[1] +":"+ uriParts[2], 
+		//	jdbcURI.getUserInfo(), jdbcURI.getHost(), jdbcURI.getPort(), jdbcURI.getPath(), jdbcURI.getQuery(), jdbcURI.getFragment()) ;
+		//dump("Scheme with Subprotocol and subnamePrefix", jdbcURI);
+
+            } else {
+                throw new URISyntaxException(url, "Could not understand JDBC URL", 1);
+            }
+
+	    return jdbcURI ;
+        } else 
+	{
+                throw new URISyntaxException(url, "This is not a JDBC URL", 1);
+	}
+
+    }
+
+
+    /**
+     * Dump this URI.
+     *
+     * @param description
+     * @param dburi
+     */
+    static void dump(String description, URI dburi) {
+
+        String dumpString = String.format(
+                "dump (%s)\n: isOpaque=%s, isAbsolute=%s Scheme=%s,\n SchemeSpecificPart=%s,\n Authority=%s,\n UserInfo=%s,\n Host=%s,\n Port=%s,\n Path=%s,\n Fragment=%s,\n Query=%s\n",
+                description, dburi.isOpaque(), dburi.isAbsolute(), dburi.getScheme(), dburi.getSchemeSpecificPart(),
+                dburi.getAuthority(), dburi.getUserInfo(), dburi.getHost(), dburi.getPort(), dburi.getPath(), dburi.getFragment(), dburi.getQuery());
+
+        System.err.println(dumpString);
+
+        String query = dburi.getQuery();
+        if (null != query && !"".equals(query)) {
+            String[] params = query.split("&");
+            for (String param : params) {
+                String[] splits = param.split("=");
+                String name = splits[0];
+                String value = null;
+                if (splits.length > 1) {
+                    value = splits[1];
+                }
+                System.err.println(String.format("name=%s,value=%s\n", name, value));
+            }
+        }
     }
 
 
