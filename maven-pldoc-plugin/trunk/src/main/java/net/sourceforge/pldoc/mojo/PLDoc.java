@@ -400,13 +400,16 @@ implements MavenReport{
 	    task.setDoctitle(applicationTitle);
 	    if (null == dbUser || "".equals(dbUser) || null == dbPassword || "".equals(dbPassword) )
 	    {
-		getLog().debug("Some credentials are missing: setting credentials from Server credentials" );
+		getLog().info("Some credentials are missing: setting credentials from Server credentials" );
 		setServerCredentials(dbUrl);
+		getLog().debug( "Server dbUser=" + dbUser  ) ;
+		getLog().debug( "Server dbPassword=" + ((null == dbPassword) ? "undefined" : "defined" )   ) ;
 	    }
+
+	    dbPassword = getDecryptedPassword(dbPassword);
 	    task.setDbUrl(dbUrl); 
 	    task.setDbUser(dbUser);
 	    task.setDbPassword(dbPassword);
-	    task.setDbPassword(getDecryptedPassword(dbPassword));
 	    task.setInputObjects(inputObjects);
 	    task.setInputTypes(inputTypes);
 	    task.setInputEncoding(inputEncoding);
@@ -609,6 +612,9 @@ implements MavenReport{
 	try
 	{
 
+            
+	    getLog().debug("settings.security property \""+ System.getProperty("settings.security") + "\"");
+
 	    File configurationFile =  new File ( configurationFilePath) ;
 
 	    if ( configurationFilePath.startsWith( "~" ) )
@@ -642,7 +648,9 @@ implements MavenReport{
 	    throw new MavenReportException( "Failed to decrypt password: "+ password, ex );
 	}
 
+	getLog().debug("DefaultSecDispatcher.SYSTEM_PROPERTY_SEC_LOCATION=\"" +  DefaultSecDispatcher.SYSTEM_PROPERTY_SEC_LOCATION + "\"" );
 	final String file = System.getProperty( DefaultSecDispatcher.SYSTEM_PROPERTY_SEC_LOCATION, configurationFilePath );
+	getLog().debug("file=\""+ file + "\"" );
 
 	String master = null;
 
@@ -654,8 +662,7 @@ implements MavenReport{
 	    /* If the provided DB password is not encrypted - use it directly*/
 	    if (!cipher.isEncryptedString(password))
 	    {
-	        getLog().debug("Unencrypted password \""+ password  + "\"");
-	        getLog().debug("Unencrypted password \""+ password  + "\"");
+	        getLog().debug("Unencrypted password \""+ ((null == password) ? "undefined" : "defined" )  + "\"");
 		return password ;
 	    }
 
@@ -663,7 +670,6 @@ implements MavenReport{
 	    if ( sec != null )
 	    {
 		master = sec.getMaster();
-	        getLog().debug("SettingsSecurity exists ");
 	        getLog().debug("SettingsSecurity exists ");
 	    }
 
@@ -673,19 +679,16 @@ implements MavenReport{
 	    }
 
 	    getLog().debug("Master exists ");
-	    getLog().debug("Master exists ");
 
 	    final String masterPassword =
 		cipher.decryptDecorated( master, DefaultSecDispatcher.SYSTEM_PROPERTY_SEC_LOCATION );
 
-	    getLog().debug("Master password \""+ masterPassword  + "\"");
-	    getLog().debug("Master password \""+ masterPassword  + "\"");
+	    getLog().debug("Master password \""+ ((null == masterPassword) ? "undefined" : "defined" )  + "\"");
 
 	    final String result = cipher.decryptDecorated( password, masterPassword );
 	    //logger.info( result );
 
-	    getLog().debug("Decrypted password \""+ result  + "\"");
-	    getLog().debug("Decrypted password \""+ result  + "\"");
+	    getLog().debug("Decrypted password \""+ ((null == result) ? "undefined" : "defined" )  + "\"");
 	    return result;
 	}
 	catch ( final PlexusCipherException ex )
@@ -703,17 +706,16 @@ implements MavenReport{
     /**
      * Get Server Credentials Username and Password
      *
-     * Not Specified - fall back using DBURL 
+     *@param dbUrl 
      *  
      */
     private void setServerCredentials ( String dbUrl )
-    throws MavenReportException //MojoExecutionException
+    throws MavenReportException 
     {
 
 	try
 	{
 
-	    //Maven3 Settings mavenSettings = new SettingsBuilder().buildDefaultSettings(); 
 	    
 	    org.apache.maven.settings.Settings mavenSettings = mavenSession.getSettings();
 
@@ -762,12 +764,23 @@ implements MavenReport{
 		{
 		    final String serverUser = server.getUsername();
 		    final String serverPassword = server.getPassword();
-		    getLog().debug("Server credentials for " + dbUrl + " from Server (" + id +"/"+ idCandidates[id] + ") : username=" + serverUser + "; password=" + serverPassword ); 
+
+		    getLog().debug("Server credentials for " + dbUrl + " from Server (" + id +"/"+ idCandidates[id] 
+				    + ") : username=\"" + serverUser + "\"; password=\"" 
+				    + ((null == serverPassword) ? "undefined" : "defined" )
+				    + "\"" 
+				  ); 
+
+		    getLog().debug("Project credentials for " + dbUrl + " : username=\"" 
+				    + dbUser + "\"; password=\"" 
+				    + ((null == dbPassword) ? "undefined" : "defined" )
+				    + "\"" 
+				  ); 
 
 
-		    if (!"".equals(serverUser) && !"".equals(serverPassword) )
+		    if (null != serverUser && !"".equals(serverUser) && null != serverPassword && !"".equals(serverPassword) )
 		    {
-			if (!"".equals(serverUser) && !"".equals(dbUser) && !serverUser.equals(dbUser) )
+			if (null != serverUser && null != dbUser && !"".equals(serverUser) && !"".equals(dbUser) && !serverUser.equals(dbUser) )
 			{
 			    throw new MavenReportException( "Mismatched Server credentials for dbUrl: "+ dbUrl 
 				                            + " - usernames do not match (project DBUser=\"" 
