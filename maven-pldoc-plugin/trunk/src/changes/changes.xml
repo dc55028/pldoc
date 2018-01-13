@@ -7,8 +7,8 @@
         <author email="altumano at users.sourceforge.net">Albert Tumanov</author>
     </properties>
     <body>
-        <release version="3.0.17" date="2018-01-08"  description="Enable Maven-encoded passwords and retrieving credentials from Maven server settings" >
-            <action type="add" dev="sturton" >Enable Maven-encoded passords and retrieving crentials from Maven server settings</action>
+        <release version="3.0.17" date="2018-01-13"  description="Enable Maven-encoded project passwords and retrieving credentials from Maven server settings" >
+            <action type="add" dev="sturton" >Enable Maven-encoded passwords and retrieving credentials from Maven server settings</action>
         </release>
         <release version="3.0.16" date="2017-11-23"  description="Upissue to require PLDoc 1.5.20" >
             <action type="fix" dev="sturton" >Project POM file - require version 1.5.20</action>
