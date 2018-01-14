@@ -15,7 +15,7 @@
       <plugin>
 	<groupId>net.sourceforge.pldoc</groupId>
 	<artifactId>maven-pldoc-plugin</artifactId>
-	<version>${project.build.finalName}</version>
+	<version>${project.version}</version>
 	  <dependencies>
 	    <dependency>
 	     <groupId>com.ibm</groupId>
@@ -67,7 +67,7 @@
 		      -->
 		      <showSkippedPackages>true</showSkippedPackages>
 		      <!-- Use Settings instaed 
-		      <dbUrl>jdbc:oracle:thin:@//192.168.100.22:1521/orcl</dbUrl>
+		      <dbUrl>jdbc:oracle:thin:@//192.168.0.12:1521/orcl</dbUrl>
 		      <dbUser>system</dbUser>
 		      <dbPassword>oracle</dbPassword>
 		      -->

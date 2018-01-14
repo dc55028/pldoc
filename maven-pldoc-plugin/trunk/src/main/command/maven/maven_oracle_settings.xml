@@ -15,7 +15,7 @@
 	    <maven.pldoc.driverName>oracle.jdbc.OracleDriver</maven.pldoc.driverName>
 	    <maven.pldoc.getMetadataStatement>BEGIN DBMS_METADATA.SET_TRANSFORM_PARAM(DBMS_METADATA.SESSION_TRANSFORM, 'SEGMENT_ATTRIBUTES', FALSE); DBMS_METADATA.SET_TRANSFORM_PARAM(DBMS_METADATA.SESSION_TRANSFORM, 'CONSTRAINTS', FALSE); DBMS_METADATA.SET_TRANSFORM_PARAM(DBMS_METADATA. SESSION_TRANSFORM,'SQLTERMINATOR',true ); :1 := DBMS_METADATA.GET_DDL(       :2 ,       :3 ,       :4 ,       :5 ,       :6 ,       :7 )  ; END;</maven.pldoc.getMetadataStatement>
 	    <maven.pldoc.getMetadataStatementReturnType>2005</maven.pldoc.getMetadataStatementReturnType>
-	    <maven.pldoc.dbUrl>jdbc:oracle:thin:@//192.168.100.22:1521/orcl</maven.pldoc.dbUrl>
+	    <maven.pldoc.dbUrl>jdbc:oracle:thin:@//192.168.0.12:1521/orcl</maven.pldoc.dbUrl>
 	  </properties>
         </profile>
     </profiles>
