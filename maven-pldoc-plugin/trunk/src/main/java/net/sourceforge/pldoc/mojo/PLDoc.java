@@ -688,7 +688,7 @@ implements MavenReport{
 	    final String result = cipher.decryptDecorated( password, masterPassword );
 	    //logger.info( result );
 
-	    getLog().debug("Decrypted password \""+ result /* ((null == result) ? "undefined" : "defined" )*/   + "\"");
+	    getLog().debug("Decrypted password \""+ ((null == result) ? "undefined" : "defined" )  + "\"");
 	    return result;
 	}
 	catch ( final PlexusCipherException ex )
