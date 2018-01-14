@@ -62,13 +62,13 @@ Installation
  * Windows
 
 +--
- mvn install:install-file -Dfile=%ORACLE_HOME%/ojdbc14.jar -Dpackaging=jar -DgroupId=com.oracle -DartifactId=ojdbc14 -Dversion=10.2.0.3 -Dpackage=jar -DgeneratePom=true 
+ mvn install:install-file -Dfile=%ORACLE_HOME%/ojdbc6.jar -Dpackaging=jar -DgroupId=com.oracle -DartifactId=ojdbc6 -Dversion=12.1.0.2 -Dpackage=jar -DgeneratePom=true 
 +--
 
  * Unix/Linux
 
 +--
- mvn install:install-file -Dfile=${ORACLE_HOME}/ojdbc14.jar -Dpackaging=jar -DgroupId=com.oracle -DartifactId=ojdbc14 -Dversion=10.2.0.3 -Dpackage=jar -DgeneratePom=true 
+ mvn install:install-file -Dfile=${ORACLE_HOME}/ojdbc6.jar -Dpackaging=jar -DgroupId=com.oracle -DartifactId=ojdbc6 -Dversion=12.1.0.2 -Dpackage=jar -DgeneratePom=true 
 +--
 
 

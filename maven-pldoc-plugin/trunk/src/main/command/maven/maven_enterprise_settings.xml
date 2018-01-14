@@ -12,7 +12,7 @@
 	  <properties>
 	    <maven.pldoc.dbUser>system</maven.pldoc.dbUser>
 	    <maven.pldoc.dbPassword>oracle</maven.pldoc.dbPassword>
-	    <maven.pldoc.dbUrl>jdbc:oracle:thin:@//192.168.100.22:1521/orcl</maven.pldoc.dbUrl>
+	    <maven.pldoc.dbUrl>jdbc:oracle:thin:@//192.168.0.12:1521/orcl</maven.pldoc.dbUrl>
 	  </properties>
         </profile>
     </profiles>

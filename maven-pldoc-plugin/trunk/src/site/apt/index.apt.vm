@@ -87,8 +87,8 @@ Summary
 	  <dependencies>
 	    <dependency>
 	     <groupId>com.oracle</groupId>
-	     <artifactId>ojdbc14</artifactId>
-	     <version>10.2.0.3</version>
+	     <artifactId>ojdbc6</artifactId>
+	     <version>12.1.0.2</version>
 	    </dependency>
 	  </dependencies>
 	<configuration>
@@ -111,10 +111,10 @@ Summary
 +-----+
 
 
- Database access requires Oracle JDBC classes: due to licensing restrictions, they are not hosted in Maven Central. A {{{http://repo2.maven.org/maven2/com/oracle/ojdbc14/10.2.0.3.0/ojdbc14-10.2.0.3.0.pom} pom.xml}} file exists, but you will have to download the JAR file(s) and install them into your local Maven repository. 
+ Database access requires Oracle JDBC classes: due to licensing restrictions, they are not hosted in Maven Central. A {{{http://repo2.maven.org/maven2/com/oracle/ojdbc14/10.2.0.3.0/ojdbc14-10.2.0.3.0.pom}pom.xml}} file for an old version exists in the {{{https://search.maven.org/#search%7Cga%7C1%7Cojdbc}Maven Central Repository}}, but you will have to {{{http://www.oracle.com/technetwork/database/features/jdbc/default-2280470.html}download the JAR file(s)}} and install them into your local Maven repository. 
 
 +-----+
-mvn install:install-file -Dfile=${ORACLE_HOME}/ojdbc14.jar -Dpackaging=jar -DgroupId=com.oracle -DartifactId=ojdbc14 -Dversion=10.2.0.3 -Dpackage=jar -DgeneratePom=true 
+mvn install:install-file -Dfile=${ORACLE_HOME}/ojdbc6.jar -Dpackaging=jar -DgroupId=com.oracle -DartifactId=ojdbc6 -Dversion=12.1.0.2 -Dpackage=jar -DgeneratePom=true 
 +-----+
 
 
