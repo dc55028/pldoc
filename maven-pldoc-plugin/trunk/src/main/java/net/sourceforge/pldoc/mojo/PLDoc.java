@@ -358,6 +358,7 @@ implements MavenReport{
     }
 
     /** {@inheritDoc} 
+
         This implementation current ignore ignores both parameters  
     */
 
@@ -580,7 +581,7 @@ implements MavenReport{
     }
 
      /**
-     * Gets the resource bundle for the specified locale.
+     * Get the resource bundle for the specified locale.
      *
      * @param locale The locale of the currently generated report.
      * @return The resource bundle for the requested locale.
@@ -591,17 +592,23 @@ implements MavenReport{
     }
 
     /**
-     * get DBPassword
+     * Return decrypted password.
      *
-     * Specified
-     *  Not Encrypted - use as given
-     *  Encrypted - decrypt using standard Maven mechanism
+     *<p>Password:-</p> 
+     *<p>
+     *<ul>
+     *  <li>Not Encrypted - use as given</li>
+     *  <li>Encrypted - decrypt using standard Maven mechanism</li>
+     *</ul>
+     *</p>
      *
-     * Not Specified - fall back using DBURL 
+     * @param password Encrypted or plain-text password  
+     * @return Decrypted Password 
+     * @throws MavenReportException 
      *  
      */
     private String getDecryptedPassword ( String password )
-    throws MavenReportException //MojoExecutionException
+    throws MavenReportException 
     {
 
 	final DefaultSecDispatcher securityDispatcher = new DefaultSecDispatcher();
@@ -704,9 +711,11 @@ implements MavenReport{
     }
     
     /**
-     * Get Server Credentials Username and Password
+     * Set plugin credentials (instance variables dbUser and dbPassword) from Maven Server credentials derived from the dbUrl parameter.
      *
-     *@param dbUrl 
+     * @param dbUrl JDBC URL   
+     * @return Decrypted Password 
+     * @throws MavenReportException 
      *  
      */
     private void setServerCredentials ( String dbUrl )
@@ -736,7 +745,7 @@ implements MavenReport{
 	    getLog().debug("Port \"" + uri.getPort() + "\" " );
 
 	    /*
-	     * Create a list of ID candidates for server credentials from the dbUrl string
+	     * Create a list of ID candidates for Server credentials from the dbUrl string
 	     * The list runs in decreasing detail
 	     */
 	    String [] idCandidates = { 
@@ -812,8 +821,15 @@ implements MavenReport{
     }
     
     /**
-     * Populate the URI from the original string
+     * Parse the JDBC URL string into a URI.
      *
+     *<p>As a JDBC URL is an opaque URL, it is not supported by {@link jdbc.net.URL},
+     * which is intended to support a subset of URL formats.
+     *
+     *</p>
+     *
+     * @param url JDBC URL   
+     * @return URL 
      * @throws URISyntaxException
      */
     private URI getURI(String url) throws URISyntaxException {
@@ -885,7 +901,7 @@ implements MavenReport{
 
 
     /**
-     * Dump this URI.
+     * Dump this URI to the MAven log.
      *
      * @param description
      * @param dburi
